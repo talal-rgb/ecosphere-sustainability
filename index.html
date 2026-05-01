@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSphere AI — Sustainability Intelligence Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-panel: #111827;
+            --bg-surface: #1a1f2e;
+            --border: #2d3748;
+            --accent: #00d4aa;
+            --accent2: #00b4d8;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #00d4aa 0%, #00b4d8 50%, #7c3aed 100%);
+            background-size: 200% 200%;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #00d4aa 0%, #00b4d8 50%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glass {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(45, 55, 72, 0.6);
+        }
+        .glass:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+        .neon-border {
+            position: relative;
+        }
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, #00d4aa, #00b4d8, #7c3aed);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .neon-border:hover::before { opacity: 1; }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-msg { animation: slideIn 0.3s ease-out; }
+        .typing-dot {
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        .quiz-opt {
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+        .quiz-opt:hover { border-color: var(--accent); background: rgba(0, 212, 170, 0.05); }
+        .quiz-opt.correct { border-color: var(--accent); background: rgba(0, 212, 170, 0.15); }
+        .quiz-opt.wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--bg-surface);
+            border-radius: 3px;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+        }
+        .tab-active {
+            border-bottom: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="fixed w-full z-50 glass border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center">
+                    <i class="fas fa-atom text-white text-sm"></i>
+                </div>
+                <div>
+                    <span class="text-lg font-display font-bold text-white">EcoSphere</span>
+                    <span class="text-[10px] text-emerald-400 block -mt-1">AI-Powered</span>
+                </div>
+            </div>
+            <div class="hidden md:flex space-x-1">
+                <a href="#news" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">News</a>
+                <a href="#fundamentals" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Fundamentals</a>
+                <a href="#topics" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Topics</a>
+                <a href="#calculator" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Calculator</a>
+                <a href="#chatbot" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">AI Assistant</a>
+                <a href="#quiz" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Quiz</a>
+                <a href="#economics" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Economics</a>
+            </div>
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-gray-400">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden glass border-t border-white/5">
+        <div class="px-4 py-2 space-y-1">
+            <a href="#news" class="block py-2 text-gray-400 hover:text-white">News</a>
+            <a href="#fundamentals" class="block py-2 text-gray-400 hover:text-white">Fundamentals</a>
+            <a href="#topics" class="block py-2 text-gray-400 hover:text-white">Topics</a>
+            <a href="#calculator" class="block py-2 text-gray-400 hover:text-white">Calculator</a>
+            <a href="#chatbot" class="block py-2 text-gray-400 hover:text-white">AI Assistant</a>
+            <a href="#quiz" class="block py-2 text-gray-400 hover:text-white">Quiz</a>
+            <a href="#economics" class="block py-2 text-gray-400 hover:text-white">Economics</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="relative pt-28 pb-16 grid-bg overflow-hidden">
+    <div class="orb w-96 h-96 bg-emerald-500/20 top-0 left-1/4"></div>
+    <div class="orb w-72 h-72 bg-cyan-500/20 bottom-0 right-1/4" style="animation-delay:-4s"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-6">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span class="text-emerald-400 text-sm font-medium">Now with AI-Powered Insights</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
+                Sustainability<br><span class="gradient-text">Intelligence</span>
+            </h1>
+            <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+                AI-driven carbon accounting, real-time ESG analytics, and intelligent sustainability guidance — all in one powerful platform.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#calculator" class="group relative px-8 py-3 rounded-xl font-semibold overflow-hidden inline-flex items-center">
+                    <div class="absolute inset-0 gradient-bg"></div>
+                    <span class="relative text-white flex items-center"><i class="fas fa-calculator mr-2"></i>Calculate Emissions</span>
+                </a>
+                <a href="#chatbot" class="px-8 py-3 rounded-xl font-semibold border border-gray-700 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition text-white inline-flex items-center">
+                    <i class="fas fa-robot mr-2 text-emerald-400"></i>Ask AI Assistant
+                </a>
+            </div>
+            <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-white" id="stat1">15,000+</div>
+                    <div class="text-xs text-gray-500 mt-1">Emission Factors</div>
+                </div>
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-emerald-400">89</div>
+                    <div class="text-xs text-gray-500 mt-1">Countries</div>
+                </div>
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-cyan-400">15</div>
+                    <div class="text-xs text-gray-500 mt-1">Quiz Questions</div>
+                </div>
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-purple-400">24/7</div>
+                    <div class="text-xs text-gray-500 mt-1">AI Support</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News -->
+<section id="news" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-3xl font-display font-bold text-white"><i class="fas fa-newspaper text-emerald-400 mr-3"></i>Live News</h2>
+            <span class="text-xs text-gray-500 flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>Live</span>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6" id="news-container"></div>
+        <div class="mt-8 text-center">
+            <button onclick="loadMoreNews()" class="px-6 py-2 rounded-xl border border-gray-700 hover:border-emerald-500/50 text-gray-400 hover:text-white transition text-sm">Load More <i class="fas fa-chevron-down ml-1"></i></button>
+        </div>
+    </div>
+</section>
+
+<!-- Fundamentals -->
+<section id="fundamentals" class="py-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/5 to-transparent"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-brain text-cyan-400 mr-3"></i>Sustainability Intelligence</h2>
+            <p class="text-gray-500">AI-enhanced fundamentals for the modern professional</p>
+        </div>
+
+        <!-- ESG -->
+        <div class="mb-16">
+            <div class="flex items-center mb-6">
+                <div class="w-1 h-6 gradient-bg rounded-full mr-3"></div>
+                <h3 class="text-xl font-display font-bold text-white">ESG Framework</h3>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass neon-border rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+                        <i class="fas fa-leaf text-emerald-400 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Environmental</h4>
+                    <p class="text-gray-400 text-sm mb-4">Climate change, resource use, pollution, biodiversity.</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <div><i class="fas fa-check text-emerald-400 mr-2"></i>Climate mitigation</div>
+                        <div><i class="fas fa-check text-emerald-400 mr-2"></i>Pollution prevention</div>
+                        <div><i class="fas fa-check text-emerald-400 mr-2"></i>Circular economy</div>
+                    </div>
+                </div>
+                <div class="glass neon-border rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4">
+                        <i class="fas fa-users text-cyan-400 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Social</h4>
+                    <p class="text-gray-400 text-sm mb-4">Labor standards, diversity, human rights, community.</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <div><i class="fas fa-check text-cyan-400 mr-2"></i>Labor standards</div>
+                        <div><i class="fas fa-check text-cyan-400 mr-2"></i>Diversity & inclusion</div>
+                        <div><i class="fas fa-check text-cyan-400 mr-2"></i>Community impact</div>
+                    </div>
+                </div>
+                <div class="glass neon-border rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-4">
+                        <i class="fas fa-shield-halved text-purple-400 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Governance</h4>
+                    <p class="text-gray-400 text-sm mb-4">Board structure, audits, anti-corruption, transparency.</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <div><i class="fas fa-check text-purple-400 mr-2"></i>Board diversity</div>
+                        <div><i class="fas fa-check text-purple-400 mr-2"></i>Anti-corruption</div>
+                        <div><i class="fas fa-check text-purple-400 mr-2"></i>Transparency</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scopes -->
+        <div>
+            <div class="flex items-center mb-6">
+                <div class="w-1 h-6 gradient-bg rounded-full mr-3"></div>
+                <h3 class="text-xl font-display font-bold text-white">GHG Protocol: Scopes 1, 2, 3</h3>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass rounded-2xl p-6 border-t-4 border-red-500">
+                    <div class="flex justify-between mb-4">
+                        <span class="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-xs font-bold">Scope 1</span>
+                        <i class="fas fa-fire text-red-400 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Direct Emissions</h4>
+                    <p class="text-gray-400 text-sm mb-4">Sources owned or controlled by your organization.</p>
+                    <div class="bg-black/30 rounded-lg p-3 text-sm text-gray-500 space-y-1">
+                        <div>• Company vehicles</div>
+                        <div>• Manufacturing processes</div>
+                        <div>• On-site fuel combustion</div>
+                        <div>• Fugitive emissions</div>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-6 border-t-4 border-orange-500">
+                    <div class="flex justify-between mb-4">
+                        <span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 rounded-full text-xs font-bold">Scope 2</span>
+                        <i class="fas fa-bolt text-orange-400 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Indirect (Energy)</h4>
+                    <p class="text-gray-400 text-sm mb-4">Purchased electricity, steam, heating, cooling.</p>
+                    <div class="bg-black/30 rounded-lg p-3 text-sm text-gray-500 space-y-1">
+                        <div>• Purchased electricity</div>
+                        <div>• District heating/cooling</div>
+                        <div>• Steam for processes</div>
+                        <div>• Power from grid</div>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-6 border-t-4 border-emerald-500">
+                    <div class="flex justify-between mb-4">
+                        <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold">Scope 3</span>
+                        <i class="fas fa-project-diagram text-emerald-400 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Value Chain</h4>
+                    <p class="text-gray-400 text-sm mb-4">All other indirect emissions. Usually <span class="text-emerald-400 font-bold">70-90%</span> of total.</p>
+                    <div class="bg-black/30 rounded-lg p-3 text-sm text-gray-500 space-y-1">
+                        <div>• Purchased goods & services</div>
+                        <div>• Business travel</div>
+                        <div>• Employee commuting</div>
+                        <div>• Use of sold products</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Topics -->
+<section id="topics" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-layer-group text-cyan-400 mr-3"></i>Intelligence Topics</h2>
+            <p class="text-gray-500">Deep-dive modules powered by curated data</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mr-3"><i class="fas fa-chart-line text-emerald-400"></i></div>
+                    <div><h3 class="font-bold text-white">Carbon Accounting</h3><span class="text-xs text-emerald-400">GHG Protocol • ISO 14064</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Measuring, reporting, and verifying greenhouse gas emissions across all scopes.</p>
+            </div>
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center mr-3"><i class="fas fa-solar-panel text-yellow-400"></i></div>
+                    <div><h3 class="font-bold text-white">Energy & Renewables</h3><span class="text-xs text-yellow-400">Solar • Wind • Storage</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Transition to clean energy, corporate PPAs, grid modernization.</p>
+            </div>
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mr-3"><i class="fas fa-droplet text-blue-400"></i></div>
+                    <div><h3 class="font-bold text-white">Water Stewardship</h3><span class="text-xs text-blue-400">AWS • Water Footprint</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Water conservation, wastewater treatment, circular water use.</p>
+            </div>
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-gray-500/10 flex items-center justify-center mr-3"><i class="fas fa-smog text-gray-400"></i></div>
+                    <div><h3 class="font-bold text-white">Air Emissions</h3><span class="text-xs text-gray-400">NOx • SOx • PM • VOCs</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Monitoring pollutants beyond CO2: NOx, SOx, particulate matter.</p>
+            </div>
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mr-3"><i class="fas fa-star text-purple-400"></i></div>
+                    <div><h3 class="font-bold text-white">ESG Rating</h3><span class="text-xs text-purple-400">MSCI • Sustainalytics • CDP</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Assessment frameworks and rating agencies for sustainability.</p>
+            </div>
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mr-3"><i class="fas fa-microchip text-teal-400"></i></div>
+                    <div><h3 class="font-bold text-white">Sustainable Tech</h3><span class="text-xs text-teal-400">AI • Blockchain • IoT</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Green AI, blockchain traceability, smart grids, digital twins.</p>
+            </div>
+            <div class="glass neon-border rounded-2xl p-6 cursor-pointer md:col-span-2 lg:col-span-1">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center mr-3"><i class="fas fa-gavel text-red-400"></i></div>
+                    <div><h3 class="font-bold text-white">Carbon Tax & Regulations</h3><span class="text-xs text-red-400">EU ETS • CBAM • SEC</span></div>
+                </div>
+                <p class="text-gray-400 text-sm">Carbon pricing, CBAM, emissions trading, disclosure rules.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Calculator -->
+<section id="calculator" class="py-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent"></div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-calculator text-emerald-400 mr-3"></i>AI Carbon Calculator</h2>
+            <p class="text-gray-500">Real-time emissions with 2024 IPCC/EPA factors</p>
+        </div>
+
+        <div class="glass rounded-2xl border border-white/5 overflow-hidden">
+            <div class="bg-black/20 border-b border-white/5 p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center"><i class="fas fa-atom text-white text-xs"></i></div>
+                    <div><h3 class="text-white text-sm font-semibold">Emissions Engine</h3><p class="text-xs text-gray-500">v2.4 • IPCC AR6 • EPA 2024</p></div>
+                </div>
+                <span class="text-xs text-gray-500 flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>Updated Apr 2026</span>
+            </div>
+
+            <div class="flex border-b border-white/5">
+                <button onclick="switchTab('scope1')" id="tab-scope1" class="flex-1 py-3 text-sm font-medium tab-active flex items-center justify-center space-x-2"><i class="fas fa-fire"></i><span>Scope 1</span></button>
+                <button onclick="switchTab('scope2')" id="tab-scope2" class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-white transition flex items-center justify-center space-x-2"><i class="fas fa-bolt"></i><span>Scope 2</span></button>
+                <button onclick="switchTab('scope3')" id="tab-scope3" class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-white transition flex items-center justify-center space-x-2"><i class="fas fa-project-diagram"></i><span>Scope 3</span></button>
+            </div>
+
+            <div class="p-6 md:p-8">
+                <div id="calc-scope1" class="calc-panel">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Fuel Type</label>
+                            <select id="fuel-type" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none">
+                                <option value="2.68">Diesel — 2.68 kg CO₂e/L</option>
+                                <option value="2.31">Gasoline — 2.31 kg CO₂e/L</option>
+                                <option value="2.00">Natural Gas — 2.00 kg CO₂e/m³</option>
+                                <option value="1.51">Propane — 1.51 kg CO₂e/L</option>
+                                <option value="2.86">Coal — 2.86 kg CO₂e/kg</option>
+                                <option value="2.96">Fuel Oil — 2.96 kg CO₂e/L</option>
+                            </select>
+                            <span class="text-xs text-emerald-400">Source: EPA 2024</span>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Quantity</label>
+                            <input type="number" id="fuel-qty" placeholder="Amount..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Fleet Distance (km)</label>
+                            <input type="number" id="vehicle-km" placeholder="Total km..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Vehicle Type</label>
+                            <select id="vehicle-type" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none">
+                                <option value="0.171">Passenger Car (Gas) — 0.171 kg/km</option>
+                                <option value="0.156">Passenger Car (Diesel) — 0.156 kg/km</option>
+                                <option value="0.052">Passenger Car (Electric) — 0.052 kg/km</option>
+                                <option value="0.252">Light Truck — 0.252 kg/km</option>
+                                <option value="0.783">Heavy Duty Truck — 0.783 kg/km</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="calc-scope2" class="calc-panel hidden">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Electricity (kWh/year)</label>
+                            <input type="number" id="elec-kwh" placeholder="Annual kWh..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Grid Region</label>
+                            <select id="grid-region" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none">
+                                <option value="0.417">US Average — 0.417 kg/kWh</option>
+                                <option value="0.234">California — 0.234 kg/kWh</option>
+                                <option value="0.230">EU Average — 0.230 kg/kWh</option>
+                                <option value="0.193">UK — 0.193 kg/kWh</option>
+                                <option value="0.380">Germany — 0.380 kg/kWh</option>
+                                <option value="0.052">France — 0.052 kg/kWh</option>
+                                <option value="0.555">China — 0.555 kg/kWh</option>
+                                <option value="0.130">Canada — 0.130 kg/kWh</option>
+                                <option value="0.650">Australia — 0.650 kg/kWh</option>
+                                <option value="0.713">India — 0.713 kg/kWh</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Renewable %</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="range" id="renew-pct" min="0" max="100" value="0" class="slider flex-1" oninput="document.getElementById('renew-val').textContent=this.value+'%'">
+                                <span id="renew-val" class="text-emerald-400 font-mono font-bold w-12">0%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Steam/Heat (GJ/year)</label>
+                            <input type="number" id="steam-gj" placeholder="Gigajoules..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="calc-scope3" class="calc-panel hidden">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Business Travel (km/year)</label>
+                            <input type="number" id="travel-km" placeholder="Air + ground..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Purchased Goods ($/year)</label>
+                            <input type="number" id="purchased" placeholder="Annual spend..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Employee Commuting (km)</label>
+                            <input type="number" id="commute-km" placeholder="Total commute..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Waste Generated (kg)</label>
+                            <input type="number" id="waste-kg" placeholder="Total waste..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-col md:flex-row gap-4">
+                    <button onclick="calculate()" class="flex-1 bg-emerald-500 text-black px-8 py-4 rounded-xl font-bold hover:bg-emerald-400 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-microchip"></i><span>Calculate with AI Engine</span>
+                    </button>
+                    <button onclick="resetCalc()" class="px-8 py-4 rounded-xl border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-rotate-left"></i><span>Reset</span>
+                    </button>
+                </div>
+
+                <div id="calc-results" class="mt-8 hidden">
+                    <div class="bg-black/30 border border-emerald-500/20 rounded-2xl p-6">
+                        <div class="flex items-center mb-4"><i class="fas fa-chart-pie text-emerald-400 mr-2"></i><h3 class="text-white font-semibold">AI Analysis Results</h3></div>
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="glass rounded-lg p-4 text-center border border-red-500/20">
+                                <p class="text-xs text-gray-500 uppercase">Scope 1</p>
+                                <p class="text-2xl font-bold text-red-400" id="res-s1">0</p>
+                                <p class="text-xs text-gray-500">tCO₂e</p>
+                            </div>
+                            <div class="glass rounded-lg p-4 text-center border border-orange-500/20">
+                                <p class="text-xs text-gray-500 uppercase">Scope 2</p>
+                                <p class="text-2xl font-bold text-orange-400" id="res-s2">0</p>
+                                <p class="text-xs text-gray-500">tCO₂e</p>
+                            </div>
+                            <div class="glass rounded-lg p-4 text-center border border-emerald-500/20">
+                                <p class="text-xs text-gray-500 uppercase">Scope 3</p>
+                                <p class="text-2xl font-bold text-emerald-400" id="res-s3">0</p>
+                                <p class="text-xs text-gray-500">tCO₂e</p>
+                            </div>
+                        </div>
+                        <div class="glass rounded-lg p-6 text-center border-2 border-emerald-500/30 bg-emerald-500/5">
+                            <p class="text-sm text-gray-400">Total Carbon Footprint</p>
+                            <p class="text-5xl font-display font-bold text-white" id="res-total">0</p>
+                            <p class="text-sm text-gray-500 mt-1">tonnes CO₂e / year</p>
+                            <div id="ai-insight" class="mt-4 text-sm text-emerald-400 bg-emerald-500/10 rounded-lg p-3"></div>
+                        </div>
+                        <div class="mt-4 h-64"><canvas id="emissionsChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Chatbot -->
+<section id="chatbot" class="py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-4">
+                <i class="fas fa-sparkles text-emerald-400 text-xs"></i>
+                <span class="text-emerald-400 text-sm">GPT-Powered Sustainability Expert</span>
+            </div>
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-robot text-cyan-400 mr-3"></i>EcoBot AI Assistant</h2>
+            <p class="text-gray-500">Trained on GHG Protocol, IPCC reports, and global frameworks</p>
+        </div>
+
+        <div class="glass rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+            <div class="gradient-bg p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center"><i class="fas fa-robot text-white"></i></div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm">EcoBot</h3>
+                        <div class="flex items-center space-x-2"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span><span class="text-white/70 text-xs">Online</span></div>
+                    </div>
+                </div>
+                <span class="text-xs text-white/60 bg-white/10 px-2 py-1 rounded">v2.0</span>
+            </div>
+
+            <div id="chat-messages" class="h-[24rem] overflow-y-auto p-4 space-y-4 bg-black/20">
+                <div class="chat-msg flex items-start">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-robot text-white text-xs"></i></div>
+                    <div class="glass rounded-xl p-3 max-w-[80%] border border-white/5">
+                        <p class="text-gray-300 text-sm">Hello! I'm EcoBot. Ask me about:</p>
+                        <div class="grid grid-cols-2 gap-2 mt-2 text-xs text-gray-500">
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>GHG accounting</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>ESG frameworks</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>Carbon regulations</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>Renewable energy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-black/30 border-t border-white/5">
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Ask about sustainability..." class="flex-1 bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none" onkeypress="if(event.key==='Enter')sendChat()">
+                    <button onclick="sendChat()" class="bg-emerald-500 text-black px-5 py-3 rounded-xl hover:bg-emerald-400 transition font-bold"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="flex gap-2 mt-3 overflow-x-auto pb-1">
+                    <button onclick="quickAsk('What is Scope 3?')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Scope 3?</button>
+                    <button onclick="quickAsk('How to calculate carbon footprint?')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Carbon footprint?</button>
+                    <button onclick="quickAsk('Explain ESG ratings')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">ESG ratings?</button>
+                    <button onclick="quickAsk('What is CBAM?')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">CBAM?</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quiz -->
+<section id="quiz" class="py-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent"></div>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-brain text-purple-400 mr-3"></i>AI Knowledge Challenge</h2>
+            <p class="text-gray-500">Test your sustainability intelligence</p>
+        </div>
+
+        <div class="glass rounded-2xl border border-white/5 overflow-hidden">
+            <div id="quiz-start" class="p-8 md:p-12 text-center">
+                <div class="w-20 h-20 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-award text-3xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white mb-2">Ready to Test Your Knowledge?</h3>
+                <p class="text-gray-500 mb-6">15 questions across ESG, carbon accounting, and regulations.</p>
+                <div class="flex justify-center gap-6 mb-8">
+                    <div class="text-center"><div class="text-2xl font-bold text-emerald-400">15</div><div class="text-xs text-gray-500">Questions</div></div>
+                    <div class="w-px bg-gray-700"></div>
+                    <div class="text-center"><div class="text-2xl font-bold text-cyan-400">6</div><div class="text-xs text-gray-500">Categories</div></div>
+                    <div class="w-px bg-gray-700"></div>
+                    <div class="text-center"><div class="text-2xl font-bold text-purple-400">∞</div><div class="text-xs text-gray-500">Attempts</div></div>
+                </div>
+                <button onclick="startQuiz()" class="px-10 py-4 rounded-xl gradient-bg text-white font-bold hover:opacity-90 transition">Start Challenge <i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+
+            <div id="quiz-question" class="hidden p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm text-gray-500">Question <span id="q-curr" class="text-white font-bold">1</span>/15</span>
+                    <span class="text-sm font-bold text-emerald-400">Score: <span id="q-score">0</span></span>
+                </div>
+                <div class="w-full bg-black/30 rounded-full h-2 mb-6"><div id="q-progress" class="gradient-bg h-2 rounded-full transition-all" style="width:6.67%"></div></div>
+                <span id="q-cat" class="text-xs text-emerald-400 uppercase tracking-wider font-semibold">GHG Accounting</span>
+                <h3 id="q-text" class="text-xl font-display font-bold text-white my-4"></h3>
+                <div id="q-options" class="space-y-3"></div>
+                <div id="q-explain" class="hidden mt-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-lightbulb text-emerald-400 mt-1"></i>
+                        <div><p class="text-sm font-semibold text-emerald-400 mb-1">Explanation</p><p id="q-explain-text" class="text-sm text-gray-400"></p></div>
+                    </div>
+                </div>
+                <button id="q-next" onclick="nextQ()" class="mt-6 w-full bg-emerald-500 text-black py-4 rounded-xl font-bold hover:bg-emerald-400 transition hidden">Next Question <i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+
+            <div id="quiz-result" class="hidden p-8 md:p-12 text-center">
+                <div class="w-24 h-24 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-trophy text-4xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-display font-bold text-white mb-2">Challenge Complete!</h3>
+                <p class="text-gray-500 mb-4">Your Score</p>
+                <div class="glass rounded-2xl p-8 border-2 border-emerald-500/30 mb-6 inline-block">
+                    <p class="text-6xl font-display font-bold gradient-text" id="final-score">0</p>
+                    <p class="text-sm text-gray-500 mt-1">out of 15</p>
+                </div>
+                <p id="result-msg" class="text-gray-300 mb-8 max-w-md mx-auto"></p>
+                <div class="flex justify-center gap-4">
+                    <button onclick="startQuiz()" class="px-8 py-3 rounded-xl gradient-bg text-white font-bold hover:opacity-90 transition"><i class="fas fa-redo mr-2"></i>Try Again</button>
+                    <button onclick="document.getElementById('quiz-result').classList.add('hidden');document.getElementById('quiz-start').classList.remove('hidden')" class="px-8 py-3 rounded-xl border border-gray-700 text-gray-400 hover:text-white transition">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Economics -->
+<section id="economics" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-chart-network text-emerald-400 mr-3"></i>Sustainability Economics</h2>
+            <p class="text-gray-500">Real-time market intelligence and green finance</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <div class="glass rounded-2xl p-8 border border-white/5">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mr-3"><i class="fas fa-briefcase text-emerald-400"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white">The Business Case</h3>
+                </div>
+                <div class="space-y-5">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/5 flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-coins text-emerald-400"></i></div>
+                        <div><h4 class="font-semibold text-white text-sm">Cost Savings</h4><p class="text-sm text-gray-500">Energy efficiency reduces costs by <span class="text-emerald-400 font-bold">20-30%</span>.</p></div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/5 flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-shield-halved text-cyan-400"></i></div>
+                        <div><h4 class="font-semibold text-white text-sm">Risk Mitigation</h4><p class="text-sm text-gray-500">Protect against regulatory and physical risks.</p></div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/5 flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-users text-purple-400"></i></div>
+                        <div><h4 class="font-semibold text-white text-sm">Talent & Reputation</h4><p class="text-sm text-gray-500"><span class="text-purple-400 font-bold">64%</span> of millennials avoid poor ESG companies.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-8 border border-white/5">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center mr-3"><i class="fas fa-tags text-cyan-400"></i></div>
+                        <h3 class="text-xl font-display font-bold text-white">Carbon Pricing</h3>
+                    </div>
+                    <span class="text-xs text-gray-500 bg-black/30 px-2 py-1 rounded">Live</span>
+                </div>
+                <div class="space-y-4" id="carbon-prices"></div>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-8 border border-white/5">
+            <div class="flex items-center mb-8">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mr-3"><i class="fas fa-landmark text-purple-400"></i></div>
+                <div><h3 class="text-xl font-display font-bold text-white">Green Finance Instruments</h3><p class="text-gray-500 text-sm">Market mechanisms driving the transition</p></div>
+            </div>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-emerald-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-leaf text-2xl text-emerald-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Green Bonds</h4><p class="text-xs text-gray-500">>$500B market annually</p>
+                </div>
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-cyan-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-hand-holding-dollar text-2xl text-cyan-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Sustainability Loans</h4><p class="text-xs text-gray-500">ESG-linked interest rates</p>
+                </div>
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-purple-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-right-left text-2xl text-purple-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Carbon Credits</h4><p class="text-xs text-gray-500">Voluntary & compliance</p>
+                </div>
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-yellow-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-chart-line text-2xl text-yellow-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Impact Investing</h4><p class="text-xs text-gray-500">Measurable returns</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/5 bg-black/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center"><i class="fas fa-atom text-white text-xs"></i></div>
+                    <span class="text-lg font-display font-bold text-white">EcoSphere</span>
+                </div>
+                <p class="text-gray-500 text-sm">Empowering organizations to build a sustainable future through AI-driven intelligence.</p>
+            </div>
+            <div>
+                <h4 class="font-display font-bold text-white mb-4 text-sm">Platform</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li><a href="#fundamentals" class="hover:text-emerald-400 transition">Fundamentals</a></li>
+                    <li><a href="#calculator" class="hover:text-emerald-400 transition">Calculator</a></li>
+                    <li><a href="#chatbot" class="hover:text-emerald-400 transition">AI Assistant</a></li>
+                    <li><a href="#quiz" class="hover:text-emerald-400 transition">Quiz</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-display font-bold text-white mb-4 text-sm">Resources</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li><a href="#" class="hover:text-emerald-400 transition">GHG Protocol</a></li>
+                    <li><a href="#" class="hover:text-emerald-400 transition">IPCC Reports</a></li>
+                    <li><a href="#" class="hover:text-emerald-400 transition">Science Based Targets</a></li>
+                    <li><a href="#" class="hover:text-emerald-400 transition">CDP Disclosure</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-display font-bold text-white mb-4 text-sm">Stay Updated</h4>
+                <p class="text-sm text-gray-500 mb-3">Get AI-curated sustainability intelligence.</p>
+                <div class="flex">
+                    <input type="email" placeholder="your@email.com" class="flex-1 bg-black/30 border border-gray-700 rounded-l-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
+                    <button class="bg-emerald-500 text-black px-3 py-2 rounded-r-lg hover:bg-emerald-400 transition font-bold"><i class="fas fa-paper-plane text-xs"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/5 pt-6 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-sm text-gray-600"> 2026 EcoSphere. Built for a sustainable future.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="#" class="text-gray-600 hover:text-emerald-400 transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-gray-600 hover:text-emerald-400 transition"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="text-gray-600 hover:text-emerald-400 transition"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script>
+// ============================================
+// DATA
+// ============================================
+const newsData = [
+    {title:"EU CBAM Reporting Requirements Tightened for 2026",source:"European Commission",date:"2026-04-28",category:"Policy",summary:"Updated guidance requires more granular emissions data for imported cement, iron, steel, aluminum, fertilizers, electricity, and hydrogen.",icon:"fa-gavel",color:"red"},
+    {title:"Global Renewable Capacity Reaches 4,200 GW",source:"IRENA",date:"2026-04-25",category:"Energy",summary:"Renewable capacity grew by 473 GW in 2025, with solar PV accounting for 78% of new additions.",icon:"fa-solar-panel",color:"yellow"},
+    {title:"SEC Climate Disclosure Rules Face Appeals",source:"U.S. SEC",date:"2026-04-22",category:"Regulation",summary:"Eighth Circuit consolidates challenges. Scope 3 disclosure requirements remain stayed pending review.",icon:"fa-balance-scale",color:"blue"},
+    {title:"SBTi Validates 5,000th Corporate Target",source:"SBTi",date:"2026-04-20",category:"Corporate",summary:"Milestone reached. Draft Net-Zero Standard updates emphasize 90-95% value chain decarbonization.",icon:"fa-bullseye",color:"emerald"},
+    {title:"IPCC: 1.5°C Pathway Still Technically Feasible",source:"IPCC",date:"2026-04-18",category:"Climate",summary:"Requires global emissions to peak by 2025 and reduce 43% by 2030. Carbon removal essential.",icon:"fa-temperature-high",color:"orange"},
+    {title:"VCMI Releases Claims Code v2.0",source:"VCMI",date:"2026-04-15",category:"Markets",summary:"Stricter requirements for corresponding adjustments and permanence buffers in voluntary carbon markets.",icon:"fa-coins",color:"purple"},
+    {title:"Brazil to Host COP31 in Belém",source:"UNFCCC",date:"2026-04-12",category:"Policy",summary:"Focus on Amazon preservation, climate finance for developing nations, and Loss and Damage Fund.",icon:"fa-globe-americas",color:"green"},
+    {title:"Corporate Renewable PPAs Hit Record 50 GW",source:"BloombergNEF",date:"2026-04-10",category:"Energy",summary:"Technology companies represent 42% of contracted capacity through power purchase agreements.",icon:"fa-handshake",color:"cyan"},
+    {title:"EU Packaging Regulation Enters Force",source:"European Commission",date:"2026-04-08",category:"Regulation",summary:"Mandatory reuse targets, recycled content requirements, and standardized formats. All packaging recyclable by 2035.",icon:"fa-recycle",color:"emerald"},
+    {title:"Global Carbon Pricing Revenues Reach $120 Billion",source:"World Bank",date:"2026-04-05",category:"Economics",summary:"EU ETS accounts for 45% of total revenues. National carbon taxes in Canada and France follow.",icon:"fa-dollar-sign",color:"blue"}
+];
+
+const quizQuestions = [
+    {id:1,q:"What percentage of a typical company's total GHG emissions are typically Scope 3?",options:["10-30%","40-60%","70-90%","95-100%"],correct:2,explain:"Scope 3 emissions typically represent 70-90% of a company's total carbon footprint.",diff:"Easy",cat:"GHG Accounting"},
+    {id:2,q:"Which greenhouse gas has the highest global warming potential over 100 years?",options:["CO2","Methane","Nitrous Oxide","Sulfur Hexafluoride"],correct:3,explain:"SF6 has a GWP of 23,500 over 100 years. CO2=1, CH4=29.8, N2O=273.",diff:"Medium",cat:"Climate Science"},
+    {id:3,q:"What does the 'E' in ESG stand for?",options:["Ethical","Environmental","Economic","Equity"],correct:1,explain:"ESG = Environmental, Social, Governance.",diff:"Easy",cat:"ESG"},
+    {id:4,q:"Which organization developed the most widely used GHG accounting standard?",options:["ISO","IPCC","GHG Protocol","CDP"],correct:2,explain:"GHG Protocol by WRI and WBCSD is the most widely used standard.",diff:"Easy",cat:"GHG Accounting"},
+    {id:5,q:"What is the EU CBAM designed to prevent?",options:["Deforestation","Carbon leakage","Ocean acidification","Air pollution"],correct:1,explain:"CBAM prevents carbon leakage by pricing embedded emissions in imports.",diff:"Medium",cat:"Policy"},
+    {id:6,q:"Which renewable source accounted for the largest share of global electricity in 2024?",options:["Solar PV","Wind","Hydropower","Biomass"],correct:2,explain:"Hydropower remains largest, though solar is fastest-growing.",diff:"Medium",cat:"Energy"},
+    {id:7,q:"What is the SBTi target for limiting global warming?",options:["1.0°C","1.5°C","2.0°C","2.5°C"],correct:1,explain:"SBTi validates targets aligned with 1.5°C per Paris Agreement.",diff:"Easy",cat:"Targets"},
+    {id:8,q:"Which scope covers purchased electricity emissions?",options:["Scope 1","Scope 2","Scope 3","Scope 4"],correct:1,explain:"Scope 2 covers indirect emissions from purchased energy.",diff:"Easy",cat:"GHG Accounting"},
+    {id:9,q:"What is the approximate EU ETS price in early 2026?",options:["€20-30/t","€50-60/t","€80-90/t","€120-130/t"],correct:2,explain:"EU ETS stabilized around €80-90/t in early 2026.",diff:"Hard",cat:"Markets"},
+    {id:10,q:"Which is NOT in Scope 3 Category 1 (Purchased Goods)?",options:["Raw materials","Office supplies","Capital equipment","Business travel"],correct:3,explain:"Business travel is Category 6, not Category 1.",diff:"Hard",cat:"GHG Accounting"},
+    {id:11,q:"What does Net Zero typically require?",options:["50% reduction","70% reduction","90-95% reduction","100% elimination"],correct:2,explain:"Net Zero requires 90-95% reduction; residual emissions neutralized.",diff:"Medium",cat:"Targets"},
+    {id:12,q:"Which country has the lowest grid electricity emission factor?",options:["US","China","France","Germany"],correct:2,explain:"France has ~0.052 kg/kWh due to nuclear power (~70% of mix).",diff:"Medium",cat:"Energy"},
+    {id:13,q:"What is the primary purpose of CDP?",options:["Trade carbon credits","Disclose environmental data","Certify green products","Fund renewables"],correct:1,explain:"CDP runs a global environmental disclosure system.",diff:"Easy",cat:"ESG"},
+    {id:14,q:"Which sector has the highest Scope 3 intensity?",options:["Technology","Financial Services","Oil & Gas","Retail"],correct:2,explain:"Oil & Gas has extreme Scope 3 from use of sold products.",diff:"Hard",cat:"Industry"},
+    {id:15,q:"What's the difference between carbon neutral and net zero?",options:["Same thing","Carbon neutral allows offsets; net zero requires decarbonization","Net zero for countries only","Carbon neutral is legal term"],correct:1,explain:"Carbon neutral can use offsets. Net Zero requires 90-95% actual reduction.",diff:"Medium",cat:"Targets"}
+];
+
+const carbonPricing = [
+    {name:"EU ETS",price:89.20,trend:"Stable",color:"emerald"},
+    {name:"UK ETS",price:68.40,trend:"Declining",color:"cyan"},
+    {name:"California",price:34.75,trend:"Rising",color:"yellow"},
+    {name:"China ETS",price:10.80,trend:"Rising",color:"red"},
+    {name:"Canada",price:61.20,trend:"Scheduled",color:"purple"},
+    {name:"South Korea",price:8.90,trend:"Rising",color:"blue"},
+    {name:"New Zealand",price:40.20,trend:"Stable",color:"green"}
+];
+
+const chatKnowledge = {
+    "scope 1": "Scope 1 emissions are direct GHG emissions from sources owned or controlled by your organization. This includes: stationary combustion (boilers, furnaces), mobile combustion (company vehicles), process emissions, and fugitive emissions (leaks from refrigeration, methane).",
+    "scope 2": "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling. You have two reporting methods: Location-Based (using average grid emission factors) and Market-Based (using RECs). Most companies report both.",
+    "scope 3": "Scope 3 includes all other indirect emissions in your value chain and typically represents 70-90% of total emissions. The GHG Protocol defines 15 categories including purchased goods, business travel, employee commuting, and use of sold products.",
+    "carbon footprint": "To calculate your carbon footprint: (1) Define organizational boundaries. (2) Identify emission sources across all scopes. (3) Collect activity data. (4) Apply emission factors. (5) Calculate and convert to tonnes CO2e. (6) Set a base year and track progress. Use our AI Calculator!",
+    "esg": "ESG stands for Environmental, Social, and Governance. Environmental covers climate change, resource use, pollution. Social includes labor standards, diversity, human rights. Governance encompasses board structure, audits, anti-corruption. Major raters: MSCI, Sustainalytics, CDP.",
+    "cbam": "The EU Carbon Border Adjustment Mechanism (CBAM) prevents carbon leakage by putting a carbon price on imports of cement, iron, steel, aluminum, fertilizers, electricity, and hydrogen. From 2026, importers must purchase CBAM certificates matching the EU ETS price.",
+    "carbon tax": "Carbon taxes put a direct price on carbon emissions. Examples: Canada's federal backstop is CAD $85/t (rising to $170/t by 2030). France's carbon tax is around €45/t for non-ETS sectors. Unlike cap-and-trade, carbon taxes provide price certainty but no emissions cap.",
+    "net zero": "Net Zero means reducing greenhouse gas emissions as close to zero as possible, with any residual emissions permanently removed. According to SBTi, this requires 90-95% absolute reduction across Scopes 1, 2, and 3 before neutralizing residuals. 'Carbon Neutral' can be achieved through offsets without deep decarbonization.",
+    "renewable": "Major renewable sources: Solar PV (fastest growing, costs down 90% since 2010), Wind (onshore and offshore), Hydropower (largest installed base), Geothermal, and Biomass. Corporate procurement options: PPAs, Green Tariffs, RECs, and on-site generation.",
+    "ghg protocol": "The GHG Protocol is the world's most widely used greenhouse gas accounting standard, developed by WRI and WBCSD. It provides standards for: Corporate Accounting (Scope 1, 2, 3), Project Accounting, Product Lifecycle Analysis, and Policy/Goal Standard.",
+    "science based": "Science Based Targets (SBTs) are emissions reduction targets aligned with climate science to limit global warming to 1.5°C. SBTi validates corporate targets. Requirements: Scope 1+2 targets must align with 1.5°C pathways. Scope 3 targets required if Scope 3 is >40% of total emissions.",
+    "green finance": "Green finance instruments include: Green Bonds (proceeds for climate projects, >$500B market), Sustainability-Linked Loans (interest tied to ESG performance), Transition Bonds, Carbon Credits (voluntary and compliance markets), and Blended Finance.",
+    "carbon credit": "Carbon credits represent one tonne of CO2e reduced or removed. Two markets: Compliance (regulated, e.g., EU ETS) and Voluntary (purchased for offsetting). Major standards: Verra VCS, Gold Standard, American Carbon Registry. Quality concerns: additionality, permanence, leakage.",
+    "water": "Water stewardship goes beyond efficiency to address shared water challenges. Key concepts: Water Footprint (direct + indirect use in m³), Water Stress (demand/supply ratio), and Water Risk (physical, regulatory, reputational). The CEO Water Mandate and AWS Standard provide frameworks.",
+    "circular": "Circular economy aims to eliminate waste and keep materials in use. Principles: (1) Design out waste and pollution, (2) Keep products and materials in use, (3) Regenerate natural systems. Business models: Product-as-a-Service, Sharing Platforms, Product Life Extension, and Resource Recovery.",
+    "default": "I can help with sustainability topics including: ESG frameworks and reporting, GHG accounting (Scope 1/2/3), carbon taxation and pricing, renewable energy procurement, green finance, climate regulations (CBAM, SEC rules), carbon credits and offsets, net-zero strategies, water stewardship, and circular economy. What would you like to explore?"
+};
+
+// ============================================
+// NEWS
+// ============================================
+let newsIdx = 0;
+function renderNews() {
+    const c = document.getElementById('news-container');
+    c.innerHTML = '';
+    newsData.slice(newsIdx, newsIdx + 3).forEach(n => {
+        const d = document.createElement('div');
+        d.className = 'glass rounded-2xl p-6 border border-white/5 hover:border-emerald-500/30 transition';
+        d.innerHTML = `<div class="flex justify-between items-start mb-3"><span class="bg-black/30 border border-white/10 text-gray-400 text-xs font-bold px-2 py-1 rounded-full">${n.category}</span><span class="text-xs text-gray-600">${n.date}</span></div><h3 class="font-display font-bold text-white mb-2 text-sm">${n.title}</h3><p class="text-gray-500 text-xs mb-3">${n.summary}</p><div class="flex items-center justify-between pt-3 border-t border-white/5"><span class="text-xs text-gray-600"><i class="fas fa-${n.icon} mr-1 text-emerald-400"></i>${n.source}</span><span class="text-emerald-400 text-xs font-semibold">Read <i class="fas fa-arrow-right text-[10px]"></i></span></div>`;
+        c.appendChild(d);
+    });
+}
+function loadMoreNews() { newsIdx = (newsIdx + 3) % newsData.length; renderNews(); }
+
+// ============================================
+// CARBON PRICING
+// ============================================
+function renderCarbon() {
+    const c = document.getElementById('carbon-prices');
+    if (!c) return;
+    const maxP = Math.max(...carbonPricing.map(p => p.price));
+    c.innerHTML = '';
+    carbonPricing.forEach(p => {
+        const w = (p.price / maxP) * 100;
+        const tc = p.trend === 'Rising' ? 'text-green-400' : p.trend === 'Declining' ? 'text-red-400' : 'text-yellow-400';
+        const ti = p.trend === 'Rising' ? 'fa-arrow-trend-up' : p.trend === 'Declining' ? 'fa-arrow-trend-down' : 'fa-minus';
+        const d = document.createElement('div');
+        d.innerHTML = `<div class="flex justify-between mb-1"><span class="text-sm text-white">${p.name}</span><div class="flex items-center space-x-2"><span class="text-sm font-bold text-emerald-400">$${p.price.toFixed(2)}/t</span><span class="text-xs ${tc}"><i class="fas ${ti}"></i></span></div></div><div class="w-full bg-black/30 rounded-full h-2"><div class="gradient-bg h-2 rounded-full" style="width:${w}%"></div></div>`;
+        c.appendChild(d);
+    });
+}
+
+// ============================================
+// CALCULATOR
+// ============================================
+let eChart = null;
+function switchTab(tab) {
+    document.querySelectorAll('.calc-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById('calc-'+tab).classList.remove('hidden');
+    document.querySelectorAll('[id^="tab-"]').forEach(t => { t.classList.remove('tab-active'); t.classList.add('text-gray-500'); });
+    document.getElementById('tab-'+tab).classList.add('tab-active');
+    document.getElementById('tab-'+tab).classList.remove('text-gray-500');
+}
+function calculate() {
+    const fuelFactor = parseFloat(document.getElementById('fuel-type').value);
+    const fuelQty = parseFloat(document.getElementById('fuel-qty').value) || 0;
+    const vKm = parseFloat(document.getElementById('vehicle-km').value) || 0;
+    const vFactor = parseFloat(document.getElementById('vehicle-type').value);
+    const s1 = (fuelQty * fuelFactor + vKm * vFactor) / 1000;
+
+    const kwh = parseFloat(document.getElementById('elec-kwh').value) || 0;
+    const gridFactor = parseFloat(document.getElementById('grid-region').value);
+    const renPct = parseFloat(document.getElementById('renew-pct').value) || 0;
+    const steam = parseFloat(document.getElementById('steam-gj').value) || 0;
+    const s2 = (kwh * gridFactor * (1 - renPct/100) + steam * 75) / 1000;
+
+    const tKm = parseFloat(document.getElementById('travel-km').value) || 0;
+    const purch = parseFloat(document.getElementById('purchased').value) || 0;
+    const cKm = parseFloat(document.getElementById('commute-km').value) || 0;
+    const waste = parseFloat(document.getElementById('waste-kg').value) || 0;
+    const s3 = (tKm * 0.15 + purch * 0.0003 + cKm * 0.12 + waste * 0.5) / 1000;
+
+    const total = s1 + s2 + s3;
+
+    document.getElementById('res-s1').textContent = s1.toFixed(2);
+    document.getElementById('res-s2').textContent = s2.toFixed(2);
+    document.getElementById('res-s3').textContent = s3.toFixed(2);
+    document.getElementById('res-total').textContent = total.toFixed(2);
+
+    let insight = '';
+    if (total === 0) insight = 'Enter data to see analysis.';
+    else if (s3 > s1 + s2) insight = `⚡ AI Insight: Scope 3 dominates (${((s3/total)*100).toFixed(0)}%). Focus on supply chain engagement.`;
+    else if (s2 > s1 + s3) insight = `⚡ AI Insight: Energy leads (${((s2/total)*100).toFixed(0)}%). Consider renewable PPAs.`;
+    else insight = `⚡ AI Insight: Direct emissions lead (${((s1/total)*100).toFixed(0)}%). Evaluate fleet electrification.`;
+    document.getElementById('ai-insight').textContent = insight;
+
+    document.getElementById('calc-results').classList.remove('hidden');
+
+    const ctx = document.getElementById('emissionsChart').getContext('2d');
+    if (eChart) eChart.destroy();
+    eChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['Scope 1','Scope 2','Scope 3'], datasets: [{ data: [s1,s2,s3], backgroundColor: ['#ef4444','#f97316','#10b981'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }, cutout: '65%' }
+    });
+    document.getElementById('calc-results').scrollIntoView({ behavior: 'smooth' });
+}
+function resetCalc() {
+    document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+    document.getElementById('renew-pct').value = 0;
+    document.getElementById('renew-val').textContent = '0%';
+    document.getElementById('calc-results').classList.add('hidden');
+}
+
+// ============================================
+// CHATBOT
+// ============================================
+function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    addChatMsg(msg, 'user');
+    input.value = '';
+    showTyping();
+    setTimeout(() => { removeTyping(); addChatMsg(genResponse(msg), 'bot'); }, 1500);
+}
+function quickAsk(q) { document.getElementById('chat-input').value = q; sendChat(); }
+function addChatMsg(text, sender) {
+    const c = document.getElementById('chat-messages');
+    const d = document.createElement('div');
+    d.className = 'chat-msg flex items-start';
+    if (sender === 'user') {
+        d.innerHTML = `<div class="ml-auto mr-3 bg-emerald-500 text-black rounded-xl p-3 max-w-[80%]"><p class="text-sm font-medium">${text}</p></div><div class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center flex-shrink-0"><i class="fas fa-user text-gray-500 text-xs"></i></div>`;
+    } else {
+        d.innerHTML = `<div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-robot text-white text-xs"></i></div><div class="glass rounded-xl p-3 max-w-[80%] border border-white/5"><p class="text-gray-300 text-sm">${text}</p></div>`;
+    }
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+}
+function showTyping() {
+    const c = document.getElementById('chat-messages');
+    const d = document.createElement('div');
+    d.id = 'typing-ind';
+    d.className = 'chat-msg flex items-start';
+    d.innerHTML = `<div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-robot text-white text-xs"></i></div><div class="glass rounded-xl p-3 border border-white/5"><div class="flex space-x-2"><span class="w-2 h-2 bg-gray-500 rounded-full typing-dot"></span><span class="w-2 h-2 bg-gray-500 rounded-full typing-dot"></span><span class="w-2 h-2 bg-gray-500 rounded-full typing-dot"></span></div></div>`;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+}
+function removeTyping() { const t = document.getElementById('typing-ind'); if (t) t.remove(); }
+function genResponse(msg) {
+    const lm = msg.toLowerCase();
+    for (const [key, ans] of Object.entries(chatKnowledge)) {
+        if (lm.includes(key.replace(/_/g, ' '))) return ans;
+    }
+    if (lm.includes('scope 1')) return chatKnowledge['scope 1'];
+    if (lm.includes('scope 2')) return chatKnowledge['scope 2'];
+    if (lm.includes('scope 3')) return chatKnowledge['scope 3'];
+    if (lm.includes('carbon')) return chatKnowledge['carbon footprint'];
+    if (lm.includes('esg')) return chatKnowledge['esg'];
+    if (lm.includes('cbam')) return chatKnowledge['cbam'];
+    if (lm.includes('tax')) return chatKnowledge['carbon tax'];
+    if (lm.includes('net zero') || lm.includes('netzero')) return chatKnowledge['net zero'];
+    if (lm.includes('renewable') || lm.includes('solar') || lm.includes('wind')) return chatKnowledge['renewable'];
+    if (lm.includes('ghg')) return chatKnowledge['ghg protocol'];
+    if (lm.includes('sbti') || lm.includes('science')) return chatKnowledge['science based'];
+    if (lm.includes('finance') || lm.includes('bond')) return chatKnowledge['green finance'];
+    if (lm.includes('credit') || lm.includes('offset')) return chatKnowledge['carbon credit'];
+    if (lm.includes('water')) return chatKnowledge['water'];
+    if (lm.includes('circular') || lm.includes('recycle')) return chatKnowledge['circular'];
+    return chatKnowledge['default'];
+}
+
+// ============================================
+// QUIZ
+// ============================================
+let qIdx = 0, qScore = 0, qSel = null;
+function startQuiz() {
+    qIdx = 0; qScore = 0;
+    document.getElementById('quiz-start').classList.add('hidden');
+    document.getElementById('quiz-question').classList.remove('hidden');
+    document.getElementById('quiz-result').classList.add('hidden');
+    loadQ();
+}
+function loadQ() {
+    const q = quizQuestions[qIdx];
+    qSel = null;
+    document.getElementById('q-curr').textContent = qIdx + 1;
+    document.getElementById('q-score').textContent = qScore;
+    document.getElementById('q-cat').textContent = q.cat;
+    document.getElementById('q-text').textContent = q.q;
+    document.getElementById('q-progress').style.width = ((qIdx + 1) / quizQuestions.length * 100) + '%';
+    document.getElementById('q-explain').classList.add('hidden');
+    document.getElementById('q-next').classList.add('hidden');
+
+    const c = document.getElementById('q-options');
+    c.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const b = document.createElement('button');
+        b.className = 'quiz-opt w-full text-left p-4 rounded-xl bg-black/30 text-white flex items-center space-x-3';
+        b.innerHTML = `<span class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-sm font-bold flex-shrink-0">${String.fromCharCode(65+i)}</span><span class="text-sm">${opt}</span>`;
+        b.onclick = () => selectOpt(i, b);
+        c.appendChild(b);
+    });
+}
+function selectOpt(idx, btn) {
+    if (qSel !== null) return;
+    qSel = idx;
+    const q = quizQuestions[qIdx];
+    const opts = document.getElementById('q-options').children;
+    for (let i = 0; i < opts.length; i++) {
+        opts[i].classList.remove('hover:border-emerald-500');
+        opts[i].disabled = true;
+        if (i === q.correct) { opts[i].classList.add('correct'); opts[i].querySelector('span:first-child').innerHTML = '<i class="fas fa-check text-emerald-400"></i>'; }
+        else if (i === idx && i !== q.correct) { opts[i].classList.add('wrong'); opts[i].querySelector('span:first-child').innerHTML = '<i class="fas fa-xmark text-red-400"></i>'; }
+    }
+    if (idx === q.correct) { qScore++; document.getElementById('q-score').textContent = qScore; }
+    document.getElementById('q-explain-text').textContent = q.explain;
+    document.getElementById('q-explain').classList.remove('hidden');
+    document.getElementById('q-next').classList.remove('hidden');
+}
+function nextQ() {
+    qIdx++;
+    if (qIdx < quizQuestions.length) loadQ();
+    else showQResult();
+}
+function showQResult() {
+    document.getElementById('quiz-question').classList.add('hidden');
+    document.getElementById('quiz-result').classList.remove('hidden');
+    document.getElementById('final-score').textContent = qScore;
+    const pct = (qScore / quizQuestions.length) * 100;
+    let msg = '';
+    if (pct >= 90) msg = '🏆 Exceptional! You are a sustainability intelligence leader.';
+    else if (pct >= 70) msg = '⭐ Strong performance! Solid sustainability literacy.';
+    else if (pct >= 50) msg = '📚 Good start! Review fundamentals and try again.';
+    else msg = '🌱 Keep learning! Sustainability is complex but rewarding.';
+    document.getElementById('result-msg').textContent = msg;
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    renderNews();
+    renderCarbon();
+});
+</script>
+</body>
+</html>
