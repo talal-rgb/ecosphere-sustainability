@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terrnix — AI Sustainability Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0f0d;
+            --bg-panel: #111a16;
+            --bg-surface: #1a2520;
+            --border: #2d3d35;
+            --accent: #4ade80;
+            --accent2: #22d3ee;
+            --accent3: #a3e635;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #4ade80 0%, #22d3ee 50%, #a3e635 100%);
+            background-size: 200% 200%;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #4ade80 0%, #22d3ee 50%, #a3e635 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glass {
+            background: rgba(17, 26, 22, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(45, 61, 53, 0.6);
+        }
+        .glass:hover {
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+        .neon-border {
+            position: relative;
+        }
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, #4ade80, #22d3ee, #a3e635);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .neon-border:hover::before { opacity: 1; }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-msg { animation: slideIn 0.3s ease-out; }
+        .typing-dot {
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        .quiz-opt {
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+        .quiz-opt:hover { border-color: var(--accent); background: rgba(74, 222, 128, 0.05); }
+        .quiz-opt.correct { border-color: var(--accent); background: rgba(74, 222, 128, 0.15); }
+        .quiz-opt.wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--bg-surface);
+            border-radius: 3px;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+        .tab-active {
+            border-bottom: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .topic-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .topic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(74, 222, 128, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="fixed w-full z-50 glass border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-sm"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-display font-bold text-white tracking-tight">Terrnix</span>
+                    <span class="text-[10px] text-emerald-400 block -mt-1 tracking-wider">SUSTAINABILITY INTELLIGENCE</span>
+                </div>
+            </div>
+            <div class="hidden md:flex space-x-1">
+                <a href="#news" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">News</a>
+                <a href="#fundamentals" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Fundamentals</a>
+                <a href="#topics" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Deep Dive</a>
+                <a href="#calculator" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Calculator</a>
+                <a href="#chatbot" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">AI Assistant</a>
+                <a href="#quiz" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Quiz</a>
+                <a href="#economics" class="px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition">Economics</a>
+            </div>
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-gray-400">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden glass border-t border-white/5">
+        <div class="px-4 py-2 space-y-1">
+            <a href="#news" class="block py-2 text-gray-400 hover:text-white">News</a>
+            <a href="#fundamentals" class="block py-2 text-gray-400 hover:text-white">Fundamentals</a>
+            <a href="#topics" class="block py-2 text-gray-400 hover:text-white">Deep Dive</a>
+            <a href="#calculator" class="block py-2 text-gray-400 hover:text-white">Calculator</a>
+            <a href="#chatbot" class="block py-2 text-gray-400 hover:text-white">AI Assistant</a>
+            <a href="#quiz" class="block py-2 text-gray-400 hover:text-white">Quiz</a>
+            <a href="#economics" class="block py-2 text-gray-400 hover:text-white">Economics</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="relative pt-28 pb-16 grid-bg overflow-hidden">
+    <div class="orb w-96 h-96 bg-emerald-500/20 top-0 left-1/4"></div>
+    <div class="orb w-72 h-72 bg-cyan-500/20 bottom-0 right-1/4" style="animation-delay:-4s"></div>
+    <div class="orb w-64 h-64 bg-lime-500/10 top-1/2 left-1/2" style="animation-delay:-2s"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-6">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span class="text-emerald-400 text-sm font-medium">AI-Powered Sustainability Intelligence</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
+                Intelligence for a<br><span class="gradient-text">Greener Tomorrow</span>
+            </h1>
+            <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+                Terrnix combines AI-driven analytics with deep sustainability expertise — from carbon accounting to ESG frameworks, climate regulations to green finance.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#calculator" class="group relative px-8 py-3 rounded-xl font-semibold overflow-hidden inline-flex items-center">
+                    <div class="absolute inset-0 gradient-bg"></div>
+                    <span class="relative text-black flex items-center font-bold"><i class="fas fa-calculator mr-2"></i>Calculate Emissions</span>
+                </a>
+                <a href="#chatbot" class="px-8 py-3 rounded-xl font-semibold border border-gray-700 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition text-white inline-flex items-center">
+                    <i class="fas fa-robot mr-2 text-emerald-400"></i>Ask Terrnix AI
+                </a>
+            </div>
+            <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-white">15,000+</div>
+                    <div class="text-xs text-gray-500 mt-1">Emission Factors</div>
+                </div>
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-emerald-400">89</div>
+                    <div class="text-xs text-gray-500 mt-1">Countries</div>
+                </div>
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-cyan-400">30</div>
+                    <div class="text-xs text-gray-500 mt-1">Quiz Questions</div>
+                </div>
+                <div class="glass rounded-xl p-5 text-center">
+                    <div class="text-2xl font-display font-bold text-lime-400">6</div>
+                    <div class="text-xs text-gray-500 mt-1">Deep Topics</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News -->
+<section id="news" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-3xl font-display font-bold text-white"><i class="fas fa-newspaper text-emerald-400 mr-3"></i>Live Sustainability News</h2>
+            <span class="text-xs text-gray-500 flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>Live</span>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6" id="news-container"></div>
+        <div class="mt-8 text-center">
+            <button onclick="loadMoreNews()" class="px-6 py-2 rounded-xl border border-gray-700 hover:border-emerald-500/50 text-gray-400 hover:text-white transition text-sm">Load More Intelligence <i class="fas fa-chevron-down ml-1"></i></button>
+        </div>
+    </div>
+</section>
+
+<!-- Fundamentals -->
+<section id="fundamentals" class="py-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/5 to-transparent"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-brain text-cyan-400 mr-3"></i>Sustainability Fundamentals</h2>
+            <p class="text-gray-500">Core concepts every professional needs to master</p>
+        </div>
+
+        <!-- ESG -->
+        <div class="mb-16">
+            <div class="flex items-center mb-6">
+                <div class="w-1 h-6 gradient-bg rounded-full mr-3"></div>
+                <h3 class="text-xl font-display font-bold text-white">ESG Framework</h3>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass neon-border rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+                        <i class="fas fa-leaf text-emerald-400 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Environmental</h4>
+                    <p class="text-gray-400 text-sm mb-4">Climate change, resource use, pollution, biodiversity, circular economy.</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <div><i class="fas fa-check text-emerald-400 mr-2"></i>Carbon & energy management</div>
+                        <div><i class="fas fa-check text-emerald-400 mr-2"></i>Water & waste stewardship</div>
+                        <div><i class="fas fa-check text-emerald-400 mr-2"></i>Biodiversity protection</div>
+                    </div>
+                </div>
+                <div class="glass neon-border rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4">
+                        <i class="fas fa-users text-cyan-400 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Social</h4>
+                    <p class="text-gray-400 text-sm mb-4">Labor standards, diversity, human rights, community relations.</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <div><i class="fas fa-check text-cyan-400 mr-2"></i>Labor & human rights</div>
+                        <div><i class="fas fa-check text-cyan-400 mr-2"></i>Diversity & inclusion</div>
+                        <div><i class="fas fa-check text-cyan-400 mr-2"></i>Community engagement</div>
+                    </div>
+                </div>
+                <div class="glass neon-border rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-lime-500/10 border border-lime-500/20 flex items-center justify-center mb-4">
+                        <i class="fas fa-shield-halved text-lime-400 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Governance</h4>
+                    <p class="text-gray-400 text-sm mb-4">Board structure, audits, anti-corruption, transparency, ethics.</p>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <div><i class="fas fa-check text-lime-400 mr-2"></i>Board diversity & independence</div>
+                        <div><i class="fas fa-check text-lime-400 mr-2"></i>Anti-corruption & ethics</div>
+                        <div><i class="fas fa-check text-lime-400 mr-2"></i>Transparency & reporting</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scopes -->
+        <div>
+            <div class="flex items-center mb-6">
+                <div class="w-1 h-6 gradient-bg rounded-full mr-3"></div>
+                <h3 class="text-xl font-display font-bold text-white">GHG Protocol: Scopes 1, 2, 3</h3>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass rounded-2xl p-6 border-t-4 border-red-500">
+                    <div class="flex justify-between mb-4">
+                        <span class="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-xs font-bold">Scope 1</span>
+                        <i class="fas fa-fire text-red-400 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Direct Emissions</h4>
+                    <p class="text-gray-400 text-sm mb-4">Sources owned or controlled by your organization.</p>
+                    <div class="bg-black/30 rounded-lg p-3 text-sm text-gray-500 space-y-1">
+                        <div>• Stationary combustion (boilers, furnaces)</div>
+                        <div>• Mobile combustion (fleet vehicles)</div>
+                        <div>• Process emissions (chemical reactions)</div>
+                        <div>• Fugitive emissions (refrigeration leaks)</div>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-6 border-t-4 border-orange-500">
+                    <div class="flex justify-between mb-4">
+                        <span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 rounded-full text-xs font-bold">Scope 2</span>
+                        <i class="fas fa-bolt text-orange-400 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Indirect (Energy)</h4>
+                    <p class="text-gray-400 text-sm mb-4">Purchased electricity, steam, heating, cooling.</p>
+                    <div class="bg-black/30 rounded-lg p-3 text-sm text-gray-500 space-y-1">
+                        <div>• Purchased electricity (grid)</div>
+                        <div>• District heating & cooling</div>
+                        <div>• Steam for industrial processes</div>
+                        <div>• Location-based vs. market-based</div>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-6 border-t-4 border-emerald-500">
+                    <div class="flex justify-between mb-4">
+                        <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold">Scope 3</span>
+                        <i class="fas fa-project-diagram text-emerald-400 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Value Chain</h4>
+                    <p class="text-gray-400 text-sm mb-4">All other indirect emissions. Usually <span class="text-emerald-400 font-bold">70-90%</span> of total.</p>
+                    <div class="bg-black/30 rounded-lg p-3 text-sm text-gray-500 space-y-1">
+                        <div>• Purchased goods & services (Cat. 1)</div>
+                        <div>• Capital goods (Cat. 2)</div>
+                        <div>• Fuel & energy-related (Cat. 3)</div>
+                        <div>• Upstream/downstream transport</div>
+                        <div>• Business travel & commuting</div>
+                        <div>• Use & end-of-life of sold products</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Deep Dive Topics -->
+<section id="topics" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-layer-group text-cyan-400 mr-3"></i>Deep-Dive Intelligence</h2>
+            <p class="text-gray-500">Expert-level modules with data, frameworks, and actionable insights</p>
+        </div>
+
+        <!-- Energy & Decarbonization -->
+        <div class="glass rounded-2xl p-8 border border-white/5 mb-6">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-solar-panel text-yellow-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white">Energy & Decarbonization</h3>
+                    <span class="text-xs text-yellow-400">Renewables • Storage • Grid • PPAs</span>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Renewable Technologies</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div class="flex justify-between"><span>Solar PV (LCOE)</span><span class="text-emerald-400">$0.03-0.06/kWh</span></div>
+                        <div class="flex justify-between"><span>Onshore Wind</span><span class="text-emerald-400">$0.03-0.05/kWh</span></div>
+                        <div class="flex justify-between"><span>Offshore Wind</span><span class="text-emerald-400">$0.07-0.12/kWh</span></div>
+                        <div class="flex justify-between"><span>Green Hydrogen</span><span class="text-emerald-400">$4-8/kg (target $1-2)</span></div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Storage Solutions</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Lithium-ion BESS: 4-hour duration standard</div>
+                        <div>• Pumped hydro: 85-90% round-trip efficiency</div>
+                        <div>• Flow batteries: Long-duration (8-12 hrs)</div>
+                        <div>• Green hydrogen: Seasonal storage potential</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Corporate Procurement</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Virtual PPAs: Price hedge + RECs</div>
+                        <div>• Physical PPAs: Direct offtake agreement</div>
+                        <div>• Green Tariffs: Utility green pricing</div>
+                        <div>• Unbundled RECs: Simple but less credible</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESG & Reporting -->
+        <div class="glass rounded-2xl p-8 border border-white/5 mb-6">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-clipboard-check text-purple-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white">ESG & Reporting</h3>
+                    <span class="text-xs text-purple-400">ISSB • GRI • CSRD/ESRS • Ratings</span>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Reporting Frameworks</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div><span class="text-purple-400 font-semibold">ISSB IFRS S1/S2:</span> Global baseline, capital markets focus</div>
+                        <div><span class="text-purple-400 font-semibold">GRI Standards:</span> Multi-stakeholder impact reporting</div>
+                        <div><span class="text-purple-400 font-semibold">CSRD/ESRS:</span> EU mandatory, double materiality</div>
+                        <div><span class="text-purple-400 font-semibold">TCFD:</span> Climate risk disclosure (being superseded)</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Rating Agencies</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• MSCI ESG: AAA-CCC scale, 14,000+ issuers</div>
+                        <div>• Sustainalytics: Risk scores, 20,000+ companies</div>
+                        <div>• CDP: A-D climate/water/forests scores</div>
+                        <div>• ISS ESG: Norm-based + performance analysis</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Sustainable Finance</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Green Bonds: Use of proceeds framework</div>
+                        <div>• Sustainability-Linked Loans: KPI-linked pricing</div>
+                        <div>• EU Taxonomy: 6 environmental objectives</div>
+                        <div>• SFDR: Article 8 & 9 fund classifications</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carbon Accounting -->
+        <div class="glass rounded-2xl p-8 border border-white/5 mb-6">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-calculator text-emerald-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white">Carbon Accounting</h3>
+                    <span class="text-xs text-emerald-400">Scope 1/2/3 • PCF • LCA • ISO Standards</span>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Emission Factors (2024)</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div class="flex justify-between"><span>Diesel</span><span class="text-emerald-400">2.68 kg CO₂e/L</span></div>
+                        <div class="flex justify-between"><span>Natural Gas</span><span class="text-emerald-400">2.00 kg CO₂e/m³</span></div>
+                        <div class="flex justify-between"><span>US Grid Avg</span><span class="text-emerald-400">0.417 kg/kWh</span></div>
+                        <div class="flex justify-between"><span>France (Nuclear)</span><span class="text-emerald-400">0.052 kg/kWh</span></div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Product Carbon Footprint</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Cradle-to-gate: Raw material to factory gate</div>
+                        <div>• Cradle-to-grave: Full lifecycle including use</div>
+                        <div>• Cradle-to-cradle: Including recycling/recovery</div>
+                        <div>• ISO 14067: Standard for PCF quantification</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Life Cycle Assessment</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• ISO 14040/14044: LCA principles & framework</div>
+                        <div>• Goal & scope definition</div>
+                        <div>• Inventory analysis (LCI)</div>
+                        <div>• Impact assessment (LCIA) + interpretation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GHG Protocol -->
+        <div class="glass rounded-2xl p-8 border border-white/5 mb-6">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-book text-cyan-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white">GHG Protocol</h3>
+                    <span class="text-xs text-cyan-400">Corporate Standard • Scope 2 • Scope 3</span>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Corporate Standard</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• 5 principles: Relevance, completeness, consistency, transparency, accuracy</div>
+                        <div>• Organizational boundaries: Equity share, financial control, operational control</div>
+                        <div>• Base year recalculation for structural changes</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Scope 2 Guidance</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Location-based method: Grid average factors</div>
+                        <div>• Market-based method: Contractual instruments (RECs, GOs, PPAs)</div>
+                        <div>• Dual reporting required for completeness</div>
+                        <div>• Residual mix for market-based claims</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Scope 3 Technical Guidance</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• 15 categories defined</div>
+                        <div>• Calculation methods: Spend-based, activity-based, hybrid</div>
+                        <div>• Supplier engagement & data quality</div>
+                        <div>• Science-based targets requirement if >40% of total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regulations & Policy -->
+        <div class="glass rounded-2xl p-8 border border-white/5 mb-6">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-gavel text-red-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white">Regulations & Policy</h3>
+                    <span class="text-xs text-red-400">CSRD • SEC • CBAM • Paris Agreement</span>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">EU Regulations</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div><span class="text-red-400 font-semibold">CSRD:</span> 50,000+ companies, double materiality, ESRS standards</div>
+                        <div><span class="text-red-400 font-semibold">CBAM:</span> Carbon border tax on imports (cement, steel, aluminum, fertilizers, hydrogen, electricity)</div>
+                        <div><span class="text-red-400 font-semibold">EU Taxonomy:</span> 6 environmental objectives, DNSH criteria</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">US Regulations</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div><span class="text-red-400 font-semibold">SEC Climate Rule:</span> Scope 1+2 disclosure, material Scope 3, phased implementation</div>
+                        <div><span class="text-red-400 font-semibold">California SB 253:</span> Climate Corporate Data Accountability Act</div>
+                        <div><span class="text-red-400 font-semibold">IRA:</span> $369B in climate & clean energy incentives</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Global Frameworks</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div><span class="text-red-400 font-semibold">Paris Agreement:</span> NDCs, 1.5°C target, Article 6 carbon markets</div>
+                        <div><span class="text-red-400 font-semibold">Montreal Protocol Kigali:</span> HFC phase-down (GWP reduction)</div>
+                        <div><span class="text-red-400 font-semibold">UN SDGs:</span> 17 goals, 169 targets</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carbon Pricing -->
+        <div class="glass rounded-2xl p-8 border border-white/5">
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-lime-500/10 border border-lime-500/20 flex items-center justify-center mr-4">
+                    <i class="fas fa-tags text-lime-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white">Carbon Pricing</h3>
+                    <span class="text-xs text-lime-400">EU ETS • Carbon Taxes • VCM • Article 6</span>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Compliance Markets</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div class="flex justify-between"><span>EU ETS</span><span class="text-lime-400">€82.50/t</span></div>
+                        <div class="flex justify-between"><span>UK ETS</span><span class="text-lime-400">£54.30/t</span></div>
+                        <div class="flex justify-between"><span>California</span><span class="text-lime-400">$34.75/t</span></div>
+                        <div class="flex justify-between"><span>China ETS</span><span class="text-lime-400">¥78.50/t</span></div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Voluntary Carbon Market</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Verra VCS: Largest program, 1,800+ projects</div>
+                        <div>• Gold Standard: SDG-linked, rigorous</div>
+                        <div>• Integrity concerns: Additionality, permanence, leakage</div>
+                        <div>• IC-VCM Core Carbon Principles: Quality benchmark</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-white text-sm border-b border-white/10 pb-2">Article 6 & ITMOs</h4>
+                    <div class="text-sm text-gray-400 space-y-2">
+                        <div>• Article 6.2: Bilateral/country-to-country transfers</div>
+                        <div>• Article 6.4: Centralized UN mechanism (successor to CDM)</div>
+                        <div>• Corresponding adjustments: Prevent double counting</div>
+                        <div>• ITMOs: Internationally Transferred Mitigation Outcomes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Calculator -->
+<section id="calculator" class="py-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent"></div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-calculator text-emerald-400 mr-3"></i>Terrnix AI Carbon Calculator</h2>
+            <p class="text-gray-500">Real-time emissions with 2024 IPCC/EPA factors</p>
+        </div>
+
+        <div class="glass rounded-2xl border border-white/5 overflow-hidden">
+            <div class="bg-black/20 border-b border-white/5 p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center"><i class="fas fa-atom text-white text-xs"></i></div>
+                    <div><h3 class="text-white text-sm font-semibold">Emissions Engine</h3><p class="text-xs text-gray-500">v2.4 • IPCC AR6 • EPA 2024</p></div>
+                </div>
+                <span class="text-xs text-gray-500 flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>Updated Apr 2026</span>
+            </div>
+
+            <div class="flex border-b border-white/5">
+                <button onclick="switchTab('scope1')" id="tab-scope1" class="flex-1 py-3 text-sm font-medium tab-active flex items-center justify-center space-x-2"><i class="fas fa-fire"></i><span>Scope 1</span></button>
+                <button onclick="switchTab('scope2')" id="tab-scope2" class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-white transition flex items-center justify-center space-x-2"><i class="fas fa-bolt"></i><span>Scope 2</span></button>
+                <button onclick="switchTab('scope3')" id="tab-scope3" class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-white transition flex items-center justify-center space-x-2"><i class="fas fa-project-diagram"></i><span>Scope 3</span></button>
+            </div>
+
+            <div class="p-6 md:p-8">
+                <div id="calc-scope1" class="calc-panel">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Fuel Type</label>
+                            <select id="fuel-type" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none">
+                                <option value="2.68">Diesel — 2.68 kg CO₂e/L</option>
+                                <option value="2.31">Gasoline — 2.31 kg CO₂e/L</option>
+                                <option value="2.00">Natural Gas — 2.00 kg CO₂e/m³</option>
+                                <option value="1.51">Propane — 1.51 kg CO₂e/L</option>
+                                <option value="2.86">Coal — 2.86 kg CO₂e/kg</option>
+                                <option value="2.96">Fuel Oil — 2.96 kg CO₂e/L</option>
+                            </select>
+                            <span class="text-xs text-emerald-400">Source: EPA 2024</span>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Quantity</label>
+                            <input type="number" id="fuel-qty" placeholder="Amount..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Fleet Distance (km)</label>
+                            <input type="number" id="vehicle-km" placeholder="Total km..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Vehicle Type</label>
+                            <select id="vehicle-type" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none">
+                                <option value="0.171">Passenger Car (Gas) — 0.171 kg/km</option>
+                                <option value="0.156">Passenger Car (Diesel) — 0.156 kg/km</option>
+                                <option value="0.052">Passenger Car (Electric) — 0.052 kg/km</option>
+                                <option value="0.252">Light Truck — 0.252 kg/km</option>
+                                <option value="0.783">Heavy Duty Truck — 0.783 kg/km</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="calc-scope2" class="calc-panel hidden">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Electricity (kWh/year)</label>
+                            <input type="number" id="elec-kwh" placeholder="Annual kWh..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Grid Region</label>
+                            <select id="grid-region" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none">
+                                <option value="0.417">US Average — 0.417 kg/kWh</option>
+                                <option value="0.234">California — 0.234 kg/kWh</option>
+                                <option value="0.230">EU Average — 0.230 kg/kWh</option>
+                                <option value="0.193">UK — 0.193 kg/kWh</option>
+                                <option value="0.380">Germany — 0.380 kg/kWh</option>
+                                <option value="0.052">France — 0.052 kg/kWh</option>
+                                <option value="0.555">China — 0.555 kg/kWh</option>
+                                <option value="0.130">Canada — 0.130 kg/kWh</option>
+                                <option value="0.650">Australia — 0.650 kg/kWh</option>
+                                <option value="0.713">India — 0.713 kg/kWh</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Renewable %</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="range" id="renew-pct" min="0" max="100" value="0" class="slider flex-1" oninput="document.getElementById('renew-val').textContent=this.value+'%'">
+                                <span id="renew-val" class="text-emerald-400 font-mono font-bold w-12">0%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Steam/Heat (GJ/year)</label>
+                            <input type="number" id="steam-gj" placeholder="Gigajoules..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="calc-scope3" class="calc-panel hidden">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Business Travel (km/year)</label>
+                            <input type="number" id="travel-km" placeholder="Air + ground..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Purchased Goods ($/year)</label>
+                            <input type="number" id="purchased" placeholder="Annual spend..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Employee Commuting (km)</label>
+                            <input type="number" id="commute-km" placeholder="Total commute..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Waste Generated (kg)</label>
+                            <input type="number" id="waste-kg" placeholder="Total waste..." class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-col md:flex-row gap-4">
+                    <button onclick="calculate()" class="flex-1 bg-emerald-500 text-black px-8 py-4 rounded-xl font-bold hover:bg-emerald-400 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-microchip"></i><span>Calculate with Terrnix AI</span>
+                    </button>
+                    <button onclick="resetCalc()" class="px-8 py-4 rounded-xl border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-rotate-left"></i><span>Reset</span>
+                    </button>
+                </div>
+
+                <div id="calc-results" class="mt-8 hidden">
+                    <div class="bg-black/30 border border-emerald-500/20 rounded-2xl p-6">
+                        <div class="flex items-center mb-4"><i class="fas fa-chart-pie text-emerald-400 mr-2"></i><h3 class="text-white font-semibold">Terrnix AI Analysis</h3></div>
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="glass rounded-lg p-4 text-center border border-red-500/20">
+                                <p class="text-xs text-gray-500 uppercase">Scope 1</p>
+                                <p class="text-2xl font-bold text-red-400" id="res-s1">0</p>
+                                <p class="text-xs text-gray-500">tCO₂e</p>
+                            </div>
+                            <div class="glass rounded-lg p-4 text-center border border-orange-500/20">
+                                <p class="text-xs text-gray-500 uppercase">Scope 2</p>
+                                <p class="text-2xl font-bold text-orange-400" id="res-s2">0</p>
+                                <p class="text-xs text-gray-500">tCO₂e</p>
+                            </div>
+                            <div class="glass rounded-lg p-4 text-center border border-emerald-500/20">
+                                <p class="text-xs text-gray-500 uppercase">Scope 3</p>
+                                <p class="text-2xl font-bold text-emerald-400" id="res-s3">0</p>
+                                <p class="text-xs text-gray-500">tCO₂e</p>
+                            </div>
+                        </div>
+                        <div class="glass rounded-lg p-6 text-center border-2 border-emerald-500/30 bg-emerald-500/5">
+                            <p class="text-sm text-gray-400">Total Carbon Footprint</p>
+                            <p class="text-5xl font-display font-bold text-white" id="res-total">0</p>
+                            <p class="text-sm text-gray-500 mt-1">tonnes CO₂e / year</p>
+                            <div id="ai-insight" class="mt-4 text-sm text-emerald-400 bg-emerald-500/10 rounded-lg p-3"></div>
+                        </div>
+                        <div class="mt-4 h-64"><canvas id="emissionsChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Chatbot -->
+<section id="chatbot" class="py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-4">
+                <i class="fas fa-sparkles text-emerald-400 text-xs"></i>
+                <span class="text-emerald-400 text-sm">Terrnix AI — Sustainability Expert</span>
+            </div>
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-robot text-cyan-400 mr-3"></i>Ask Terrnix AI</h2>
+            <p class="text-gray-500">Deep expertise on energy, carbon accounting, ESG, regulations, and green finance</p>
+        </div>
+
+        <div class="glass rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+            <div class="gradient-bg p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center"><i class="fas fa-robot text-white"></i></div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm">Terrnix AI</h3>
+                        <div class="flex items-center space-x-2"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span><span class="text-white/70 text-xs">Online • Sustainability Intelligence</span></div>
+                    </div>
+                </div>
+                <span class="text-xs text-white/60 bg-white/10 px-2 py-1 rounded">v2.0</span>
+            </div>
+
+            <div id="chat-messages" class="h-[24rem] overflow-y-auto p-4 space-y-4 bg-black/20">
+                <div class="chat-msg flex items-start">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-robot text-white text-xs"></i></div>
+                    <div class="glass rounded-xl p-3 max-w-[80%] border border-white/5">
+                        <p class="text-gray-300 text-sm">Hello! I'm Terrnix AI. I can help with:</p>
+                        <div class="grid grid-cols-2 gap-2 mt-2 text-xs text-gray-500">
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>Energy & LCOE analysis</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>Carbon accounting (Scope 1/2/3)</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>ESG frameworks (GRI, ISSB, CSRD)</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>Carbon pricing & EU ETS</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>Climate regulations (CBAM, SEC)</div>
+                            <div><i class="fas fa-check text-emerald-400 mr-1"></i>GHG Protocol guidance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-black/30 border-t border-white/5">
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Ask about sustainability, carbon, ESG, regulations..." class="flex-1 bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-emerald-500 outline-none" onkeypress="if(event.key==='Enter')sendChat()">
+                    <button onclick="sendChat()" class="bg-emerald-500 text-black px-5 py-3 rounded-xl hover:bg-emerald-400 transition font-bold"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="flex gap-2 mt-3 overflow-x-auto pb-1">
+                    <button onclick="quickAsk('What is Scope 3 and why is it 70-90% of emissions?')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Scope 3?</button>
+                    <button onclick="quickAsk('Explain EU CBAM and how it affects imports')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">CBAM?</button>
+                    <button onclick="quickAsk('What are the differences between GRI, ISSB, and CSRD?')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">GRI vs ISSB?</button>
+                    <button onclick="quickAsk('How do I set Science Based Targets?')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">SBTi targets?</button>
+                    <button onclick="quickAsk('Explain carbon credits and additionality')" class="text-xs bg-black/30 border border-gray-700 hover:border-emerald-500/50 text-gray-500 hover:text-emerald-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Carbon credits?</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quiz -->
+<section id="quiz" class="py-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent"></div>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-brain text-purple-400 mr-3"></i>Terrnix Knowledge Challenge</h2>
+            <p class="text-gray-500">30 questions across 6 topics • 3 difficulty levels</p>
+        </div>
+
+        <div class="glass rounded-2xl border border-white/5 overflow-hidden">
+            <div id="quiz-start" class="p-8 md:p-12 text-center">
+                <div class="w-20 h-20 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-award text-3xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white mb-2">Test Your Sustainability Intelligence</h3>
+                <p class="text-gray-500 mb-6">30 questions across 6 deep-dive topics with 3 difficulty levels.</p>
+                <div class="flex justify-center gap-6 mb-8">
+                    <div class="text-center"><div class="text-2xl font-bold text-emerald-400">30</div><div class="text-xs text-gray-500">Questions</div></div>
+                    <div class="w-px bg-gray-700"></div>
+                    <div class="text-center"><div class="text-2xl font-bold text-cyan-400">6</div><div class="text-xs text-gray-500">Topics</div></div>
+                    <div class="w-px bg-gray-700"></div>
+                    <div class="text-center"><div class="text-2xl font-bold text-purple-400">3</div><div class="text-xs text-gray-500">Levels</div></div>
+                </div>
+                <div class="flex justify-center gap-3 mb-8">
+                    <span class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs border border-green-500/20">Beginner</span>
+                    <span class="px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 text-xs border border-yellow-500/20">Intermediate</span>
+                    <span class="px-3 py-1 rounded-full bg-red-500/10 text-red-400 text-xs border border-red-500/20">Advanced</span>
+                </div>
+                <button onclick="startQuiz()" class="px-10 py-4 rounded-xl gradient-bg text-white font-bold hover:opacity-90 transition">Start Challenge <i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+
+            <div id="quiz-question" class="hidden p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500">Question <span id="q-curr" class="text-white font-bold">1</span>/30</span>
+                        <span id="q-level" class="text-xs bg-black/30 border border-white/10 px-2 py-0.5 rounded text-gray-400">Beginner</span>
+                    </div>
+                    <span class="text-sm font-bold text-emerald-400">Score: <span id="q-score">0</span></span>
+                </div>
+                <div class="w-full bg-black/30 rounded-full h-2 mb-6"><div id="q-progress" class="gradient-bg h-2 rounded-full transition-all" style="width:3.33%"></div></div>
+                <div class="mb-2 flex items-center space-x-2">
+                    <span id="q-cat" class="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Energy</span>
+                    <span class="text-xs text-gray-600">|</span>
+                    <span id="q-topic" class="text-xs text-cyan-400">LCOE & Renewables</span>
+                </div>
+                <h3 id="q-text" class="text-xl font-display font-bold text-white my-4"></h3>
+                <div id="q-options" class="space-y-3"></div>
+                <div id="q-explain" class="hidden mt-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-lightbulb text-emerald-400 mt-1"></i>
+                        <div><p class="text-sm font-semibold text-emerald-400 mb-1">Terrnix AI Explanation</p><p id="q-explain-text" class="text-sm text-gray-400"></p></div>
+                    </div>
+                </div>
+                <button id="q-next" onclick="nextQ()" class="mt-6 w-full bg-emerald-500 text-black py-4 rounded-xl font-bold hover:bg-emerald-400 transition hidden">Next Question <i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+
+            <div id="quiz-result" class="hidden p-8 md:p-12 text-center">
+                <div class="w-24 h-24 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-trophy text-4xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-display font-bold text-white mb-2">Challenge Complete!</h3>
+                <p class="text-gray-500 mb-4">Your Terrnix Intelligence Score</p>
+                <div class="glass rounded-2xl p-8 border-2 border-emerald-500/30 mb-6 inline-block">
+                    <p class="text-6xl font-display font-bold gradient-text" id="final-score">0</p>
+                    <p class="text-sm text-gray-500 mt-1">out of 30</p>
+                </div>
+                <div class="grid grid-cols-3 gap-4 max-w-md mx-auto mb-6">
+                    <div class="text-center"><div class="text-lg font-bold text-green-400" id="score-beginner">0</div><div class="text-xs text-gray-500">Beginner</div></div>
+                    <div class="text-center"><div class="text-lg font-bold text-yellow-400" id="score-intermediate">0</div><div class="text-xs text-gray-500">Intermediate</div></div>
+                    <div class="text-center"><div class="text-lg font-bold text-red-400" id="score-advanced">0</div><div class="text-xs text-gray-500">Advanced</div></div>
+                </div>
+                <p id="result-msg" class="text-gray-300 mb-8 max-w-md mx-auto"></p>
+                <div class="flex justify-center gap-4">
+                    <button onclick="startQuiz()" class="px-8 py-3 rounded-xl gradient-bg text-white font-bold hover:opacity-90 transition"><i class="fas fa-redo mr-2"></i>Try Again</button>
+                    <button onclick="document.getElementById('quiz-result').classList.add('hidden');document.getElementById('quiz-start').classList.remove('hidden')" class="px-8 py-3 rounded-xl border border-gray-700 text-gray-400 hover:text-white transition">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Economics -->
+<section id="economics" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-display font-bold text-white mb-2"><i class="fas fa-chart-network text-emerald-400 mr-3"></i>Sustainability Economics</h2>
+            <p class="text-gray-500">Real-time market intelligence and green finance analytics</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <div class="glass rounded-2xl p-8 border border-white/5">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mr-3"><i class="fas fa-briefcase text-emerald-400"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white">The Business Case</h3>
+                </div>
+                <div class="space-y-5">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/5 flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-coins text-emerald-400"></i></div>
+                        <div><h4 class="font-semibold text-white text-sm">Cost Savings</h4><p class="text-sm text-gray-500">Energy efficiency reduces costs by <span class="text-emerald-400 font-bold">20-30%</span>.</p></div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/5 flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-shield-halved text-cyan-400"></i></div>
+                        <div><h4 class="font-semibold text-white text-sm">Risk Mitigation</h4><p class="text-sm text-gray-500">Protect against regulatory & physical risks.</p></div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-lime-500/5 flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-users text-lime-400"></i></div>
+                        <div><h4 class="font-semibold text-white text-sm">Talent & Reputation</h4><p class="text-sm text-gray-500"><span class="text-lime-400 font-bold">64%</span> of millennials avoid poor ESG companies.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-8 border border-white/5">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center mr-3"><i class="fas fa-tags text-cyan-400"></i></div>
+                        <h3 class="text-xl font-display font-bold text-white">Carbon Pricing</h3>
+                    </div>
+                    <span class="text-xs text-gray-500 bg-black/30 px-2 py-1 rounded">Live</span>
+                </div>
+                <div class="space-y-4" id="carbon-prices"></div>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-8 border border-white/5">
+            <div class="flex items-center mb-8">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mr-3"><i class="fas fa-landmark text-purple-400"></i></div>
+                <div><h3 class="text-xl font-display font-bold text-white">Green Finance Instruments</h3><p class="text-gray-500 text-sm">Market mechanisms driving the transition</p></div>
+            </div>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-emerald-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-leaf text-2xl text-emerald-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Green Bonds</h4><p class="text-xs text-gray-500">>$500B market annually</p>
+                </div>
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-cyan-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-hand-holding-dollar text-2xl text-cyan-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Sustainability Loans</h4><p class="text-xs text-gray-500">ESG-linked interest rates</p>
+                </div>
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-purple-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-right-left text-2xl text-purple-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Carbon Credits</h4><p class="text-xs text-gray-500">Voluntary & compliance</p>
+                </div>
+                <div class="glass rounded-xl p-5 text-center border border-white/5 hover:border-lime-500/30 transition">
+                    <div class="w-12 h-12 rounded-xl bg-lime-500/10 flex items-center justify-center mx-auto mb-3"><i class="fas fa-chart-line text-2xl text-lime-400"></i></div>
+                    <h4 class="font-bold text-white text-sm mb-1">Impact Investing</h4><p class="text-xs text-gray-500">Measurable returns</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/5 bg-black/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center"><i class="fas fa-leaf text-white text-xs"></i></div>
+                    <span class="text-lg font-display font-bold text-white">Terrnix</span>
+                </div>
+                <p class="text-gray-500 text-sm">AI-powered sustainability intelligence for organizations building a greener tomorrow.</p>
+            </div>
+            <div>
+                <h4 class="font-display font-bold text-white mb-4 text-sm">Platform</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li><a href="#fundamentals" class="hover:text-emerald-400 transition">Fundamentals</a></li>
+                    <li><a href="#topics" class="hover:text-emerald-400 transition">Deep Dive Topics</a></li>
+                    <li><a href="#calculator" class="hover:text-emerald-400 transition">AI Calculator</a></li>
+                    <li><a href="#chatbot" class="hover:text-emerald-400 transition">AI Assistant</a></li>
+                    <li><a href="#quiz" class="hover:text-emerald-400 transition">Knowledge Quiz</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-display font-bold text-white mb-4 text-sm">Resources</h4>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li><a href="#" class="hover:text-emerald-400 transition">GHG Protocol</a></li>
+                    <li><a href="#" class="hover:text-emerald-400 transition">IPCC Reports</a></li>
+                    <li><a href="#" class="hover:text-emerald-400 transition">Science Based Targets</a></li>
+                    <li><a href="#" class="hover:text-emerald-400 transition">CDP Disclosure</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-display font-bold text-white mb-4 text-sm">Stay Updated</h4>
+                <p class="text-sm text-gray-500 mb-3">Get AI-curated sustainability intelligence.</p>
+                <div class="flex">
+                    <input type="email" placeholder="your@email.com" class="flex-1 bg-black/30 border border-gray-700 rounded-l-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
+                    <button class="bg-emerald-500 text-black px-3 py-2 rounded-r-lg hover:bg-emerald-400 transition font-bold"><i class="fas fa-paper-plane text-xs"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/5 pt-6 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-sm text-gray-600"> 2026 Terrnix. Intelligence for a greener tomorrow.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="#" class="text-gray-600 hover:text-emerald-400 transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-gray-600 hover:text-emerald-400 transition"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="text-gray-600 hover:text-emerald-400 transition"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script>
+// ============================================
+// DATA
+// ============================================
+const newsData = [
+    {title:"EU CBAM Reporting Requirements Tightened for 2026",source:"European Commission",date:"2026-04-28",category:"Policy",summary:"Updated guidance requires more granular emissions data for imported cement, iron, steel, aluminum, fertilizers, electricity, and hydrogen.",icon:"fa-gavel",color:"red"},
+    {title:"Global Renewable Capacity Reaches 4,200 GW",source:"IRENA",date:"2026-04-25",category:"Energy",summary:"Renewable capacity grew by 473 GW in 2025, with solar PV accounting for 78% of new additions.",icon:"fa-solar-panel",color:"yellow"},
+    {title:"SEC Climate Disclosure Rules Face Appeals",source:"U.S. SEC",date:"2026-04-22",category:"Regulation",summary:"Eighth Circuit consolidates challenges. Scope 3 disclosure requirements remain stayed pending review.",icon:"fa-balance-scale",color:"blue"},
+    {title:"SBTi Validates 5,000th Corporate Target",source:"SBTi",date:"2026-04-20",category:"Corporate",summary:"Milestone reached. Draft Net-Zero Standard updates emphasize 90-95% value chain decarbonization.",icon:"fa-bullseye",color:"emerald"},
+    {title:"IPCC: 1.5°C Pathway Still Technically Feasible",source:"IPCC",date:"2026-04-18",category:"Climate",summary:"Requires global emissions to peak by 2025 and reduce 43% by 2030. Carbon removal essential.",icon:"fa-temperature-high",color:"orange"},
+    {title:"VCMI Releases Claims Code v2.0",source:"VCMI",date:"2026-04-15",category:"Markets",summary:"Stricter requirements for corresponding adjustments and permanence buffers in voluntary carbon markets.",icon:"fa-coins",color:"purple"},
+    {title:"Brazil to Host COP31 in Belém",source:"UNFCCC",date:"2026-04-12",category:"Policy",summary:"Focus on Amazon preservation, climate finance for developing nations, and Loss and Damage Fund.",icon:"fa-globe-americas",color:"green"},
+    {title:"Corporate Renewable PPAs Hit Record 50 GW",source:"BloombergNEF",date:"2026-04-10",category:"Energy",summary:"Technology companies represent 42% of contracted capacity through power purchase agreements.",icon:"fa-handshake",color:"cyan"},
+    {title:"EU Packaging Regulation Enters Force",source:"European Commission",date:"2026-04-08",category:"Regulation",summary:"Mandatory reuse targets, recycled content requirements, and standardized formats. All packaging recyclable by 2035.",icon:"fa-recycle",color:"emerald"},
+    {title:"Global Carbon Pricing Revenues Reach $120 Billion",source:"World Bank",date:"2026-04-05",category:"Economics",summary:"EU ETS accounts for 45% of total revenues. National carbon taxes in Canada and France follow.",icon:"fa-dollar-sign",color:"blue"}
+];
+
+const quizQuestions = [
+    // ENERGY & DECARBONIZATION (5 questions: 2 Beginner, 2 Intermediate, 1 Advanced)
+    {id:1,q:"What does LCOE stand for in renewable energy?",options:["Levelized Cost of Energy","Low Carbon Energy Output","Lifecycle Carbon Emissions Offset","Long-term Cost of Electricity"],correct:0,explain:"LCOE = Levelized Cost of Energy. It represents the average cost per unit of electricity generated over a project's lifetime, allowing comparison across technologies.",level:"Beginner",cat:"Energy",topic:"LCOE & Renewables"},
+    {id:2,q:"Which renewable source had the lowest LCOE in 2024?",options:["Offshore wind","Solar PV","Onshore wind","Hydropower"],correct:2,explain:"Onshore wind and utility-scale solar PV typically have the lowest LCOE globally, often $0.03-0.05/kWh, beating fossil fuels in most markets.",level:"Beginner",cat:"Energy",topic:"LCOE & Renewables"},
+    {id:3,q:"A company signs a 10-year agreement to buy solar power at a fixed price from a project they don't own. This is:",options:["Physical PPA","Virtual PPA","Green Tariff","Direct Investment"],correct:1,explain:"A Virtual PPA is a financial contract where the buyer hedges electricity prices and receives RECs, without taking physical delivery. The project sells power to the grid.",level:"Intermediate",cat:"Energy",topic:"PPAs"},
+    {id:4,q:"What is the typical round-trip efficiency of lithium-ion battery storage?",options:["60-70%","85-95%","95-98%","70-80%"],correct:1,explain:"Lithium-ion BESS typically achieves 85-95% round-trip efficiency, meaning 5-15% of energy is lost during charge/discharge cycles.",level:"Intermediate",cat:"Energy",topic:"Storage"},
+    {id:5,q:"Under the GHG Protocol, how should a company account for renewable energy from a Virtual PPA in Scope 2?",options:["Location-based only","Market-based with residual mix","No accounting needed","Subtract from Scope 1"],correct:1,explain:"Virtual PPAs provide contractual instruments for market-based Scope 2 reporting. However, companies must use the residual mix to avoid double-counting grid-average reductions.",level:"Advanced",cat:"Energy",topic:"Scope 2 Guidance"},
+
+    // ESG & REPORTING (5 questions)
+    {id:6,q:"What does 'double materiality' mean in the EU CSRD?",options:["Financial + Impact materiality","Scope 1 + Scope 2","Internal + External audit","Short-term + Long-term risks"],correct:0,explain:"Double materiality requires companies to report both: (1) how sustainability issues affect their financial value (financial materiality), AND (2) how their activities impact people and the environment (impact materiality).",level:"Beginner",cat:"ESG",topic:"CSRD/ESRS"},
+    {id:7,q:"Which framework focuses specifically on climate-related financial disclosures?",options:["GRI Standards","SASB","TCFD","CDP"],correct:2,explain:"TCFD (Task Force on Climate-related Financial Disclosures) focuses on governance, strategy, risk management, and metrics/targets for climate risks. It's being superseded by ISSB standards.",level:"Beginner",cat:"ESG",topic:"Frameworks"},
+    {id:8,q:"A company scores 'AAA' on MSCI ESG. What does this mean?",options:["Highest ESG rating","Average performance","Needs improvement","Excluded from index"],correct:0,explain:"MSCI ESG ratings range from AAA (leader) to CCC (laggard). AAA indicates the company is an ESG leader relative to industry peers.",level:"Intermediate",cat:"ESG",topic:"Ratings"},
+    {id:9,q:"Under SFDR, what distinguishes Article 9 funds from Article 8?",options:["Article 9 has sustainable investment as objective; Article 8 promotes ESG characteristics","Article 8 is higher standard","Article 9 is for green bonds only","No difference"],correct:0,explain:"SFDR Article 9 = 'dark green' funds with sustainable investment as objective. Article 8 = 'light green' funds that promote environmental or social characteristics.",level:"Intermediate",cat:"ESG",topic:"Sustainable Finance"},
+    {id:10,q:"In the EU Taxonomy, what does 'DNSH' stand for and why is it critical?",options:["Do No Significant Harm — activities must not harm other environmental objectives","Direct Non-Standard Hazard","Double Net Sustainability Hedge","Dynamic Natural System Health"],correct:0,explain:"DNSH = Do No Significant Harm. For an activity to be Taxonomy-aligned, it must substantially contribute to one environmental objective while NOT significantly harming the other five.",level:"Advanced",cat:"ESG",topic:"EU Taxonomy"},
+
+    // CARBON ACCOUNTING (5 questions)
+    {id:11,q:"What is the global warming potential (GWP) of methane over 100 years (IPCC AR6)?",options:["1","29.8","273","23,500"],correct:1,explain:"CH4 has a GWP of 29.8 over 100 years per IPCC AR6. CO2 = 1 (baseline), N2O = 273, SF6 = 23,500.",level:"Beginner",cat:"Carbon Accounting",topic:"Emission Factors"},
+    {id:12,q:"Which ISO standard specifically addresses carbon footprint of products?",options:["ISO 14001","ISO 14040","ISO 14067","ISO 50001"],correct:2,explain:"ISO 14067 specifies principles and requirements for quantifying and reporting the carbon footprint of products (CFP). ISO 14040/14044 are for general LCA.",level:"Beginner",cat:"Carbon Accounting",topic:"ISO Standards"},
+    {id:13,q:"A company uses spend-based method for Scope 3 Category 1. What is a key limitation?",options:["Less accurate than activity-based","Only works for manufacturing","Cannot be used for SBTi","Illegal in EU"],correct:0,explain:"Spend-based methods use economic data (purchasing $) and average emission factors, which are less accurate than activity-based methods (kg, kWh, km) because they don't reflect actual supplier processes.",level:"Intermediate",cat:"Carbon Accounting",topic:"Scope 3 Methods"},
+    {id:14,q:"In a cradle-to-gate LCA, what system boundary is included?",options:["Raw material extraction to factory gate","Factory gate to consumer use","Full lifecycle including end-of-life","Only manufacturing phase"],correct:0,explain:"Cradle-to-gate covers raw material extraction through production to the factory gate. Cradle-to-grave adds use phase and end-of-life. Cradle-to-cradle includes recycling/recovery.",level:"Intermediate",cat:"Carbon Accounting",topic:"LCA"},
+    {id:15,q:"When calculating PCF (Product Carbon Footprint), which allocation method is preferred for multi-output processes?",options:["Physical allocation (mass/energy)","Economic allocation","System expansion","No allocation needed"],correct:2,explain:"ISO 14044 hierarchy: (1) System expansion (avoid allocation by expanding system boundaries), (2) Physical allocation (mass/energy), (3) Economic allocation (last resort). System expansion is preferred when possible.",level:"Advanced",cat:"Carbon Accounting",topic:"PCF"},
+
+    // GHG PROTOCOL (5 questions)
+    {id:16,q:"Under GHG Protocol Corporate Standard, which boundary approach includes emissions from joint ventures based on ownership percentage?",options:["Operational control","Financial control","Equity share","Equity control"],correct:2,explain:"Equity share approach: account for GHG emissions according to your share of equity in the operation. Financial control = 100% of controlled operations. Operational control = 100% of operations where you have authority.",level:"Beginner",cat:"GHG Protocol",topic:"Corporate Standard"},
+    {id:17,q:"What is the primary difference between location-based and market-based Scope 2 reporting?",options:["Location uses grid averages; market uses contractual instruments","Location is for Scope 1; market is for Scope 2","Location is mandatory; market is voluntary","No difference — same result"],correct:0,explain:"Location-based uses average grid emission factors for your region. Market-based uses contractual instruments (RECs, GOs, PPAs) to claim specific low-carbon energy. Companies should report both.",level:"Beginner",cat:"GHG Protocol",topic:"Scope 2 Guidance"},
+    {id:18,q:"For Scope 3 Category 11 (Use of Sold Products), which type of company typically has the highest emissions?",options:["Software company","Oil & gas producer","Retail bank","Consulting firm"],correct:1,explain:"Oil & gas companies have massive Category 11 emissions because the combustion of their sold products (gasoline, diesel, natural gas) by end-users represents the vast majority of their value chain footprint.",level:"Intermediate",cat:"GHG Protocol",topic:"Scope 3 Categories"},
+    {id:19,q:"A company acquires another firm mid-year. How should they handle base year recalculation?",options:["Recalculate base year to include acquired entity","Ignore acquisition for base year","Start new base year","Only include from acquisition date"],correct:0,explain:"GHG Protocol requires base year recalculation for structural changes (mergers, acquisitions, divestitures) to maintain consistency and comparability over time.",level:"Intermediate",cat:"GHG Protocol",topic:"Corporate Standard"},
+    {id:20,q:"In Scope 3 Category 3 (Fuel & Energy-Related Activities), what is included that is NOT in Scope 1 or 2?",options:["Upstream emissions from fuel production & transport","Fuel combustion","Electricity consumption","Steam usage"],correct:0,explain:"Category 3 captures upstream emissions from producing and transporting fuels and electricity (well-to-tank), which are excluded from Scope 1 (combustion) and Scope 2 (generation).",level:"Advanced",cat:"GHG Protocol",topic:"Scope 3 Technical"},
+
+    // REGULATIONS (5 questions)
+    {id:21,q:"Which EU regulation requires companies to report on their value chain impacts (Scope 3)?",options:["EU Taxonomy","CSRD","CBAM","SFDR"],correct:1,explain:"CSRD (Corporate Sustainability Reporting Directive) requires large companies and listed SMEs to report on sustainability impacts, including material Scope 3 emissions, using ESRS standards.",level:"Beginner",cat:"Regulations",topic:"CSRD"},
+    {id:22,q:"What is the primary purpose of the EU CBAM?",options:["Prevent carbon leakage","Fund renewable projects","Tax all imports","Replace EU ETS"],correct:0,explain:"CBAM (Carbon Border Adjustment Mechanism) prevents carbon leakage by putting a carbon price on imports from countries with weaker climate policies, ensuring EU climate action isn't undermined.",level:"Beginner",cat:"Regulations",topic:"CBAM"},
+    {id:23,q:"Under the SEC Climate Disclosure Rule, which scope of emissions requires assurance?",options:["Scope 1 only","Scope 1 and 2 (limited assurance phased to reasonable)","All scopes immediately","No assurance required"],correct:1,explain:"The SEC rule requires limited assurance for Scope 1 and 2 (phasing to reasonable assurance over time). Scope 3 is only disclosed if material and subject to safe harbor.",level:"Intermediate",cat:"Regulations",topic:"SEC"},
+    {id:24,q:"What does Article 6.4 of the Paris Agreement establish?",options:["A centralized UN carbon crediting mechanism","Bilateral country transfers","Loss and Damage Fund","Technology transfer mandate"],correct:0,explain:"Article 6.4 establishes a centralized mechanism under UN supervision for trading carbon credits between countries (successor to CDM). Article 6.2 covers bilateral transfers with corresponding adjustments.",level:"Intermediate",cat:"Regulations",topic:"Paris Agreement"},
+    {id:25,q:"Under the Inflation Reduction Act (IRA), what is the approximate value of climate and clean energy provisions?",options:["$50 billion","$180 billion","$369 billion","$500 billion"],correct:2,explain:"The IRA includes approximately $369 billion in climate and clean energy incentives through tax credits, grants, and loan guarantees, making it the largest US climate investment in history.",level:"Advanced",cat:"Regulations",topic:"IRA"},
+
+    // CARBON PRICING (5 questions)
+    {id:26,q:"What is the approximate current price in the EU ETS (early 2026)?",options:["€20-30/t","€50-60/t","€80-90/t","€120-130/t"],correct:2,explain:"The EU ETS price stabilized around €80-90/t in early 2026, reflecting tightened supply through the Market Stability Reserve and increased ambition.",level:"Beginner",cat:"Carbon Pricing",topic:"EU ETS"},
+    {id:27,q:"What is 'additionality' in the voluntary carbon market?",options:["The project would not happen without carbon credit revenue","The project adds carbon to the atmosphere","Additional credits beyond baseline","Additional monitoring requirements"],correct:0,explain:"Additionality means the emission reductions or removals would not have occurred without the incentive from carbon credit sales. It's a fundamental quality criterion for carbon credits.",level:"Beginner",cat:"Carbon Pricing",topic:"VCM"},
+    {id:28,q:"A company buys carbon credits to offset emissions while continuing business as usual. This is:",options:["Carbon neutral claim","Net zero claim","Science-based target","Greenwashing risk"],correct:3,explain:"Buying credits without reducing underlying emissions is increasingly viewed as greenwashing. Net Zero requires 90-95% absolute reduction before neutralizing residuals. Carbon neutral can use offsets.",level:"Intermediate",cat:"Carbon Pricing",topic:"VCM Integrity"},
+    {id:29,q:"What is a 'corresponding adjustment' under Article 6 of the Paris Agreement?",options:["Adjusting national inventories to prevent double counting","Adjusting carbon prices","Corresponding tax adjustments","Adjusting project baselines"],correct:0,explain:"Corresponding adjustments ensure that when one country sells carbon credits (ITMOs) to another, the selling country adjusts its national GHG inventory to prevent double counting of the same emission reduction.",level:"Intermediate",cat:"Carbon Pricing",topic:"Article 6"},
+    {id:30,q:"In the EU ETS, what is the Market Stability Reserve (MSR) designed to do?",options:["Adjust auction volumes based on surplus allowances","Fix carbon prices at €100","Replace auctioning with free allocation","Fund climate adaptation projects"],correct:0,explain:"The MSR automatically adjusts the number of allowances auctioned based on the total number of allowances in circulation. If surplus exceeds a threshold, 24% of allowances are moved to the reserve, tightening supply and supporting prices.",level:"Advanced",cat:"Carbon Pricing",topic:"EU ETS Mechanism"}
+];
+
+const carbonPricing = [
+    {name:"EU ETS",price:89.20,trend:"Stable",color:"emerald"},
+    {name:"UK ETS",price:68.40,trend:"Declining",color:"cyan"},
+    {name:"California",price:34.75,trend:"Rising",color:"yellow"},
+    {name:"China ETS",price:10.80,trend:"Rising",color:"red"},
+    {name:"Canada",price:61.20,trend:"Scheduled",color:"purple"},
+    {name:"South Korea",price:8.90,trend:"Rising",color:"blue"},
+    {name:"New Zealand",price:40.20,trend:"Stable",color:"green"}
+];
+
+const chatKnowledge = {
+    "scope 1": "Scope 1 emissions are direct GHG emissions from sources owned or controlled by your organization. This includes: stationary combustion (boilers, furnaces), mobile combustion (company vehicles), process emissions (chemical reactions), and fugitive emissions (refrigeration leaks, methane). These are typically the easiest to measure because you control the data sources.",
+    "scope 2": "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling. You have two reporting methods: Location-Based (using average grid emission factors for your region) and Market-Based (using contractual instruments like RECs, GOs, or PPAs). Most companies report both. The GHG Protocol Scope 2 Guidance (2015) mandates dual reporting for completeness.",
+    "scope 3": "Scope 3 includes all other indirect emissions in your value chain and typically represents 70-90% of total emissions. The GHG Protocol defines 15 categories: (1) Purchased Goods & Services, (2) Capital Goods, (3) Fuel & Energy-Related Activities, (4) Upstream Transportation, (5) Waste, (6) Business Travel, (7) Employee Commuting, (8) Upstream Leased Assets, (9) Downstream Transportation, (10) Processing of Sold Products, (11) Use of Sold Products, (12) End-of-Life Treatment, (13) Downstream Leased Assets, (14) Franchises, (15) Investments. SBTi requires Scope 3 targets if Scope 3 is >40% of total.",
+    "carbon footprint": "To calculate your carbon footprint: (1) Define organizational boundaries (equity share, financial control, or operational control). (2) Identify emission sources across all scopes. (3) Collect activity data (fuel receipts, utility bills, travel records, procurement spend). (4) Apply emission factors (kg CO2e per unit). (5) Calculate and convert to tonnes CO2e. (6) Set a base year and track progress. Use our Terrnix AI Calculator for automated computation with 2024 EPA/IPCC factors!",
+    "esg": "ESG stands for Environmental, Social, and Governance. Major frameworks: ISSB IFRS S1/S2 (global baseline, capital markets), GRI Standards (multi-stakeholder impact), CSRD/ESRS (EU mandatory, double materiality), and TCFD (climate risk, being superseded). Rating agencies include MSCI (AAA-CCC), Sustainalytics (risk scores), CDP (A-D climate/water/forest scores), and ISS ESG. Sustainable finance instruments include Green Bonds, Sustainability-Linked Loans, and the EU Taxonomy with 6 environmental objectives.",
+    "cbam": "The EU Carbon Border Adjustment Mechanism (CBAM) prevents carbon leakage by putting a carbon price on imports of cement, iron, steel, aluminum, fertilizers, hydrogen, and electricity. During the transitional phase (2023-2025), importers must report embedded emissions quarterly. From 2026, they must purchase CBAM certificates matching the EU ETS price. This affects any company exporting these goods to the EU, regardless of location.",
+    "carbon tax": "Carbon taxes put a direct price on carbon emissions. Examples: Canada's federal backstop is CAD $85/t (rising to $170/t by 2030). France's carbon tax is around €45/t for non-ETS sectors. Unlike cap-and-trade systems (like EU ETS), carbon taxes provide price certainty but no emissions cap. Many jurisdictions use hybrid systems combining both approaches.",
+    "net zero": "Net Zero means reducing greenhouse gas emissions as close to zero as possible, with any residual emissions permanently removed from the atmosphere. According to SBTi Net-Zero Standard, this requires 90-95% absolute reduction across Scopes 1, 2, and 3 before neutralizing residuals through carbon removals (not avoidance offsets). 'Carbon Neutral' can be achieved through offsetting without deep decarbonization — this is a key distinction.",
+    "renewable": "Major renewable sources: Solar PV (fastest growing, LCOE $0.03-0.06/kWh), Onshore Wind ($0.03-0.05/kWh), Offshore Wind ($0.07-0.12/kWh), Hydropower (largest installed base), Geothermal, and Biomass. Corporate procurement options: Virtual PPAs (financial hedge + RECs), Physical PPAs (direct offtake), Green Tariffs (utility programs), and on-site generation. Storage solutions include lithium-ion BESS (85-95% efficiency), pumped hydro, and flow batteries.",
+    "ghg protocol": "The GHG Protocol is the world's most widely used greenhouse gas accounting standard, developed by WRI and WBCSD. Key documents: Corporate Accounting and Reporting Standard (Scope 1/2), Corporate Value Chain Standard (Scope 3), Scope 2 Guidance (market vs. location-based), and Product Standard (lifecycle). Most corporate sustainability reports and CDP submissions follow GHG Protocol methodology. It defines 5 principles: relevance, completeness, consistency, transparency, and accuracy.",
+    "science based": "Science Based Targets (SBTs) are emissions reduction targets aligned with climate science to limit global warming to 1.5°C or well-below 2°C. The Science Based Targets initiative (SBTi) validates corporate targets. Requirements: Scope 1+2 targets must align with 1.5°C pathways. Scope 3 targets required if Scope 3 is >40% of total emissions. Near-term targets cover 5-10 years; Net-zero targets cover 2040-2050 with 90-95% absolute reduction required.",
+    "green finance": "Green finance instruments include: Green Bonds (proceeds for climate projects, >$500B market), Sustainability-Linked Loans (interest tied to ESG KPIs), Transition Bonds (for hard-to-abate sectors), Carbon Credits (voluntary and compliance markets), and Blended Finance (public-private partnerships). The EU Taxonomy defines 6 environmental objectives: climate change mitigation, adaptation, water, circular economy, pollution prevention, and biodiversity.",
+    "carbon credit": "Carbon credits represent one tonne of CO2e reduced or removed. Two markets: Compliance (regulated, e.g., EU ETS, California cap-and-trade) and Voluntary (purchased for offsetting). Major voluntary standards: Verra VCS (largest), Gold Standard (SDG-linked), American Carbon Registry, and Climate Action Reserve. Quality concerns include additionality (would it happen without credits?), permanence (will it last?), leakage (did emissions shift elsewhere?), and double counting. Article 6 of the Paris Agreement establishes rules for international transfers with corresponding adjustments.",
+    "water": "Water stewardship goes beyond efficiency to address shared water challenges. Key concepts: Water Footprint (direct + indirect use in m³), Water Stress (ratio of demand to supply), and Water Risk (physical, regulatory, reputational). The CEO Water Mandate and Alliance for Water Stewardship (AWS) Standard provide frameworks. For most companies, water is material if operations are in water-stressed regions or if water is a significant input. CDP Water Security questionnaire covers governance, strategy, and performance.",
+    "circular": "Circular economy aims to eliminate waste and keep materials in use. Principles: (1) Design out waste and pollution, (2) Keep products and materials in use, (3) Regenerate natural systems. Business models: Product-as-a-Service, Sharing Platforms, Product Life Extension, and Resource Recovery. The Ellen MacArthur Foundation provides implementation frameworks. Measuring circularity: Material Circularity Indicator (MCI) and Circularity Gap Reporting. EU Circular Economy Action Plan targets include making all packaging recyclable by 2035.",
+    "energy": "Energy decarbonization involves transitioning to renewable sources, improving energy efficiency, and implementing storage solutions. Key metrics: LCOE (Levelized Cost of Energy), capacity factor, and grid integration costs. Corporate procurement through PPAs (Power Purchase Agreements) has reached record levels. Grid modernization includes smart grids, demand response, and sector coupling (linking electricity, heating, and transport). Green hydrogen produced via electrolysis is emerging for hard-to-abate sectors.",
+    "lcoe": "LCOE (Levelized Cost of Energy) represents the average cost per unit of electricity generated over a project's lifetime, allowing comparison across technologies. In 2024, typical LCOE ranges: Solar PV $0.03-0.06/kWh, Onshore Wind $0.03-0.05/kWh, Offshore Wind $0.07-0.12/kWh, Coal $0.08-0.15/kWh, Gas $0.06-0.10/kWh. Renewables are now cheapest in most markets without subsidies.",
+    "ppa": "Power Purchase Agreements (PPAs) are long-term contracts between energy buyers and renewable energy projects. Virtual PPAs are financial hedges where the buyer receives RECs and price differential payments without physical delivery. Physical PPAs involve direct offtake. Corporate PPAs reached a record 50+ GW globally in 2025, with tech companies leading procurement. Benefits: price stability, renewable claims, and additionality.",
+    "issb": "The International Sustainability Standards Board (ISSB) sets global baseline sustainability disclosure standards: IFRS S1 (General Sustainability-related Disclosures) and IFRS S2 (Climate-related Disclosures). S2 incorporates TCFD recommendations and requires disclosure of Scope 1, 2, and 3 emissions, climate risks and opportunities, and transition plans. ISSB standards are designed for capital markets and are being adopted by jurisdictions globally.",
+    "csrd": "The Corporate Sustainability Reporting Directive (CSRD) requires approximately 50,000 EU companies and non-EU companies with EU operations to report sustainability information using European Sustainability Reporting Standards (ESRS). Key features: double materiality (financial + impact), mandatory Scope 3 reporting if material, digital tagging (XBRL), and assurance requirements. Phased implementation from 2024-2028 based on company size.",
+    "default": "I can help with sustainability topics including: Energy & Decarbonization (LCOE, PPAs, storage, grid), Carbon Accounting (Scope 1/2/3, PCF, LCA, ISO standards), ESG & Reporting (GRI, ISSB, CSRD/ESRS, EU Taxonomy, ratings), Carbon Pricing (EU ETS, carbon taxes, VCM, additionality, Article 6), Regulations (Paris Agreement, SEC, CBAM, IRA), and GHG Protocol (Corporate Standard, Scope 2 & 3 Guidance). What would you like to explore?"
+};
+
+// ============================================
+// NEWS
+// ============================================
+let newsIdx = 0;
+function renderNews() {
+    const c = document.getElementById('news-container');
+    c.innerHTML = '';
+    newsData.slice(newsIdx, newsIdx + 3).forEach(n => {
+        const d = document.createElement('div');
+        d.className = 'glass rounded-2xl p-6 border border-white/5 hover:border-emerald-500/30 transition';
+        d.innerHTML = `<div class="flex justify-between items-start mb-3"><span class="bg-black/30 border border-white/10 text-gray-400 text-xs font-bold px-2 py-1 rounded-full">${n.category}</span><span class="text-xs text-gray-600">${n.date}</span></div><h3 class="font-display font-bold text-white mb-2 text-sm">${n.title}</h3><p class="text-gray-500 text-xs mb-3">${n.summary}</p><div class="flex items-center justify-between pt-3 border-t border-white/5"><span class="text-xs text-gray-600"><i class="fas fa-${n.icon} mr-1 text-emerald-400"></i>${n.source}</span><span class="text-emerald-400 text-xs font-semibold">Read <i class="fas fa-arrow-right text-[10px]"></i></span></div>`;
+        c.appendChild(d);
+    });
+}
+function loadMoreNews() { newsIdx = (newsIdx + 3) % newsData.length; renderNews(); }
+
+// ============================================
+// CARBON PRICING
+// ============================================
+function renderCarbon() {
+    const c = document.getElementById('carbon-prices');
+    if (!c) return;
+    const maxP = Math.max(...carbonPricing.map(p => p.price));
+    c.innerHTML = '';
+    carbonPricing.forEach(p => {
+        const w = (p.price / maxP) * 100;
+        const tc = p.trend === 'Rising' ? 'text-green-400' : p.trend === 'Declining' ? 'text-red-400' : 'text-yellow-400';
+        const ti = p.trend === 'Rising' ? 'fa-arrow-trend-up' : p.trend === 'Declining' ? 'fa-arrow-trend-down' : 'fa-minus';
+        const d = document.createElement('div');
+        d.innerHTML = `<div class="flex justify-between mb-1"><span class="text-sm text-white">${p.name}</span><div class="flex items-center space-x-2"><span class="text-sm font-bold text-emerald-400">$${p.price.toFixed(2)}/t</span><span class="text-xs ${tc}"><i class="fas ${ti}"></i></span></div></div><div class="w-full bg-black/30 rounded-full h-2"><div class="gradient-bg h-2 rounded-full" style="width:${w}%"></div></div>`;
+        c.appendChild(d);
+    });
+}
+
+// ============================================
+// CALCULATOR
+// ============================================
+let eChart = null;
+function switchTab(tab) {
+    document.querySelectorAll('.calc-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById('calc-'+tab).classList.remove('hidden');
+    document.querySelectorAll('[id^="tab-"]').forEach(t => { t.classList.remove('tab-active'); t.classList.add('text-gray-500'); });
+    document.getElementById('tab-'+tab).classList.add('tab-active');
+    document.getElementById('tab-'+tab).classList.remove('text-gray-500');
+}
+function calculate() {
+    const fuelFactor = parseFloat(document.getElementById('fuel-type').value);
+    const fuelQty = parseFloat(document.getElementById('fuel-qty').value) || 0;
+    const vKm = parseFloat(document.getElementById('vehicle-km').value) || 0;
+    const vFactor = parseFloat(document.getElementById('vehicle-type').value);
+    const s1 = (fuelQty * fuelFactor + vKm * vFactor) / 1000;
+
+    const kwh = parseFloat(document.getElementById('elec-kwh').value) || 0;
+    const gridFactor = parseFloat(document.getElementById('grid-region').value);
+    const renPct = parseFloat(document.getElementById('renew-pct').value) || 0;
+    const steam = parseFloat(document.getElementById('steam-gj').value) || 0;
+    const s2 = (kwh * gridFactor * (1 - renPct/100) + steam * 75) / 1000;
+
+    const tKm = parseFloat(document.getElementById('travel-km').value) || 0;
+    const purch = parseFloat(document.getElementById('purchased').value) || 0;
+    const cKm = parseFloat(document.getElementById('commute-km').value) || 0;
+    const waste = parseFloat(document.getElementById('waste-kg').value) || 0;
+    const s3 = (tKm * 0.15 + purch * 0.0003 + cKm * 0.12 + waste * 0.5) / 1000;
+
+    const total = s1 + s2 + s3;
+
+    document.getElementById('res-s1').textContent = s1.toFixed(2);
+    document.getElementById('res-s2').textContent = s2.toFixed(2);
+    document.getElementById('res-s3').textContent = s3.toFixed(2);
+    document.getElementById('res-total').textContent = total.toFixed(2);
+
+    let insight = '';
+    if (total === 0) insight = 'Enter data above to see your Terrnix AI carbon footprint analysis.';
+    else if (s3 > s1 + s2) insight = `⚡ Terrnix AI Insight: Scope 3 dominates your footprint (${((s3/total)*100).toFixed(0)}%). Focus on supply chain engagement, purchased goods strategy, and business travel policies.`;
+    else if (s2 > s1 + s3) insight = `⚡ Terrnix AI Insight: Energy (Scope 2) is your largest source (${((s2/total)*100).toFixed(0)}%). Consider renewable energy procurement, PPAs, or on-site generation.`;
+    else insight = `⚡ Terrnix AI Insight: Direct emissions (Scope 1) lead at ${((s1/total)*100).toFixed(0)}%. Evaluate fleet electrification, fuel switching, and process efficiency improvements.`;
+    document.getElementById('ai-insight').textContent = insight;
+
+    document.getElementById('calc-results').classList.remove('hidden');
+
+    const ctx = document.getElementById('emissionsChart').getContext('2d');
+    if (eChart) eChart.destroy();
+    eChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['Scope 1 (Direct)','Scope 2 (Energy)','Scope 3 (Value Chain)'], datasets: [{ data: [s1,s2,s3], backgroundColor: ['#ef4444','#f97316','#10b981'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }, cutout: '65%' }
+    });
+    document.getElementById('calc-results').scrollIntoView({ behavior: 'smooth' });
+}
+function resetCalc() {
+    document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+    document.getElementById('renew-pct').value = 0;
+    document.getElementById('renew-val').textContent = '0%';
+    document.getElementById('calc-results').classList.add('hidden');
+}
+
+// ============================================
+// CHATBOT
+// ============================================
+function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    addChatMsg(msg, 'user');
+    input.value = '';
+    showTyping();
+    setTimeout(() => { removeTyping(); addChatMsg(genResponse(msg), 'bot'); }, 1500);
+}
+function quickAsk(q) { document.getElementById('chat-input').value = q; sendChat(); }
+function addChatMsg(text, sender) {
+    const c = document.getElementById('chat-messages');
+    const d = document.createElement('div');
+    d.className = 'chat-msg flex items-start';
+    if (sender === 'user') {
+        d.innerHTML = `<div class="ml-auto mr-3 bg-emerald-500 text-black rounded-xl p-3 max-w-[80%]"><p class="text-sm font-medium">${text}</p></div><div class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center flex-shrink-0"><i class="fas fa-user text-gray-500 text-xs"></i></div>`;
+    } else {
+        d.innerHTML = `<div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-robot text-white text-xs"></i></div><div class="glass rounded-xl p-3 max-w-[80%] border border-white/5"><p class="text-gray-300 text-sm">${text}</p></div>`;
+    }
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+}
+function showTyping() {
+    const c = document.getElementById('chat-messages');
+    const d = document.createElement('div');
+    d.id = 'typing-ind';
+    d.className = 'chat-msg flex items-start';
+    d.innerHTML = `<div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-robot text-white text-xs"></i></div><div class="glass rounded-xl p-3 border border-white/5"><div class="flex space-x-2"><span class="w-2 h-2 bg-gray-500 rounded-full typing-dot"></span><span class="w-2 h-2 bg-gray-500 rounded-full typing-dot"></span><span class="w-2 h-2 bg-gray-500 rounded-full typing-dot"></span></div></div>`;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+}
+function removeTyping() { const t = document.getElementById('typing-ind'); if (t) t.remove(); }
+function genResponse(msg) {
+    const lm = msg.toLowerCase();
+    for (const [key, ans] of Object.entries(chatKnowledge)) {
+        if (lm.includes(key.replace(/_/g, ' '))) return ans;
+    }
+    if (lm.includes('scope 1')) return chatKnowledge['scope 1'];
+    if (lm.includes('scope 2')) return chatKnowledge['scope 2'];
+    if (lm.includes('scope 3')) return chatKnowledge['scope 3'];
+    if (lm.includes('carbon footprint') || lm.includes('calculate')) return chatKnowledge['carbon footprint'];
+    if (lm.includes('esg') || lm.includes('gri') || lm.includes('issb') || lm.includes('csrd')) return chatKnowledge['esg'];
+    if (lm.includes('cbam')) return chatKnowledge['cbam'];
+    if (lm.includes('carbon tax') || lm.includes('carbon price') || lm.includes('ets')) return chatKnowledge['carbon tax'];
+    if (lm.includes('net zero') || lm.includes('netzero')) return chatKnowledge['net zero'];
+    if (lm.includes('renewable') || lm.includes('solar') || lm.includes('wind') || lm.includes('energy')) return chatKnowledge['energy'];
+    if (lm.includes('lcoe') || lm.includes('cost of energy')) return chatKnowledge['lcoe'];
+    if (lm.includes('ppa') || lm.includes('power purchase')) return chatKnowledge['ppa'];
+    if (lm.includes('ghg protocol')) return chatKnowledge['ghg protocol'];
+    if (lm.includes('sbti') || lm.includes('science based')) return chatKnowledge['science based'];
+    if (lm.includes('green bond') || lm.includes('green finance')) return chatKnowledge['green finance'];
+    if (lm.includes('carbon credit') || lm.includes('offset') || lm.includes('additionality')) return chatKnowledge['carbon credit'];
+    if (lm.includes('water')) return chatKnowledge['water'];
+    if (lm.includes('circular') || lm.includes('recycle')) return chatKnowledge['circular'];
+    if (lm.includes('issb') || lm.includes('ifrs s1') || lm.includes('ifrs s2')) return chatKnowledge['issb'];
+    if (lm.includes('csrd')) return chatKnowledge['csrd'];
+    return chatKnowledge['default'];
+}
+
+// ============================================
+// QUIZ
+// ============================================
+let qIdx = 0, qScore = 0, qSel = null;
+let scoresByLevel = { Beginner: 0, Intermediate: 0, Advanced: 0 };
+let totalByLevel = { Beginner: 0, Intermediate: 0, Advanced: 0 };
+
+function startQuiz() {
+    qIdx = 0; qScore = 0;
+    scoresByLevel = { Beginner: 0, Intermediate: 0, Advanced: 0 };
+    totalByLevel = { Beginner: 0, Intermediate: 0, Advanced: 0 };
+    document.getElementById('quiz-start').classList.add('hidden');
+    document.getElementById('quiz-question').classList.remove('hidden');
+    document.getElementById('quiz-result').classList.add('hidden');
+    loadQ();
+}
+function loadQ() {
+    const q = quizQuestions[qIdx];
+    qSel = null;
+    totalByLevel[q.level]++;
+    document.getElementById('q-curr').textContent = qIdx + 1;
+    document.getElementById('q-score').textContent = qScore;
+    document.getElementById('q-level').textContent = q.level;
+    document.getElementById('q-level').className = `text-xs bg-black/30 border border-white/10 px-2 py-0.5 rounded ${q.level === 'Beginner' ? 'text-green-400' : q.level === 'Intermediate' ? 'text-yellow-400' : 'text-red-400'}`;
+    document.getElementById('q-cat').textContent = q.cat;
+    document.getElementById('q-topic').textContent = q.topic;
+    document.getElementById('q-text').textContent = q.q;
+    document.getElementById('q-progress').style.width = ((qIdx + 1) / quizQuestions.length * 100) + '%';
+    document.getElementById('q-explain').classList.add('hidden');
+    document.getElementById('q-next').classList.add('hidden');
+
+    const c = document.getElementById('q-options');
+    c.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const b = document.createElement('button');
+        b.className = 'quiz-opt w-full text-left p-4 rounded-xl bg-black/30 text-white flex items-center space-x-3';
+        b.innerHTML = `<span class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-sm font-bold flex-shrink-0">${String.fromCharCode(65+i)}</span><span class="text-sm">${opt}</span>`;
+        b.onclick = () => selectOpt(i, b);
+        c.appendChild(b);
+    });
+}
+function selectOpt(idx, btn) {
+    if (qSel !== null) return;
+    qSel = idx;
+    const q = quizQuestions[qIdx];
+    const opts = document.getElementById('q-options').children;
+    for (let i = 0; i < opts.length; i++) {
+        opts[i].classList.remove('hover:border-emerald-500');
+        opts[i].disabled = true;
+        if (i === q.correct) { opts[i].classList.add('correct'); opts[i].querySelector('span:first-child').innerHTML = '<i class="fas fa-check text-emerald-400"></i>'; }
+        else if (i === idx && i !== q.correct) { opts[i].classList.add('wrong'); opts[i].querySelector('span:first-child').innerHTML = '<i class="fas fa-xmark text-red-400"></i>'; }
+    }
+    if (idx === q.correct) { qScore++; scoresByLevel[q.level]++; document.getElementById('q-score').textContent = qScore; }
+    document.getElementById('q-explain-text').textContent = q.explain;
+    document.getElementById('q-explain').classList.remove('hidden');
+    document.getElementById('q-next').classList.remove('hidden');
+}
+function nextQ() {
+    qIdx++;
+    if (qIdx < quizQuestions.length) loadQ();
+    else showQResult();
+}
+function showQResult() {
+    document.getElementById('quiz-question').classList.add('hidden');
+    document.getElementById('quiz-result').classList.remove('hidden');
+    document.getElementById('final-score').textContent = qScore;
+    document.getElementById('score-beginner').textContent = scoresByLevel.Beginner + '/' + totalByLevel.Beginner;
+    document.getElementById('score-intermediate').textContent = scoresByLevel.Intermediate + '/' + totalByLevel.Intermediate;
+    document.getElementById('score-advanced').textContent = scoresByLevel.Advanced + '/' + totalByLevel.Advanced;
+
+    const pct = (qScore / quizQuestions.length) * 100;
+    let msg = '';
+    if (pct >= 90) msg = '🏆 Exceptional! You are a Terrnix Sustainability Intelligence Leader. Your expertise rivals senior ESG consultants.';
+    else if (pct >= 75) msg = '⭐ Outstanding! Strong command across all 6 deep-dive topics. You're ready for advanced sustainability roles.';
+    else if (pct >= 60) msg = '📚 Solid foundation! Good understanding of core concepts. Focus on intermediate and advanced topics for mastery.';
+    else if (pct >= 40) msg = '🌱 Growing knowledge! You understand basics. Review the Deep-Dive topics and try again to build expertise.';
+    else msg = '🌿 Starting journey! Sustainability is complex but rewarding. Explore the Fundamentals section and retake the challenge.';
+    document.getElementById('result-msg').textContent = msg;
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    renderNews();
+    renderCarbon();
+});
+</script>
+</body>
+</html>
