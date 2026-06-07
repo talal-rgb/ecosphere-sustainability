@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Scope 2 Emissions: Complete Calculation Guide | Terrnix</title>
+<meta name="description" content="Learn to calculate Scope 2 emissions from purchased electricity, heat, and steam. GHG Protocol methods, market-based vs location-based, emission factors, and examples."/>
+<link rel="canonical" href="https://www.terrnix.com/carbon-accounting/scope-2-emissions/"/>
+<meta property="og:title" content="Scope 2 Emissions: Complete Calculation Guide | Terrnix"/>
+<meta property="og:description" content="Learn to calculate Scope 2 emissions from purchased electricity, heat, and steam."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://www.terrnix.com/carbon-accounting/scope-2-emissions/"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Scope 2 Emissions: Complete Calculation Guide",
+  "description": "Learn to calculate Scope 2 emissions from purchased electricity, heat, and steam.",
+  "author": {"@type": "Organization", "name": "Terrnix"},
+  "publisher": {"@type": "Organization", "name": "Terrnix"},
+  "datePublished": "2026-06-08",
+  "dateModified": "2026-06-08"
+}
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; line-height: 1.7; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+</style>
+</head>
+<body>
+
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-emerald-400 text-sm font-medium">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
+        <a href="/tools/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Tools</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <nav class="text-sm text-gray-500">
+    <a href="/" class="hover:text-emerald-400">Home</a>
+    <span class="mx-2">/</span>
+    <a href="/carbon-accounting/" class="hover:text-emerald-400">Carbon Accounting</a>
+    <span class="mx-2">/</span>
+    <span class="text-emerald-400">Scope 2 Emissions</span>
+  </nav>
+</div>
+
+<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <header class="mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Scope 2 Emissions: Complete Calculation Guide</h1>
+    <p class="text-xl text-gray-400">Indirect greenhouse gas emissions from purchased electricity, heat, steam, and cooling.</p>
+  </header>
+
+  <div class="space-y-6 text-gray-400">
+    <h2 class="text-2xl font-bold text-white mt-8">What Are Scope 2 Emissions?</h2>
+    <p>Scope 2 emissions are indirect greenhouse gas (GHG) emissions from the generation of purchased or acquired electricity, steam, heat, or cooling consumed by the reporting company. These emissions physically occur at the facility where the energy is generated, but are accounted for in the reporting company's GHG inventory because they result from the company's energy consumption.</p>
+
+    <h2 class="text-2xl font-bold text-white mt-8">Two Methods for Calculating Scope 2</h2>
+    <p>The GHG Protocol requires companies to report Scope 2 emissions using both methods:</p>
+
+    <h3 class="text-xl font-semibold text-white mt-6">1. Location-Based Method</h3>
+    <p>Reflects the average emissions intensity of the grids where energy consumption occurs. Uses regional or sub-national grid average emission factors.</p>
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6 my-6">
+      <p class="text-emerald-400 font-mono text-lg mb-2">Emissions = Energy Consumed (kWh) × Grid Average Emission Factor (kg CO2e/kWh)</p>
+    </div>
+
+    <h3 class="text-xl font-semibold text-white mt-6">2. Market-Based Method</h3>
+    <p>Reflects emissions from electricity that companies have purposefully chosen. Uses emission factors derived from contractual instruments such as Renewable Energy Certificates (RECs), Guarantees of Origin (GOs), or Power Purchase Agreements (PPAs).</p>
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6 my-6">
+      <p class="text-emerald-400 font-mono text-lg mb-2">Emissions = Energy Consumed (kWh) × Supplier-Specific or Residual Mix Emission Factor</p>
+    </div>
+
+    <h2 class="text-2xl font-bold text-white mt-8">Sources of Scope 2 Emissions</h2>
+    <ul class="list-disc list-inside space-y-2">
+      <li><strong>Purchased electricity</strong> — Grid power for offices, factories, data centers</li>
+      <li><strong>Purchased steam</strong> — Industrial processes, district heating</li>
+      <li><strong>Purchased heat</strong> — Space heating, hot water</li>
+      <li><strong>Purchased cooling</strong> — District cooling, chilled water</li>
+    </ul>
+
+    <h2 class="text-2xl font-bold text-white mt-8">Emission Factor Sources by Region</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-400 border border-[#2d3d35] rounded-xl">
+        <thead class="bg-[#111a16] text-gray-300 uppercase">
+          <tr>
+            <th class="px-6 py-3">Region</th>
+            <th class="px-6 py-3">Factor (kg CO2e/kWh)</th>
+            <th class="px-6 py-3">Source</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#2d3d35]">
+          <tr><td class="px-6 py-4">EU Average</td><td class="px-6 py-4 font-mono">0.40</td><td class="px-6 py-4">EEA</td></tr>
+          <tr><td class="px-6 py-4">Germany</td><td class="px-6 py-4 font-mono">0.38</td><td class="px-6 py-4">Bundesnetzagentur</td></tr>
+          <tr><td class="px-6 py-4">France</td><td class="px-6 py-4 font-mono">0.05</td><td class="px-6 py-4">RTE</td></tr>
+          <tr><td class="px-6 py-4">UK</td><td class="px-6 py-4 font-mono">0.38</td><td class="px-6 py-4">DEFRA</td></tr>
+          <tr><td class="px-6 py-4">US Average</td><td class="px-6 py-4 font-mono">0.42</td><td class="px-6 py-4">EPA eGRID</td></tr>
+          <tr><td class="px-6 py-4">China</td><td class="px-6 py-4 font-mono">0.55</td><td class="px-6 py-4">NDRC</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold text-white mt-8">Example Calculation</h2>
+    <p>A company in Germany consumes 500,000 kWh of electricity annually.</p>
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6 my-6">
+      <p class="text-white font-mono mb-2">Location-Based: 500,000 kWh × 0.38 kg/kWh = 190,000 kg = 190 tCO2e</p>
+      <p class="text-gray-400 text-sm">If 50% covered by GOs with zero emission factor:</p>
+      <p class="text-white font-mono">Market-Based: (250,000 × 0.38) + (250,000 × 0) = 95 tCO2e</p>
+    </div>
+
+    <h2 class="text-2xl font-bold text-white mt-8">Reporting Standards</h2>
+    <ul class="list-disc list-inside space-y-2">
+      <li>GHG Protocol Scope 2 Guidance (mandatory dual reporting)</li>
+      <li>CSRD — European Sustainability Reporting Standards (ESRS E1)</li>
+      <li>CDP Climate Change questionnaire</li>
+      <li>Science Based Targets initiative (SBTi)</li>
+      <li>RE100 (for market-based method validation)</li>
+    </ul>
+
+    <h2 class="text-2xl font-bold text-white mt-8">Reducing Scope 2 Emissions</h2>
+    <ul class="list-disc list-inside space-y-2">
+      <li><strong>Renewable energy procurement</strong> — PPAs, green tariffs, RECs/GOs</li>
+      <li><strong>On-site generation</strong> — Solar PV, wind, combined heat and power (CHP)</li>
+      <li><strong>Energy efficiency</strong> — LED lighting, efficient HVAC, building insulation</li>
+      <li><strong>Electrification</strong> — Switch from fossil fuel heating to heat pumps</li>
+    </ul>
+  </div>
+
+  <div class="mt-16 bg-gradient-to-r from-emerald-900/40 to-[#111a16] border border-emerald-500/20 rounded-2xl p-8">
+    <h3 class="text-2xl font-bold text-white mb-3">Calculate Your Scope 2 Emissions</h3>
+    <p class="text-gray-400 mb-6">Use our free calculator with location-based and market-based methods. Export results for CSRD, CDP, or internal reporting.</p>
+    <a href="/carbon-accounting/carbon-footprint-calculator/" class="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+      Launch Calculator →
+    </a>
+  </div>
+</article>
+
+<footer class="border-t border-[#2d3d35] mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center text-gray-500 text-sm">
+    <p>© Terrnix. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>
