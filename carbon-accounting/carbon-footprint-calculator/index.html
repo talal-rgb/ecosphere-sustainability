@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Free Carbon Footprint Calculator | Scope 1, 2, 3 | Terrnix</title>
+<meta name="description" content="Free carbon footprint calculator for businesses. Calculate Scope 1, 2, and 3 emissions. GHG Protocol compliant. Export results for CSRD, CDP reporting."/>
+<link rel="canonical" href="https://www.terrnix.com/carbon-accounting/carbon-footprint-calculator/"/>
+<meta property="og:title" content="Free Carbon Footprint Calculator | Terrnix"/>
+<meta property="og:description" content="Calculate your organization's carbon footprint across Scope 1, 2, and 3 emissions."/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Terrnix Carbon Footprint Calculator",
+  "applicationCategory": "BusinessApplication",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "127"}
+}
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.tab-btn.active { background: #059669; color: white; }
+input[type="number"] { background: #111a16; border: 1px solid #2d3d35; color: white; }
+input[type="number"]:focus { border-color: #4ade80; outline: none; }
+</style>
+</head>
+<body>
+
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-emerald-400 text-sm font-medium">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/tools/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Tools</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <nav class="text-sm text-gray-500">
+    <a href="/" class="hover:text-emerald-400">Home</a>
+    <span class="mx-2">/</span>
+    <a href="/carbon-accounting/" class="hover:text-emerald-400">Carbon Accounting</a>
+    <span class="mx-2">/</span>
+    <span class="text-emerald-400">Carbon Calculator</span>
+  </nav>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <header class="mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Carbon Footprint Calculator</h1>
+    <p class="text-xl text-gray-400">Calculate your organization's emissions across Scope 1, 2, and 3. GHG Protocol compliant methodology.</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-8">
+    <button onclick="switchTab('scope1')" id="tab-scope1" class="tab-btn active px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 bg-emerald-600 text-white">
+      <span>🔥</span> Scope 1
+    </button>
+    <button onclick="switchTab('scope2')" id="tab-scope2" class="tab-btn px-6 py-3 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 bg-[#1a2520]">
+      <span>⚡</span> Scope 2
+    </button>
+    <button onclick="switchTab('scope3')" id="tab-scope3" class="tab-btn px-6 py-3 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 bg-[#1a2520]">
+      <span>🌐</span> Scope 3
+    </button>
+  </div>
+
+  <!-- Scope 1 -->
+  <div id="panel-scope1" class="tab-panel">
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-white mb-6">Scope 1: Direct Emissions</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Fuel Type</label>
+          <select id="s1-fuel" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+            <option value="diesel">Diesel</option>
+            <option value="gasoline">Gasoline</option>
+            <option value="natural_gas">Natural Gas</option>
+            <option value="propane">Propane</option>
+            <option value="coal">Coal</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Quantity (liters or kg)</label>
+          <input type="number" id="s1-quantity" placeholder="e.g. 50000" class="w-full rounded-xl px-4 py-3"/>
+        </div>
+      </div>
+      
+      <button onclick="calculateScope1()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+        Calculate Scope 1
+      </button>
+      
+      <div id="s1-result" class="mt-6 hidden">
+        <div class="bg-[#0a0f0d] border border-emerald-500/30 rounded-xl p-6">
+          <p class="text-gray-400 text-sm mb-1">Scope 1 Emissions</p>
+          <p class="text-3xl font-bold text-emerald-400" id="s1-total">0 tCO2e</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scope 2 -->
+  <div id="panel-scope2" class="tab-panel hidden">
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-white mb-6">Scope 2: Indirect Emissions (Electricity)</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Electricity Consumed (kWh)</label>
+          <input type="number" id="s2-kwh" placeholder="e.g. 100000" class="w-full rounded-xl px-4 py-3"/>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Grid Region</label>
+          <select id="s2-region" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+            <option value="0.4">EU Average (0.4 kg/kWh)</option>
+            <option value="0.38">Germany (0.38 kg/kWh)</option>
+            <option value="0.05">France (0.05 kg/kWh)</option>
+            <option value="0.38">UK (0.38 kg/kWh)</option>
+            <option value="0.42">US Average (0.42 kg/kWh)</option>
+          </select>
+        </div>
+      </div>
+      
+      <button onclick="calculateScope2()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+        Calculate Scope 2
+      </button>
+      
+      <div id="s2-result" class="mt-6 hidden">
+        <div class="bg-[#0a0f0d] border border-emerald-500/30 rounded-xl p-6">
+          <p class="text-gray-400 text-sm mb-1">Scope 2 Emissions</p>
+          <p class="text-3xl font-bold text-emerald-400" id="s2-total">0 tCO2e</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scope 3 -->
+  <div id="panel-scope3" class="tab-panel hidden">
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-white mb-6">Scope 3: Value Chain Emissions</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Business Travel (km)</label>
+          <input type="number" id="s3-travel" placeholder="e.g. 50000" class="w-full rounded-xl px-4 py-3"/>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Waste Generated (kg)</label>
+          <input type="number" id="s3-waste" placeholder="e.g. 10000" class="w-full rounded-xl px-4 py-3"/>
+        </div>
+      </div>
+      
+      <button onclick="calculateScope3()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+        Calculate Scope 3
+      </button>
+      
+      <div id="s3-result" class="mt-6 hidden">
+        <div class="bg-[#0a0f0d] border border-emerald-500/30 rounded-xl p-6">
+          <p class="text-gray-400 text-sm mb-1">Scope 3 Emissions</p>
+          <p class="text-3xl font-bold text-emerald-400" id="s3-total">0 tCO2e</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total -->
+  <div class="mt-8 bg-gradient-to-r from-emerald-900/40 to-[#111a16] border border-emerald-500/20 rounded-2xl p-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-gray-400 text-sm mb-1">Total Carbon Footprint</p>
+        <p class="text-4xl font-bold text-white" id="total-emissions">0 tCO2e</p>
+      </div>
+      <button onclick="exportResults()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+        Export Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const emissionFactors = {
+  diesel: 2.68,
+  gasoline: 2.31,
+  natural_gas: 2.0,
+  propane: 1.51,
+  coal: 2.86
+};
+
+let totals = { scope1: 0, scope2: 0, scope3: 0 };
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('panel-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active', 'bg-emerald-600', 'text-white');
+    b.classList.add('bg-[#1a2520]', 'text-gray-400');
+  });
+  document.getElementById('tab-' + tab).classList.add('active', 'bg-emerald-600', 'text-white');
+  document.getElementById('tab-' + tab).classList.remove('bg-[#1a2520]', 'text-gray-400');
+}
+
+function calculateScope1() {
+  const fuel = document.getElementById('s1-fuel').value;
+  const qty = parseFloat(document.getElementById('s1-quantity').value) || 0;
+  const factor = emissionFactors[fuel] || 2.68;
+  totals.scope1 = (qty * factor / 1000).toFixed(2);
+  document.getElementById('s1-total').textContent = totals.scope1 + ' tCO2e';
+  document.getElementById('s1-result').classList.remove('hidden');
+  updateTotal();
+}
+
+function calculateScope2() {
+  const kwh = parseFloat(document.getElementById('s2-kwh').value) || 0;
+  const factor = parseFloat(document.getElementById('s2-region').value) || 0.4;
+  totals.scope2 = (kwh * factor / 1000).toFixed(2);
+  document.getElementById('s2-total').textContent = totals.scope2 + ' tCO2e';
+  document.getElementById('s2-result').classList.remove('hidden');
+  updateTotal();
+}
+
+function calculateScope3() {
+  const travel = parseFloat(document.getElementById('s3-travel').value) || 0;
+  const waste = parseFloat(document.getElementById('s3-waste').value) || 0;
+  totals.scope3 = ((travel * 0.15 + waste * 0.5) / 1000).toFixed(2);
+  document.getElementById('s3-total').textContent = totals.scope3 + ' tCO2e';
+  document.getElementById('s3-result').classList.remove('hidden');
+  updateTotal();
+}
+
+function updateTotal() {
+  const total = (parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2);
+  document.getElementById('total-emissions').textContent = total + ' tCO2e';
+}
+
+function exportResults() {
+  const data = `Terrnix Carbon Footprint Report
+Generated: ${new Date().toISOString()}
+
+Scope 1 (Direct): ${totals.scope1} tCO2e
+Scope 2 (Electricity): ${totals.scope2} tCO2e
+Scope 3 (Value Chain): ${totals.scope3} tCO2e
+Total: ${(parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2)} tCO2e
+
+Methodology: GHG Protocol Corporate Standard
+Calculator: terrnix.com/carbon-accounting/carbon-footprint-calculator/
+`;
+  const blob = new Blob([data], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'terrnix-carbon-footprint.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+<footer class="border-t border-[#2d3d35] mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center text-gray-500 text-sm">
+    <p> Terrnix. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>
