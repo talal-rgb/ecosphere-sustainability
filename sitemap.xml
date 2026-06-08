@@ -59,9 +59,16 @@
 
   <url>
     <loc>https://www.terrnix.com/esg-reporting/</loc>
-    <lastmod>2026-06-07</lastmod>
+    <lastmod>2026-06-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
+  </url>
+
+  <url>
+    <loc>https://www.terrnix.com/esg-reporting/csrd-omnibus-guide/</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <url>
