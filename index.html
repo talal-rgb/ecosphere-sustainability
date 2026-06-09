@@ -6171,19 +6171,31 @@ function subscribeNewsletter() {
         return;
     }
 
-    fetch('https://terrnix-backend.onrender.com/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-    }).then(response => response.json()).then(data => {
-        if (data.success) {
-            showSubscribeSuccess(emailInput, data.message);
-        } else {
-            alert(data.message || 'Subscription failed. Please try again.');
-        }
-    }).catch(() => {
-        alert('Network error. Please try again.');
-    });
+    // Use API client with rate limiting
+    if (typeof apiClient !== 'undefined') {
+        apiClient.subscribe(email).then(result => {
+            if (result.success) {
+                showSubscribeSuccess(emailInput, result.data.message);
+            } else {
+                alert(result.message || 'Subscription failed. Please try again.');
+            }
+        });
+    } else {
+        // Fallback to direct fetch
+        fetch('https://terrnix-backend.onrender.com/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                showSubscribeSuccess(emailInput, data.message);
+            } else {
+                alert(data.message || 'Subscription failed. Please try again.');
+            }
+        }).catch(() => {
+            alert('Network error. Please try again.');
+        });
+    }
 }
 
 function subscribeFooter() {
@@ -6197,25 +6209,38 @@ function subscribeFooter() {
         return;
     }
 
-    fetch('https://terrnix-backend.onrender.com/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-    }).then(response => response.json()).then(data => {
-        if (data.success) {
-            showSubscribeSuccess(emailInput, data.message, 'footer-subscribe-msg');
-        } else {
-            const msgEl = document.getElementById('footer-subscribe-msg');
-            msgEl.textContent = data.message || 'Subscription failed. Please try again.';
-            msgEl.className = 'text-red-400 text-xs mt-2';
-            msgEl.classList.remove('hidden');
-        }
-    }).catch(() => {
+    const handleError = (message) => {
         const msgEl = document.getElementById('footer-subscribe-msg');
-        msgEl.textContent = 'Network error. Please try again.';
+        msgEl.textContent = message;
         msgEl.className = 'text-red-400 text-xs mt-2';
         msgEl.classList.remove('hidden');
-    });
+    };
+
+    // Use API client with rate limiting
+    if (typeof apiClient !== 'undefined') {
+        apiClient.subscribe(email).then(result => {
+            if (result.success) {
+                showSubscribeSuccess(emailInput, result.data.message, 'footer-subscribe-msg');
+            } else {
+                handleError(result.message || 'Subscription failed. Please try again.');
+            }
+        });
+    } else {
+        // Fallback to direct fetch
+        fetch('https://terrnix-backend.onrender.com/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                showSubscribeSuccess(emailInput, data.message, 'footer-subscribe-msg');
+            } else {
+                handleError(data.message || 'Subscription failed. Please try again.');
+            }
+        }).catch(() => {
+            handleError('Network error. Please try again.');
+        });
+    }
 }
 
 function showSubscribeSuccess(inputEl, message, msgId) {
@@ -6320,6 +6345,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 </script>
+<!-- ============================================ -->
+<!-- RATE LIMITING & API CLIENT -->
+<script src="assets/js/rateLimitHelper.js"></script>
+<script src="assets/js/apiClient.js"></script>
 <!-- ============================================ -->
 <!-- TERRNIX CORE JAVASCRIPT -->
 <script>
@@ -6477,30 +6506,53 @@ function handleExpertSubmit() {
 
     const disciplineName = disciplineLabels[discipline] || discipline;
 
-    fetch('https://terrnix-backend.onrender.com/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    // Use API client with rate limiting
+    if (typeof apiClient !== 'undefined') {
+        apiClient.contact({
             name: name,
             email: email,
             company: company,
             phone: phone,
             discipline: disciplineName,
             message: message
-        })
-    }).then(response => response.json()).then(data => {
-        if (data.success) {
-            document.getElementById('expertContactForm').reset();
-            document.getElementById('expertFormSuccess').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('expertFormSuccess').classList.add('hidden');
-            }, 8000);
-        } else {
-            alert(data.message || 'Failed to send inquiry. Please try again or email us directly.');
-        }
-    }).catch(() => {
-        alert('Network error. Please try again or contact us directly by email.');
-    });
+        }).then(result => {
+            if (result.success) {
+                document.getElementById('expertContactForm').reset();
+                document.getElementById('expertFormSuccess').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('expertFormSuccess').classList.add('hidden');
+                }, 8000);
+            } else {
+                alert(result.message || 'Failed to send inquiry. Please try again or email us directly.');
+            }
+        });
+    } else {
+        // Fallback to direct fetch
+        fetch('https://terrnix-backend.onrender.com/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                company: company,
+                phone: phone,
+                discipline: disciplineName,
+                message: message
+            })
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                document.getElementById('expertContactForm').reset();
+                document.getElementById('expertFormSuccess').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('expertFormSuccess').classList.add('hidden');
+                }, 8000);
+            } else {
+                alert(data.message || 'Failed to send inquiry. Please try again or email us directly.');
+            }
+        }).catch(() => {
+            alert('Network error. Please try again or contact us directly by email.');
+        });
+    }
 }
 
 function handleNewsletterSubmit() {
@@ -6512,20 +6564,33 @@ function handleNewsletterSubmit() {
         return;
     }
 
-    fetch('https://terrnix-backend.onrender.com/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-    }).then(response => response.json()).then(data => {
-        if (data.success) {
-            emailInput.value = '';
-            alert(data.message);
-        } else {
-            alert(data.message || 'Subscription failed. Please try again.');
-        }
-    }).catch(() => {
-        alert('Network error. Please try again.');
-    });
+    // Use API client with rate limiting
+    if (typeof apiClient !== 'undefined') {
+        apiClient.subscribe(email).then(result => {
+            if (result.success) {
+                emailInput.value = '';
+                alert(result.data.message);
+            } else {
+                alert(result.message || 'Subscription failed. Please try again.');
+            }
+        });
+    } else {
+        // Fallback to direct fetch
+        fetch('https://terrnix-backend.onrender.com/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                emailInput.value = '';
+                alert(data.message);
+            } else {
+                alert(data.message || 'Subscription failed. Please try again.');
+            }
+        }).catch(() => {
+            alert('Network error. Please try again.');
+        });
+    }
 }
 
 
