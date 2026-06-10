@@ -820,9 +820,15 @@ input[type="range"].slider::-moz-range-thumb {
     background: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     text-align: center;
     transition: all 0.4s ease;
+}
+
+@media (min-width: 768px) {
+    .stat-card {
+        padding: 1.5rem;
+    }
 }
 
 .stat-card:hover {
@@ -832,22 +838,38 @@ input[type="range"].slider::-moz-range-thumb {
 }
 
 .stat-card .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1rem;
-    font-size: 1.25rem;
+    margin: 0 auto 0.75rem;
+    font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+    .stat-card .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        margin: 0 auto 1rem;
+        font-size: 1.25rem;
+    }
 }
 
 .stat-card .stat-number {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--accent);
     line-height: 1;
+}
+
+@media (min-width: 768px) {
+    .stat-card .stat-number {
+        font-size: 2rem;
+    }
 }
 
 .stat-card .stat-label {
@@ -1148,8 +1170,8 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 </div>
 <!-- Stats -->
-<div class="reveal relative z-10 w-full max-w-5xl mx-auto px-4 mt-8">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-children" id="heroStats">
+<div class="reveal relative z-10 w-full max-w-5xl mx-auto px-4 mt-4 md:mt-8">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 stagger-children" id="heroStats">
 <!-- Stat 1 -->
 <div class="stat-card">
 <div class="stat-icon" style="background: rgba(74, 222, 128, 0.15);">
