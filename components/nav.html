@@ -1,0 +1,40 @@
+<!-- Terrnix Navigation Component — Include in all pages -->
+<nav class="nav-main">
+  <div class="container px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="text-2xl font-bold text-emerald-400 font-display">Terrnix</a>
+      
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="nav-link">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="nav-link">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="nav-link">Intelligence</a>
+        <a href="/tools/" class="nav-link">Tools</a>
+        <a href="/resources/" class="nav-link">Resources</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <button id="mobileMenuBtn" class="md:hidden text-gray-400 hover:text-emerald-400">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden pb-4">
+      <a href="/carbon-accounting/" class="block py-2 text-gray-400 hover:text-emerald-400">Carbon Accounting</a>
+      <a href="/esg-reporting/" class="block py-2 text-gray-400 hover:text-emerald-400">ESG Reporting</a>
+      <a href="/sustainability-intelligence/" class="block py-2 text-gray-400 hover:text-emerald-400">Intelligence</a>
+      <a href="/tools/" class="block py-2 text-gray-400 hover:text-emerald-400">Tools</a>
+      <a href="/resources/" class="block py-2 text-gray-400 hover:text-emerald-400">Resources</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+    document.getElementById('mobileMenu').classList.toggle('hidden');
+  });
+</script>
