@@ -1061,7 +1061,7 @@ input[type="range"].slider::-moz-range-thumb {
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="flex items-center justify-between h-16">
 <!-- Logo -->
-<a @click.prevent="scrollTo('hero')" class="flex items-center gap-2.5 group" href="#">
+<a class="flex items-center gap-2.5 group" href="/">
 <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), var(--accent2));">
 <i class="fas fa-leaf text-sm" style="color: var(--bg-dark);"></i>
 </div>
@@ -1072,20 +1072,20 @@ input[type="range"].slider::-moz-range-thumb {
 </a>
 <!-- Desktop Nav Links -->
 <div class="hidden md:flex items-center gap-8">
-<a @click.prevent="scrollTo('news')" class="nav-link" href="#news">News</a>
-<a @click.prevent="scrollTo('topics')" class="nav-link" href="#topics">Deep Dive</a>
-<a @click.prevent="scrollTo('calculator')" class="nav-link" href="#calculator">Calculator</a>
-<a @click.prevent="scrollTo('economics')" class="nav-link" href="#economics">Economics</a>
-<a @click.prevent="scrollTo('chatbot')" class="nav-link" href="#chatbot">AI Assistant</a>
-<a @click.prevent="scrollTo('quiz')" class="nav-link" href="#quiz">Quiz</a>
-<a @click.prevent="scrollTo('contact')" class="nav-link" href="#contact">Contact</a>
+<a class="nav-link" href="/carbon-accounting/">Carbon Accounting</a>
+<a class="nav-link" href="/esg-reporting/">ESG Reporting</a>
+<a class="nav-link" href="/sustainability-intelligence/">Intelligence</a>
+<a class="nav-link" href="/tools/">Tools</a>
+<a class="nav-link" href="/resources/">Resources</a>
+<a class="nav-link" href="/about-us.html">About</a>
+<a class="nav-link" href="#contact">Contact</a>
 </div>
 <!-- CTA + Mobile Toggle -->
 <div class="flex items-center gap-4">
-<button @click="scrollTo('calculator')" class="hidden md:flex btn-gradient btn-sm">
+<a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden md:flex btn-gradient btn-sm">
                     Get Started
                     <i class="fas fa-arrow-right text-xs"></i>
-</button>
+</a>
 <button @click="mobileMenuOpen = true" class="md:hidden p-2 rounded-lg" style="color: var(--text);">
 <i class="fas fa-bars text-lg"></i>
 </button>
@@ -1098,16 +1098,16 @@ input[type="range"].slider::-moz-range-thumb {
 <button @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2" style="color: var(--text);">
 <i class="fas fa-times text-2xl"></i>
 </button>
-<a @click.prevent="scrollTo('news')" href="#news">News</a>
-<a @click.prevent="scrollTo('topics')" href="#topics">Deep Dive</a>
-<a @click.prevent="scrollTo('calculator')" href="#calculator">Calculator</a>
-<a @click.prevent="scrollTo('economics')" href="#economics">Economics</a>
-<a @click.prevent="scrollTo('chatbot')" href="#chatbot">AI Assistant</a>
-<a @click.prevent="scrollTo('quiz')" href="#quiz">Quiz</a>
-<a @click.prevent="scrollTo('contact')" href="#contact">Contact</a>
-<button @click="scrollTo('calculator'); mobileMenuOpen = false" class="btn-gradient mt-4">
+<a href="/carbon-accounting/">Carbon Accounting</a>
+<a href="/esg-reporting/">ESG Reporting</a>
+<a href="/sustainability-intelligence/">Intelligence</a>
+<a href="/tools/">Tools</a>
+<a href="/resources/">Resources</a>
+<a href="/about-us.html">About</a>
+<a href="#contact">Contact</a>
+<a href="/carbon-accounting/carbon-footprint-calculator/" class="btn-gradient mt-4" @click="mobileMenuOpen = false">
         Get Started
-    </button>
+    </a>
 </div>
 <!-- ========== HERO SECTION ========== -->
 <section class="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 overflow-hidden grid-bg" id="hero">
@@ -1137,14 +1137,14 @@ input[type="range"].slider::-moz-range-thumb {
         </p>
 <!-- CTA Buttons -->
 <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-<button @click="scrollTo('calculator')" class="btn-gradient text-base">
+<a href="/carbon-accounting/carbon-footprint-calculator/" class="btn-gradient text-base inline-flex items-center gap-2">
 <i class="fas fa-calculator"></i>
                 Calculate Emissions
-            </button>
-<button @click="scrollTo('chatbot')" class="btn-outline text-base">
-<i class="fas fa-robot"></i>
-                Ask Terrnix AI
-            </button>
+            </a>
+<a href="/tools/" class="btn-outline text-base inline-flex items-center gap-2">
+<i class="fas fa-tools"></i>
+                Explore Tools
+            </a>
 </div>
 </div>
 <!-- Stats -->
@@ -4926,22 +4926,22 @@ input[type="range"].slider::-moz-range-thumb {
 </a>
 </div>
 </div>
-<!-- Column 2: Platform -->
+<!-- Column 2: Hubs -->
 <div>
-<h4 class="text-white font-semibold mb-4">Platform</h4>
+<h4 class="text-white font-semibold mb-4">Hubs</h4>
 <ul class="space-y-3">
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="about-us.html">About Us</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#">Deep Dive Topics</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#">AI Calculator</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#">Economics Tools</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#chatbot">AI Assistant</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#quiz">Knowledge Quiz</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#contact">Contact Us</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/carbon-accounting/">Carbon Accounting</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/esg-reporting/">ESG Reporting</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/sustainability-intelligence/">Intelligence</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/tools/">Tools</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/resources/">Resources</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/about-us.html">About Us</a></li>
+<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="#contact">Contact</a></li>
 </ul>
 </div>
 <!-- Column 3: Resources -->
 <div>
-<h4 class="text-white font-semibold mb-4">Resources</h4>
+<h4 class="text-white font-semibold mb-4">External Resources</h4>
 <ul class="space-y-3">
 <li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="https://ghgprotocol.org/" target="_blank">GHG Protocol</a></li>
 <li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="https://www.ipcc.ch/" target="_blank">IPCC Reports</a></li>
