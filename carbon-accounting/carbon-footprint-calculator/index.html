@@ -1103,24 +1103,34 @@ function updateTotal() {
 function exportResults(format) {
   const timestamp = new Date().toISOString();
   const total = (parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2);
+  const scope2MethodLabel = scope2Method === 'location' ? 'Location-Based' : 'Market-Based';
+  const scope2FactorSource = scope2Method === 'location' ? 'IEA 2023 / EPA eGRID' : 'Supplier-specific';
+  const scope2FactorSourceTxt = scope2Method === 'location' ? 'IEA 2023, EPA eGRID 2023' : 'Supplier-specific or residual mix factors';
   
   if (format === 'csv') {
-    const csv = `Category,Emissions (tCO2e),Method,Factor Source,Uncertainty
-Scope 1 (Direct),${totals.scope1},Stationary + Mobile + Fugitive,IPCC 2006 / DEFRA 2024 / EPA 2024,Low-Medium
-Scope 2 (Indirect),${totals.scope2},${scope2Method === 'location' ? 'Location-Based' : 'Market-Based'},${scope2Method === 'location' ? 'IEA 2023 / EPA eGRID' : 'Supplier-specific'},Low-Medium
-Scope 3 Cat 1 (Purchased Goods),${(parseFloat(document.getElementById('s3-cat1-spend')?.value || 0) * (parseFloat(document.getElementById('s3-cat1-sector')?.value || 0.30)) / 1000},Spend-based EEIO,EXIOBASE,High
-Scope 3 Cat 2 (Capital Goods),${(parseFloat(document.getElementById('s3-cat2-spend')?.value || 0) * (parseFloat(document.getElementById('s3-cat2-type')?.value || 0.35)) / 1000 / (parseFloat(document.getElementById('s3-cat2-life')?.value || 5))},Spend-based EEIO,EXIOBASE,High
-Scope 3 Cat 4 (Upstream Transport),${(parseFloat(document.getElementById('s3-cat4-weight')?.value || 0) / 1000 * parseFloat(document.getElementById('s3-cat4-dist')?.value || 0) * parseFloat(document.getElementById('s3-cat4-mode')?.value || 0.062)) / 1000},Weight-Distance,GLEC Framework / ISO 14083,Medium
-Scope 3 Cat 5 (Waste),${(parseFloat(document.getElementById('s3-cat5-total')?.value || 0) * parseFloat(document.getElementById('s3-cat5-method')?.value || 0.50)) / 1000},Disposal Method,EPA WARM / DEFRA 2024,Medium
-Scope 3 Cat 6 (Business Travel),${(parseFloat(document.getElementById('s3-cat6-dist')?.value || 0) * parseFloat(document.getElementById('s3-cat6-mode')?.value || 0.17) * (document.getElementById('s3-cat6-rf')?.checked ? 1.9 : 1)) / 1000},Distance by Mode,DEFRA 2024 / ICAO,Low-Medium
-Scope 3 Cat 7 (Commuting),${calculateCommutingExport()},Employee Survey,DEFRA 2024,High
-Scope 3 (Total),${totals.scope3},8 of 15 Categories,Multiple Sources,Medium
-Total Carbon Footprint,${total},Scopes 1+2+3,GHG Protocol Aligned,
-
-Disclaimer: This calculator provides estimates for educational purposes. Results should be verified by a qualified carbon accounting professional before use in regulatory submissions.
-Generated: ${timestamp}
-Calculator: terrnix.com/carbon-accounting/carbon-footprint-calculator/
-`;
+    const cat1 = (parseFloat(document.getElementById('s3-cat1-spend')?.value || 0) * parseFloat(document.getElementById('s3-cat1-sector')?.value || 0.30)) / 1000;
+    const cat2 = (parseFloat(document.getElementById('s3-cat2-spend')?.value || 0) * parseFloat(document.getElementById('s3-cat2-type')?.value || 0.35)) / 1000 / (parseFloat(document.getElementById('s3-cat2-life')?.value || 5));
+    const cat4 = (parseFloat(document.getElementById('s3-cat4-weight')?.value || 0) / 1000 * parseFloat(document.getElementById('s3-cat4-dist')?.value || 0) * parseFloat(document.getElementById('s3-cat4-mode')?.value || 0.062)) / 1000;
+    const cat5 = (parseFloat(document.getElementById('s3-cat5-total')?.value || 0) * parseFloat(document.getElementById('s3-cat5-method')?.value || 0.50)) / 1000;
+    const cat6 = (parseFloat(document.getElementById('s3-cat6-dist')?.value || 0) * parseFloat(document.getElementById('s3-cat6-mode')?.value || 0.17) * (document.getElementById('s3-cat6-rf')?.checked ? 1.9 : 1)) / 1000;
+    const cat7 = calculateCommutingExport();
+    
+    const csv = 'Category,Emissions (tCO2e),Method,Factor Source,Uncertainty\n' +
+      'Scope 1 (Direct),' + totals.scope1 + ',Stationary + Mobile + Fugitive,IPCC 2006 / DEFRA 2024 / EPA 2024,Low-Medium\n' +
+      'Scope 2 (Indirect),' + totals.scope2 + ',' + scope2MethodLabel + ',' + scope2FactorSource + ',Low-Medium\n' +
+      'Scope 3 Cat 1 (Purchased Goods),' + cat1 + ',Spend-based EEIO,EXIOBASE,High\n' +
+      'Scope 3 Cat 2 (Capital Goods),' + cat2 + ',Spend-based EEIO,EXIOBASE,High\n' +
+      'Scope 3 Cat 4 (Upstream Transport),' + cat4 + ',Weight-Distance,GLEC Framework / ISO 14083,Medium\n' +
+      'Scope 3 Cat 5 (Waste),' + cat5 + ',Disposal Method,EPA WARM / DEFRA 2024,Medium\n' +
+      'Scope 3 Cat 6 (Business Travel),' + cat6 + ',Distance by Mode,DEFRA 2024 / ICAO,Low-Medium\n' +
+      'Scope 3 Cat 7 (Commuting),' + cat7 + ',Employee Survey,DEFRA 2024,High\n' +
+      'Scope 3 (Total),' + totals.scope3 + ',8 of 15 Categories,Multiple Sources,Medium\n' +
+      'Total Carbon Footprint,' + total + ',Scopes 1+2+3,GHG Protocol Aligned,\n' +
+      '\n' +
+      'Disclaimer: This calculator provides estimates for educational purposes. Results should be verified by a qualified carbon accounting professional before use in regulatory submissions.\n' +
+      'Generated: ' + timestamp + '\n' +
+      'Calculator: terrnix.com/carbon-accounting/carbon-footprint-calculator/\n';
+    
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1129,57 +1139,47 @@ Calculator: terrnix.com/carbon-accounting/carbon-footprint-calculator/
     a.click();
     URL.revokeObjectURL(url);
   } else {
-    const data = `TERRNIX CARBON FOOTPRINT REPORT
-================================
-Generated: ${timestamp}
-
-SCOPE 1 (DIRECT EMISSIONS)
-Emissions: ${totals.scope1} tCO2e
-Method: Stationary combustion + Mobile combustion + Fugitive emissions
-Factor Sources: IPCC 2006 Guidelines, DEFRA 2024, EPA 2024
-Uncertainty: Low-Medium
-
-SCOPE 2 (INDIRECT EMISSIONS)
-Emissions: ${totals.scope2} tCO2e
-Method: ${scope2Method === 'location' ? 'Location-Based' : 'Market-Based'}
-Factor Sources: ${scope2Method === 'location' ? 'IEA 2023, EPA eGRID 2023' : 'Supplier-specific or residual mix factors'}
-Uncertainty: Low-Medium
-
-SCOPE 3 (VALUE CHAIN) — 8 of 15 Categories
-Emissions: ${totals.scope3} tCO2e
-
-Categories Calculated:
-- Cat 1: Purchased Goods & Services (spend-based EEIO)
-- Cat 2: Capital Goods (spend-based EEIO, amortized)
-- Cat 4: Upstream Transportation & Distribution (weight-distance)
-- Cat 5: Waste Generated in Operations (disposal method)
-- Cat 6: Business Travel (distance by mode)
-- Cat 7: Employee Commuting (employee survey method)
-
-Categories NOT Calculated (7 remaining):
-- Cat 3: Fuel & Energy-Related Activities
-- Cat 8: Upstream Leased Assets
-- Cat 9: Downstream Transportation
-- Cat 10: Processing of Sold Products
-- Cat 11: Use of Sold Products
-- Cat 12: End-of-Life Treatment
-- Cat 13-15: Leased Assets, Franchises, Investments
-
-Factor Sources: EXIOBASE, GLEC Framework, EPA WARM, DEFRA 2024, ISO 14083
-
-TOTAL CARBON FOOTPRINT: ${total} tCO2e
-
-METHODOLOGY
-Standard: GHG Protocol Corporate Standard (2015) + Scope 3 Standard
-GWP Values: IPCC AR6 (100-year)
-
-DISCLAIMER
-This calculator provides estimates for educational and preliminary assessment purposes only.
-Results should be verified by a qualified carbon accounting professional before use in
-regulatory submissions, financial decisions, or public disclosures.
-
-terrnix.com/carbon-accounting/carbon-footprint-calculator/
-`;
+    const data = 'TERRNIX CARBON FOOTPRINT REPORT\n' +
+      '================================\n' +
+      'Generated: ' + timestamp + '\n\n' +
+      'SCOPE 1 (DIRECT EMISSIONS)\n' +
+      'Emissions: ' + totals.scope1 + ' tCO2e\n' +
+      'Method: Stationary combustion + Mobile combustion + Fugitive emissions\n' +
+      'Factor Sources: IPCC 2006 Guidelines, DEFRA 2024, EPA 2024\n' +
+      'Uncertainty: Low-Medium\n\n' +
+      'SCOPE 2 (INDIRECT EMISSIONS)\n' +
+      'Emissions: ' + totals.scope2 + ' tCO2e\n' +
+      'Method: ' + scope2MethodLabel + '\n' +
+      'Factor Sources: ' + scope2FactorSourceTxt + '\n' +
+      'Uncertainty: Low-Medium\n\n' +
+      'SCOPE 3 (VALUE CHAIN) — 8 of 15 Categories\n' +
+      'Emissions: ' + totals.scope3 + ' tCO2e\n\n' +
+      'Categories Calculated:\n' +
+      '- Cat 1: Purchased Goods & Services (spend-based EEIO)\n' +
+      '- Cat 2: Capital Goods (spend-based EEIO, amortized)\n' +
+      '- Cat 4: Upstream Transportation & Distribution (weight-distance)\n' +
+      '- Cat 5: Waste Generated in Operations (disposal method)\n' +
+      '- Cat 6: Business Travel (distance by mode)\n' +
+      '- Cat 7: Employee Commuting (employee survey method)\n\n' +
+      'Categories NOT Calculated (7 remaining):\n' +
+      '- Cat 3: Fuel & Energy-Related Activities\n' +
+      '- Cat 8: Upstream Leased Assets\n' +
+      '- Cat 9: Downstream Transportation\n' +
+      '- Cat 10: Processing of Sold Products\n' +
+      '- Cat 11: Use of Sold Products\n' +
+      '- Cat 12: End-of-Life Treatment\n' +
+      '- Cat 13-15: Leased Assets, Franchises, Investments\n\n' +
+      'Factor Sources: EXIOBASE, GLEC Framework, EPA WARM, DEFRA 2024, ISO 14083\n\n' +
+      'TOTAL CARBON FOOTPRINT: ' + total + ' tCO2e\n\n' +
+      'METHODOLOGY\n' +
+      'Standard: GHG Protocol Corporate Standard (2015) + Scope 3 Standard\n' +
+      'GWP Values: IPCC AR6 (100-year)\n\n' +
+      'DISCLAIMER\n' +
+      'This calculator provides estimates for educational and preliminary assessment purposes only.\n' +
+      'Results should be verified by a qualified carbon accounting professional before use in\n' +
+      'regulatory submissions, financial decisions, or public disclosures.\n\n' +
+      'terrnix.com/carbon-accounting/carbon-footprint-calculator/\n';
+    
     const blob = new Blob([data], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
