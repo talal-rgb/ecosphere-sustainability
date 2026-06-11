@@ -4,8 +4,8 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Free Carbon Footprint Calculator | Scope 1, 2, 3 | Terrnix</title>
-<meta name="description" content="Free carbon footprint calculator for businesses. Calculate Scope 1, 2, and 3 emissions. GHG Protocol compliant. Export results for CSRD, CDP reporting."/>
-<link rel="canonical" href="https://www.terrnix.com/carbon-accounting/carbon-footprint-calculator/"/>
+<meta name="description" content="Free carbon footprint calculator for businesses. Calculate Scope 1, 2, and 3 emissions. GHG Protocol compliant methodology with documented emission factors."/>
+<link rel="canonical" href="https://terrnix.com/carbon-accounting/carbon-footprint-calculator/"/>
 <meta property="og:title" content="Free Carbon Footprint Calculator | Terrnix"/>
 <meta property="og:description" content="Calculate your organization's carbon footprint across Scope 1, 2, and 3 emissions."/>
 <script type="application/ld+json">
@@ -24,8 +24,10 @@
 body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; }
 h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 .tab-btn.active { background: #059669; color: white; }
-input[type="number"] { background: #111a16; border: 1px solid #2d3d35; color: white; }
-input[type="number"]:focus { border-color: #4ade80; outline: none; }
+input[type="number"], select { background: #111a16; border: 1px solid #2d3d35; color: white; }
+input[type="number"]:focus, select:focus { border-color: #4ade80; outline: none; }
+.factor-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a2520; }
+.factor-row:last-child { border-bottom: none; }
 </style>
 </head>
 <body>
@@ -56,11 +58,70 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
   <header class="mb-12">
     <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Carbon Footprint Calculator</h1>
-    <p class="text-xl text-gray-400">Calculate your organization's emissions across Scope 1, 2, and 3. GHG Protocol compliant methodology.</p>
+    <p class="text-xl text-gray-400">Calculate your organization's emissions across Scope 1, 2, and 3. GHG Protocol methodology with transparent emission factors.</p>
+    <div class="mt-4 flex items-center gap-4 text-sm">
+      <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">GHG Protocol Aligned</span>
+      <span class="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400" id="coverage-badge">2/15 Scope 3 Categories</span>
+      <button onclick="toggleFactorPanel()" class="text-emerald-400 hover:text-emerald-300 underline">View Emission Factors</button>
+    </div>
   </header>
 
+  <!-- Emission Factor Panel -->
+  <div id="factor-panel" class="hidden mb-8 bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">Emission Factor Sources</h3>
+      <button onclick="toggleFactorPanel()" class="text-gray-400 hover:text-white">✕</button>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 text-sm">
+      <div>
+        <h4 class="text-emerald-400 font-medium mb-2">Scope 1 — Stationary & Mobile Combustion</h4>
+        <div class="text-gray-400 space-y-1">
+          <div class="factor-row"><span>Diesel</span><span>2.68 kg CO₂/L <span class="text-gray-600">(IPCC 2006, DEFRA 2024)</span></span></div>
+          <div class="factor-row"><span>Gasoline</span><span>2.31 kg CO₂/L <span class="text-gray-600">(IPCC 2006, EPA 2024)</span></span></div>
+          <div class="factor-row"><span>Natural Gas</span><span>2.00 kg CO₂/kg <span class="text-gray-600">(IPCC 2006)</span></span></div>
+          <div class="factor-row"><span>Propane</span><span>1.51 kg CO₂/kg <span class="text-gray-600">(IPCC 2006)</span></span></div>
+          <div class="factor-row"><span>Coal</span><span>2.86 kg CO₂/kg <span class="text-gray-600">(IPCC 2006)</span></span></div>
+          <div class="factor-row"><span>Heating Oil</span><span>2.52 kg CO₂/L <span class="text-gray-600">(EPA 2024)</span></span></div>
+          <div class="factor-row"><span>LPG</span><span>1.51 kg CO₂/kg <span class="text-gray-600">(DEFRA 2024)</span></span></div>
+          <div class="factor-row"><span>Biodiesel</span><span>2.52 kg CO₂/L <span class="text-gray-600">(biogenic CO₂ reported separately)</span></span></div>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-emerald-400 font-medium mb-2">Scope 2 — Electricity (Location-Based)</h4>
+        <div class="text-gray-400 space-y-1">
+          <div class="factor-row"><span>EU Average</span><span>0.40 kg CO₂/kWh <span class="text-gray-600">(IEA 2023)</span></span></div>
+          <div class="factor-row"><span>Germany</span><span>0.38 kg CO₂/kWh <span class="text-gray-600">(IEA 2023)</span></span></div>
+          <div class="factor-row"><span>France</span><span>0.05 kg CO₂/kWh <span class="text-gray-600">(IEA 2023, nuclear)</span></span></div>
+          <div class="factor-row"><span>UK</span><span>0.38 kg CO₂/kWh <span class="text-gray-600">(DEFRA 2024)</span></span></div>
+          <div class="factor-row"><span>US Average</span><span>0.42 kg CO₂/kWh <span class="text-gray-600">(EPA eGRID 2023)</span></span></div>
+          <div class="factor-row"><span>China</span><span>0.57 kg CO₂/kWh <span class="text-gray-600">(IEA 2023)</span></span></div>
+          <div class="factor-row"><span>India</span><span>0.71 kg CO₂/kWh <span class="text-gray-600">(IEA 2023)</span></span></div>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Market-based method available below. Location-based uses grid-average factors. Market-based uses supplier-specific or residual mix factors.</p>
+      </div>
+      <div>
+        <h4 class="text-emerald-400 font-medium mb-2">Scope 3 — Current Coverage</h4>
+        <div class="text-gray-400 space-y-1">
+          <div class="factor-row"><span>Business Travel (km)</span><span>0.15 kg CO₂/km <span class="text-gray-600">(DEFRA 2024, mixed mode)</span></span></div>
+          <div class="factor-row"><span>Waste to Landfill</span><span>0.50 kg CO₂/kg <span class="text-gray-600">(EPA WARM, mixed)</span></span></div>
+        </div>
+        <p class="text-amber-400 text-xs mt-2">⚠️ Scope 3 is incomplete. Only 2 of 15 categories covered. Full Scope 3 assessment requires spend-based or activity-based methods for all categories.</p>
+      </div>
+      <div>
+        <h4 class="text-emerald-400 font-medium mb-2">Methodology Notes</h4>
+        <ul class="text-gray-400 text-xs space-y-1 list-disc pl-4">
+          <li>Calculations follow GHG Protocol Corporate Standard (2015)</li>
+          <li>CO₂ equivalents use GWP-100 from IPCC AR6</li>
+          <li>Scope 2: Location-based method shown. Market-based optional.</li>
+          <li>Biogenic CO₂ from biomass reported separately</li>
+          <li>Results are estimates. For regulatory submissions, engage a qualified verifier.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <!-- Tabs -->
-  <div class="flex gap-2 mb-8">
+  <div class="flex gap-2 mb-8 flex-wrap">
     <button onclick="switchTab('scope1')" id="tab-scope1" class="tab-btn active px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 bg-emerald-600 text-white">
       <span>🔥</span> Scope 1
     </button>
@@ -75,22 +136,98 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
   <!-- Scope 1 -->
   <div id="panel-scope1" class="tab-panel">
     <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8">
-      <h2 class="text-2xl font-bold text-white mb-6">Scope 1: Direct Emissions</h2>
+      <h2 class="text-2xl font-bold text-white mb-2">Scope 1: Direct Emissions</h2>
+      <p class="text-gray-400 text-sm mb-6">Emissions from sources owned or controlled by your organization. Includes stationary combustion, mobile combustion, and fugitive emissions.</p>
       
-      <div class="grid md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <label class="block text-sm text-gray-400 mb-2">Fuel Type</label>
-          <select id="s1-fuel" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
-            <option value="diesel">Diesel</option>
-            <option value="gasoline">Gasoline</option>
-            <option value="natural_gas">Natural Gas</option>
-            <option value="propane">Propane</option>
-            <option value="coal">Coal</option>
-          </select>
+      <!-- Stationary Combustion -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-4">Stationary Combustion</h3>
+        <div class="grid md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Fuel Type</label>
+            <select id="s1-fuel" class="w-full rounded-xl px-4 py-3">
+              <option value="diesel">Diesel</option>
+              <option value="gasoline">Gasoline / Petrol</option>
+              <option value="natural_gas">Natural Gas</option>
+              <option value="propane">Propane</option>
+              <option value="lpg">LPG</option>
+              <option value="heating_oil">Heating Oil</option>
+              <option value="coal">Coal</option>
+              <option value="biodiesel">Biodiesel (biogenic)</option>
+              <option value="biogas">Biogas (biogenic)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Quantity</label>
+            <input type="number" id="s1-quantity" placeholder="e.g. 50000" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Unit</label>
+            <select id="s1-unit" class="w-full rounded-xl px-4 py-3">
+              <option value="liters">Liters (L)</option>
+              <option value="kg">Kilograms (kg)</option>
+              <option value="m3">Cubic Meters (m³)</option>
+              <option value="gallons">US Gallons</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm text-gray-400 mb-2">Quantity (liters or kg)</label>
-          <input type="number" id="s1-quantity" placeholder="e.g. 50000" class="w-full rounded-xl px-4 py-3"/>
+        <button onclick="addScope1Entry()" class="px-4 py-2 bg-[#1a2520] hover:bg-[#2a3530] text-emerald-400 font-medium rounded-lg transition-all text-sm">
+          + Add Another Fuel Source
+        </button>
+      </div>
+
+      <!-- Mobile Combustion -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-4">Mobile Combustion (Fleet)</h3>
+        <div class="grid md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Vehicle Type</label>
+            <select id="s1-vehicle" class="w-full rounded-xl px-4 py-3">
+              <option value="car_gas">Car (Gasoline)</option>
+              <option value="car_diesel">Car (Diesel)</option>
+              <option value="van_gas">Van (Gasoline)</option>
+              <option value="van_diesel">Van (Diesel)</option>
+              <option value="truck">Heavy Truck</option>
+              <option value="motorcycle">Motorcycle</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Distance (km)</label>
+            <input type="number" id="s1-distance" placeholder="e.g. 25000" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Fuel Efficiency (L/100km)</label>
+            <input type="number" id="s1-efficiency" placeholder="e.g. 7.5" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div class="flex items-end">
+            <button onclick="addMobileEntry()" class="px-4 py-2 bg-[#1a2520] hover:bg-[#2a3530] text-emerald-400 font-medium rounded-lg transition-all text-sm w-full">
+              + Add Vehicle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fugitive Emissions -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-4">Fugitive Emissions (Optional)</h3>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Refrigerant Type</label>
+            <select id="s1-refrigerant" class="w-full rounded-xl px-4 py-3">
+              <option value="">None</option>
+              <option value="r22">R-22</option>
+              <option value="r410a">R-410A</option>
+              <option value="r134a">R-134a</option>
+              <option value="r32">R-32</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Quantity Leaked (kg)</label>
+            <input type="number" id="s1-leaked" placeholder="e.g. 5" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div class="flex items-end">
+            <p class="text-xs text-gray-500">Refrigerant GWP: R-22=1810, R-410A=2088, R-134a=1430, R-32=675 (IPCC AR6)</p>
+          </div>
         </div>
       </div>
       
@@ -100,8 +237,21 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
       
       <div id="s1-result" class="mt-6 hidden">
         <div class="bg-[#0a0f0d] border border-emerald-500/30 rounded-xl p-6">
-          <p class="text-gray-400 text-sm mb-1">Scope 1 Emissions</p>
-          <p class="text-3xl font-bold text-emerald-400" id="s1-total">0 tCO2e</p>
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-gray-400 text-sm mb-1">Scope 1 Emissions</p>
+              <p class="text-3xl font-bold text-emerald-400" id="s1-total">0 tCO2e</p>
+            </div>
+            <div class="text-right text-xs text-gray-500">
+              <p id="s1-breakdown-stationary">Stationary: 0 tCO2e</p>
+              <p id="s1-breakdown-mobile">Mobile: 0 tCO2e</p>
+              <p id="s1-breakdown-fugitive">Fugitive: 0 tCO2e</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 border-t border-[#2d3d35] pt-3">
+            <p>Formula: Activity Data × Emission Factor ÷ 1000</p>
+            <p id="s1-formula-detail">Factors: IPCC 2006, DEFRA 2024, EPA 2024</p>
+          </div>
         </div>
       </div>
     </div>
@@ -110,22 +260,89 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
   <!-- Scope 2 -->
   <div id="panel-scope2" class="tab-panel hidden">
     <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8">
-      <h2 class="text-2xl font-bold text-white mb-6">Scope 2: Indirect Emissions (Electricity)</h2>
-      
-      <div class="grid md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <label class="block text-sm text-gray-400 mb-2">Electricity Consumed (kWh)</label>
-          <input type="number" id="s2-kwh" placeholder="e.g. 100000" class="w-full rounded-xl px-4 py-3"/>
+      <h2 class="text-2xl font-bold text-white mb-2">Scope 2: Indirect Emissions (Electricity, Heat, Steam)</h2>
+      <p class="text-gray-400 text-sm mb-6">Emissions from purchased electricity, heat, steam, and cooling. GHG Protocol requires both location-based and market-based methods.</p>
+
+      <!-- Method Toggle -->
+      <div class="flex gap-2 mb-6">
+        <button onclick="setScope2Method('location')" id="s2-method-location" class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium">Location-Based</button>
+        <button onclick="setScope2Method('market')" id="s2-method-market" class="px-4 py-2 rounded-lg bg-[#1a2520] text-gray-400 text-sm font-medium">Market-Based</button>
+      </div>
+
+      <div id="s2-location-panel">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Electricity Consumed (kWh)</label>
+            <input type="number" id="s2-kwh" placeholder="e.g. 100000" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Grid Region / Country</label>
+            <select id="s2-region" class="w-full rounded-xl px-4 py-3">
+              <option value="0.4">EU Average (0.40 kg CO₂/kWh)</option>
+              <option value="0.38">Germany (0.38 kg CO₂/kWh)</option>
+              <option value="0.05">France (0.05 kg CO₂/kWh)</option>
+              <option value="0.38">UK (0.38 kg CO₂/kWh)</option>
+              <option value="0.42">US Average (0.42 kg CO₂/kWh)</option>
+              <option value="0.57">China (0.57 kg CO₂/kWh)</option>
+              <option value="0.71">India (0.71 kg CO₂/kWh)</option>
+              <option value="0.13">Brazil (0.13 kg CO₂/kWh)</option>
+              <option value="0.15">Canada (0.15 kg CO₂/kWh)</option>
+              <option value="0.65">South Africa (0.65 kg CO₂/kWh)</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm text-gray-400 mb-2">Grid Region</label>
-          <select id="s2-region" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
-            <option value="0.4">EU Average (0.4 kg/kWh)</option>
-            <option value="0.38">Germany (0.38 kg/kWh)</option>
-            <option value="0.05">France (0.05 kg/kWh)</option>
-            <option value="0.38">UK (0.38 kg/kWh)</option>
-            <option value="0.42">US Average (0.42 kg/kWh)</option>
-          </select>
+      </div>
+
+      <div id="s2-market-panel" class="hidden">
+        <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-6">
+          <p class="text-amber-400 text-sm font-medium mb-1">Market-Based Method</p>
+          <p class="text-gray-400 text-xs">Use supplier-specific emission factors, residual mix factors, or zero for renewable energy with contractual instruments (RECs, GOs, PPAs).</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Electricity Consumed (kWh)</label>
+            <input type="number" id="s2-kwh-market" placeholder="e.g. 100000" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Emission Factor (kg CO₂/kWh)</label>
+            <input type="number" id="s2-market-factor" placeholder="e.g. 0.05 for green tariff" class="w-full rounded-xl px-4 py-3"/>
+            <p class="text-xs text-gray-500 mt-1">Use supplier-specific factor or residual mix. Zero only with valid contractual instrument.</p>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Renewable Energy Certificates (MWh)</label>
+            <input type="number" id="s2-recs" placeholder="e.g. 50" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Certificate Type</label>
+            <select id="s2-rec-type" class="w-full rounded-xl px-4 py-3">
+              <option value="">None</option>
+              <option value="go">Guarantees of Origin (EU)</option>
+              <option value="rec">Renewable Energy Certificates (US)</option>
+              <option value="irec">I-REC (International)</option>
+              <option value="ppa">Power Purchase Agreement</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heat/Steam -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-4">Heat, Steam & Cooling (Optional)</h3>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Heat/Steam (kWh)</label>
+            <input type="number" id="s2-heat" placeholder="e.g. 10000" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Heat Factor (kg CO₂/kWh)</label>
+            <input type="number" id="s2-heat-factor" placeholder="0.15 default" value="0.15" class="w-full rounded-xl px-4 py-3"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Cooling (kWh)</label>
+            <input type="number" id="s2-cooling" placeholder="e.g. 5000" class="w-full rounded-xl px-4 py-3"/>
+          </div>
         </div>
       </div>
       
@@ -135,8 +352,21 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
       
       <div id="s2-result" class="mt-6 hidden">
         <div class="bg-[#0a0f0d] border border-emerald-500/30 rounded-xl p-6">
-          <p class="text-gray-400 text-sm mb-1">Scope 2 Emissions</p>
-          <p class="text-3xl font-bold text-emerald-400" id="s2-total">0 tCO2e</p>
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-gray-400 text-sm mb-1">Scope 2 Emissions</p>
+              <p class="text-3xl font-bold text-emerald-400" id="s2-total">0 tCO2e</p>
+              <p class="text-xs text-gray-500 mt-1" id="s2-method-label">Location-Based Method</p>
+            </div>
+            <div class="text-right text-xs text-gray-500">
+              <p id="s2-breakdown-electricity">Electricity: 0 tCO2e</p>
+              <p id="s2-breakdown-heat">Heat/Steam: 0 tCO2e</p>
+              <p id="s2-breakdown-cooling">Cooling: 0 tCO2e</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 border-t border-[#2d3d35] pt-3">
+            <p id="s2-formula-detail">Factor source: IEA 2023 / EPA eGRID 2023</p>
+          </div>
         </div>
       </div>
     </div>
@@ -145,16 +375,85 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
   <!-- Scope 3 -->
   <div id="panel-scope3" class="tab-panel hidden">
     <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8">
-      <h2 class="text-2xl font-bold text-white mb-6">Scope 3: Value Chain Emissions</h2>
+      <h2 class="text-2xl font-bold text-white mb-2">Scope 3: Value Chain Emissions</h2>
+      <p class="text-gray-400 text-sm mb-4">Emissions from your value chain — typically 70-90% of total footprint. GHG Protocol identifies 15 categories.</p>
+      
+      <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-6">
+        <div class="flex items-start gap-3">
+          <span class="text-amber-400 text-lg">⚠️</span>
+          <div>
+            <p class="text-amber-400 text-sm font-medium">Limited Coverage</p>
+            <p class="text-gray-400 text-xs">This calculator currently covers 2 of 15 Scope 3 categories. For a complete assessment, use spend-based or activity-based methods for all relevant categories. <a href="/carbon-accounting/scope-3-emissions/" class="text-emerald-400 underline">Learn about all 15 categories →</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Selector -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-3">Select Relevant Categories</h3>
+        <div class="grid md:grid-cols-2 gap-2 text-sm">
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-[#0a0f0d] border border-[#2d3d35]">
+            <input type="checkbox" checked disabled class="accent-emerald-500"> 
+            <span class="text-gray-300">Cat 5: Waste Generated in Operations</span>
+            <span class="text-emerald-400 text-xs ml-auto">✓</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-[#0a0f0d] border border-[#2d3d35]">
+            <input type="checkbox" checked disabled class="accent-emerald-500"> 
+            <span class="text-gray-300">Cat 6: Business Travel</span>
+            <span class="text-emerald-400 text-xs ml-auto">✓</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-[#0a0f0d] border border-[#2d3d35] opacity-50">
+            <input type="checkbox" disabled> 
+            <span class="text-gray-500">Cat 1: Purchased Goods & Services</span>
+            <span class="text-gray-600 text-xs ml-auto">Soon</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-[#0a0f0d] border border-[#2d3d35] opacity-50">
+            <input type="checkbox" disabled> 
+            <span class="text-gray-500">Cat 2: Capital Goods</span>
+            <span class="text-gray-600 text-xs ml-auto">Soon</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-[#0a0f0d] border border-[#2d3d35] opacity-50">
+            <input type="checkbox" disabled> 
+            <span class="text-gray-500">Cat 3: Fuel & Energy-Related</span>
+            <span class="text-gray-600 text-xs ml-auto">Soon</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-[#0a0f0d] border border-[#2d3d35] opacity-50">
+            <input type="checkbox" disabled> 
+            <span class="text-gray-500">Cat 4: Upstream Transport</span>
+            <span class="text-gray-600 text-xs ml-auto">Soon</span>
+          </label>
+        </div>
+      </div>
       
       <div class="grid md:grid-cols-2 gap-6 mb-6">
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Business Travel (km)</label>
+          <label class="block text-sm text-gray-400 mb-2">Business Travel (km) — mixed mode</label>
           <input type="number" id="s3-travel" placeholder="e.g. 50000" class="w-full rounded-xl px-4 py-3"/>
+          <p class="text-xs text-gray-500 mt-1">Factor: 0.15 kg CO₂/km (DEFRA 2024, mixed mode average)</p>
         </div>
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Waste Generated (kg)</label>
+          <label class="block text-sm text-gray-400 mb-2">Waste to Landfill (kg)</label>
           <input type="number" id="s3-waste" placeholder="e.g. 10000" class="w-full rounded-xl px-4 py-3"/>
+          <p class="text-xs text-gray-500 mt-1">Factor: 0.50 kg CO₂/kg (EPA WARM, mixed waste)</p>
+        </div>
+      </div>
+
+      <!-- Waste Type Breakdown -->
+      <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-400 mb-3">Waste Type Breakdown (Optional — for accuracy)</h3>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">General Waste (kg)</label>
+            <input type="number" id="s3-waste-general" placeholder="0" class="w-full rounded-xl px-4 py-3 text-sm"/>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Recycled (kg)</label>
+            <input type="number" id="s3-waste-recycled" placeholder="0" class="w-full rounded-xl px-4 py-3 text-sm"/>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Organic/Compost (kg)</label>
+            <input type="number" id="s3-waste-organic" placeholder="0" class="w-full rounded-xl px-4 py-3 text-sm"/>
+          </div>
         </div>
       </div>
       
@@ -164,8 +463,20 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
       
       <div id="s3-result" class="mt-6 hidden">
         <div class="bg-[#0a0f0d] border border-emerald-500/30 rounded-xl p-6">
-          <p class="text-gray-400 text-sm mb-1">Scope 3 Emissions</p>
-          <p class="text-3xl font-bold text-emerald-400" id="s3-total">0 tCO2e</p>
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-gray-400 text-sm mb-1">Scope 3 Emissions</p>
+              <p class="text-3xl font-bold text-emerald-400" id="s3-total">0 tCO2e</p>
+              <p class="text-xs text-amber-400 mt-1">⚠️ Only 2 of 15 categories calculated</p>
+            </div>
+            <div class="text-right text-xs text-gray-500">
+              <p id="s3-breakdown-travel">Business Travel: 0 tCO2e</p>
+              <p id="s3-breakdown-waste">Waste: 0 tCO2e</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 border-t border-[#2d3d35] pt-3">
+            <p>For complete Scope 3 assessment, evaluate all 15 categories using spend-based or activity-based methods.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -173,28 +484,79 @@ input[type="number"]:focus { border-color: #4ade80; outline: none; }
 
   <!-- Total -->
   <div class="mt-8 bg-gradient-to-r from-emerald-900/40 to-[#111a16] border border-emerald-500/20 rounded-2xl p-8">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
         <p class="text-gray-400 text-sm mb-1">Total Carbon Footprint</p>
         <p class="text-4xl font-bold text-white" id="total-emissions">0 tCO2e</p>
+        <p class="text-xs text-gray-500 mt-2" id="total-breakdown">Scope 1: 0 | Scope 2: 0 | Scope 3: 0</p>
       </div>
-      <button onclick="exportResults()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
-        Export Results
-      </button>
+      <div class="flex gap-3">
+        <button onclick="exportResults('txt')" class="px-4 py-2 bg-[#1a2520] hover:bg-[#2a3530] text-emerald-400 font-medium rounded-xl transition-all text-sm">
+          Export TXT
+        </button>
+        <button onclick="exportResults('csv')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-all text-sm">
+          Export CSV
+        </button>
+      </div>
+    </div>
+    <div class="mt-4 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+      <p class="text-amber-400 text-xs">⚠️ <strong>Disclaimer:</strong> This calculator provides estimates for educational purposes. Results should be verified by a qualified carbon accounting professional before use in regulatory submissions or financial decisions. Emission factors are sourced from IPCC, EPA, DEFRA, and IEA — see factor panel for details.</p>
     </div>
   </div>
 </div>
 
 <script>
+// Enhanced emission factor library with sources
 const emissionFactors = {
-  diesel: 2.68,
-  gasoline: 2.31,
-  natural_gas: 2.0,
-  propane: 1.51,
-  coal: 2.86
+  // Stationary combustion (kg CO2 per unit)
+  diesel: { factor: 2.68, unit: 'L', source: 'IPCC 2006 / DEFRA 2024' },
+  gasoline: { factor: 2.31, unit: 'L', source: 'IPCC 2006 / EPA 2024' },
+  natural_gas: { factor: 2.00, unit: 'kg', source: 'IPCC 2006' },
+  propane: { factor: 1.51, unit: 'kg', source: 'IPCC 2006' },
+  lpg: { factor: 1.51, unit: 'kg', source: 'DEFRA 2024' },
+  heating_oil: { factor: 2.52, unit: 'L', source: 'EPA 2024' },
+  coal: { factor: 2.86, unit: 'kg', source: 'IPCC 2006' },
+  biodiesel: { factor: 2.52, unit: 'L', source: 'IPCC 2006 (biogenic CO2 reported separately)', biogenic: true },
+  biogas: { factor: 2.00, unit: 'kg', source: 'IPCC 2006 (biogenic CO2 reported separately)', biogenic: true },
+  // Mobile combustion (kg CO2 per km, using typical efficiency)
+  car_gas: { factor: 0.17, unit: 'km', source: 'DEFRA 2024' },
+  car_diesel: { factor: 0.14, unit: 'km', source: 'DEFRA 2024' },
+  van_gas: { factor: 0.25, unit: 'km', source: 'DEFRA 2024' },
+  van_diesel: { factor: 0.20, unit: 'km', source: 'DEFRA 2024' },
+  truck: { factor: 0.78, unit: 'km', source: 'DEFRA 2024' },
+  motorcycle: { factor: 0.10, unit: 'km', source: 'DEFRA 2024' }
+};
+
+// Refrigerant GWP values (IPCC AR6)
+const refrigerantGWP = {
+  r22: 1810,
+  r410a: 2088,
+  r134a: 1430,
+  r32: 675
+};
+
+// Grid factors (kg CO2 per kWh)
+const gridFactors = {
+  '0.4': { value: 0.40, source: 'IEA 2023' },
+  '0.38': { value: 0.38, source: 'IEA 2023 / DEFRA 2024' },
+  '0.05': { value: 0.05, source: 'IEA 2023 (nuclear)' },
+  '0.42': { value: 0.42, source: 'EPA eGRID 2023' },
+  '0.57': { value: 0.57, source: 'IEA 2023' },
+  '0.71': { value: 0.71, source: 'IEA 2023' },
+  '0.13': { value: 0.13, source: 'IEA 2023 (hydro)' },
+  '0.15': { value: 0.15, source: 'IEA 2023 (hydro/nuclear)' },
+  '0.65': { value: 0.65, source: 'IEA 2023' }
 };
 
 let totals = { scope1: 0, scope2: 0, scope3: 0 };
+let scope2Method = 'location';
+let scope1Entries = [];
+let mobileEntries = [];
+
+function toggleFactorPanel() {
+  const panel = document.getElementById('factor-panel');
+  panel.classList.toggle('hidden');
+}
 
 function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
@@ -207,30 +569,148 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.remove('bg-[#1a2520]', 'text-gray-400');
 }
 
+function setScope2Method(method) {
+  scope2Method = method;
+  if (method === 'location') {
+    document.getElementById('s2-location-panel').classList.remove('hidden');
+    document.getElementById('s2-market-panel').classList.add('hidden');
+    document.getElementById('s2-method-location').classList.add('bg-emerald-600', 'text-white');
+    document.getElementById('s2-method-location').classList.remove('bg-[#1a2520]', 'text-gray-400');
+    document.getElementById('s2-method-market').classList.remove('bg-emerald-600', 'text-white');
+    document.getElementById('s2-method-market').classList.add('bg-[#1a2520]', 'text-gray-400');
+  } else {
+    document.getElementById('s2-location-panel').classList.add('hidden');
+    document.getElementById('s2-market-panel').classList.remove('hidden');
+    document.getElementById('s2-method-market').classList.add('bg-emerald-600', 'text-white');
+    document.getElementById('s2-method-market').classList.remove('bg-[#1a2520]', 'text-gray-400');
+    document.getElementById('s2-method-location').classList.remove('bg-emerald-600', 'text-white');
+    document.getElementById('s2-method-location').classList.add('bg-[#1a2520]', 'text-gray-400');
+  }
+}
+
+function addScope1Entry() {
+  // In a full implementation, this would dynamically add form rows
+  alert('In the full version, this adds multiple fuel source rows. For now, calculate each separately and sum the results.');
+}
+
+function addMobileEntry() {
+  // In a full implementation, this would dynamically add vehicle rows
+  alert('In the full version, this adds multiple vehicle rows. For now, calculate each separately and sum the results.');
+}
+
 function calculateScope1() {
   const fuel = document.getElementById('s1-fuel').value;
   const qty = parseFloat(document.getElementById('s1-quantity').value) || 0;
-  const factor = emissionFactors[fuel] || 2.68;
-  totals.scope1 = (qty * factor / 1000).toFixed(2);
+  const unit = document.getElementById('s1-unit').value;
+  
+  let factor = emissionFactors[fuel]?.factor || 2.68;
+  
+  // Unit conversions
+  let qtyConverted = qty;
+  if (unit === 'm3' && (fuel === 'natural_gas' || fuel === 'biogas')) {
+    qtyConverted = qty * 0.8; // Approximate kg per m³
+  } else if (unit === 'gallons') {
+    qtyConverted = qty * 3.785; // US gallons to liters
+  }
+  
+  const stationary = (qtyConverted * factor / 1000);
+  
+  // Mobile combustion
+  const vehicle = document.getElementById('s1-vehicle').value;
+  const distance = parseFloat(document.getElementById('s1-distance').value) || 0;
+  const efficiency = parseFloat(document.getElementById('s1-efficiency').value) || 0;
+  
+  let mobile = 0;
+  if (distance > 0 && vehicle) {
+    if (efficiency > 0) {
+      // Calculate from fuel consumption
+      const fuelUsed = (distance * efficiency) / 100;
+      const fuelType = vehicle.includes('diesel') ? 'diesel' : 'gasoline';
+      mobile = (fuelUsed * emissionFactors[fuelType].factor / 1000);
+    } else {
+      // Use default per-km factor
+      mobile = (distance * (emissionFactors[vehicle]?.factor || 0.17) / 1000);
+    }
+  }
+  
+  // Fugitive emissions
+  const refrig = document.getElementById('s1-refrigerant').value;
+  const leaked = parseFloat(document.getElementById('s1-leaked').value) || 0;
+  const fugitive = refrig && leaked > 0 ? (leaked * (refrigerantGWP[refrig] || 0) / 1000) : 0;
+  
+  totals.scope1 = (stationary + mobile + fugitive).toFixed(2);
+  
   document.getElementById('s1-total').textContent = totals.scope1 + ' tCO2e';
+  document.getElementById('s1-breakdown-stationary').textContent = `Stationary: ${stationary.toFixed(2)} tCO2e`;
+  document.getElementById('s1-breakdown-mobile').textContent = `Mobile: ${mobile.toFixed(2)} tCO2e`;
+  document.getElementById('s1-breakdown-fugitive').textContent = `Fugitive: ${fugitive.toFixed(2)} tCO2e`;
+  document.getElementById('s1-formula-detail').textContent = `Factors: ${emissionFactors[fuel]?.source || 'IPCC 2006'}`;
   document.getElementById('s1-result').classList.remove('hidden');
   updateTotal();
 }
 
 function calculateScope2() {
-  const kwh = parseFloat(document.getElementById('s2-kwh').value) || 0;
-  const factor = parseFloat(document.getElementById('s2-region').value) || 0.4;
-  totals.scope2 = (kwh * factor / 1000).toFixed(2);
+  let electricity = 0;
+  let methodLabel = '';
+  let factorSource = '';
+  
+  if (scope2Method === 'location') {
+    const kwh = parseFloat(document.getElementById('s2-kwh').value) || 0;
+    const region = document.getElementById('s2-region').value;
+    const factor = parseFloat(region) || 0.4;
+    electricity = (kwh * factor / 1000);
+    methodLabel = 'Location-Based Method';
+    factorSource = gridFactors[region]?.source || 'IEA 2023';
+  } else {
+    const kwh = parseFloat(document.getElementById('s2-kwh-market').value) || 0;
+    const factor = parseFloat(document.getElementById('s2-market-factor').value) || 0;
+    electricity = (kwh * factor / 1000);
+    methodLabel = 'Market-Based Method';
+    factorSource = 'Supplier-specific / Residual mix';
+  }
+  
+  // Heat/Steam
+  const heatKwh = parseFloat(document.getElementById('s2-heat').value) || 0;
+  const heatFactor = parseFloat(document.getElementById('s2-heat-factor').value) || 0.15;
+  const heat = (heatKwh * heatFactor / 1000);
+  
+  // Cooling (simplified)
+  const coolingKwh = parseFloat(document.getElementById('s2-cooling').value) || 0;
+  const cooling = (coolingKwh * 0.05 / 1000); // Approximate cooling factor
+  
+  totals.scope2 = (electricity + heat + cooling).toFixed(2);
+  
   document.getElementById('s2-total').textContent = totals.scope2 + ' tCO2e';
+  document.getElementById('s2-method-label').textContent = methodLabel;
+  document.getElementById('s2-breakdown-electricity').textContent = `Electricity: ${electricity.toFixed(2)} tCO2e`;
+  document.getElementById('s2-breakdown-heat').textContent = `Heat/Steam: ${heat.toFixed(2)} tCO2e`;
+  document.getElementById('s2-breakdown-cooling').textContent = `Cooling: ${cooling.toFixed(2)} tCO2e`;
+  document.getElementById('s2-formula-detail').textContent = `Factor source: ${factorSource}`;
   document.getElementById('s2-result').classList.remove('hidden');
   updateTotal();
 }
 
 function calculateScope3() {
   const travel = parseFloat(document.getElementById('s3-travel').value) || 0;
-  const waste = parseFloat(document.getElementById('s3-waste').value) || 0;
-  totals.scope3 = ((travel * 0.15 + waste * 0.5) / 1000).toFixed(2);
+  
+  // Waste breakdown
+  const wasteGeneral = parseFloat(document.getElementById('s3-waste-general').value) || 0;
+  const wasteRecycled = parseFloat(document.getElementById('s3-waste-recycled').value) || 0;
+  const wasteOrganic = parseFloat(document.getElementById('s3-waste-organic').value) || 0;
+  const wasteTotal = wasteGeneral + wasteRecycled + wasteOrganic;
+  
+  // Use detailed breakdown if provided, otherwise use single field
+  const wasteSimple = parseFloat(document.getElementById('s3-waste').value) || 0;
+  const waste = wasteTotal > 0 ? wasteTotal : wasteSimple;
+  
+  const travelEmissions = (travel * 0.15 / 1000);
+  const wasteEmissions = (waste * 0.5 / 1000);
+  
+  totals.scope3 = (travelEmissions + wasteEmissions).toFixed(2);
+  
   document.getElementById('s3-total').textContent = totals.scope3 + ' tCO2e';
+  document.getElementById('s3-breakdown-travel').textContent = `Business Travel: ${travelEmissions.toFixed(2)} tCO2e`;
+  document.getElementById('s3-breakdown-waste').textContent = `Waste: ${wasteEmissions.toFixed(2)} tCO2e`;
   document.getElementById('s3-result').classList.remove('hidden');
   updateTotal();
 }
@@ -238,27 +718,73 @@ function calculateScope3() {
 function updateTotal() {
   const total = (parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2);
   document.getElementById('total-emissions').textContent = total + ' tCO2e';
+  document.getElementById('total-breakdown').textContent = `Scope 1: ${totals.scope1} | Scope 2: ${totals.scope2} | Scope 3: ${totals.scope3}`;
 }
 
-function exportResults() {
-  const data = `Terrnix Carbon Footprint Report
-Generated: ${new Date().toISOString()}
+function exportResults(format) {
+  const timestamp = new Date().toISOString();
+  const total = (parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2);
+  
+  if (format === 'csv') {
+    const csv = `Category,Emissions (tCO2e),Method,Factor Source
+Scope 1 (Direct),${totals.scope1},Stationary + Mobile + Fugitive,IPCC 2006 / DEFRA 2024 / EPA 2024
+Scope 2 (Indirect),${totals.scope2},${scope2Method === 'location' ? 'Location-Based' : 'Market-Based'},${scope2Method === 'location' ? 'IEA 2023 / EPA eGRID' : 'Supplier-specific'}
+Scope 3 (Value Chain),${totals.scope3},Category 5 + 6 (partial),DEFRA 2024 / EPA WARM
+Total,${total},,,
 
-Scope 1 (Direct): ${totals.scope1} tCO2e
-Scope 2 (Electricity): ${totals.scope2} tCO2e
-Scope 3 (Value Chain): ${totals.scope3} tCO2e
-Total: ${(parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2)} tCO2e
-
-Methodology: GHG Protocol Corporate Standard
+Disclaimer: This calculator provides estimates for educational purposes. Results should be verified by a qualified carbon accounting professional before use in regulatory submissions.
+Generated: ${timestamp}
 Calculator: terrnix.com/carbon-accounting/carbon-footprint-calculator/
 `;
-  const blob = new Blob([data], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'terrnix-carbon-footprint.txt';
-  a.click();
-  URL.revokeObjectURL(url);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'terrnix-carbon-footprint.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  } else {
+    const data = `TERRNIX CARBON FOOTPRINT REPORT
+================================
+Generated: ${timestamp}
+
+SCOPE 1 (DIRECT EMISSIONS)
+Emissions: ${totals.scope1} tCO2e
+Method: Stationary combustion + Mobile combustion + Fugitive emissions
+Factor Sources: IPCC 2006 Guidelines, DEFRA 2024, EPA 2024
+
+SCOPE 2 (INDIRECT EMISSIONS)
+Emissions: ${totals.scope2} tCO2e
+Method: ${scope2Method === 'location' ? 'Location-Based' : 'Market-Based'}
+Factor Sources: ${scope2Method === 'location' ? 'IEA 2023, EPA eGRID 2023' : 'Supplier-specific or residual mix factors'}
+
+SCOPE 3 (VALUE CHAIN)
+Emissions: ${totals.scope3} tCO2e
+Categories: 5 (Waste) + 6 (Business Travel) — partial assessment
+Factor Sources: DEFRA 2024, EPA WARM
+Warning: Only 2 of 15 Scope 3 categories calculated. For complete assessment, evaluate all relevant categories.
+
+TOTAL CARBON FOOTPRINT: ${total} tCO2e
+
+METHODOLOGY
+Standard: GHG Protocol Corporate Standard (2015)
+GWP Values: IPCC AR6 (100-year)
+
+DISCLAIMER
+This calculator provides estimates for educational and preliminary assessment purposes only. 
+Results should be verified by a qualified carbon accounting professional before use in 
+regulatory submissions, financial decisions, or public disclosures.
+
+terrnix.com/carbon-accounting/carbon-footprint-calculator/
+`;
+    const blob = new Blob([data], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'terrnix-carbon-footprint.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 }
 </script>
 
