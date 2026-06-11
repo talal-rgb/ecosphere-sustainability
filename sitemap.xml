@@ -2,99 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://www.terrnix.com/</loc>
-    <lastmod>2026-06-07</lastmod>
+    <loc>https://terrnix.com/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.00</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/carbon-accounting/</loc>
-    <lastmod>2026-06-07</lastmod>
+    <loc>https://terrnix.com/carbon-accounting/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/carbon-accounting/scope-1-emissions/</loc>
-    <lastmod>2026-06-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-
-  <url>
-    <loc>https://www.terrnix.com/carbon-accounting/scope-2-emissions/</loc>
-    <lastmod>2026-06-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-
-  <url>
-    <loc>https://www.terrnix.com/carbon-accounting/scope-3-emissions/</loc>
-    <lastmod>2026-06-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-
-  <url>
-    <loc>https://www.terrnix.com/carbon-accounting/carbon-footprint-calculator/</loc>
-    <lastmod>2026-06-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://www.terrnix.com/carbon-accounting/ghg-protocol-guide/</loc>
-    <lastmod>2026-06-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
-  </url>
-
-  <url>
-    <loc>https://www.terrnix.com/carbon-accounting/emission-factors/</loc>
-    <lastmod>2026-06-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-
-  <url>
-    <loc>https://www.terrnix.com/esg-reporting/</loc>
+    <loc>https://terrnix.com/carbon-accounting/scope-1-emissions/</loc>
     <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/carbon-accounting/scope-2-emissions/</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/carbon-accounting/scope-3-emissions/</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/carbon-accounting/carbon-footprint-calculator/</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/esg-reporting/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/esg-reporting/csrd-omnibus-guide/</loc>
+    <loc>https://terrnix.com/esg-reporting/csrd-omnibus-guide/</loc>
     <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/sustainability-intelligence/</loc>
-    <lastmod>2026-06-07</lastmod>
+    <loc>https://terrnix.com/sustainability-intelligence/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.80</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/tools/</loc>
-    <lastmod>2026-06-07</lastmod>
+    <loc>https://terrnix.com/tools/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/resources/</loc>
-    <lastmod>2026-06-07</lastmod>
+    <loc>https://terrnix.com/resources/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
 
   <url>
-    <loc>https://www.terrnix.com/about-us.html</loc>
-    <lastmod>2026-05-10</lastmod>
+    <loc>https://terrnix.com/about/</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/contact/</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.60</priority>
   </url>
