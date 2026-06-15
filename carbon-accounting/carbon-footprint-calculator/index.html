@@ -1218,20 +1218,12 @@ function generatePDFReport() {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
   
-  // Load html2pdf.js dynamically if not present
+  // html2pdf.js is loaded via static script tag with SRI for security
   if (typeof html2pdf === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    script.onload = function() {
-      html2pdf().set(opt).from(html).save();
-    };
-    script.onerror = function() {
-      alert('Failed to load PDF generator. Please check your internet connection and try again.');
-    };
-    document.head.appendChild(script);
-  } else {
-    html2pdf().set(opt).from(html).save();
+    alert('PDF generator is not available. Please refresh the page and try again.');
+    return;
   }
+  html2pdf().set(opt).from(html).save();
 }
 
 function buildReportData() {
@@ -1847,5 +1839,8 @@ function calculateCommutingExport() {
     <p> Terrnix. All rights reserved.</p>
   </div>
 </footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+  integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc"
+  crossorigin="anonymous"></script>
 </body>
 </html>
