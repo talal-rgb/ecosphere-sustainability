@@ -801,6 +801,9 @@ input[type="number"]:focus, select:focus { border-color: #4ade80; outline: none;
         <button onclick="exportResults('csv')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-all text-sm">
           Export CSV
         </button>
+        <button onclick="generatePDFReport()" class="px-4 py-2 bg-[#1a2520] hover:bg-[#2a3530] text-emerald-400 font-medium rounded-xl transition-all text-sm border border-emerald-500/30">
+          📄 Download Report
+        </button>
       </div>
     </div>
     <div class="mt-4 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
@@ -1190,6 +1193,634 @@ function exportResults(format) {
   }
 }
 
+// ==================== PDF REPORT GENERATION ====================
+
+function generatePDFReport() {
+  // Validate we have data
+  const total = parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3);
+  if (total === 0) {
+    alert('Please calculate your emissions first before generating a report.');
+    return;
+  }
+
+  // Build report data from calculator state
+  const data = buildReportData();
+  
+  // Render HTML template
+  const html = renderReportTemplate(data);
+  
+  // Generate PDF using html2pdf.js
+  const opt = {
+    margin: [12, 12, 12, 12],
+    filename: `terrnix-carbon-report-${Date.now()}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  
+  // html2pdf.js is loaded via static script tag with SRI for security
+  if (typeof html2pdf === 'undefined') {
+    alert('PDF generator is not available. Please refresh the page and try again.');
+    return;
+  }
+  html2pdf().set(opt).from(html).save();
+}
+
+function buildReportData() {
+  const now = new Date();
+  const total = (parseFloat(totals.scope1) + parseFloat(totals.scope2) + parseFloat(totals.scope3)).toFixed(2);
+  
+  // Get scope 1 details
+  const s1Fuel = document.getElementById('s1-fuel').value;
+  const s1Qty = parseFloat(document.getElementById('s1-quantity').value) || 0;
+  const s1Unit = document.getElementById('s1-unit').value;
+  const s1Vehicle = document.getElementById('s1-vehicle').value;
+  const s1Distance = parseFloat(document.getElementById('s1-distance').value) || 0;
+  const s1Refrig = document.getElementById('s1-refrigerant').value;
+  const s1Leaked = parseFloat(document.getElementById('s1-leaked').value) || 0;
+  
+  // Calculate breakdowns
+  let stationary = 0, mobile = 0, fugitive = 0;
+  if (s1Qty > 0) {
+    let factor = emissionFactors[s1Fuel]?.factor || 2.68;
+    let qtyConv = s1Qty;
+    if (s1Unit === 'm3' && (s1Fuel === 'natural_gas' || s1Fuel === 'biogas')) qtyConv = s1Qty * 0.8;
+    else if (s1Unit === 'gallons') qtyConv = s1Qty * 3.785;
+    stationary = (qtyConv * factor / 1000);
+  }
+  if (s1Distance > 0 && s1Vehicle) {
+    mobile = (s1Distance * (emissionFactors[s1Vehicle]?.factor || 0.17) / 1000);
+  }
+  if (s1Refrig && s1Leaked > 0) {
+    fugitive = (s1Leaked * (refrigerantGWP[s1Refrig] || 0) / 1000);
+  }
+  
+  // Scope 2 details
+  let s2Electricity = 0, s2Heat = 0, s2Cooling = 0, s2MethodLabel = '', s2FactorSource = '';
+  if (scope2Method === 'location') {
+    const kwh = parseFloat(document.getElementById('s2-kwh').value) || 0;
+    const region = document.getElementById('s2-region').value;
+    const factor = parseFloat(region) || 0.4;
+    s2Electricity = (kwh * factor / 1000);
+    s2MethodLabel = 'Location-Based';
+    s2FactorSource = gridFactors[region]?.source || 'IEA 2023';
+  } else {
+    const kwh = parseFloat(document.getElementById('s2-kwh-market').value) || 0;
+    const factor = parseFloat(document.getElementById('s2-market-factor').value) || 0;
+    s2Electricity = (kwh * factor / 1000);
+    s2MethodLabel = 'Market-Based';
+    s2FactorSource = 'Supplier-specific / Residual mix';
+  }
+  const heatKwh = parseFloat(document.getElementById('s2-heat').value) || 0;
+  const heatFactor = parseFloat(document.getElementById('s2-heat-factor').value) || 0.15;
+  s2Heat = (heatKwh * heatFactor / 1000);
+  const coolingKwh = parseFloat(document.getElementById('s2-cooling').value) || 0;
+  s2Cooling = (coolingKwh * 0.05 / 1000);
+  
+  // Scope 3 breakdown
+  const cat1 = (parseFloat(document.getElementById('s3-cat1-spend')?.value || 0) * parseFloat(document.getElementById('s3-cat1-sector')?.value || 0.30)) / 1000;
+  const cat2 = (parseFloat(document.getElementById('s3-cat2-spend')?.value || 0) * parseFloat(document.getElementById('s3-cat2-type')?.value || 0.35)) / 1000 / (parseFloat(document.getElementById('s3-cat2-life')?.value || 5));
+  const cat4 = (parseFloat(document.getElementById('s3-cat4-weight')?.value || 0) / 1000 * parseFloat(document.getElementById('s3-cat4-dist')?.value || 0) * parseFloat(document.getElementById('s3-cat4-mode')?.value || 0.062)) / 1000;
+  const cat5 = (parseFloat(document.getElementById('s3-cat5-total')?.value || 0) * parseFloat(document.getElementById('s3-cat5-method')?.value || 0.50)) / 1000;
+  const cat6 = (parseFloat(document.getElementById('s3-cat6-dist')?.value || 0) * parseFloat(document.getElementById('s3-cat6-mode')?.value || 0.17) * (document.getElementById('s3-cat6-rf')?.checked ? 1.9 : 1)) / 1000;
+  const cat7 = parseFloat(calculateCommutingExport()) || 0;
+  
+  const scope3Categories = [
+    { categoryId: 1, name: 'Purchased Goods & Services', emissions: cat1, dataQuality: 'medium', coverage: 'Spend-based estimate' },
+    { categoryId: 2, name: 'Capital Goods', emissions: cat2, dataQuality: 'low', coverage: 'Amortized spend-based' },
+    { categoryId: 4, name: 'Upstream Transportation', emissions: cat4, dataQuality: 'medium', coverage: 'Weight-distance estimate' },
+    { categoryId: 5, name: 'Waste Generated', emissions: cat5, dataQuality: 'medium', coverage: 'Disposal method estimate' },
+    { categoryId: 6, name: 'Business Travel', emissions: cat6, dataQuality: 'low-medium', coverage: 'Distance by mode' },
+    { categoryId: 7, name: 'Employee Commuting', emissions: cat7, dataQuality: 'high', coverage: 'Employee survey method' }
+  ].filter(c => c.emissions > 0);
+  
+  const top3 = [...scope3Categories].sort((a, b) => b.emissions - a.emissions).slice(0, 3);
+  
+  // Determine data quality
+  const hasData = scope3Categories.length > 0;
+  const overallQuality = hasData ? 'medium' : 'not calculated';
+  
+  // Determine top source
+  const allScopes = [
+    { name: 'Scope 1', value: parseFloat(totals.scope1) },
+    { name: 'Scope 2', value: parseFloat(totals.scope2) },
+    { name: 'Scope 3', value: parseFloat(totals.scope3) }
+  ];
+  const topSource = allScopes.sort((a, b) => b.value - a.value)[0];
+  const topSourcePct = total > 0 ? ((topSource.value / parseFloat(total)) * 100).toFixed(0) : 0;
+  
+  // Build factors list
+  const factors = [];
+  if (s1Qty > 0 && emissionFactors[s1Fuel]) {
+    factors.push({
+      name: emissionFactors[s1Fuel].source.split('/')[0].trim(),
+      value: emissionFactors[s1Fuel].factor,
+      unit: `kg CO₂/${emissionFactors[s1Fuel].unit}`,
+      source: emissionFactors[s1Fuel].source,
+      year: 2024,
+      region: 'Global'
+    });
+  }
+  if (s1Vehicle && emissionFactors[s1Vehicle]) {
+    factors.push({
+      name: s1Vehicle.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      value: emissionFactors[s1Vehicle].factor,
+      unit: 'kg CO₂/km',
+      source: emissionFactors[s1Vehicle].source,
+      year: 2024,
+      region: 'Global'
+    });
+  }
+  if (scope2Method === 'location') {
+    const region = document.getElementById('s2-region').value;
+    const gridData = gridFactors[region];
+    if (gridData) {
+      factors.push({
+        name: 'Electricity Grid',
+        value: gridData.value,
+        unit: 'kg CO₂/kWh',
+        source: gridData.source,
+        year: 2023,
+        region: region === '0.4' ? 'EU Average' : region === '0.05' ? 'France' : region === '0.38' ? 'Germany/UK' : 'Various'
+      });
+    }
+  }
+  
+  // Generate recommendations based on top emissions
+  const recommendations = [];
+  if (parseFloat(totals.scope3) > parseFloat(totals.scope1) && parseFloat(totals.scope3) > parseFloat(totals.scope2)) {
+    recommendations.push({
+      priority: 1,
+      title: 'Supplier Engagement Program',
+      description: 'Your Scope 3 emissions are the largest source. Work with top suppliers to collect primary emissions data and set reduction targets.',
+      estimatedImpact: '-15% to -25% Scope 3',
+      difficulty: 'medium'
+    });
+  }
+  if (parseFloat(totals.scope1) > 10) {
+    recommendations.push({
+      priority: recommendations.length + 1,
+      title: 'Fleet Electrification or Fuel Switching',
+      description: 'Scope 1 direct emissions offer high control. Consider EV transition, biofuels, or efficiency improvements.',
+      estimatedImpact: '-20% to -40% Scope 1',
+      difficulty: 'hard'
+    });
+  }
+  if (parseFloat(totals.scope2) > 5) {
+    recommendations.push({
+      priority: recommendations.length + 1,
+      title: 'Renewable Energy Procurement',
+      description: 'Switch to 100% renewable electricity through green tariffs, PPAs, or on-site generation.',
+      estimatedImpact: '-80% to -100% Scope 2',
+      difficulty: 'easy'
+    });
+  }
+  if (cat6 > 5) {
+    recommendations.push({
+      priority: recommendations.length + 1,
+      title: 'Travel Policy Optimization',
+      description: 'Implement virtual-first meeting policy, rail preference for <4h trips, and consolidated travel planning.',
+      estimatedImpact: '-20% to -30% business travel',
+      difficulty: 'easy'
+    });
+  }
+  if (cat7 > 5) {
+    recommendations.push({
+      priority: recommendations.length + 1,
+      title: 'Commute Incentives & Remote Work',
+      description: 'Promote carpooling, public transit subsidies, cycling infrastructure, and flexible remote work policies.',
+      estimatedImpact: '-15% to -25% commuting',
+      difficulty: 'medium'
+    });
+  }
+  
+  // Ensure at least 3 recommendations
+  if (recommendations.length < 3) {
+    recommendations.push({
+      priority: recommendations.length + 1,
+      title: 'Establish Baseline & Set Targets',
+      description: 'Use this estimate as your baseline. Set science-based targets (SBTi) aligned with 1.5°C pathway.',
+      estimatedImpact: 'Foundation for reduction strategy',
+      difficulty: 'medium'
+    });
+  }
+  if (recommendations.length < 3) {
+    recommendations.push({
+      priority: recommendations.length + 1,
+      title: 'Annual Data Collection Process',
+      description: 'Establish quarterly data collection from utilities, travel bookings, and procurement systems.',
+      estimatedImpact: 'Improves data quality 2-3×',
+      difficulty: 'easy'
+    });
+  }
+  
+  return {
+    meta: {
+      generatedAt: now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      companyName: '',
+      reportingPeriod: 'FY ' + now.getFullYear(),
+      preparedBy: 'Terrnix Carbon Calculator'
+    },
+    totals: {
+      scope1: parseFloat(totals.scope1).toFixed(2),
+      scope2: parseFloat(totals.scope2).toFixed(2),
+      scope3: parseFloat(totals.scope3).toFixed(2),
+      total: total
+    },
+    scope1: {
+      stationary: stationary.toFixed(2),
+      mobile: mobile.toFixed(2),
+      fugitive: fugitive.toFixed(2),
+      details: [
+        ...(s1Qty > 0 ? [{ label: 'Stationary Combustion', input: `${s1Qty} ${s1Unit}`, factor: emissionFactors[s1Fuel]?.source || 'IPCC 2006', value: stationary.toFixed(2) }] : []),
+        ...(s1Distance > 0 ? [{ label: 'Mobile Combustion', input: `${s1Distance} km`, factor: emissionFactors[s1Vehicle]?.source || 'DEFRA 2024', value: mobile.toFixed(2) }] : []),
+        ...(s1Refrig && s1Leaked > 0 ? [{ label: 'Fugitive Emissions', input: `${s1Leaked} kg ${s1Refrig.toUpperCase()}`, factor: `GWP: ${refrigerantGWP[s1Refrig]} (IPCC AR6)`, value: fugitive.toFixed(2) }] : [])
+      ]
+    },
+    scope2: {
+      locationBased: (parseFloat(totals.scope2)).toFixed(2),
+      marketBased: scope2Method === 'market' ? (parseFloat(totals.scope2)).toFixed(2) : null,
+      details: [
+        { label: 'Electricity', input: scope2Method === 'location' ? `${parseFloat(document.getElementById('s2-kwh').value || 0)} kWh` : `${parseFloat(document.getElementById('s2-kwh-market').value || 0)} kWh`, factor: s2FactorSource, value: s2Electricity.toFixed(2) },
+        ...(heatKwh > 0 ? [{ label: 'Heat/Steam', input: `${heatKwh} kWh`, factor: `Factor: ${heatFactor} kg CO₂/kWh`, value: s2Heat.toFixed(2) }] : []),
+        ...(coolingKwh > 0 ? [{ label: 'Cooling', input: `${coolingKwh} kWh`, factor: 'Factor: 0.05 kg CO₂/kWh', value: s2Cooling.toFixed(2) }] : [])
+      ]
+    },
+    scope3: {
+      categories: scope3Categories,
+      top3: top3.map(t => ({ ...t, pct: total > 0 ? ((t.emissions / parseFloat(totals.scope3)) * 100).toFixed(0) : 0 })),
+      total: parseFloat(totals.scope3).toFixed(2),
+      overallQuality: overallQuality
+    },
+    factors: factors,
+    recommendations: recommendations.slice(0, 5),
+    topSource: topSource.name,
+    topSourcePct: topSourcePct,
+    dataQuality: overallQuality,
+    dataQualityNote: overallQuality === 'medium' ? 'Mix of measured and estimated data. Scope 3 carries higher uncertainty.' : 'Limited data available. Results are preliminary estimates.',
+    coverageNote: '8 of 15 Scope 3 categories calculated. 7 categories not included due to data limitations.'
+  };
+}
+
+function renderReportTemplate(data) {
+  const scope1Pct = data.totals.total > 0 ? ((parseFloat(data.totals.scope1) / parseFloat(data.totals.total)) * 100).toFixed(0) : 0;
+  const scope2Pct = data.totals.total > 0 ? ((parseFloat(data.totals.scope2) / parseFloat(data.totals.total)) * 100).toFixed(0) : 0;
+  const scope3Pct = data.totals.total > 0 ? ((parseFloat(data.totals.scope3) / parseFloat(data.totals.total)) * 100).toFixed(0) : 0;
+  
+  const factorsRows = data.factors.map(f => `
+    <tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${f.name}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;text-align:right;font-family:monospace;">${f.value}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${f.unit}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${f.source}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;text-align:center;">${f.year}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${f.region}</td>
+    </tr>
+  `).join('');
+  
+  const scope3Rows = data.scope3.categories.map(c => `
+    <tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${c.categoryId}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${c.name}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;text-align:right;font-family:monospace;">${c.emissions.toFixed(2)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${c.dataQuality}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${c.coverage}</td>
+    </tr>
+  `).join('');
+  
+  const top3Rows = data.scope3.top3.map(t => `
+    <tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;">${t.name}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;text-align:right;font-family:monospace;">${t.emissions.toFixed(2)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:9pt;text-align:right;">${t.pct}%</td>
+    </tr>
+  `).join('');
+  
+  const recCards = data.recommendations.map(r => {
+    const priorityColor = r.priority === 1 ? '#fee2e2;color:#991b1b;' : r.priority === 2 ? '#fef3c7;color:#92400e;' : '#dbeafe;color:#1e40af;';
+    const difficultyLabel = r.difficulty === 'easy' ? 'Easy' : r.difficulty === 'medium' ? 'Medium' : 'Hard';
+    return `
+    <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px 15px;margin-bottom:10px;page-break-inside:avoid;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:8pt;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase;background:${priorityColor}">Priority ${r.priority}</span>
+        <span style="font-size:9pt;color:#059669;font-weight:500;">${r.estimatedImpact}</span>
+      </div>
+      <h3 style="font-size:11pt;font-weight:600;color:#374151;margin:8px 0;">${r.title}</h3>
+      <p style="font-size:9pt;color:#4b5563;margin:0;">${r.description}</p>
+      <p style="font-size:8pt;color:#6b7280;margin-top:4px;">Implementation difficulty: ${difficultyLabel}</p>
+    </div>
+    `;
+  }).join('');
+  
+  const scope1Details = data.scope1.details.map(d => `
+    <div style="page-break-inside:avoid;margin-bottom:12px;">
+      <h3 style="font-size:11pt;font-weight:600;color:#374151;margin:0 0 4px;">${d.label}</h3>
+      <p style="font-size:9pt;color:#4b5563;margin:0;"><strong>Input:</strong> ${d.input} &nbsp;|&nbsp; <strong>Factor:</strong> ${d.factor}</p>
+      <p style="font-size:9pt;color:#4b5563;margin:4px 0 0;"><strong>Result:</strong> ${d.value} tCO₂e</p>
+    </div>
+  `).join('');
+  
+  const scope2Details = data.scope2.details.map(d => `
+    <div style="page-break-inside:avoid;margin-bottom:12px;">
+      <h3 style="font-size:11pt;font-weight:600;color:#374151;margin:0 0 4px;">${d.label}</h3>
+      <p style="font-size:9pt;color:#4b5563;margin:0;"><strong>Input:</strong> ${d.input} &nbsp;|&nbsp; <strong>Factor:</strong> ${d.factor}</p>
+      <p style="font-size:9pt;color:#4b5563;margin:4px 0 0;"><strong>Result:</strong> ${d.value} tCO₂e</p>
+    </div>
+  `).join('');
+  
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Terrnix Carbon Report</title></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:10pt;line-height:1.6;color:#1f2937;background:#fff;margin:0;padding:0;">
+
+<!-- COVER PAGE -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+  <div style="font-size:32pt;font-weight:900;color:#0f766e;margin-bottom:30px;letter-spacing:-1px;">🌱 Terrnix</div>
+  <div style="font-size:22pt;font-weight:700;color:#134e4a;margin-bottom:15px;">Carbon Emissions Report</div>
+  <div style="font-size:12pt;color:#6b7280;margin-bottom:40px;">GHG Protocol-Aligned Estimation</div>
+  <div style="font-size:10pt;color:#4b5563;line-height:2;">
+    <div><strong style="color:#1f2937;display:inline-block;width:120px;text-align:right;margin-right:10px;">Company:</strong> ${data.meta.companyName || 'Not specified'}</div>
+    <div><strong style="color:#1f2937;display:inline-block;width:120px;text-align:right;margin-right:10px;">Period:</strong> ${data.meta.reportingPeriod}</div>
+    <div><strong style="color:#1f2937;display:inline-block;width:120px;text-align:right;margin-right:10px;">Generated:</strong> ${data.meta.generatedAt}</div>
+    <div><strong style="color:#1f2937;display:inline-block;width:120px;text-align:right;margin-right:10px;">Prepared by:</strong> ${data.meta.preparedBy}</div>
+  </div>
+  <div style="margin-top:50px;padding:8px 20px;background:#fef3c7;border:1px solid #f59e0b;border-radius:4px;font-size:9pt;color:#92400e;font-weight:500;">
+    ⚠️ Unverified Estimate — For informational purposes only
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">2</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Executive Summary</h1>
+  <div style="background:#f0fdfa;border-left:4px solid #0f766e;padding:12px 15px;margin:15px 0;border-radius:0 4px 4px 0;">
+    <strong>Total Emissions: ${data.totals.total} tCO₂e</strong><br>
+    This estimate covers Scope 1 (direct), Scope 2 (indirect energy), and Scope 3 (value chain) emissions based on data entered into the Terrnix Carbon Calculator.
+  </div>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Emissions Breakdown</h2>
+  <div style="margin:15px 0;">
+    <div style="display:flex;align-items:center;margin-bottom:8px;">
+      <div style="width:100px;font-size:9pt;color:#4b5563;text-align:right;padding-right:10px;">Scope 1</div>
+      <div style="flex:1;height:22px;background:#f3f4f6;border-radius:3px;overflow:hidden;position:relative;">
+        <div style="height:100%;background:#0f766e;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:8pt;font-weight:600;color:#fff;width:${scope1Pct}%;min-width:60px;">${data.totals.scope1} tCO₂e</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;margin-bottom:8px;">
+      <div style="width:100px;font-size:9pt;color:#4b5563;text-align:right;padding-right:10px;">Scope 2</div>
+      <div style="flex:1;height:22px;background:#f3f4f6;border-radius:3px;overflow:hidden;position:relative;">
+        <div style="height:100%;background:#14b8a6;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:8pt;font-weight:600;color:#fff;width:${scope2Pct}%;min-width:60px;">${data.totals.scope2} tCO₂e</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;margin-bottom:8px;">
+      <div style="width:100px;font-size:9pt;color:#4b5563;text-align:right;padding-right:10px;">Scope 3</div>
+      <div style="flex:1;height:22px;background:#f3f4f6;border-radius:3px;overflow:hidden;position:relative;">
+        <div style="height:100%;background:#f59e0b;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:8pt;font-weight:600;color:#fff;width:${scope3Pct}%;min-width:60px;">${data.totals.scope3} tCO₂e</div>
+      </div>
+    </div>
+  </div>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Key Insights</h2>
+  <ul>
+    <li><strong>Largest source:</strong> ${data.topSource} (${data.topSourcePct}% of total)</li>
+    <li><strong>Data quality:</strong> ${data.dataQuality} — ${data.dataQualityNote}</li>
+    <li><strong>Coverage:</strong> ${data.coverageNote}</li>
+  </ul>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- SCOPE 1 -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">3</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Scope 1 — Direct Emissions</h1>
+  <p>Direct greenhouse gas emissions from sources owned or controlled by the organization.</p>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Summary</h2>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:9pt;page-break-inside:avoid;">
+    <thead><tr style="background:#f0fdfa;color:#134e4a;font-weight:600;">
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Source</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;font-family:monospace;">Emissions (tCO₂e)</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;">% of Scope 1</th>
+    </tr></thead>
+    <tbody>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Stationary Combustion</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;">${data.scope1.stationary}</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;">${data.totals.scope1 > 0 ? ((parseFloat(data.scope1.stationary)/parseFloat(data.totals.scope1))*100).toFixed(0) : 0}%</td></tr>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Mobile Combustion</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;">${data.scope1.mobile}</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;">${data.totals.scope1 > 0 ? ((parseFloat(data.scope1.mobile)/parseFloat(data.totals.scope1))*100).toFixed(0) : 0}%</td></tr>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Fugitive Emissions</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;">${data.scope1.fugitive}</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;">${data.totals.scope1 > 0 ? ((parseFloat(data.scope1.fugitive)/parseFloat(data.totals.scope1))*100).toFixed(0) : 0}%</td></tr>
+      <tr style="font-weight:700;background:#f0fdfa;border-top:2px solid #0f766e;"><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;"><strong>Total Scope 1</strong></td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;"><strong>${data.totals.scope1}</strong></td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;"><strong>100%</strong></td></tr>
+    </tbody>
+  </table>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Details</h2>
+  ${scope1Details || '<p style="font-size:9pt;color:#6b7280;">No Scope 1 data entered.</p>'}
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- SCOPE 2 -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">4</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Scope 2 — Indirect Energy Emissions</h1>
+  <p>Indirect emissions from the generation of purchased electricity, heat, steam, and cooling consumed by the organization.</p>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Summary</h2>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:9pt;page-break-inside:avoid;">
+    <thead><tr style="background:#f0fdfa;color:#134e4a;font-weight:600;">
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Method</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;font-family:monospace;">Emissions (tCO₂e)</th>
+    </tr></thead>
+    <tbody>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Location-Based</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;">${data.scope2.locationBased}</td></tr>
+      ${data.scope2.marketBased ? `<tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Market-Based</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;">${data.scope2.marketBased}</td></tr>` : ''}
+      <tr style="font-weight:700;background:#f0fdfa;border-top:2px solid #0f766e;"><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;"><strong>Total Scope 2</strong></td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:monospace;"><strong>${data.totals.scope2}</strong></td></tr>
+    </tbody>
+  </table>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Details</h2>
+  ${scope2Details || '<p style="font-size:9pt;color:#6b7280;">No Scope 2 data entered.</p>'}
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- SCOPE 3 -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">5</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Scope 3 — Value Chain Emissions</h1>
+  <p>All other indirect emissions that occur in the value chain of the reporting company, including upstream and downstream activities.</p>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Top Contributing Categories</h2>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:9pt;page-break-inside:avoid;">
+    <thead><tr style="background:#f0fdfa;color:#134e4a;font-weight:600;">
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Category</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;font-family:monospace;">Emissions (tCO₂e)</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;">% of Scope 3</th>
+    </tr></thead>
+    <tbody>${top3Rows}</tbody>
+  </table>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">All Categories Calculated</h2>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:9pt;page-break-inside:avoid;">
+    <thead><tr style="background:#f0fdfa;color:#134e4a;font-weight:600;">
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">#</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Category</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;font-family:monospace;">tCO₂e</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Quality</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Coverage</th>
+    </tr></thead>
+    <tbody>${scope3Rows}</tbody>
+  </table>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- METHODOLOGY -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">6</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Methodology</h1>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Framework</h2>
+  <p>This report follows the <strong>GHG Protocol Corporate Standard</strong> (revised edition) for greenhouse gas accounting and reporting. The three-scope structure ensures comprehensive coverage of direct and indirect emissions.</p>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Boundaries</h2>
+  <ul>
+    <li><strong>Organizational boundary:</strong> Operational control approach</li>
+    <li><strong>Reporting boundary:</strong> All material emission sources within the reporting period</li>
+    <li><strong>Time boundary:</strong> ${data.meta.reportingPeriod}</li>
+  </ul>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Calculation Approach</h2>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:9pt;page-break-inside:avoid;">
+    <thead><tr style="background:#f0fdfa;color:#134e4a;font-weight:600;">
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Scope</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Method</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Formula</th>
+    </tr></thead>
+    <tbody>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Scope 1</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Activity data × Emission factor</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-family:monospace;">Emissions = Activity × Factor</td></tr>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Scope 2</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Location-based: Grid average factor<br>Market-based: Contractual instrument</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-family:monospace;">Emissions = Energy × Grid Factor</td></tr>
+      <tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Scope 3</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Spend-based or activity-based (category-dependent)</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-family:monospace;">Emissions = Activity × EEIO Factor</td></tr>
+    </tbody>
+  </table>
+  <h2 style="font-size:13pt;font-weight:600;color:#0f766e;margin-top:20px;margin-bottom:10px;">Data Quality</h2>
+  <p>The accuracy of this report depends on the quality of input data provided:</p>
+  <ul>
+    <li><strong>High:</strong> Measured/verified activity data with region-specific factors</li>
+    <li><strong>Medium:</strong> Estimated activity data with generic factors</li>
+    <li><strong>Low:</strong> Proxy data or spend-based estimates with high uncertainty</li>
+  </ul>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- EMISSION FACTORS -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">7</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Emission Factors Used</h1>
+  <p>The following emission factors were applied in the calculations. Factors are sourced from authoritative databases and updated periodically.</p>
+  <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:9pt;page-break-inside:avoid;">
+    <thead><tr style="background:#f0fdfa;color:#134e4a;font-weight:600;">
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Factor Name</th>
+      <th style="text-align:right;padding:8px 10px;border-bottom:2px solid #0f766e;font-family:monospace;">Value</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Unit</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Source</th>
+      <th style="text-align:center;padding:8px 10px;border-bottom:2px solid #0f766e;">Year</th>
+      <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #0f766e;">Region</th>
+    </tr></thead>
+    <tbody>${factorsRows || '<tr><td colspan="6" style="padding:7px 10px;text-align:center;color:#6b7280;">No factors recorded — data may be incomplete</td></tr>'}</tbody>
+  </table>
+  <div style="background:#f0fdfa;border-left:4px solid #0f766e;padding:12px 15px;margin:15px 0;border-radius:0 4px 4px 0;">
+    <strong>Note:</strong> Emission factors are subject to revision as scientific understanding improves and national inventories are updated. Always verify you are using the most current factors for formal reporting.
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div style="width:180mm;min-height:267mm;padding:0;page-break-after:always;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">8</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Recommendations</h1>
+  <p>Based on your emissions profile, the following actions are prioritized by impact and feasibility:</p>
+  ${recCards}
+  <div style="background:#f0fdfa;border-left:4px solid #0f766e;padding:12px 15px;margin:15px 0;border-radius:0 4px 4px 0;">
+    <strong>Next Steps:</strong> Consider conducting a detailed audit of your top emission categories. Terrnix offers deeper analysis tools and consulting referrals for organizations ready to move beyond estimation to verified reporting.
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+<!-- DISCLAIMER -->
+<div style="width:180mm;min-height:267mm;padding:0;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:10px;margin-bottom:20px;">
+    <div style="font-size:16pt;font-weight:800;color:#0f766e;letter-spacing:-0.5px;">🌱 Terrnix</div>
+    <div style="font-size:11pt;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Carbon Emissions Report</div>
+    <div style="font-size:9pt;color:#9ca3af;">9</div>
+  </div>
+  <h1 style="font-size:18pt;font-weight:700;color:#134e4a;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Disclaimer & Limitations</h1>
+  <div style="font-size:8pt;color:#6b7280;line-height:1.5;padding:15px;background:#f9fafb;border-radius:4px;margin-top:15px;">
+    <p><strong>Purpose:</strong> This report is generated for informational and educational purposes only. It provides an estimate of greenhouse gas emissions based on data entered by the user into the Terrnix Carbon Calculator.</p>
+    <p><strong>Not Audit-Ready:</strong> This report does not constitute a verified greenhouse gas inventory. For regulatory compliance, carbon disclosure projects, or third-party assurance, a formal audit by a qualified verifier is required.</p>
+    <p><strong>Data Quality:</strong> The accuracy of estimates depends entirely on the completeness and accuracy of input data. Missing sources, approximate values, and generic emission factors introduce uncertainty. Scope 3 estimates in particular carry high uncertainty.</p>
+    <p><strong>Emission Factors:</strong> Factors used are sourced from public databases (e.g., EPA, DEFRA, IEA) and may not reflect the most current or region-specific values. Users should verify factors against official national inventories for formal reporting.</p>
+    <p><strong>Boundaries:</strong> The calculator uses simplified boundaries. Complex organizational structures, joint ventures, leased assets, and supply chain nuances may not be fully captured.</p>
+    <p><strong>No Liability:</strong> Terrnix and its operators accept no liability for decisions made based on this report. Users assume full responsibility for verifying data and ensuring compliance with applicable regulations.</p>
+    <p><strong>Intellectual Property:</strong> This report and its contents are proprietary to Terrnix. Unauthorized distribution, modification, or commercial use without written permission is prohibited.</p>
+  </div>
+  <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 15px;margin:15px 0;border-radius:0 4px 4px 0;page-break-inside:avoid;">
+    <strong>Watermark Notice:</strong> Reports generated via the free Terrnix calculator include an unverified estimate watermark. For watermark-free, audit-ready reports, contact Terrnix for professional services.
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af;">
+    <span>terrnix.com</span>
+    <span>${data.meta.companyName || 'Carbon Report'}</span>
+    <span>${data.meta.generatedAt}</span>
+  </div>
+</div>
+
+</body></html>`;
+}
+
 function calculateCommutingExport() {
   const emp = parseFloat(document.getElementById('s3-cat7-employees')?.value) || 0;
   const dist = parseFloat(document.getElementById('s3-cat7-dist')?.value) || 0;
@@ -1208,5 +1839,8 @@ function calculateCommutingExport() {
     <p> Terrnix. All rights reserved.</p>
   </div>
 </footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+  integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc"
+  crossorigin="anonymous"></script>
 </body>
 </html>
