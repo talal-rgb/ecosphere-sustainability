@@ -72,7 +72,15 @@ const corsOrigins = NODE_ENV === 'production'
   : ['https://terrnix.com', 'https://www.terrnix.com', 'http://localhost:3000', 'http://localhost:8080'];
 
 const corsOptions = {
-  origin: corsOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (corsOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
   credentials: false,
@@ -265,6 +273,14 @@ app.post('/api/contact', [
 
 // Error handling middleware
 app.use((err, req, res, next) => {
+  // Handle CORS errors gracefully
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'Origin not allowed'
+    });
+  }
+  
   // Log error securely (no sensitive data)
   console.error('[Error]', {
     message: err.message,
