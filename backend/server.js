@@ -73,7 +73,15 @@ const corsOrigins = NODE_ENV === 'production'
 
 const corsOptions = {
   origin: function(origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+    // In production, strictly enforce origin whitelist
+    if (NODE_ENV === 'production') {
+      if (!origin) return callback(new Error('Not allowed by CORS'));
+      if (corsOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    }
+    // In development, allow no-origin (curl, mobile apps) and whitelisted origins
     if (!origin) return callback(null, true);
     if (corsOrigins.indexOf(origin) !== -1) {
       callback(null, true);
