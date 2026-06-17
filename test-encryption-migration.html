@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Encryption Migration Test — Terrnix</title>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0a0f0d; color: #e2e8f0; padding: 40px; line-height: 1.6; }
+  h1 { color: #4ade80; font-family: 'Space Grotesk', sans-serif; }
+  h2 { color: #34d399; margin-top: 32px; border-bottom: 1px solid #1a2520; padding-bottom: 8px; }
+  .section { background: #111a16; border: 1px solid #2d3d35; border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .value { font-family: 'SF Mono', Monaco, monospace; font-size: 14px; word-break: break-all; }
+  .value.plain { color: #fbbf24; }
+  .value.encrypted { color: #60a5fa; }
+  .value.error { color: #f87171; }
+  .value.success { color: #4ade80; }
+  .btn { background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px; }
+  .btn:hover { background: #047857; }
+  .btn.danger { background: #dc2626; }
+  .btn.danger:hover { background: #b91c1c; }
+  .log { background: #0a0f0d; border: 1px solid #1a2520; border-radius: 6px; padding: 12px; margin-top: 12px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+  .log-entry { margin: 2px 0; }
+  .log-entry.info { color: #94a3b8; }
+  .log-entry.success { color: #4ade80; }
+  .log-entry.error { color: #f87171; }
+  .log-entry.warn { color: #fbbf24; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #1a2520; }
+  th { color: #94a3b8; font-size: 12px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<h1>🔒 Encryption Migration Test Suite</h1>
+<p>Demonstrates localStorage → encryptedStorage upgrade, corruption handling, and failure modes.</p>
+
+<div class="section">
+  <h2>Step 1: Simulate Pre-Upgrade State (Plain localStorage)</h2>
+  <p>Before the security upgrade, user data was stored as plain JSON strings.</p>
+  <button class="btn" onclick="step1_setPlainData()">1. Set Plain Data</button>
+  <div id="step1-result"></div>
+</div>
+
+<div class="section">
+  <h2>Step 2: Upgrade to Encrypted Storage</h2>
+  <p>Initialize encryptedStorage. Existing plain data is automatically migrated and encrypted.</p>
+  <button class="btn" onclick="step2_initializeEncrypted()">2. Initialize EncryptedStorage</button>
+  <div id="step2-result"></div>
+</div>
+
+<div class="section">
+  <h2>Step 3: Verify Encrypted Data</h2>
+  <p>Confirm data is now stored in encrypted format (AES-GCM ciphertext).</p>
+  <button class="btn" onclick="step3_verifyEncrypted()">3. Verify Encryption</button>
+  <div id="step3-result"></div>
+</div>
+
+<div class="section">
+  <h2>Step 4: Readback Test</h2>
+  <p>Read encrypted data back — should decrypt transparently and return original values.</p>
+  <button class="btn" onclick="step4_readback()">4. Readback Test</button>
+  <div id="step4-result"></div>
+</div>
+
+<div class="section">
+  <h2>Failure Mode: Corrupted Storage</h2>
+  <p>Simulate data tampering — encryptedStorage should detect corruption and return null.</p>
+  <button class="btn danger" onclick="step5_corruptData()">5. Corrupt Storage</button>
+  <button class="btn" onclick="step5_attemptRead()">Attempt Read After Corruption</button>
+  <div id="step5-result"></div>
+</div>
+
+<div class="section">
+  <h2>Failure Mode: Wrong Password</h2>
+  <p>Re-initialize with wrong password — decryption should fail gracefully.</p>
+  <button class="btn danger" onclick="step6_wrongPassword()">6. Wrong Password</button>
+  <div id="step6-result"></div>
+</div>
+
+<div class="section">
+  <h2>Failure Mode: Cleared Storage</h2>
+  <p>User clears browser storage — should handle gracefully.</p>
+  <button class="btn danger" onclick="step7_clearStorage()">7. Clear All Storage</button>
+  <button class="btn" onclick="step7_attemptRead()">Attempt Read After Clear</button>
+  <div id="step7-result"></div>
+</div>
+
+<div class="section">
+  <h2>Test Log</h2>
+  <div id="test-log" class="log"></div>
+  <button class="btn" onclick="clearLog()">Clear Log</button>
+</div>
+
+<script src="assets/js/storageCrypto.js"></script>
+<script>
+// Test configuration
+const TEST_PASSWORD = 'TerrnixSecure2024!';
+const WRONG_PASSWORD = 'WrongPassword123!';
+let encryptedStorage = null;
+
+// Logger
+function log(message, type = 'info') {
+  const logEl = document.getElementById('test-log');
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${type}`;
+  entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+  logEl.appendChild(entry);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('test-log').innerHTML = '';
+}
+
+// Helper: Display result
+function showResult(elementId, html) {
+  document.getElementById(elementId).innerHTML = html;
+}
+
+// ============================================
+// STEP 1: Set Plain Data (Pre-Upgrade State)
+// ============================================
+function step1_setPlainData() {
+  log('Step 1: Setting plain localStorage data...', 'info');
+  
+  // Clear any existing data
+  localStorage.clear();
+  
+  // Simulate pre-upgrade plain data
+  const plainData = {
+    'terrnix_chat_history': JSON.stringify([
+      { role: 'user', message: 'What is carbon accounting?' },
+      { role: 'assistant', message: 'Carbon accounting is the process...' }
+    ]),
+    'terrnix_articles_viewed': JSON.stringify(['scope-1-guide', 'scope-2-guide']),
+    'terrnix_user_preferences': JSON.stringify({ theme: 'dark', language: 'en' }),
+    'terrnix_calculator_data': JSON.stringify({
+      company: 'Acme Corp',
+      scope1: { stationary: 45.2, mobile: 12.8 },
+      scope2: { electricity: 89.5 }
+    })
+  };
+  
+  Object.entries(plainData).forEach(([key, value]) => {
+    localStorage.setItem(key, value);
+  });
+  
+  // Display what was stored
+  let html = '<table><tr><th>Key</th><th>Value (Plain)</th></tr>';
+  Object.entries(plainData).forEach(([key, value]) => {
+    html += `<tr><td>${key}</td><td class="value plain">${value.substring(0, 80)}...</td></tr>`;
+  });
+  html += '</table>';
+  
+  showResult('step1-result', html);
+  log(`Set ${Object.keys(plainData).length} plain localStorage items`, 'success');
+}
+
+// ============================================
+// STEP 2: Initialize EncryptedStorage
+// ============================================
+async function step2_initializeEncrypted() {
+  log('Step 2: Initializing encryptedStorage...', 'info');
+  
+  try {
+    encryptedStorage = new EncryptedStorage(TEST_PASSWORD);
+    await encryptedStorage.initialize();
+    
+    // Check if migration happened
+    const keys = Object.keys(localStorage);
+    const encryptedKeys = keys.filter(k => k.startsWith('terrnix_enc_'));
+    const plainKeys = keys.filter(k => k.startsWith('terrnix_') && !k.startsWith('terrnix_enc_'));
+    
+    let html = `
+      <div class="value success">✅ EncryptedStorage initialized successfully</div>
+      <p><strong>Migration Status:</strong></p>
+      <ul>
+        <li>Encrypted keys: ${encryptedKeys.length}</li>
+        <li>Remaining plain keys: ${plainKeys.length}</li>
+      </ul>
+    `;
+    
+    if (plainKeys.length === 0) {
+      html += '<div class="value success">✅ All plain data migrated to encrypted format</div>';
+      log('Migration complete — all plain data encrypted', 'success');
+    } else {
+      html += `<div class="value warn">⚠️ Some plain keys remain: ${plainKeys.join(', ')}</div>`;
+      log(`Migration partial — ${plainKeys.length} plain keys remain`, 'warn');
+    }
+    
+    showResult('step2-result', html);
+  } catch (error) {
+    log(`Initialization failed: ${error.message}`, 'error');
+    showResult('step2-result', `<div class="value error">❌ Error: ${error.message}</div>`);
+  }
+}
+
+// ============================================
+// STEP 3: Verify Encrypted Format
+// ============================================
+function step3_verifyEncrypted() {
+  log('Step 3: Verifying encrypted storage format...', 'info');
+  
+  const keys = Object.keys(localStorage);
+  const encryptedKeys = keys.filter(k => k.startsWith('terrnix_enc_'));
+  
+  if (encryptedKeys.length === 0) {
+    showResult('step3-result', '<div class="value error">❌ No encrypted data found. Run Step 2 first.</div>');
+    log('No encrypted data found', 'error');
+    return;
+  }
+  
+  let html = '<table><tr><th>Key</th><th>Encrypted Value (first 100 chars)</th></tr>';
+  encryptedKeys.forEach(key => {
+    const value = localStorage.getItem(key);
+    const parsed = JSON.parse(value);
+    html += `<tr>
+      <td>${key}</td>
+      <td class="value encrypted">${JSON.stringify(parsed).substring(0, 100)}...</td>
+    </tr>`;
+  });
+  html += '</table>';
+  
+  // Show structure of encrypted data
+  const sampleKey = encryptedKeys[0];
+  const sampleValue = JSON.parse(localStorage.getItem(sampleKey));
+  html += `
+    <div style="margin-top: 16px;">
+      <div class="label">Sample Encrypted Structure (${sampleKey}):</div>
+      <pre class="value encrypted" style="font-size: 12px;">${JSON.stringify(sampleValue, null, 2).substring(0, 400)}</pre>
+    </div>
+  `;
+  
+  showResult('step3-result', html);
+  log(`Verified ${encryptedKeys.length} encrypted entries`, 'success');
+}
+
+// ============================================
+// STEP 4: Readback Test
+// ============================================
+async function step4_readback() {
+  log('Step 4: Testing readback of encrypted data...', 'info');
+  
+  if (!encryptedStorage) {
+    showResult('step4-result', '<div class="value error">❌ EncryptedStorage not initialized. Run Step 2 first.</div>');
+    log('EncryptedStorage not initialized', 'error');
+    return;
+  }
+  
+  const testKeys = [
+    'terrnix_chat_history',
+    'terrnix_articles_viewed',
+    'terrnix_user_preferences',
+    'terrnix_calculator_data'
+  ];
+  
+  let html = '<table><tr><th>Key</th><th>Read Status</th><th>Sample Data</th></tr>';
+  let allPass = true;
+  
+  for (const key of testKeys) {
+    try {
+      const value = await encryptedStorage.getItem(key);
+      if (value !== null) {
+        const display = typeof value === 'string' ? value.substring(0, 60) : JSON.stringify(value).substring(0, 60);
+        html += `<tr><td>${key}</td><td class="value success">✅ Decrypted</td><td>${display}...</td></tr>`;
+        log(`Readback success: ${key}`, 'success');
+      } else {
+        html += `<tr><td>${key}</td><td class="value warn">⚠️ Not found</td><td>-</td></tr>`;
+        log(`Readback: ${key} not found`, 'warn');
+        allPass = false;
+      }
+    } catch (error) {
+      html += `<tr><td>${key}</td><td class="value error">❌ Error</td><td>${error.message}</td></tr>`;
+      log(`Readback failed: ${key} — ${error.message}`, 'error');
+      allPass = false;
+    }
+  }
+  html += '</table>';
+  
+  if (allPass) {
+    html += '<div class="value success" style="margin-top: 12px;">✅ All data successfully decrypted and readable!</div>';
+  }
+  
+  showResult('step4-result', html);
+}
+
+// ============================================
+// STEP 5: Corruption Test
+// ============================================
+function step5_corruptData() {
+  log('Step 5: Simulating data corruption...', 'warn');
+  
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('terrnix_enc_'));
+  if (keys.length === 0) {
+    showResult('step5-result', '<div class="value error">❌ No encrypted data to corrupt. Run Step 2 first.</div>');
+    log('No encrypted data to corrupt', 'error');
+    return;
+  }
+  
+  // Corrupt the first encrypted item
+  const targetKey = keys[0];
+  const originalValue = localStorage.getItem(targetKey);
+  const parsed = JSON.parse(originalValue);
+  
+  // Tamper with the ciphertext
+  if (parsed.ciphertext) {
+    parsed.ciphertext = parsed.ciphertext.substring(0, 20) + 'CORRUPTED' + parsed.ciphertext.substring(30);
+  }
+  
+  localStorage.setItem(targetKey, JSON.stringify(parsed));
+  
+  showResult('step5-result', `
+    <div class="value error">⚠️ Corrupted: ${targetKey}</div>
+    <p>Modified ciphertext to simulate tampering.</p>
+    <div class="label">Original (first 60 chars):</div>
+    <div class="value">${originalValue.substring(0, 60)}...</div>
+  `);
+  log(`Corrupted ${targetKey}`, 'warn');
+}
+
+async function step5_attemptRead() {
+  log('Step 5b: Attempting read after corruption...', 'info');
+  
+  if (!encryptedStorage) {
+    showResult('step5-result', '<div class="value error">❌ EncryptedStorage not initialized.</div>');
+    return;
+  }
+  
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('terrnix_enc_'));
+    let html = '<table><tr><th>Key</th><th>Result</th></tr>';
+    
+    for (const key of keys) {
+      try {
+        const value = await encryptedStorage.getItem(key.replace('terrnix_enc_', ''));
+        if (value === null) {
+          html += `<tr><td>${key}</td><td class="value warn">⚠️ Returned null (corruption detected)</td></tr>`;
+          log(`Corruption detected: ${key} returned null`, 'warn');
+        } else {
+          html += `<tr><td>${key}</td><td class="value success">✅ Readable</td></tr>`;
+        }
+      } catch (error) {
+        html += `<tr><td>${key}</td><td class="value error">❌ Error: ${error.message}</td></tr>`;
+        log(`Read error on ${key}: ${error.message}`, 'error');
+      }
+    }
+    html += '</table>';
+    showResult('step5-result', html);
+  } catch (error) {
+    showResult('step5-result', `<div class="value error">❌ Fatal error: ${error.message}</div>`);
+  }
+}
+
+// ============================================
+// STEP 6: Wrong Password
+// ============================================
+async function step6_wrongPassword() {
+  log('Step 6: Testing wrong password...', 'warn');
+  
+  try {
+    const wrongStorage = new EncryptedStorage(WRONG_PASSWORD);
+    await wrongStorage.initialize();
+    
+    // Try to read existing data with wrong password
+    const value = await wrongStorage.getItem('terrnix_chat_history');
+    
+    if (value === null) {
+      showResult('step6-result', `
+        <div class="value success">✅ Correct behavior: Wrong password returned null</div>
+        <p>EncryptedStorage gracefully handled incorrect password without crashing.</p>
+      `);
+      log('Wrong password test passed — returned null gracefully', 'success');
+    } else {
+      showResult('step6-result', `
+        <div class="value error">❌ SECURITY ISSUE: Wrong password returned data!</div>
+        <p>This should not happen. Data may not be properly encrypted.</p>
+      `);
+      log('SECURITY ISSUE: Wrong password returned data!', 'error');
+    }
+  } catch (error) {
+    showResult('step6-result', `
+      <div class="value success">✅ Correct behavior: Wrong password threw error</div>
+      <p>Error: ${error.message}</p>
+    `);
+    log(`Wrong password threw error (acceptable): ${error.message}`, 'success');
+  }
+}
+
+// ============================================
+// STEP 7: Clear Storage
+// ============================================
+function step7_clearStorage() {
+  log('Step 7: Clearing all localStorage...', 'warn');
+  
+  const beforeCount = localStorage.length;
+  localStorage.clear();
+  encryptedStorage = null;
+  
+  showResult('step7-result', `
+    <div class="value success">✅ Storage cleared</div>
+    <p>Removed ${beforeCount} items from localStorage.</p>
+    <p>EncryptedStorage instance reset.</p>
+  `);
+  log(`Cleared ${beforeCount} items from localStorage`, 'warn');
+}
+
+async function step7_attemptRead() {
+  log('Step 7b: Attempting read after clear...', 'info');
+  
+  if (!encryptedStorage) {
+    showResult('step7-result', '<div class="value warn">⚠️ EncryptedStorage was reset. Re-initializing...</div>');
+    encryptedStorage = new EncryptedStorage(TEST_PASSWORD);
+    await encryptedStorage.initialize();
+  }
+  
+  const value = await encryptedStorage.getItem('terrnix_chat_history');
+  
+  if (value === null) {
+    showResult('step7-result', `
+      <div class="value success">✅ Correct behavior: Cleared storage returned null</div>
+      <p>No crash, no error — gracefully handles missing data.</p>
+    `);
+    log('Cleared storage test passed — returned null gracefully', 'success');
+  } else {
+    showResult('step7-result', '<div class="value error">❌ Unexpected: Found data after clear</div>');
+    log('Unexpected data found after clear', 'error');
+  }
+}
+
+// Auto-run Step 1 on load for convenience
+window.addEventListener('load', () => {
+  log('Test suite loaded. Click buttons to run tests.', 'info');
+});
+</script>
+
+</body>
+</html>
