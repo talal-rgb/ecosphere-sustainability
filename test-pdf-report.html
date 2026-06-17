@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Terrnix Carbon Report - TEST</title>
+<style>
+/* ===== RESET & BASE ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+  font-size: 9.5pt; 
+  line-height: 1.45; 
+  color: #111827; 
+  background: #fff; 
+}
+
+/* ===== PAGE CONTAINER ===== */
+.page { 
+  width: 210mm; 
+  min-height: 297mm; 
+  max-height: 297mm;
+  padding: 12mm 15mm 20mm 15mm; 
+  position: relative; 
+  overflow: hidden; 
+  page-break-after: always; 
+  page-break-inside: avoid;
+  display: flex;
+  flex-direction: column;
+}
+.page:last-child { page-break-after: auto; }
+
+/* ===== COVER PAGE ===== */
+.cover-page { 
+  justify-content: center; 
+  align-items: center; 
+  text-align: center;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #f0fdfa 100%);
+}
+.cover-content { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 16px;
+}
+.cover-logo { 
+  font-size: 32pt; 
+  font-weight: 900; 
+  color: #0f766e; 
+}
+.cover-title { 
+  font-size: 22pt; 
+  font-weight: 700; 
+  color: #134e4a; 
+}
+.cover-subtitle { 
+  font-size: 12pt; 
+  color: #374151; 
+  margin-bottom: 24px;
+}
+.cover-meta { 
+  font-size: 10pt; 
+  color: #111827; 
+  line-height: 2; 
+  text-align: left;
+  background: #fff;
+  padding: 20px 28px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+.meta-row { display: flex; gap: 12px; }
+.meta-label { 
+  font-weight: 600; 
+  width: 100px; 
+  text-align: right; 
+  color: #374151;
+}
+.meta-value { color: #111827; }
+.cover-watermark { 
+  background: #fef3c7; 
+  border: 1px solid #f59e0b; 
+  border-radius: 4px; 
+  padding: 8px 16px; 
+  font-size: 9pt; 
+  color: #92400e; 
+  font-weight: 500;
+}
+.cover-footer { 
+  position: absolute; 
+  bottom: 12mm; 
+  left: 15mm; 
+  right: 15mm; 
+  border-top: 1px solid #e5e7eb; 
+  padding-top: 8px; 
+  display: flex; 
+  justify-content: space-between; 
+  font-size: 8pt; 
+  color: #6b7280;
+}
+
+/* ===== STANDARD HEADER ===== */
+.page-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  border-bottom: 2px solid #0f766e; 
+  padding-bottom: 8px; 
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.header-logo { 
+  font-size: 14pt; 
+  font-weight: 800; 
+  color: #0f766e; 
+}
+.header-title { 
+  font-size: 10pt; 
+  font-weight: 600; 
+  color: #374151; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px;
+}
+.header-page { 
+  font-size: 9pt; 
+  color: #6b7280; 
+}
+
+/* ===== STANDARD FOOTER ===== */
+.page-footer { 
+  position: absolute; 
+  bottom: 12mm; 
+  left: 15mm; 
+  right: 15mm; 
+  border-top: 1px solid #e5e7eb; 
+  padding-top: 6px; 
+  display: flex; 
+  justify-content: space-between; 
+  font-size: 7.5pt; 
+  color: #6b7280;
+}
+
+/* ===== TYPOGRAPHY ===== */
+h1 { 
+  font-size: 16pt; 
+  font-weight: 700; 
+  color: #134e4a; 
+  margin: 0 0 12px; 
+  padding-bottom: 6px; 
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+h2 { 
+  font-size: 11pt; 
+  font-weight: 600; 
+  color: #0f766e; 
+  margin: 12px 0 8px;
+  flex-shrink: 0;
+}
+h4 { 
+  font-size: 10pt; 
+  font-weight: 600; 
+  color: #374151; 
+  margin: 6px 0 3px; 
+}
+p { 
+  margin: 0 0 6px; 
+  font-size: 9pt; 
+}
+.page-intro { 
+  color: #6b7280; 
+  margin-bottom: 10px; 
+}
+ul { 
+  margin: 6px 0; 
+  padding-left: 18px; 
+}
+li { 
+  margin-bottom: 3px; 
+  font-size: 9pt; 
+}
+
+/* ===== TABLES ===== */
+.data-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin: 8px 0; 
+  font-size: 8.5pt;
+}
+.data-table th { 
+  background: #f0fdfa; 
+  color: #134e4a; 
+  font-weight: 600; 
+  text-align: left; 
+  padding: 6px 8px; 
+  border-bottom: 2px solid #0f766e; 
+}
+.data-table td { 
+  padding: 5px 8px; 
+  border-bottom: 1px solid #e5e7eb; 
+}
+.total-row { 
+  font-weight: 700; 
+  background: #f0fdfa; 
+}
+
+/* ===== UTILITY ===== */
+.t-r { text-align: right; }
+.t-c { text-align: center; }
+.mono { font-family: monospace; }
+.empty-msg { 
+  font-size: 9pt; 
+  color: #6b7280; 
+  font-style: italic; 
+}
+
+/* ===== HIGHLIGHT BOX ===== */
+.highlight-box { 
+  background: #f0fdfa; 
+  border-left: 3px solid #0f766e; 
+  padding: 10px 12px; 
+  margin: 10px 0; 
+  border-radius: 0 4px 4px 0; 
+  font-size: 9pt;
+}
+
+/* ===== CHART ===== */
+.chart-container { 
+  margin: 12px 0; 
+}
+.chart-bar { 
+  display: flex; 
+  align-items: center; 
+  margin-bottom: 10px; 
+  gap: 10px;
+}
+.chart-label { 
+  width: 70px; 
+  font-size: 9pt; 
+  text-align: right; 
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.chart-track { 
+  flex: 1; 
+  height: 24px; 
+  background: #f3f4f6; 
+  border-radius: 3px; 
+  overflow: hidden;
+}
+.chart-fill { 
+  height: 100%; 
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.chart-fill.scope1 { background: #0f766e; }
+.chart-fill.scope2 { background: #14b8a6; }
+.chart-fill.scope3 { background: #f59e0b; }
+.chart-value { 
+  font-size: 9pt; 
+  font-weight: 600; 
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+/* ===== RECOMMENDATIONS ===== */
+.rec-grid { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px;
+  margin: 10px 0;
+}
+.rc { 
+  border: 1px solid #e5e7eb; 
+  border-radius: 6px; 
+  padding: 12px 14px;
+  background: #fff;
+}
+.rc-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 6px; 
+}
+.rc-priority { 
+  font-size: 8pt; 
+  font-weight: 700; 
+  padding: 2px 8px; 
+  border-radius: 3px; 
+  text-transform: uppercase;
+}
+.rc-priority.p1 { background: #fee2e2; color: #991b1b; }
+.rc-priority.p2 { background: #fef3c7; color: #92400e; }
+.rc-priority.p3 { background: #dbeafe; color: #1e40af; }
+.rc-impact { 
+  font-size: 8.5pt; 
+  color: #059669; 
+  font-weight: 500; 
+}
+.rc-title { 
+  font-size: 10pt; 
+  font-weight: 600; 
+  color: #374151; 
+  margin: 6px 0; 
+}
+.rc-desc { 
+  font-size: 8.5pt; 
+  margin: 0; 
+  color: #4b5563;
+}
+.rc-difficulty { 
+  font-size: 7.5pt; 
+  color: #6b7280; 
+  margin-top: 4px; 
+}
+
+/* ===== DISCLAIMER ===== */
+.disclaimer-box { 
+  font-size: 8.5pt; 
+  color: #374151; 
+  line-height: 1.5; 
+  padding: 14px; 
+  background: #f9fafb; 
+  border-radius: 4px; 
+  margin: 10px 0;
+}
+.disclaimer-box p { 
+  margin-bottom: 8px; 
+  font-size: 8.5pt;
+}
+.watermark-box { 
+  background: #fef3c7; 
+  border: 1px solid #f59e0b; 
+  border-radius: 4px; 
+  padding: 8px 14px; 
+  font-size: 8.5pt; 
+  color: #92400e; 
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+/* ===== DETAIL BLOCKS ===== */
+.db { 
+  margin-bottom: 8px; 
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 4px;
+}
+.db p { 
+  font-size: 8.5pt; 
+  margin: 0; 
+}
+.db p + p { 
+  margin-top: 2px; 
+}
+
+@media print {
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover-page">
+  <div class="cover-content">
+    <div class="cover-logo">🌱 Terrnix</div>
+    <div class="cover-title">Carbon Emissions Report</div>
+    <div class="cover-subtitle">GHG Protocol-Aligned Estimation</div>
+    <div class="cover-meta">
+      <div class="meta-row"><span class="meta-label">Company:</span><span class="meta-value">Test Company Ltd</span></div>
+      <div class="meta-row"><span class="meta-label">Period:</span><span class="meta-value">FY 2026</span></div>
+      <div class="meta-row"><span class="meta-label">Generated:</span><span class="meta-value">June 17, 2026</span></div>
+      <div class="meta-row"><span class="meta-label">Prepared by:</span><span class="meta-value">Terrnix Carbon Calculator</span></div>
+    </div>
+    <div class="cover-watermark">⚠️ Unverified Estimate — For informational purposes only</div>
+  </div>
+  <div class="cover-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 2: EXECUTIVE SUMMARY -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">1</div>
+  </div>
+  <h1>Executive Summary</h1>
+  <div class="highlight-box">
+    <strong>Total Emissions: 245.60 tCO₂e</strong><br>
+    This estimate covers Scope 1, 2, and 3 emissions based on data entered into the Terrnix Carbon Calculator.
+  </div>
+  <h2>Emissions Overview</h2>
+  <div class="chart-container">
+    <div class="chart-bar">
+      <div class="chart-label">Scope 1</div>
+      <div class="chart-track"><div class="chart-fill scope1" style="width:35%"></div></div>
+      <div class="chart-value">85.40 tCO₂e</div>
+    </div>
+    <div class="chart-bar">
+      <div class="chart-label">Scope 2</div>
+      <div class="chart-track"><div class="chart-fill scope2" style="width:25%"></div></div>
+      <div class="chart-value">62.15 tCO₂e</div>
+    </div>
+    <div class="chart-bar">
+      <div class="chart-label">Scope 3</div>
+      <div class="chart-track"><div class="chart-fill scope3" style="width:40%"></div></div>
+      <div class="chart-value">98.05 tCO₂e</div>
+    </div>
+  </div>
+  <h2>Key Insights</h2>
+  <ul class="insights">
+    <li><strong>Largest source:</strong> Scope 3 (40% of total)</li>
+    <li><strong>Data quality:</strong> Medium — Mix of measured and estimated data. Scope 3 carries higher uncertainty.</li>
+    <li><strong>Coverage:</strong> 8 of 15 Scope 3 categories calculated. 7 categories not included due to data limitations.</li>
+  </ul>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 3: SCOPE 1 -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">2</div>
+  </div>
+  <h1>Scope 1 — Direct Emissions</h1>
+  <p class="page-intro">Direct greenhouse gas emissions from sources owned or controlled by the organization.</p>
+  <h2>Summary</h2>
+  <table class="data-table">
+    <thead><tr><th>Source</th><th class="t-r">Emissions (tCO₂e)</th><th class="t-r">% of S1</th></tr></thead>
+    <tbody>
+      <tr><td>Stationary Combustion</td><td class="t-r mono">45.20</td><td class="t-r">53%</td></tr>
+      <tr><td>Mobile Combustion</td><td class="t-r mono">32.80</td><td class="t-r">38%</td></tr>
+      <tr><td>Fugitive Emissions</td><td class="t-r mono">7.40</td><td class="t-r">9%</td></tr>
+      <tr class="total-row"><td><strong>Total Scope 1</strong></td><td class="t-r mono"><strong>85.40</strong></td><td class="t-r"><strong>100%</strong></td></tr>
+    </tbody>
+  </table>
+  <h2>Details</h2>
+  <div class="db">
+    <h4>Stationary Combustion</h4>
+    <p><strong>In:</strong> 15,000 L | <strong>F:</strong> IPCC 2006</p>
+    <p><strong>Res:</strong> 45.20 tCO₂e</p>
+  </div>
+  <div class="db">
+    <h4>Mobile Combustion</h4>
+    <p><strong>In:</strong> 25,000 km | <strong>F:</strong> DEFRA 2024</p>
+    <p><strong>Res:</strong> 32.80 tCO₂e</p>
+  </div>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 4: SCOPE 2 -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">3</div>
+  </div>
+  <h1>Scope 2 — Indirect Energy</h1>
+  <p class="page-intro">Indirect emissions from purchased electricity, heat, steam, and cooling.</p>
+  <h2>Summary</h2>
+  <table class="data-table">
+    <thead><tr><th>Method</th><th class="t-r">Emissions (tCO₂e)</th></tr></thead>
+    <tbody>
+      <tr><td>Location-Based</td><td class="t-r mono">62.15</td></tr>
+      <tr class="total-row"><td><strong>Total Scope 2</strong></td><td class="t-r mono"><strong>62.15</strong></td></tr>
+    </tbody>
+  </table>
+  <h2>Details</h2>
+  <div class="db">
+    <h4>Electricity</h4>
+    <p><strong>In:</strong> 155,375 kWh | <strong>F:</strong> IEA 2023</p>
+    <p><strong>Res:</strong> 62.15 tCO₂e</p>
+  </div>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 5: SCOPE 3 -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">4</div>
+  </div>
+  <h1>Scope 3 — Value Chain</h1>
+  <p class="page-intro">All other indirect emissions in the value chain, upstream and downstream.</p>
+  <h2>Top Categories</h2>
+  <table class="data-table">
+    <thead><tr><th>Category</th><th class="t-r">tCO₂e</th><th class="t-r">% of S3</th></tr></thead>
+    <tbody>
+      <tr><td>Purchased Goods & Services</td><td class="t-r mono">35.20</td><td class="t-r">36%</td></tr>
+      <tr><td>Business Travel</td><td class="t-r mono">28.50</td><td class="t-r">29%</td></tr>
+      <tr><td>Employee Commuting</td><td class="t-r mono">18.35</td><td class="t-r">19%</td></tr>
+    </tbody>
+  </table>
+  <h2>All Categories</h2>
+  <table class="data-table">
+    <thead><tr><th>#</th><th>Category</th><th class="t-r">tCO₂e</th><th>Quality</th><th>Coverage</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Purchased Goods & Services</td><td class="t-r mono">35.20</td><td>medium</td><td>Spend-based estimate</td></tr>
+      <tr><td>4</td><td>Upstream Transportation</td><td class="t-r mono">12.00</td><td>medium</td><td>Weight-distance estimate</td></tr>
+      <tr><td>6</td><td>Business Travel</td><td class="t-r mono">28.50</td><td>low-medium</td><td>Distance by mode</td></tr>
+      <tr><td>7</td><td>Employee Commuting</td><td class="t-r mono">18.35</td><td>high</td><td>Employee survey method</td></tr>
+    </tbody>
+  </table>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 6: METHODOLOGY -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">5</div>
+  </div>
+  <h1>Methodology</h1>
+  <h2>Framework</h2>
+  <p>This report follows the <strong>GHG Protocol Corporate Standard</strong> for greenhouse gas accounting and reporting.</p>
+  <h2>Boundaries</h2>
+  <ul>
+    <li><strong>Organizational:</strong> Operational control approach</li>
+    <li><strong>Reporting:</strong> All material sources within the period</li>
+    <li><strong>Time:</strong> FY 2026</li>
+  </ul>
+  <h2>Calculation Approach</h2>
+  <table class="data-table">
+    <thead><tr><th>Scope</th><th>Method</th><th>Formula</th></tr></thead>
+    <tbody>
+      <tr><td>Scope 1</td><td>Activity × Factor</td><td class="mono">E = A × F</td></tr>
+      <tr><td>Scope 2</td><td>Location-based grid factor</td><td class="mono">E = Energy × Grid</td></tr>
+      <tr><td>Scope 3</td><td>Spend-based or activity-based</td><td class="mono">E = A × EEIO</td></tr>
+    </tbody>
+  </table>
+  <h2>Data Quality</h2>
+  <ul>
+    <li><strong>High:</strong> Measured data with region-specific factors</li>
+    <li><strong>Medium:</strong> Estimated data with generic factors</li>
+    <li><strong>Low:</strong> Proxy data with high uncertainty</li>
+  </ul>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 7: EMISSION FACTORS -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">6</div>
+  </div>
+  <h1>Emission Factors Used</h1>
+  <p>Factors sourced from authoritative databases and updated periodically.</p>
+  <table class="data-table">
+    <thead><tr><th>Factor</th><th class="t-r">Value</th><th>Unit</th><th>Source</th><th class="t-c">Yr</th><th>Region</th></tr></thead>
+    <tbody>
+      <tr><td>Diesel</td><td class="t-r mono">2.68</td><td>kg CO₂/L</td><td>IPCC 2006</td><td class="t-c">2024</td><td>Global</td></tr>
+      <tr><td>Electricity Grid</td><td class="t-r mono">0.40</td><td>kg CO₂/kWh</td><td>IEA 2023</td><td class="t-c">2023</td><td>EU Average</td></tr>
+    </tbody>
+  </table>
+  <div class="highlight-box">
+    <strong>Note:</strong> Factors are subject to revision. Verify against official national inventories for formal reporting.
+  </div>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 8: RECOMMENDATIONS -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">7</div>
+  </div>
+  <h1>Recommendations</h1>
+  <p class="page-intro">Prioritized actions by impact and feasibility:</p>
+  <div class="rec-grid">
+    <div class="rc">
+      <div class="rc-header">
+        <span class="rc-priority p1">P1</span>
+        <span class="rc-impact">-15% to -25% Scope 3</span>
+      </div>
+      <div class="rc-title">Supplier Engagement Program</div>
+      <p class="rc-desc">Your Scope 3 emissions are the largest source. Work with top suppliers to collect primary emissions data and set reduction targets.</p>
+      <p class="rc-difficulty">Medium</p>
+    </div>
+    <div class="rc">
+      <div class="rc-header">
+        <span class="rc-priority p2">P2</span>
+        <span class="rc-impact">-80% to -100% Scope 2</span>
+      </div>
+      <div class="rc-title">Renewable Energy Procurement</div>
+      <p class="rc-desc">Switch to 100% renewable electricity through green tariffs, PPAs, or on-site generation.</p>
+      <p class="rc-difficulty">Easy</p>
+    </div>
+    <div class="rc">
+      <div class="rc-header">
+        <span class="rc-priority p3">P3</span>
+        <span class="rc-impact">-20% to -40% Scope 1</span>
+      </div>
+      <div class="rc-title">Fleet Electrification or Fuel Switching</div>
+      <p class="rc-desc">Scope 1 direct emissions offer high control. Consider EV transition, biofuels, or efficiency improvements.</p>
+      <p class="rc-difficulty">Hard</p>
+    </div>
+  </div>
+  <div class="highlight-box">
+    <strong>Next Steps:</strong> Consider a detailed audit of top emission categories. Terrnix offers deeper analysis and consulting referrals.
+  </div>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 9: DISCLAIMER -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-logo">🌱 Terrnix</div>
+    <div class="header-title">Carbon Emissions Report</div>
+    <div class="header-page">8</div>
+  </div>
+  <h1>Disclaimer & Limitations</h1>
+  <div class="disclaimer-box">
+    <p><strong>Purpose:</strong> For informational and educational purposes only. Estimates based on user-entered data.</p>
+    <p><strong>Not Audit-Ready:</strong> Does not constitute a verified GHG inventory. Formal audit required for compliance.</p>
+    <p><strong>Data Quality:</strong> Accuracy depends on input completeness. Scope 3 carries high uncertainty.</p>
+    <p><strong>Emission Factors:</strong> Sourced from EPA, DEFRA, IEA. May not reflect latest values.</p>
+    <p><strong>Boundaries:</strong> Simplified boundaries. Complex structures may not be fully captured.</p>
+    <p><strong>No Liability:</strong> Terrnix accepts no liability for decisions based on this report.</p>
+    <p><strong>IP:</strong> Proprietary to Terrnix. Unauthorized use prohibited.</p>
+  </div>
+  <div class="watermark-box">Reports include an unverified estimate watermark. For audit-ready reports, contact Terrnix.</div>
+  <div class="page-footer">
+    <span>terrnix.com</span>
+    <span>Test Company Ltd</span>
+    <span>June 17, 2026</span>
+  </div>
+</div>
+
+</body>
+</html>
