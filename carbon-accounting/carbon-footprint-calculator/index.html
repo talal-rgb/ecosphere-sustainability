@@ -6,6 +6,12 @@
 <title>Free Carbon Footprint Calculator | Scope 1, 2, 3 | Terrnix</title>
 <meta name="description" content="Free carbon footprint calculator for businesses. Calculate Scope 1, 2, and 3 emissions. GHG Protocol compliant methodology with documented emission factors."/>
 <link rel="canonical" href="https://terrnix.com/carbon-accounting/carbon-footprint-calculator/"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
+<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"/>
 <meta property="og:title" content="Free Carbon Footprint Calculator | Terrnix"/>
 <meta property="og:description" content="Calculate your organization's carbon footprint across Scope 1, 2, and 3 emissions."/>
 <script type="application/ld+json">
@@ -1539,7 +1545,7 @@ function renderReportTemplate(data) {
   const companyName = data.meta.companyName || 'Carbon Report';
   const genDate = data.meta.generatedAt;
 
-  // --- PAGE 1: COVER (no header, special footer) ---
+  // --- PAGE 1: COVER ---
   const pageCover = `
   <div class="page cover-page">
     <div class="cover-content">
@@ -1561,7 +1567,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 2: EXECUTIVE SUMMARY ---
+  // --- PAGE 2: EXECUTIVE SUMMARY (Page 1 in report) ---
   const pageExec = `
   <div class="page">
     <div class="page-header">
@@ -1605,7 +1611,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 3: SCOPE 1 ---
+  // --- PAGE 3: SCOPE 1 (Page 2 in report) ---
   const pageS1 = `
   <div class="page">
     <div class="page-header">
@@ -1634,7 +1640,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 4: SCOPE 2 ---
+  // --- PAGE 4: SCOPE 2 (Page 3 in report) ---
   const pageS2 = `
   <div class="page">
     <div class="page-header">
@@ -1662,7 +1668,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 5: SCOPE 3 ---
+  // --- PAGE 5: SCOPE 3 (Page 4 in report) ---
   const pageS3 = `
   <div class="page">
     <div class="page-header">
@@ -1689,7 +1695,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 6: METHODOLOGY ---
+  // --- PAGE 6: METHODOLOGY (Page 5 in report) ---
   const pageMethod = `
   <div class="page">
     <div class="page-header">
@@ -1728,7 +1734,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 7: EMISSION FACTORS ---
+  // --- PAGE 7: EMISSION FACTORS (Page 6 in report) ---
   const pageFactors = `
   <div class="page">
     <div class="page-header">
@@ -1752,7 +1758,7 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 8: RECOMMENDATIONS ---
+  // --- PAGE 8: RECOMMENDATIONS (Page 7 in report) ---
   const pageRecs = `
   <div class="page">
     <div class="page-header">
@@ -1775,13 +1781,53 @@ function renderReportTemplate(data) {
     </div>
   </div>`;
 
-  // --- PAGE 9: DISCLAIMER ---
-  const pageDisclaimer = `
+  // --- PAGE 8b: APPENDIX (Page 8 in report) ---
+  const pageAppendix = `
   <div class="page">
     <div class="page-header">
       <div class="header-logo">🌱 Terrnix</div>
       <div class="header-title">Carbon Emissions Report</div>
       <div class="header-page">8</div>
+    </div>
+    <h1>Appendix</h1>
+    <h2>Data Sources</h2>
+    <ul>
+      <li>EPA Emission Factors Hub (2024)</li>
+      <li>DEFRA/BEIS UK Conversion Factors</li>
+      <li>IEA World Energy Outlook</li>
+      <li>GHG Protocol Corporate Standard</li>
+    </ul>
+    <h2>Assumptions</h2>
+    <ul>
+      <li>Grid emission factors are location-based averages</li>
+      <li>Scope 3 uses spend-based EEIO factors where activity data unavailable</li>
+      <li>Warming potentials from IPCC AR6</li>
+    </ul>
+    <h2>Glossary</h2>
+    <table class="data-table">
+      <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td>tCO₂e</td><td>Tonnes of CO₂ equivalent — standard unit for GHG emissions</td></tr>
+        <tr><td>Scope 1</td><td>Direct emissions from owned/controlled sources</td></tr>
+        <tr><td>Scope 2</td><td>Indirect emissions from purchased energy</td></tr>
+        <tr><td>Scope 3</td><td>All other indirect value chain emissions</td></tr>
+        <tr><td>EEIO</td><td>Environmentally Extended Input-Output model</td></tr>
+      </tbody>
+    </table>
+    <div class="page-footer">
+      <span>terrnix.com</span>
+      <span>${companyName}</span>
+      <span>${genDate}</span>
+    </div>
+  </div>`;
+
+  // --- PAGE 9: DISCLAIMER (Page 9 in report) ---
+  const pageDisclaimer = `
+  <div class="page">
+    <div class="page-header">
+      <div class="header-logo">🌱 Terrnix</div>
+      <div class="header-title">Carbon Emissions Report</div>
+      <div class="header-page">9</div>
     </div>
     <h1>Disclaimer & Limitations</h1>
     <div class="disclaimer-box">
@@ -2166,6 +2212,7 @@ ${pageS3}
 ${pageMethod}
 ${pageFactors}
 ${pageRecs}
+${pageAppendix}
 ${pageDisclaimer}
 </body>
 </html>`;

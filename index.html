@@ -10,6 +10,11 @@
 <meta content="AI-powered sustainability platform for carbon accounting, ESG, and climate intelligence." property="og:description"/>
 <meta content="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200" property="og:image"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
+<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"/>
 <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE"/>
 <link rel="canonical" href="https://terrnix.com/"/>
 <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
@@ -5345,16 +5350,34 @@ function clearChat() {
         </div>`;
 }
 
-function saveChatHistory(text, sender) {
-    let history = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]');
+async function saveChatHistory(text, sender) {
+    let history = [];
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const data = await encryptedStorage.getItem(CHAT_STORAGE_KEY);
+        history = data ? JSON.parse(data) : [];
+    } else {
+        history = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]');
+    }
     history.push({ text, sender, timestamp: Date.now() });
     // Keep last 50 messages
     if (history.length > 50) history = history.slice(-50);
-    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(history));
+    
+    const data = JSON.stringify(history);
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        await encryptedStorage.setItem(CHAT_STORAGE_KEY, data);
+    } else {
+        localStorage.setItem(CHAT_STORAGE_KEY, data);
+    }
 }
 
-function renderChatHistory() {
-    const history = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]');
+async function renderChatHistory() {
+    let history = [];
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const data = await encryptedStorage.getItem(CHAT_STORAGE_KEY);
+        history = data ? JSON.parse(data) : [];
+    } else {
+        history = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]');
+    }
     if (history.length === 0) return;
 
     // Remove welcome message if we have history
@@ -6090,9 +6113,20 @@ function saveArticle() {
         date: new Date().toISOString()
     };
 
-    let articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+    let articles = [];
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const data = await encryptedStorage.getItem(ARTICLES_KEY);
+        articles = data ? JSON.parse(data) : [];
+    } else {
+        articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+    }
     articles.unshift(article);
-    localStorage.setItem(ARTICLES_KEY, JSON.stringify(articles));
+    const data = JSON.stringify(articles);
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        await encryptedStorage.setItem(ARTICLES_KEY, data);
+    } else {
+        localStorage.setItem(ARTICLES_KEY, data);
+    }
 
     // Clear form
     document.getElementById('article-title').value = '';
@@ -6107,8 +6141,14 @@ function saveArticle() {
     updateStats();
 }
 
-function renderArticlesList() {
-    const articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+async function renderArticlesList() {
+    let articles = [];
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const data = await encryptedStorage.getItem(ARTICLES_KEY);
+        articles = data ? JSON.parse(data) : [];
+    } else {
+        articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+    }
     const container = document.getElementById('articles-list');
     container.innerHTML = '';
 
@@ -6162,17 +6202,34 @@ function renderArticlesList() {
     });
 }
 
-function deleteArticle(id) {
+async function deleteArticle(id) {
     if (!confirm('Delete this article?')) return;
-    let articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+    let articles = [];
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const data = await encryptedStorage.getItem(ARTICLES_KEY);
+        articles = data ? JSON.parse(data) : [];
+    } else {
+        articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+    }
     articles = articles.filter(a => a.id !== id);
-    localStorage.setItem(ARTICLES_KEY, JSON.stringify(articles));
+    const data = JSON.stringify(articles);
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        await encryptedStorage.setItem(ARTICLES_KEY, data);
+    } else {
+        localStorage.setItem(ARTICLES_KEY, data);
+    }
     renderArticlesList();
     updateStats();
 }
 
-function updateStats() {
-    const articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+async function updateStats() {
+    let articles = [];
+    if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const data = await encryptedStorage.getItem(ARTICLES_KEY);
+        articles = data ? JSON.parse(data) : [];
+    } else {
+        articles = JSON.parse(localStorage.getItem(ARTICLES_KEY) || '[]');
+    }
     const published = articles.filter(a => a.status === 'Published').length;
     const drafts = articles.filter(a => a.status === 'Draft').length;
 
@@ -6371,6 +6428,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <!-- ============================================ -->
 <!-- RATE LIMITING & API CLIENT -->
+<script src="assets/js/storageCrypto.js"></script>
 <script src="assets/js/rateLimitHelper.js"></script>
 <script src="assets/js/apiClient.js"></script>
 <!-- ============================================ -->
@@ -6418,10 +6476,15 @@ function terrnixApp() {
                 alert('Incorrect password');
             }
         },
-        // Load articles from localStorage
-        loadArticles() {
+        // Load articles from localStorage (encrypted if available)
+        async loadArticles() {
             try {
-                this.articles = JSON.parse(localStorage.getItem('terrnix_articles') || '[]');
+                if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+                    const data = await encryptedStorage.getItem('terrnix_articles');
+                    this.articles = data ? JSON.parse(data) : [];
+                } else {
+                    this.articles = JSON.parse(localStorage.getItem('terrnix_articles') || '[]');
+                }
             } catch(e) {
                 this.articles = [];
             }
@@ -6446,7 +6509,12 @@ function terrnixApp() {
                 date: new Date().toISOString().split('T')[0]
             };
             this.articles.unshift(article);
-            localStorage.setItem('terrnix_articles', JSON.stringify(this.articles));
+            const data = JSON.stringify(this.articles);
+            if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+                encryptedStorage.setItem('terrnix_articles', data);
+            } else {
+                localStorage.setItem('terrnix_articles', data);
+            }
             // Clear form
             document.getElementById('admin-article-title').value = '';
             document.getElementById('admin-article-body').value = '';
@@ -6456,7 +6524,12 @@ function terrnixApp() {
         // Delete article
         deleteArticle(id) {
             this.articles = this.articles.filter(a => a.id !== id);
-            localStorage.setItem('terrnix_articles', JSON.stringify(this.articles));
+            const data = JSON.stringify(this.articles);
+            if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+                encryptedStorage.setItem('terrnix_articles', data);
+            } else {
+                localStorage.setItem('terrnix_articles', data);
+            }
         },
         // Switch admin tab
         switchAdminTab(tab) {
@@ -7208,10 +7281,18 @@ function quickAsk(q) {
     if (input) { input.value = q; sendChat(); }
 }
 function clearChat() {
-    localStorage.removeItem(CHAT_STORAGE_KEY);
+    if (typeof encryptedStorage !== 'undefined') {
+        encryptedStorage.removeItem(CHAT_STORAGE_KEY);
+    } else {
+        localStorage.removeItem(CHAT_STORAGE_KEY);
+    }
 
 // Clear chat history on page load for fresh start
-localStorage.removeItem(CHAT_STORAGE_KEY);
+if (typeof encryptedStorage !== 'undefined') {
+    encryptedStorage.removeItem(CHAT_STORAGE_KEY);
+} else {
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+}
     if (typeof renderChatHistory === 'function') renderChatHistory();
 }
 
