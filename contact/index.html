@@ -6,6 +6,12 @@
     <title>Contact Terrnix — Sustainability Experts</title>
     <meta name="description" content="Get in touch with Terrnix sustainability experts. We're here to help with carbon accounting, ESG reporting, and climate compliance questions.">
     <link rel="canonical" href="https://terrnix.com/contact/">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
+    <meta http-equiv="X-Frame-Options" content="DENY"/>
+    <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+    <meta name="referrer" content="strict-origin-when-cross-origin"/>
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -91,6 +97,10 @@
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Your Request / Message *</label>
                         <textarea required rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Describe your project, challenge, or question in detail..."></textarea>
+                    </div>
+                    <!-- Honeypot field - hidden from humans -->
+                    <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                        <input type="text" name="website" tabindex="-1" autocomplete="off">
                     </div>
                     <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold">Send Inquiry</button>
                     <p class="text-slate-500 text-sm text-center">We typically respond within 1-2 business days.</p>

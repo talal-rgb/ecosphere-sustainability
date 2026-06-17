@@ -51,10 +51,26 @@ class RateLimitHelper {
   }
 
   /**
-   * Load request history from localStorage
+   * Load request history from localStorage (encrypted if available)
    */
-  loadFromStorage() {
+  async loadFromStorage() {
     try {
+      // Use encrypted storage if available
+      if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+        const keys = encryptedStorage.keys();
+        for (const key of keys) {
+          if (key.startsWith(this.config.storagePrefix)) {
+            const data = await encryptedStorage.getItem(key);
+            if (data) {
+              const endpoint = key.replace(this.config.storagePrefix, '');
+              this.requests.set(endpoint, JSON.parse(data));
+            }
+          }
+        }
+        return;
+      }
+      
+      // Fallback to plain localStorage
       const keys = Object.keys(localStorage);
       for (const key of keys) {
         if (key.startsWith(this.config.storagePrefix)) {
@@ -71,18 +87,22 @@ class RateLimitHelper {
   }
 
   /**
-   * Save request history to localStorage
+   * Save request history to localStorage (encrypted if available)
    */
-  saveToStorage(endpoint) {
+  async saveToStorage(endpoint) {
     if (!this.config.useLocalStorage) return;
     
     try {
       const requests = this.requests.get(endpoint);
       if (requests) {
-        localStorage.setItem(
-          this.getStorageKey(endpoint),
-          JSON.stringify(requests)
-        );
+        const data = JSON.stringify(requests);
+        
+        // Use encrypted storage if available
+        if (typeof encryptedStorage !== 'undefined' && encryptedStorage.isAvailable) {
+          await encryptedStorage.setItem(this.getStorageKey(endpoint), data);
+        } else {
+          localStorage.setItem(this.getStorageKey(endpoint), data);
+        }
       }
     } catch (e) {
       console.warn('[RateLimitHelper] Failed to save to localStorage:', e);
@@ -283,10 +303,15 @@ class RateLimitHelper {
     
     if (this.config.useLocalStorage) {
       try {
-        const keys = Object.keys(localStorage);
-        for (const key of keys) {
-          if (key.startsWith(this.config.storagePrefix)) {
-            localStorage.removeItem(key);
+        // Use encrypted storage clear if available
+        if (typeof encryptedStorage !== 'undefined') {
+          encryptedStorage.clear();
+        } else {
+          const keys = Object.keys(localStorage);
+          for (const key of keys) {
+            if (key.startsWith(this.config.storagePrefix)) {
+              localStorage.removeItem(key);
+            }
           }
         }
       } catch (e) {
