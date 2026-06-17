@@ -1,0 +1,365 @@
+{
+  "version": "2.0-week1",
+  "lastUpdated": "2026-06-17",
+  "domains": {
+    "carbon-accounting": {
+      "label": "Carbon Accounting",
+      "topics": {
+        "scope-1": {
+          "keywords": ["scope 1", "scope1", "direct emissions", "stationary combustion", "fleet", "fuel", "boiler", "furnace", "generator", "company vehicles", "process emissions", "fugitive emissions", "refrigerant"],
+          "difficulty": "beginner",
+          "response": {
+            "definition": "Scope 1 emissions are direct greenhouse gas emissions from sources that your organization owns or controls. This includes fuel burned in boilers, furnaces, and generators; emissions from company vehicles; process emissions from chemical reactions; and fugitive emissions like refrigerant leaks.",
+            "whyItMatters": "Scope 1 is the most straightforward scope to measure and reduce because you have direct control over these sources.",
+            "keyFacts": [
+              "All organizations must report Scope 1 under the GHG Protocol",
+              "Reduction levers: fuel switching (e.g., diesel to electric), energy efficiency, and process optimization",
+              "Typical sources: natural gas, diesel, gasoline, propane, and refrigerants"
+            ],
+            "reductionActions": [
+              "Switch to electric or renewable-powered equipment",
+              "Improve building insulation and HVAC efficiency",
+              "Upgrade to LED lighting and smart controls",
+              "Maintain refrigeration systems to prevent leaks"
+            ],
+            "terrnixLink": "/carbon-accounting/scope-1-emissions/",
+            "terrnixConnection": "Use the Terrnix Carbon Calculator to input your fuel consumption and get an instant Scope 1 breakdown by source."
+          }
+        },
+        "scope-2": {
+          "keywords": ["scope 2", "scope2", "indirect emissions", "purchased electricity", "purchased heat", "purchased steam", "purchased cooling", "grid electricity", "power consumption", "kwh", "kilowatt"],
+          "difficulty": "beginner",
+          "response": {
+            "definition": "Scope 2 emissions are indirect greenhouse gas emissions from the generation of purchased electricity, steam, heating, or cooling consumed by your organization.",
+            "whyItMatters": "For many office-based and light-manufacturing organizations, Scope 2 can represent 40-60% of total emissions.",
+            "keyFacts": [
+              "GHG Protocol requires dual reporting: location-based (average grid factor) and market-based (contractual instruments like RECs or PPAs)",
+              "Grid emission factors vary dramatically by country — from ~0.02 kg CO2/kWh in France to ~0.71 in India",
+              "Reducing Scope 2 often has the fastest payback through renewable procurement"
+            ],
+            "reductionActions": [
+              "Purchase renewable energy through green tariffs or Power Purchase Agreements (PPAs)",
+              "Install on-site solar panels or wind turbines",
+              "Improve energy efficiency to reduce overall consumption",
+              "Purchase high-quality Energy Attribute Certificates (EACs) or RECs"
+            ],
+            "terrnixLink": "/carbon-accounting/scope-2-emissions/",
+            "terrnixConnection": "The Terrnix Calculator includes grid emission factors for 80+ countries. Enter your kWh consumption to see both location-based and market-based Scope 2 totals."
+          }
+        },
+        "scope-3": {
+          "keywords": ["scope 3", "scope3", "value chain", "supply chain", "upstream", "downstream", "purchased goods", "business travel", "employee commuting", "waste", "transport", "use of sold products", "end of life", "investments", "franchises"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "Scope 3 emissions are all other indirect emissions that occur in your organization's value chain — both upstream (suppliers) and downstream (customers). The GHG Protocol defines 15 categories covering everything from purchased goods to investments.",
+            "whyItMatters": "Scope 3 typically represents 70-90% of total emissions for manufacturing, retail, and financial services organizations. Addressing Scope 3 is essential for credible net-zero claims.",
+            "keyFacts": [
+              "Category 1 (Purchased Goods & Services) is usually the largest for most organizations",
+              "SBTi requires Scope 3 targets if Scope 3 represents more than 40% of total emissions",
+              "Calculation methods: spend-based (fastest), activity-based (most accurate), hybrid (recommended)"
+            ],
+            "categories": {
+              "upstream": [
+                "1. Purchased Goods & Services",
+                "2. Capital Goods",
+                "3. Fuel & Energy-Related Activities",
+                "4. Upstream Transportation & Distribution",
+                "5. Waste Generated in Operations",
+                "6. Business Travel",
+                "7. Employee Commuting",
+                "8. Upstream Leased Assets"
+              ],
+              "downstream": [
+                "9. Downstream Transportation & Distribution",
+                "10. Processing of Sold Products",
+                "11. Use of Sold Products",
+                "12. End-of-Life Treatment of Sold Products",
+                "13. Downstream Leased Assets",
+                "14. Franchises",
+                "15. Investments"
+              ]
+            },
+            "reductionActions": [
+              "Engage top suppliers to set their own science-based targets",
+              "Redesign products for lower embodied carbon",
+              "Optimize logistics and shift to lower-carbon transport modes",
+              "Reduce business travel through virtual meetings"
+            ],
+            "terrnixLink": "/carbon-accounting/scope-3-emissions/",
+            "terrnixConnection": "The Terrnix Calculator covers all 15 Scope 3 categories. Input your spend data, transport distances, and waste volumes to get a complete Scope 3 breakdown."
+          }
+        },
+        "ghg-protocol": {
+          "keywords": ["ghg protocol", "greenhouse gas protocol", "wri", "wbcsd", "corporate standard", "scope definition", "emission scopes", "reporting standard"],
+          "difficulty": "beginner",
+          "response": {
+            "definition": "The GHG Protocol is the world's most widely used standard for greenhouse gas accounting. Developed by the World Resources Institute (WRI) and the World Business Council for Sustainable Development (WBCSD), it provides standardized frameworks to measure and manage emissions.",
+            "whyItMatters": "Over 90% of Fortune 500 companies use the GHG Protocol. It is the foundation for SBTi, CDP, and most regulatory reporting requirements.",
+            "keyFacts": [
+              "Corporate Standard: covers Scope 1, 2, and 3 for organizational reporting",
+              "Scope 2 Guidance: mandates dual reporting (location-based and market-based)",
+              "Scope 3 Technical Guidance: detailed methodology for all 15 categories",
+              "Five principles: Relevance, Completeness, Consistency, Transparency, Accuracy"
+            ],
+            "terrnixLink": "/carbon-accounting/ghg-protocol-guide/",
+            "terrnixConnection": "The Terrnix Calculator follows GHG Protocol methodology and uses IPCC AR6 GWP100 values for all calculations."
+          }
+        },
+        "gwp": {
+          "keywords": ["gwp", "global warming potential", "gwp values", "gwp100", "gwp20"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "Global Warming Potential (GWP) is a measure of how much heat a greenhouse gas traps in the atmosphere over a specific time horizon, relative to carbon dioxide (CO2).",
+            "whyItMatters": "GWP allows different greenhouse gases to be compared on a common scale, making it possible to calculate total emissions as CO2 equivalent (CO2e).",
+            "keyFacts": [
+              "GWP100 (100-year horizon) is the standard used by the GHG Protocol and most reporting frameworks",
+              "IPCC AR6 GWP100 values: CO2 = 1, CH4 (methane) = 27.9, N2O = 273",
+              "GWP20 (20-year horizon) shows short-term impact and is increasingly used for methane-focused strategies",
+              "Terrnix uses IPCC AR6 GWP100 values for all calculations"
+            ],
+            "terrnixConnection": "The Terrnix Calculator automatically applies the correct GWP values from IPCC AR6 for all greenhouse gases you input."
+          }
+        },
+        "emission-factors": {
+          "keywords": ["emission factor", "conversion factor", "co2 per kwh", "co2 per litre", "co2 per kg", "gwp", "global warming potential", "ipcc", "epa factor", "defra factor", "iea factor"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "An emission factor is a coefficient that converts activity data (like litres of fuel or kWh of electricity) into greenhouse gas emissions, typically expressed in kilograms or tonnes of CO2 equivalent (CO2e).",
+            "whyItMatters": "Choosing the right emission factor is critical for accurate carbon accounting. Factors vary by geography, time period, and data source.",
+            "keyFacts": [
+              "IPCC AR6 GWP100 values: CO2 = 1, CH4 = 27.9, N2O = 273",
+              "Grid factors updated annually by IEA (80+ countries)",
+              "EPA factors for US-specific sources",
+              "DEFRA/BEIS factors for UK-specific sources"
+            ],
+            "terrnixConnection": "Terrnix maintains a database of 15,000+ emission factors covering 80+ countries, updated annually."
+          }
+        },
+        "carbon-neutral-vs-net-zero": {
+          "keywords": ["carbon neutral", "net zero", "climate neutral", "carbon neutrality", "net zero target", "science based target", "difference between carbon neutral and net zero"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "Carbon neutral means balancing your emissions with carbon offsets, without necessarily reducing them. Net zero means reducing emissions by 90-95% and only offsetting the small residual amount that cannot be eliminated.",
+            "comparison": {
+              "carbonNeutral": "Can maintain current emission levels; offsets balance the total",
+              "netZero": "Requires deep decarbonization; offsets only for residual emissions"
+            },
+            "keyFacts": [
+              "SBTi Net-Zero Standard requires 90-95% reduction before neutralizing residuals",
+              "Carbon neutral claims are increasingly scrutinized by regulators and consumers",
+              "Net zero is the gold standard for corporate climate ambition"
+            ],
+            "terrnixConnection": "Use the Terrnix Calculator to establish your baseline, then model reduction scenarios to plan your net-zero pathway."
+          }
+        }
+      }
+    },
+    "esg-reporting": {
+      "label": "ESG Reporting",
+      "topics": {
+        "csrd": {
+          "keywords": ["csrd", "corporate sustainability reporting directive", "eu sustainability", "european sustainability", "nfrd replacement", "esrs", "double materiality"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "The Corporate Sustainability Reporting Directive (CSRD) is the EU's mandatory sustainability disclosure framework that expands reporting requirements from 11,700 companies under NFRD to over 50,000 companies.",
+            "whyItMatters": "CSRD introduces double materiality assessments, mandatory assurance, and standardized reporting through the European Sustainability Reporting Standards (ESRS).",
+            "keyFacts": [
+              "Applies to large EU companies, listed SMEs, and non-EU companies with significant EU operations",
+              "Requires double materiality: financial materiality + impact materiality",
+              "Phased implementation: 2024 (large public-interest), 2025 (other large), 2026-2028 (listed SMEs)",
+              "Standards cover environment (E1-E5), social (S1-S4), and governance (G1-G2)"
+            ],
+            "terrnixLink": "/esg-reporting/csrd-omnibus-guide/",
+            "terrnixConnection": "Terrnix provides a comprehensive CSRD Omnibus Guide covering applicability, timelines, and ESRS requirements."
+          }
+        },
+        "issb": {
+          "keywords": ["issb", "ifrs sustainability", "ifrs s1", "ifrs s2", "international sustainability standards board", "tcfd successor", "global baseline"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "The International Sustainability Standards Board (ISSB) develops global baseline sustainability disclosure standards under the IFRS Foundation. IFRS S1 covers general sustainability disclosures and IFRS S2 covers climate-specific disclosures.",
+            "whyItMatters": "Over 20 jurisdictions have committed to adopting ISSB standards, creating a global baseline for sustainability reporting.",
+            "keyFacts": [
+              "IFRS S2 is fully aligned with the TCFD recommendations (governance, strategy, risk management, metrics)",
+              "Uses single materiality (financial materiality only), unlike CSRD's double materiality",
+              "Scope 3 reporting required if material, with safe harbor provisions",
+              "Adopted by: UK, Australia, Japan, Nigeria, Singapore, and others"
+            ],
+            "terrnixConnection": "Terrnix tracks ISSB adoption globally and provides guidance on alignment with existing frameworks."
+          }
+        },
+        "tcfd": {
+          "keywords": ["tcfd", "task force on climate-related financial disclosures", "climate disclosure", "climate risk", "financial stability board"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "The Task Force on Climate-related Financial Disclosures (TCFD) was established by the Financial Stability Board to develop recommendations for climate-related financial disclosures. Its four-pillar framework covers governance, strategy, risk management, and metrics.",
+            "whyItMatters": "Although the TCFD has been consolidated into the ISSB, its principles remain foundational for climate disclosure worldwide.",
+            "keyFacts": [
+              "Four pillars: Governance, Strategy, Risk Management, Metrics & Targets",
+              "Over 4,000 organizations supported TCFD",
+              "Now integrated into IFRS S2 (climate disclosures)"
+            ],
+            "terrnixConnection": "Terrnix provides TCFD-aligned reporting guidance and gap analysis tools."
+          }
+        },
+        "sbti": {
+          "keywords": ["sbti", "science based targets initiative", "science based target", "1.5 degree target", "net zero standard", "corporate net zero"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "The Science Based Targets initiative (SBTi) drives ambitious climate action in the private sector by enabling companies to set science-based emissions reduction targets aligned with limiting global warming to 1.5°C.",
+            "whyItMatters": "Over 7,000 companies have committed to SBTi, making it the leading standard for credible corporate climate targets.",
+            "keyFacts": [
+              "Near-term targets: 5-10 year reduction aligned with 1.5°C",
+              "Net-Zero Standard: 90-95% reduction by 2050 with residual neutralization",
+              "Scope 3 target required if Scope 3 > 40% of total emissions",
+              "Validation process: commit, develop, submit, validate, announce, disclose"
+            ],
+            "terrnixConnection": "Use the Terrnix Calculator to establish your baseline emissions before developing your SBTi target."
+          }
+        },
+        "double-materiality": {
+          "keywords": ["double materiality", "impact materiality", "financial materiality", "materiality assessment", "csrd materiality"],
+          "difficulty": "advanced",
+          "response": {
+            "definition": "Double materiality is the principle that sustainability matters from two perspectives: (1) financial materiality — how sustainability issues affect the company's value, and (2) impact materiality — how the company's activities affect people and the environment.",
+            "whyItMatters": "Double materiality is the cornerstone of CSRD and GRI reporting, requiring organizations to assess both inward and outward impacts.",
+            "comparison": {
+              "singleMateriality": "Used by ISSB/TCFD — focuses only on financial risks and opportunities",
+              "doubleMateriality": "Used by CSRD/GRI — covers both financial and societal/environmental impacts"
+            },
+            "terrnixConnection": "Terrnix provides guidance on conducting double materiality assessments for CSRD compliance."
+          }
+        }
+      }
+    },
+    "sustainability-strategy": {
+      "label": "Sustainability Strategy",
+      "topics": {
+        "net-zero-strategy": {
+          "keywords": ["net zero strategy", "decarbonization strategy", "carbon reduction plan", "emissions reduction roadmap", "climate strategy"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "A net-zero strategy is a comprehensive plan to reduce greenhouse gas emissions by 90-95% and neutralize residual emissions, typically aligned with the SBTi Net-Zero Standard.",
+            "keySteps": [
+              "1. Measure: Establish a complete GHG inventory (Scope 1, 2, 3)",
+              "2. Set targets: Define science-based near-term and net-zero targets",
+              "3. Reduce: Implement decarbonization levers across operations and value chain",
+              "4. Neutralize: Offset residual emissions with high-quality carbon removals",
+              "5. Report: Disclose progress transparently"
+            ],
+            "terrnixConnection": "The Terrnix Calculator helps you measure your baseline. Use the PDF report to communicate your starting point to stakeholders."
+          }
+        },
+        "decarbonization-levers": {
+          "keywords": ["decarbonization", "reduce emissions", "emission reduction", "carbon reduction", "green hydrogen", "electrification", "renewable energy", "energy efficiency", "ccus"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "Decarbonization levers are the specific actions and technologies that organizations can deploy to reduce greenhouse gas emissions across their operations and value chain.",
+            "categories": {
+              "energy": ["Renewable procurement (PPAs, green tariffs)", "On-site generation (solar, wind)", "Energy efficiency retrofits", "Electrification (heat pumps, EVs)"],
+              "industrial": ["Green hydrogen (steel, chemicals, cement)", "Carbon capture (CCUS)", "Circular economy (recycling, reuse)", "Process optimization"],
+              "transport": ["Fleet electrification", "Sustainable aviation fuel (SAF)", "Modal shift to rail/shipping", "Remote work reduction"]
+            },
+            "terrnixConnection": "The Terrnix Calculator identifies your highest-emission categories so you can prioritize the most impactful decarbonization levers."
+          }
+        },
+        "carbon-pricing": {
+          "keywords": ["carbon pricing", "carbon tax", "eu ets", "ets", "emissions trading", "carbon market", "carbon credit", "carbon offset", "voluntary carbon market"],
+          "difficulty": "intermediate",
+          "response": {
+            "definition": "Carbon pricing puts a cost on carbon emissions, creating an economic incentive to reduce them. Mechanisms include carbon taxes (fixed price) and emissions trading systems (cap-and-trade).",
+            "keySystems": [
+              "EU ETS: World's largest carbon market, covering ~40% of EU emissions",
+              "CBAM: Carbon Border Adjustment Mechanism taxes imports from non-carbon-priced countries",
+              "Voluntary Carbon Market: Companies purchase offsets for residual emissions"
+            ],
+            "terrnixConnection": "Terrnix provides carbon pricing analysis and helps organizations model the financial impact of compliance and voluntary strategies."
+          }
+        }
+      }
+    },
+    "terrnix-features": {
+      "label": "Terrnix Features",
+      "topics": {
+        "calculator": {
+          "keywords": ["calculator", "carbon calculator", "carbon footprint calculator", "emissions calculator", "how to calculate", "calculate emissions", "compute carbon"],
+          "difficulty": "beginner",
+          "response": {
+            "description": "The Terrnix Carbon Footprint Calculator helps you measure Scope 1, 2, and 3 emissions using 15,000+ emission factors covering 80+ countries.",
+            "howToUse": [
+              "1. Enter your company information",
+              "2. Input activity data by scope (fuel, electricity, transport, waste, etc.)",
+              "3. Review real-time totals and visualizations",
+              "4. Generate a 9-page PDF report",
+              "5. Export data as JSON or CSV"
+            ],
+            "features": [
+              "Scope 1: Stationary combustion, mobile combustion, fugitive emissions",
+              "Scope 2: Location-based and market-based (80+ countries)",
+              "Scope 3: All 15 categories with spend-based and activity-based methods",
+              "Visualization: Charts by scope and category",
+              "Export: PDF report, JSON, CSV"
+            ],
+            "terrnixLink": "/carbon-accounting/carbon-footprint-calculator/",
+            "securityNote": "All calculations happen client-side. Your data is never sent to our servers."
+          }
+        },
+        "pdf-report": {
+          "keywords": ["pdf report", "carbon report", "emissions report", "download report", "generate report", "my report", "report explanation"],
+          "difficulty": "beginner",
+          "response": {
+            "description": "The Terrnix PDF Report is a 9-page professional document generated from your calculator inputs, suitable for internal stakeholders and audit preparation.",
+            "structure": [
+              "Page 1: Cover with company name and reporting period",
+              "Page 2: Executive Summary with totals and scope split",
+              "Page 3: Scope 1 Breakdown by source",
+              "Page 4: Scope 2 Breakdown by country/region",
+              "Page 5: Scope 3 Breakdown by category",
+              "Page 6: Methodology and standards alignment",
+              "Page 7: Emission Factors Used",
+              "Page 8: Recommendations based on your profile",
+              "Page 9: Disclaimer and limitations"
+            ],
+            "terrnixLink": "/carbon-accounting/carbon-footprint-calculator/",
+            "securityNote": "Reports are generated client-side. No data leaves your browser."
+          }
+        },
+        "academy": {
+          "keywords": ["academy", "guide", "learn", "tutorial", "education", "resources", "knowledge base", "read more", "where can i learn"],
+          "difficulty": "beginner",
+          "response": {
+            "description": "The Terrnix Academy provides in-depth guides on carbon accounting, ESG reporting, and sustainability strategy.",
+            "guides": [
+              { "title": "Scope 1 Emissions Guide", "url": "/carbon-accounting/scope-1-emissions/", "level": "Beginner" },
+              { "title": "Scope 2 Emissions Guide", "url": "/carbon-accounting/scope-2-emissions/", "level": "Beginner" },
+              { "title": "Scope 3 Emissions Guide", "url": "/carbon-accounting/scope-3-emissions/", "level": "Intermediate" },
+              { "title": "GHG Protocol Guide", "url": "/carbon-accounting/ghg-protocol-guide/", "level": "Beginner" },
+              { "title": "CSRD Omnibus Guide", "url": "/esg-reporting/csrd-omnibus-guide/", "level": "Intermediate" }
+            ],
+            "terrnixLink": "/resources/"
+          }
+        },
+        "quiz": {
+          "keywords": ["quiz", "test", "assessment", "knowledge test", "carbon quiz", "esg quiz", "readiness assessment"],
+          "difficulty": "beginner",
+          "response": {
+            "description": "The Terrnix Carbon Readiness Quiz tests your knowledge across energy, ESG, carbon accounting, GHG Protocol, regulations, and carbon pricing.",
+            "features": [
+              "30 questions across 6 categories",
+              "Difficulty levels: Beginner, Intermediate, Advanced",
+              "Category breakdown with recommendations",
+              "Unlimited attempts to track progress"
+            ],
+            "terrnixLink": "/#quiz"
+          }
+        }
+      }
+    }
+  },
+  "fallbacks": {
+    "unknown": "I'm not sure I understand. I can help you with carbon accounting (Scope 1, 2, 3), ESG reporting (CSRD, ISSB), sustainability strategy, or using the Terrnix Calculator. What would you like to know?",
+    "offTopic": "I'm your sustainability assistant. Ask me about emissions, regulations, the Terrnix Calculator, or our Academy guides!",
+    "safety": "This information is for educational purposes only. For audit, legal, or compliance decisions, please consult a qualified sustainability professional or your legal advisor.",
+    "calculatorNotUsed": "I can give you general guidance, but if you use the Terrnix Carbon Calculator first, I can provide more specific insights about your emissions profile."
+  }
+}
