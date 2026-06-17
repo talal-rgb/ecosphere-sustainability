@@ -98,9 +98,9 @@
                         <label class="block text-sm font-medium text-slate-300 mb-2">Your Request / Message *</label>
                         <textarea required rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Describe your project, challenge, or question in detail..."></textarea>
                     </div>
-                    <!-- Honeypot field - hidden from humans -->
-                    <div style="position: absolute; left: -9999px;" aria-hidden="true">
-                        <input type="text" name="website" tabindex="-1" autocomplete="off">
+                    <!-- Honeypot field - hidden from humans, visible to bots -->
+                    <div class="honeypot-field" style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
+                        <input type="text" name="hp_field" tabindex="-1" autocomplete="off" value="">
                     </div>
                     <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold">Send Inquiry</button>
                     <p class="text-slate-500 text-sm text-center">We typically respond within 1-2 business days.</p>

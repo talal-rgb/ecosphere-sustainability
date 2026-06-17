@@ -51,7 +51,19 @@ app.use(helmet({
   xFrameOptions: { action: 'deny' },
   xContentTypeOptions: true,
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  crossOriginEmbedderPolicy: false // Allow CDN resources
+  crossOriginEmbedderPolicy: false, // Allow CDN resources
+  permissionsPolicy: {
+    features: {
+      camera: [],
+      microphone: [],
+      geolocation: [],
+      payment: [],
+      usb: [],
+      magnetometer: [],
+      gyroscope: [],
+      accelerometer: []
+    }
+  }
 }));
 
 // CORS configuration (restrictive)
@@ -147,7 +159,7 @@ app.post('/api/subscribe', [
     .normalizeEmail()
     .isLength({ max: 254 }).withMessage('Email too long')
     .customSanitizer(sanitizeEmail),
-  body('honeypot')
+  body('hp_field')
     .optional()
     .custom((value) => {
       if (value && value.length > 0) {
@@ -220,7 +232,7 @@ app.post('/api/contact', [
     .trim()
     .isLength({ min: 10, max: 5000 }).withMessage('Message must be 10-5000 characters')
     .customSanitizer(sanitizeString),
-  body('honeypot')
+  body('hp_field')
     .optional()
     .custom((value) => {
       if (value && value.length > 0) {
