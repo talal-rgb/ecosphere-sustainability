@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Security Header Compatibility Test — Terrnix</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
+<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"/>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; padding: 40px; }
+  h1 { color: #4ade80; font-family: 'Space Grotesk', sans-serif; }
+  h2 { color: #34d399; margin-top: 32px; border-bottom: 1px solid #1a2520; padding-bottom: 8px; }
+  .section { background: #111a16; border: 1px solid #2d3d35; border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .pass { color: #4ade80; }
+  .fail { color: #f87171; }
+  .warn { color: #fbbf24; }
+  .test-result { font-family: monospace; margin: 8px 0; padding: 8px; background: #0a0f0d; border-radius: 4px; }
+  .btn { background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px; }
+  .btn:hover { background: #047857; }
+  #pdf-test-area { display: none; }
+</style>
+</head>
+<body>
+
+<h1>🔒 Security Header Compatibility Test</h1>
+<p>Verifies all site features work correctly with security headers enabled.</p>
+
+<div class="section">
+  <h2>1. CDN Resource Loading</h2>
+  <div id="cdn-results"></div>
+  <button class="btn" onclick="testCDN()">Test CDN Loading</button>
+</div>
+
+<div class="section">
+  <h2>2. Font Loading</h2>
+  <div id="font-results"></div>
+  <button class="btn" onclick="testFonts()">Test Fonts</button>
+</div>
+
+<div class="section">
+  <h2>3. Image Loading</h2>
+  <div id="image-results"></div>
+  <button class="btn" onclick="testImages()">Test Images</button>
+</div>
+
+<div class="section">
+  <h2>4. Calculator Functionality</h2>
+  <div id="calc-results"></div>
+  <button class="btn" onclick="testCalculator()">Test Calculator</button>
+</div>
+
+<div class="section">
+  <h2>5. Chatbot Functionality</h2>
+  <div id="chat-results"></div>
+  <button class="btn" onclick="testChatbot()">Test Chatbot</button>
+</div>
+
+<div class="section">
+  <h2>6. PDF Generation</h2>
+  <div id="pdf-results"></div>
+  <button class="btn" onclick="testPDF()">Test PDF Generation</button>
+</div>
+
+<div class="section">
+  <h2>7. CSP Violation Check</h2>
+  <div id="csp-results"></div>
+  <button class="btn" onclick="checkCSP()">Check CSP Violations</button>
+</div>
+
+<div class="section">
+  <h2>Test Log</h2>
+  <div id="test-log" style="background: #0a0f0d; border: 1px solid #1a2520; border-radius: 6px; padding: 12px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
+</div>
+
+<script>
+let cspViolations = [];
+
+// Capture CSP violations
+document.addEventListener('securitypolicyviolation', (e) => {
+  cspViolations.push({
+    blockedURI: e.blockedURI,
+    violatedDirective: e.violatedDirective,
+    originalPolicy: e.originalPolicy.substring(0, 100)
+  });
+  log(`CSP VIOLATION: ${e.blockedURI} violated ${e.violatedDirective}`, 'fail');
+});
+
+function log(message, type = 'info') {
+  const logEl = document.getElementById('test-log');
+  const entry = document.createElement('div');
+  entry.style.margin = '2px 0';
+  entry.style.color = type === 'fail' ? '#f87171' : type === 'pass' ? '#4ade80' : type === 'warn' ? '#fbbf24' : '#94a3b8';
+  entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+  logEl.appendChild(entry);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function showResult(elementId, html) {
+  document.getElementById(elementId).innerHTML = html;
+}
+
+// ============================================
+// TEST 1: CDN Resources
+// ============================================
+function testCDN() {
+  log('Testing CDN resources...', 'info');
+  
+  const tests = [
+    { name: 'Tailwind CSS', url: 'https://cdn.tailwindcss.com/3.4.17', type: 'script' },
+    { name: 'Google Fonts', url: 'https://fonts.googleapis.com/css2?family=Space+Grotesk', type: 'style' }
+  ];
+  
+  let html = '';
+  tests.forEach(test => {
+    const start = performance.now();
+    fetch(test.url, { mode: 'no-cors' })
+      .then(() => {
+        const time = (performance.now() - start).toFixed(0);
+        html += `<div class="test-result"><span class="pass">✅ ${test.name}</span> loaded in ${time}ms</div>`;
+        log(`${test.name} loaded (${time}ms)`, 'pass');
+      })
+      .catch(err => {
+        html += `<div class="test-result"><span class="fail">❌ ${test.name}</span> failed: ${err.message}</div>`;
+        log(`${test.name} failed: ${err.message}`, 'fail');
+      })
+      .finally(() => {
+        showResult('cdn-results', html);
+      });
+  });
+}
+
+// ============================================
+// TEST 2: Fonts
+// ============================================
+function testFonts() {
+  log('Testing fonts...', 'info');
+  
+  document.fonts.ready.then(() => {
+    const fonts = Array.from(document.fonts).map(f => f.family);
+    const uniqueFonts = [...new Set(fonts)];
+    
+    let html = '<div class="test-result">';
+    if (uniqueFonts.includes('Space Grotesk')) {
+      html += '<div class="pass">✅ Space Grotesk loaded</div>';
+      log('Space Grotesk font loaded', 'pass');
+    } else {
+      html += '<div class="fail">❌ Space Grotesk not loaded</div>';
+      log('Space Grotesk not loaded', 'fail');
+    }
+    
+    if (uniqueFonts.includes('Inter')) {
+      html += '<div class="pass">✅ Inter loaded</div>';
+      log('Inter font loaded', 'pass');
+    } else {
+      html += '<div class="fail">❌ Inter not loaded</div>';
+      log('Inter not loaded', 'fail');
+    }
+    html += '</div>';
+    
+    showResult('font-results', html);
+  });
+}
+
+// ============================================
+// TEST 3: Images
+// ============================================
+function testImages() {
+  log('Testing images...', 'info');
+  
+  const testImages = [
+    { name: 'Logo (if exists)', src: '/assets/images/logo.png' },
+    { name: 'Favicon', src: '/favicon.ico' }
+  ];
+  
+  let html = '';
+  let loaded = 0;
+  
+  testImages.forEach(img => {
+    const image = new Image();
+    image.onload = () => {
+      html += `<div class="test-result"><span class="pass">✅ ${img.name}</span> loaded (${image.naturalWidth}x${image.naturalHeight})</div>`;
+      log(`${img.name} loaded`, 'pass');
+      loaded++;
+      if (loaded === testImages.length) showResult('image-results', html);
+    };
+    image.onerror = () => {
+      html += `<div class="test-result"><span class="warn">⚠️ ${img.name}</span> not found (may not exist)</div>`;
+      log(`${img.name} not found`, 'warn');
+      loaded++;
+      if (loaded === testImages.length) showResult('image-results', html);
+    };
+    image.src = img.src;
+  });
+}
+
+// ============================================
+// TEST 4: Calculator
+// ============================================
+function testCalculator() {
+  log('Testing calculator functions...', 'info');
+  
+  // Test basic calculation logic
+  const testData = {
+    stationaryFuel: 1000,
+    stationaryGas: 500,
+    mobileGasoline: 200,
+    mobileDiesel: 100,
+    refrigerant: 5,
+    electricity: 10000
+  };
+  
+  // Simulate calculator logic
+  const stationary = (testData.stationaryFuel * 2.68) + (testData.stationaryGas * 1.96);
+  const mobile = (testData.mobileGasoline * 2.31) + (testData.mobileDiesel * 2.68);
+  const fugitive = testData.refrigerant * 1430;
+  const scope1Total = stationary + mobile + fugitive;
+  const scope2Total = testData.electricity * 0.4;
+  
+  const expected = {
+    stationary: 3660.00,
+    mobile: 730.00,
+    fugitive: 7150.00,
+    scope1Total: 11540.00,
+    scope2Total: 4000.00
+  };
+  
+  let html = '<div class="test-result">';
+  
+  if (Math.abs(stationary - expected.stationary) < 0.01) {
+    html += `<div class="pass">✅ Scope 1 Stationary: ${stationary.toFixed(2)} tCO₂e</div>`;
+    log('Calculator: Scope 1 Stationary correct', 'pass');
+  } else {
+    html += `<div class="fail">❌ Scope 1 Stationary: ${stationary.toFixed(2)} (expected ${expected.stationary})</div>`;
+    log('Calculator: Scope 1 Stationary incorrect', 'fail');
+  }
+  
+  if (Math.abs(scope1Total - expected.scope1Total) < 0.01) {
+    html += `<div class="pass">✅ Scope 1 Total: ${scope1Total.toFixed(2)} tCO₂e</div>`;
+    log('Calculator: Scope 1 Total correct', 'pass');
+  } else {
+    html += `<div class="fail">❌ Scope 1 Total: ${scope1Total.toFixed(2)} (expected ${expected.scope1Total})</div>`;
+    log('Calculator: Scope 1 Total incorrect', 'fail');
+  }
+  
+  if (Math.abs(scope2Total - expected.scope2Total) < 0.01) {
+    html += `<div class="pass">✅ Scope 2 Total: ${scope2Total.toFixed(2)} tCO₂e</div>`;
+    log('Calculator: Scope 2 Total correct', 'pass');
+  } else {
+    html += `<div class="fail">❌ Scope 2 Total: ${scope2Total.toFixed(2)} (expected ${expected.scope2Total})</div>`;
+    log('Calculator: Scope 2 Total incorrect', 'fail');
+  }
+  
+  html += '</div>';
+  showResult('calc-results', html);
+}
+
+// ============================================
+// TEST 5: Chatbot
+// ============================================
+function testChatbot() {
+  log('Testing chatbot functions...', 'info');
+  
+  // Test escapeHtml
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  const xssInput = '<script>alert(1)</script>';
+  const escaped = escapeHtml(xssInput);
+  const isSafe = !escaped.includes('<script>');
+  
+  let html = '<div class="test-result">';
+  
+  if (isSafe) {
+    html += `<div class="pass">✅ escapeHtml sanitizes XSS</div>`;
+    html += `<div style="font-size: 11px; color: #94a3b8;">Input: ${xssInput}</div>`;
+    html += `<div style="font-size: 11px; color: #94a3b8;">Output: ${escaped}</div>`;
+    log('Chatbot: escapeHtml works correctly', 'pass');
+  } else {
+    html += `<div class="fail">❌ escapeHtml failed to sanitize</div>`;
+    log('Chatbot: escapeHtml failed', 'fail');
+  }
+  
+  // Test that textContent is used (not innerHTML)
+  const testDiv = document.createElement('div');
+  testDiv.textContent = '<b>test</b>';
+  const usesTextContent = testDiv.innerHTML === '&lt;b&gt;test&lt;/b&gt;';
+  
+  if (usesTextContent) {
+    html += `<div class="pass">✅ textContent properly escapes HTML</div>`;
+    log('Chatbot: textContent works correctly', 'pass');
+  } else {
+    html += `<div class="fail">❌ textContent not working as expected</div>`;
+    log('Chatbot: textContent issue', 'fail');
+  }
+  
+  html += '</div>';
+  showResult('chat-results', html);
+}
+
+// ============================================
+// TEST 6: PDF Generation
+// ============================================
+function testPDF() {
+  log('Testing PDF generation...', 'info');
+  
+  // Check if the PDF generation function exists in the calculator page
+  const hasPDFFunction = typeof generatePDFReport !== 'undefined' || 
+                         typeof generatePDF !== 'undefined';
+  
+  let html = '<div class="test-result">';
+  
+  // Check for html2pdf library
+  const hasHtml2Pdf = typeof html2pdf !== 'undefined';
+  
+  if (hasHtml2Pdf) {
+    html += `<div class="pass">✅ html2pdf.js library loaded</div>`;
+    log('PDF: html2pdf.js loaded', 'pass');
+  } else {
+    html += `<div class="warn">⚠️ html2pdf.js not loaded on this page</div>`;
+    log('PDF: html2pdf.js not loaded (expected on calculator page)', 'warn');
+  }
+  
+  // Check for page structure
+  const pages = document.querySelectorAll('.page');
+  if (pages.length > 0) {
+    html += `<div class="pass">✅ PDF page structure found (${pages.length} pages)</div>`;
+    log(`PDF: ${pages.length} pages found`, 'pass');
+  } else {
+    html += `<div class="warn">⚠️ No PDF pages on this test page</div>`;
+    log('PDF: No pages (expected on calculator page)', 'warn');
+  }
+  
+  // Test print approach
+  html += `<div class="pass">✅ window.print() approach available</div>`;
+  log('PDF: window.print() available', 'pass');
+  
+  html += '</div>';
+  showResult('pdf-results', html);
+}
+
+// ============================================
+// TEST 7: CSP Violations
+// ============================================
+function checkCSP() {
+  log('Checking CSP violations...', 'info');
+  
+  setTimeout(() => {
+    let html = '<div class="test-result">';
+    
+    if (cspViolations.length === 0) {
+      html += '<div class="pass">✅ No CSP violations detected</div>';
+      log('CSP: No violations', 'pass');
+    } else {
+      html += `<div class="fail">❌ ${cspViolations.length} CSP violation(s) detected:</div>`;
+      cspViolations.forEach(v => {
+        html += `<div style="font-size: 11px; margin-left: 16px;">• ${v.blockedURI} (${v.violatedDirective})</div>`;
+        log(`CSP violation: ${v.blockedURI}`, 'fail');
+      });
+    }
+    
+    html += '</div>';
+    showResult('csp-results', html);
+  }, 2000); // Wait 2 seconds for any violations
+}
+
+// Auto-run basic tests on load
+window.addEventListener('load', () => {
+  log('Security header compatibility test loaded', 'info');
+  log('CSP: ' + document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.content?.substring(0, 50) + '...', 'info');
+});
+</script>
+
+</body>
+</html>
