@@ -1,3 +1,10 @@
+# Workflows to Add Manually
+
+These workflow files must be added to `.github/workflows/` after the PR is merged.
+
+## 1. weekly-kpi-update.yml
+
+```yaml
 name: Weekly KPI Dashboard Update
 
 # DISABLED BY DEFAULT — Enable after configuring secrets:
@@ -117,3 +124,99 @@ jobs:
               body: `## Weekly KPI Dashboard Updated\n\nPlease review the updated dashboard and add insights.\n\n### Quick Links:\n- [KPI Dashboard](TERRNIX_KPI_DASHBOARD.md)\n- [Content Performance](CONTENT_PERFORMANCE.md)\n\n### Action Items to Review:\n- [ ] Traffic trends\n- [ ] SEO performance\n- [ ] Product metrics\n- [ ] Business conversions\n- [ ] Content updates needed`,
               labels: ['kpi', 'weekly', 'dashboard']
             });
+```
+
+## 2. monthly-content-review.yml
+
+```yaml
+name: Monthly Content Review
+
+on:
+  schedule:
+    # Run on the 1st of every month at 9:00 AM UTC
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+    inputs:
+      review_type:
+        description: 'Review type'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - quick
+          - sunset-check
+
+jobs:
+  content-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          npm install -g @google/searchconsole
+          npm install googleapis
+      
+      - name: Run Content Scoring
+        id: scoring
+        run: |
+          node scripts/content-review.js
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+          GA_CREDENTIALS: ${{ secrets.GA_CREDENTIALS }}
+        continue-on-error: true
+      
+      - name: Generate Report
+        run: |
+          echo "# Monthly Content Review - $(date +%Y-%m-%d)" > CONTENT_REVIEW_$(date +%Y-%m).md
+          echo "" >> CONTENT_REVIEW_$(date +%Y-%m).md
+          echo "## Summary" >> CONTENT_REVIEW_$(date +%Y-%m).md
+          echo "- Total articles tracked: $(grep -c '^|' CONTENT_PERFORMANCE.md)" >> CONTENT_REVIEW_$(date +%Y-%m).md
+          echo "- Reviews completed: $(date)" >> CONTENT_REVIEW_$(date +%Y-%m).md
+      
+      - name: Create Issue for Action Items
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = `CONTENT_REVIEW_${new Date().toISOString().slice(0, 7)}.md`;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Monthly Content Review - ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`,
+              body: `## Content Review Complete\n\nPlease review the attached report and assign action items.\n\n### Next Steps:\n- [ ] Review "Double Down" articles for expansion\n- [ ] Audit "At Risk" articles\n- [ ] Plan consolidations\n- [ ] Execute sunsets\n\nReport: ${reportPath}`,
+              labels: ['content-review', 'monthly', 'seo']
+            });
+      
+      - name: Commit Report
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CONTENT_REVIEW_*.md
+          git diff --staged --quiet || git commit -m "Add monthly content review report"
+          git push
+```
+
+## Setup Instructions
+
+1. After PR #27 is merged, create `.github/workflows/` directory if it doesn't exist
+2. Copy the two workflow files above into that directory
+3. Commit and push directly to main (these are workflow files, safe to add)
+4. Configure GitHub secrets:
+   - `GA_CREDENTIALS` - Google Analytics service account JSON
+   - `GA_PROPERTY_ID` - GA4 property ID
+   - `GSC_CREDENTIALS` - Search Console service account JSON
+   - `GSC_SITE_URL` - `https://terrnix.com`
+5. Remove `if: false` from weekly-kpi-update.yml to enable automation
