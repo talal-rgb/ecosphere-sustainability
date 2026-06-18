@@ -19,6 +19,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { body, validationResult } = require('express-validator');
 const { RateLimiter } = require('./middleware/rateLimiter');
+const { sendNotificationEmail, verifyConnection } = require('./services/email');
+const { addContact } = require('./services/brevo');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -195,11 +197,20 @@ app.post('/api/subscribe', [
 
   const { email } = req.body;
   
-  // TODO: Add email to subscription list
-  // TODO: Send confirmation email
-  
+  // Add to Brevo newsletter list
+  const brevoResult = await addContact(email);
+  if (!brevoResult.success) {
+    console.warn('[Subscribe] Brevo sync failed:', brevoResult.error);
+  }
+
+  // Notify admin of new subscriber
+  await sendNotificationEmail({
+    subject: 'New Terrnix Newsletter Subscriber',
+    text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+  });
+
   console.log(`[Subscribe] ${email} from ${req.rateLimit?.ip?.count || '?'} requests`);
-  
+
   res.json({
     success: true,
     message: 'Thank you for subscribing! Please check your email for confirmation.'
@@ -267,12 +278,34 @@ app.post('/api/contact', [
   }
 
   const { name, email, company, phone, discipline, message } = req.body;
-  
-  // TODO: Send notification email
-  // TODO: Store contact in database
-  
+
+  // Send notification email to admin
+  const emailResult = await sendNotificationEmail({
+    subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+    text: `New contact form submission on terrnix.com
+
+Name: ${name}
+Email: ${email}
+Company: ${company || 'Not provided'}
+Phone: ${phone || 'Not provided'}
+Discipline: ${discipline || 'General Inquiry'}
+
+Message:
+${message}
+
+---
+Submitted: ${new Date().toISOString()}
+IP: ${req.ip || 'unknown'}
+User-Agent: ${req.headers['user-agent'] || 'unknown'}
+`.trim()
+  });
+
+  if (!emailResult.success) {
+    console.warn('[Contact] Email notification failed:', emailResult.error);
+  }
+
   console.log(`[Contact] ${name} (${email}) - ${discipline || 'General'}`);
-  
+
   res.json({
     success: true,
     message: 'Thank you for your message. We will get back to you within 24 hours.'
@@ -325,6 +358,13 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
+// Verify email connection on startup
+verifyConnection().then(ok => {
+  if (!ok) {
+    console.warn('[Startup] Email service not fully configured. Check ZOHO_SMTP_* env vars.');
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Terrnix backend server running on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
@@ -338,6 +378,8 @@ app.listen(PORT, () => {
   console.log(`    - Burst: 5 requests per second`);
   console.log(`    - Subscribe: 5 per hour`);
   console.log(`    - Contact: 3 per hour`);
+  console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
+  console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
 });
 
 module.exports = app;
