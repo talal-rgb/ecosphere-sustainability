@@ -80,6 +80,26 @@ Capped at 100
 | Related to core offering | 20% | 0-20 |
 | Update freshness | 20% | 0-20 |
 
+### Data Quality Score (0-100)
+Measures the reliability and completeness of tracking data for each article.
+
+| Criteria | Weight | Score | Threshold |
+|----------|--------|-------|-----------|
+| GA data available (users, sessions) | 25% | 0 or 25 | ≥1 session tracked |
+| GSC data available (impressions, clicks) | 25% | 0 or 25 | ≥1 impression tracked |
+| Conversion events tracked | 25% | 0 or 25 | Events firing correctly |
+| UTM/parameters clean (no self-referral) | 15% | 0-15 | 0 self-referrals |
+| Data freshness (last 7 days) | 10% | 0-10 | Updated within 7 days |
+
+**Data Quality Grade:**
+- **A (90-100)**: Full data coverage, reliable metrics
+- **B (70-89)**: Minor gaps, mostly reliable
+- **C (50-69)**: Significant gaps, use with caution
+- **D (30-49)**: Major gaps, unreliable for decisions
+- **F (0-29)**: Insufficient data, do not use for scoring
+
+**Rule: Articles with Data Quality < 50 must be flagged and fixed before using scores for lifecycle decisions.**
+
 ## Content Lifecycle States
 
 ### State Definitions
@@ -119,18 +139,18 @@ Capped at 100
 
 ### Current Articles
 
-| URL | Title | Published | Target Keyword | Score | State | Last Review |
-|-----|-------|-----------|----------------|-------|-------|-------------|
-| /carbon-accounting/ | Carbon Accounting Hub | 2026-06-07 | carbon accounting | TBD | 🆕 New | 2026-06-18 |
-| /carbon-accounting/scope-1-emissions/ | Scope 1 Emissions Guide | 2026-06-07 | scope 1 emissions | TBD | 🆕 New | 2026-06-18 |
-| /carbon-accounting/scope-2-emissions/ | Scope 2 Emissions Guide | 2026-06-08 | scope 2 emissions | TBD | 🆕 New | 2026-06-18 |
-| /carbon-accounting/scope-3-emissions/ | Scope 3 Emissions Guide | 2026-06-08 | scope 3 emissions | TBD | 🆕 New | 2026-06-18 |
-| /carbon-accounting/carbon-footprint-calculator/ | Carbon Footprint Calculator | 2026-06-07 | carbon footprint calculator | TBD | 🆕 New | 2026-06-18 |
-| /esg-reporting/ | ESG Reporting Hub | 2026-06-08 | esg reporting | TBD | 🆕 New | 2026-06-18 |
-| /esg-reporting/csrd-omnibus-guide/ | CSRD Omnibus Guide | 2026-06-08 | csrd omnibus | TBD | 🆕 New | 2026-06-18 |
-| /sustainability-intelligence/ | Sustainability Intelligence Hub | 2026-06-07 | sustainability intelligence | TBD | 🆕 New | 2026-06-18 |
-| /tools/ | Tools Hub | 2026-06-08 | sustainability tools | TBD | 🆕 New | 2026-06-18 |
-| /resources/ | Resources Hub | 2026-06-07 | sustainability resources | TBD | 🆕 New | 2026-06-18 |
+| URL | Title | Published | Target Keyword | Score | Data Quality | State | Last Review |
+|-----|-------|-----------|----------------|-------|--------------|-------|-------------|
+| /carbon-accounting/ | Carbon Accounting Hub | 2026-06-07 | carbon accounting | TBD | TBD | 🆕 New | 2026-06-18 |
+| /carbon-accounting/scope-1-emissions/ | Scope 1 Emissions Guide | 2026-06-07 | scope 1 emissions | TBD | TBD | 🆕 New | 2026-06-18 |
+| /carbon-accounting/scope-2-emissions/ | Scope 2 Emissions Guide | 2026-06-08 | scope 2 emissions | TBD | TBD | 🆕 New | 2026-06-18 |
+| /carbon-accounting/scope-3-emissions/ | Scope 3 Emissions Guide | 2026-06-08 | scope 3 emissions | TBD | TBD | 🆕 New | 2026-06-18 |
+| /carbon-accounting/carbon-footprint-calculator/ | Carbon Footprint Calculator | 2026-06-07 | carbon footprint calculator | TBD | TBD | 🆕 New | 2026-06-18 |
+| /esg-reporting/ | ESG Reporting Hub | 2026-06-08 | esg reporting | TBD | TBD | 🆕 New | 2026-06-18 |
+| /esg-reporting/csrd-omnibus-guide/ | CSRD Omnibus Guide | 2026-06-08 | csrd omnibus | TBD | TBD | 🆕 New | 2026-06-18 |
+| /sustainability-intelligence/ | Sustainability Intelligence Hub | 2026-06-07 | sustainability intelligence | TBD | TBD | 🆕 New | 2026-06-18 |
+| /tools/ | Tools Hub | 2026-06-08 | sustainability tools | TBD | TBD | 🆕 New | 2026-06-18 |
+| /resources/ | Resources Hub | 2026-06-07 | sustainability resources | TBD | TBD | 🆕 New | 2026-06-18 |
 
 ## Monthly Review Process
 

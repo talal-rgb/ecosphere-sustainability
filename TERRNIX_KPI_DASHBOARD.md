@@ -26,6 +26,9 @@
 | | Articles Updated | - | - | - | ➡️ |
 | | Winning Articles | - | - | - | ➡️ |
 | | Underperforming | - | - | - | ➡️ |
+| **Data Quality** | Data Quality Score | - | - | - | ➡️ |
+| | Tracking Coverage | - | - | - | ➡️ |
+| | Data Issues | - | - | - | ➡️ |
 
 ---
 
@@ -161,6 +164,23 @@
 | W3 | - | - | - |
 | W4 | - | - | - |
 
+### Data Quality Score
+| Week | Overall Score | Grade | Articles with Issues | Fixed |
+|------|---------------|-------|----------------------|-------|
+| W1 | - | - | - | - |
+| W2 | - | - | - | - |
+| W3 | - | - | - | - |
+| W4 | - | - | - | - |
+
+**Data Quality Grade Scale:**
+- **A (90-100)**: Full data coverage, reliable metrics
+- **B (70-89)**: Minor gaps, mostly reliable
+- **C (50-69)**: Significant gaps, use with caution
+- **D (30-49)**: Major gaps, unreliable for decisions
+- **F (0-29)**: Insufficient data, do not use for scoring
+
+**Goal:** 90%+ of articles with Data Quality Grade A or B
+
 ### Content Performance
 | Article | Traffic | Conversions | Score | State | Action |
 |---------|---------|-------------|-------|-------|--------|
@@ -202,6 +222,8 @@
 | Contact Forms/Week | 5 | - | - |
 | Conversion Rate | 2% | - | - |
 | Articles Published | 12 | - | - |
+| Data Quality Score | 90+ | - | - |
+| Articles with Grade A/B | 90% | - | - |
 
 ### Content Lifecycle Targets
 | State | Target % | Current Count |
@@ -211,6 +233,7 @@
 | ⚠️ At Risk | 20% | - |
 | 🔧 Consolidate | 5% | - |
 | 🌅 Sunset | 5% | - |
+| 🔴 Data Quality Issue | 0% | - |
 
 ---
 

@@ -70,6 +70,71 @@ class ContentScoringEngine {
   }
 
   /**
+   * Calculate data quality score (0-100)
+   * Measures reliability and completeness of tracking data
+   */
+  calculateDataQualityScore(checks) {
+    let score = 0;
+    let issues = [];
+
+    // GA data available (25%)
+    if (checks.gaDataAvailable) {
+      score += 25;
+    } else {
+      issues.push('No GA data tracked');
+    }
+
+    // GSC data available (25%)
+    if (checks.gscDataAvailable) {
+      score += 25;
+    } else {
+      issues.push('No GSC data tracked');
+    }
+
+    // Conversion events tracked (25%)
+    if (checks.conversionEventsTracked) {
+      score += 25;
+    } else {
+      issues.push('Conversion events not firing');
+    }
+
+    // UTM/parameters clean (15%)
+    const utmScore = Math.min(checks.cleanUTMs || 0, 15);
+    score += utmScore;
+    if (utmScore < 10) {
+      issues.push('UTM parameter issues detected');
+    }
+
+    // Data freshness (10%)
+    const daysSinceUpdate = checks.daysSinceUpdate || 999;
+    if (daysSinceUpdate <= 1) {
+      score += 10;
+    } else if (daysSinceUpdate <= 3) {
+      score += 7;
+    } else if (daysSinceUpdate <= 7) {
+      score += 5;
+    } else if (daysSinceUpdate <= 14) {
+      score += 2;
+      issues.push('Data stale (>7 days)');
+    } else {
+      issues.push('Data very stale (>14 days)');
+    }
+
+    return { score, issues };
+  }
+
+  /**
+   * Get data quality grade
+   */
+  getDataQualityGrade(score) {
+    if (score >= 90) return { grade: 'A', color: '#10b981', reliable: true };
+    if (score >= 70) return { grade: 'B', color: '#3b82f6', reliable: true };
+    if (score >= 50) return { grade: 'C', color: '#f59e0b', reliable: false };
+    if (score >= 30) return { grade: 'D', color: '#ef4444', reliable: false };
+    return { grade: 'F', color: '#7f1d1d', reliable: false };
+  }
+
+  /**
    * Calculate overall article score
    */
   calculateScore(metrics) {
@@ -80,6 +145,7 @@ class ContentScoringEngine {
       metrics.pagesPerSession || 0
     );
     const relevance = this.calculateRelevanceScore(metrics.relevanceChecks || {});
+    const dataQuality = this.calculateDataQualityScore(metrics.dataQualityChecks || {});
 
     const overall = Math.round(
       traffic * this.weights.traffic +
@@ -93,6 +159,9 @@ class ContentScoringEngine {
       leads,
       engagement,
       relevance,
+      dataQuality: dataQuality.score,
+      dataQualityGrade: this.getDataQualityGrade(dataQuality.score),
+      dataQualityIssues: dataQuality.issues,
       overall,
       breakdown: {
         traffic: `${traffic} × ${this.weights.traffic} = ${Math.round(traffic * this.weights.traffic)}`,
@@ -109,6 +178,12 @@ class ContentScoringEngine {
   determineState(score, metrics, history = []) {
     const { monthlyUsers, monthlyConversions } = metrics;
     const daysSincePublish = metrics.daysSincePublish || 0;
+    const dataQuality = this.calculateDataQualityScore(metrics.dataQualityChecks || {});
+    
+    // Check data quality first - unreliable data gets special handling
+    if (dataQuality.score < 50) {
+      return 'dataQualityIssue';
+    }
     
     // Check declining trend (2+ months)
     const isDeclining = history.length >= 2 && 
@@ -191,6 +266,13 @@ class ContentScoringEngine {
         action: 'Document learnings, redirect to hub, remove from nav',
         reviewFrequency: 'quarterly',
         color: '#ef4444'
+      },
+      dataQualityIssue: {
+        label: '🔴 Data Quality Issue',
+        description: 'Tracking data unreliable - fix before scoring',
+        action: 'Check GA/GSC integration, verify event tracking, fix UTM parameters',
+        reviewFrequency: 'immediate',
+        color: '#dc2626'
       }
     };
 
@@ -253,6 +335,14 @@ class ContentScoringEngine {
         recs.push('Remove from navigation and sitemap');
         recs.push('Archive content for reference');
         break;
+    }
+
+    // Data quality recommendations
+    if (score.dataQuality < 50) {
+      recs.unshift('🚨 FIX DATA QUALITY FIRST: ' + score.dataQualityIssues.join(', '));
+      recs.push('Verify GA tracking code is installed correctly');
+      recs.push('Check GSC property verification');
+      recs.push('Test conversion event firing in browser console');
     }
 
     // Generic recommendations based on score components
