@@ -1,0 +1,119 @@
+name: Weekly KPI Dashboard Update
+
+# DISABLED BY DEFAULT — Enable after configuring secrets:
+#   GA_CREDENTIALS, GA_PROPERTY_ID, GSC_CREDENTIALS, GSC_SITE_URL
+# To enable: Remove the 'if: false' line below after secrets are configured.
+
+on:
+  schedule:
+    # Run every Monday at 8:00 AM UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+    inputs:
+      week_ending:
+        description: 'Week ending date (YYYY-MM-DD)'
+        required: false
+        type: string
+
+jobs:
+  kpi-update:
+    # REMOVE THIS LINE TO ENABLE after secrets are configured
+    if: false
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify secrets configured
+        id: check-secrets
+        run: |
+          MISSING=""
+          if [ -z "${{ secrets.GA_CREDENTIALS }}" ]; then MISSING="$MISSING GA_CREDENTIALS"; fi
+          if [ -z "${{ secrets.GA_PROPERTY_ID }}" ]; then MISSING="$MISSING GA_PROPERTY_ID"; fi
+          if [ -z "${{ secrets.GSC_CREDENTIALS }}" ]; then MISSING="$MISSING GSC_CREDENTIALS"; fi
+          if [ -z "${{ secrets.GSC_SITE_URL }}" ]; then MISSING="$MISSING GSC_SITE_URL"; fi
+
+          if [ -n "$MISSING" ]; then
+            echo "❌ Missing secrets:$MISSING"
+            echo "configured=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "✅ All secrets configured"
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check-secrets.outputs.configured == 'true'
+        run: |
+          npm install googleapis @google-analytics/data
+
+      - name: Fetch GA Data
+        id: ga
+        if: steps.check-secrets.outputs.configured == 'true'
+        run: |
+          node scripts/fetch-ga-data.js
+        env:
+          GA_CREDENTIALS: ${{ secrets.GA_CREDENTIALS }}
+          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+        continue-on-error: true
+
+      - name: Fetch GSC Data
+        id: gsc
+        if: steps.check-secrets.outputs.configured == 'true'
+        run: |
+          node scripts/fetch-gsc-data.js
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        continue-on-error: true
+
+      - name: Check for data files
+        id: check-data
+        run: |
+          if [ -f ".ga-data.json" ] || [ -f ".gsc-data.json" ]; then
+            echo "has_data=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ No data files found. Skipping dashboard update."
+            echo "has_data=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Dashboard
+        if: steps.check-data.outputs.has_data == 'true'
+        run: |
+          node scripts/update-dashboard.js
+        env:
+          WEEK_ENDING: ${{ github.event.inputs.week_ending }}
+
+      - name: Commit Updated Dashboard
+        if: steps.check-data.outputs.has_data == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add TERRNIX_KPI_DASHBOARD.md
+          git diff --staged --quiet || git commit -m "Update KPI dashboard for week ending $(date +%Y-%m-%d)"
+          git push
+
+      - name: Create Summary Issue
+        if: steps.check-data.outputs.has_data == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const weekEnding = new Date().toISOString().split('T')[0];
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Weekly KPI Update - Week Ending ${weekEnding}`,
+              body: `## Weekly KPI Dashboard Updated\n\nPlease review the updated dashboard and add insights.\n\n### Quick Links:\n- [KPI Dashboard](TERRNIX_KPI_DASHBOARD.md)\n- [Content Performance](CONTENT_PERFORMANCE.md)\n\n### Action Items to Review:\n- [ ] Traffic trends\n- [ ] SEO performance\n- [ ] Product metrics\n- [ ] Business conversions\n- [ ] Content updates needed`,
+              labels: ['kpi', 'weekly', 'dashboard']
+            });
