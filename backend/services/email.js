@@ -12,7 +12,7 @@
  *   CONTACT_TO_EMAIL  (e.g. tallal@terrnix.com)
  */
 
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const SMTP_HOST = process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com';
 const SMTP_PORT = parseInt(process.env.ZOHO_SMTP_PORT, 10) || 587;
@@ -55,7 +55,7 @@ function getTransporter() {
  * @param {string} [opts.html]    — optional HTML body
  * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
  */
-async function sendNotificationEmail({ to, subject, text, html }) {
+export async function sendNotificationEmail({ to, subject, text, html }) {
   const t = getTransporter();
   const recipient = to || DEFAULT_TO;
 
@@ -98,7 +98,7 @@ function escapeHtml(str) {
 /**
  * Verify SMTP connection on startup.
  */
-async function verifyConnection() {
+export async function verifyConnection() {
   const t = getTransporter();
   if (!t) return false;
   try {
@@ -110,9 +110,3 @@ async function verifyConnection() {
     return false;
   }
 }
-
-module.exports = {
-  sendNotificationEmail,
-  verifyConnection,
-  getTransporter
-};

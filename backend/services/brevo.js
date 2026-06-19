@@ -19,7 +19,7 @@ const LIST_ID = process.env.BREVO_LIST_ID || '';
  * @param {Object} [attributes] — optional custom attributes
  * @returns {Promise<{success: boolean, message?: string, error?: string}>}
  */
-async function addContact(email, attributes = {}) {
+export async function addContact(email, attributes = {}) {
   if (!API_KEY) {
     console.warn('[Brevo] BREVO_API_KEY not configured. Contact logged but not synced.');
     console.log('[Brevo] Would add:', email, attributes);
@@ -64,5 +64,3 @@ async function addContact(email, attributes = {}) {
     return { success: false, error: error.message };
   }
 }
-
-module.exports = { addContact };

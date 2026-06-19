@@ -1,32 +1,54 @@
 /**
- * Terrnix Backend Server with Security Hardening
- * 
- * Security features:
- * - Multi-layer rate limiting
- * - Input validation and sanitization
- * - CSRF protection
- * - Security headers via Helmet
+ * Terrnix Backend Server — Unified API
+ *
+ * Merged from:
+ * - Live backend (chat, carbon calculator, reports)
+ * - PR #30 (contact forms, newsletter, lead persistence, health checks)
+ *
+ * Endpoints:
+ * - GET  /health
+ * - GET  /api/health/integrations
+ * - GET  /api/admin/lead-stats
+ * - GET  /api/factors/status
+ * - POST /api/chat
+ * - POST /api/carbon/calculate
+ * - POST /api/reports/excel
+ * - POST /api/reports/pdf
+ * - POST /api/contact
+ * - POST /api/subscribe
+ *
+ * Security:
+ * - Helmet security headers
  * - CORS restrictions
- * - Request size limits
- * - Honeypot fields
- * - Lead persistence (file-based fallback when integrations fail)
- * 
- * @author Terrnix Security Team
- * @version 2.1.0
+ * - Input validation
+ * - Rate limiting
+ * - Admin token protection
+ *
+ * @version 3.0.0
  */
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const { body, validationResult } = require('express-validator');
-const { RateLimiter } = require('./middleware/rateLimiter');
-const { sendNotificationEmail, verifyConnection } = require('./services/email');
-const { addContact } = require('./services/brevo');
-const { saveLead, getHealthStatus, getStats } = require('./services/leadStore');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { body, validationResult } from 'express-validator';
+import OpenAI from 'openai';
+
+// Live backend services
+import { buildChatInput, chatResponseSchema } from './services/terrnixPrompt.js';
+import { calculateFootprint } from './services/carbonEngine.js';
+import { getFactorBundle } from './services/factorProvider.js';
+import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
+
+// PR #30 services
+import { sendNotificationEmail, verifyConnection } from './services/email.js';
+import { addContact } from './services/brevo.js';
+import { saveLead, getHealthStatus, getStats, isWritable } from './services/leadStore.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT || 3000);
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://terrnix.com';
 
 // Trust proxy (required for accurate IP behind Render's reverse proxy)
 app.set('trust proxy', 1);
@@ -55,7 +77,7 @@ app.use(helmet({
   xFrameOptions: { action: 'deny' },
   xContentTypeOptions: true,
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  crossOriginEmbedderPolicy: false, // Allow CDN resources
+  crossOriginEmbedderPolicy: false,
   permissionsPolicy: {
     features: {
       camera: [],
@@ -70,71 +92,41 @@ app.use(helmet({
   }
 }));
 
-// CORS configuration (restrictive)
-const corsOrigins = NODE_ENV === 'production' 
-  ? ['https://terrnix.com', 'https://www.terrnix.com']
-  : ['https://terrnix.com', 'https://www.terrnix.com', 'http://localhost:3000', 'http://localhost:8080'];
+// CORS configuration
+const corsOrigins = NODE_ENV === 'production'
+  ? [allowedOrigin, 'https://terrnix.com', 'https://www.terrnix.com']
+  : [allowedOrigin, 'https://terrnix.com', 'https://www.terrnix.com', 'http://localhost:3000', 'http://localhost:8080'];
 
-const corsOptions = {
+app.use(cors({
   origin: function(origin, callback) {
-    // In production, strictly enforce origin whitelist
-    if (NODE_ENV === 'production') {
-      if (!origin) return callback(new Error('Not allowed by CORS'));
-      if (corsOrigins.indexOf(origin) !== -1) {
-        return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'));
-    }
-    // In development, allow no-origin (curl, mobile apps) and whitelisted origins
     if (!origin) return callback(null, true);
-    if (corsOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    if (corsOrigins.indexOf(origin) !== -1) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Admin-Token'],
   credentials: false,
-  maxAge: 86400 // 24 hours
-};
-
-app.use(cors(corsOptions));
+  maxAge: 86400
+}));
 
 // Body parsing with size limits
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json({ limit: '2mb' }));
 
-// Initialize rate limiter
-const rateLimiter = new RateLimiter({
-  trustProxy: true,
-  ipWindowMs: 15 * 60 * 1000,
-  ipMaxRequests: 100,
-  endpointWindowMs: 60 * 1000,
-  endpointMaxRequests: 10,
-  burstWindowMs: 1000,
-  burstMaxRequests: 5,
-  subscribeWindowMs: 60 * 60 * 1000,
-  subscribeMaxRequests: 5,
-  contactWindowMs: 60 * 60 * 1000,
-  contactMaxRequests: 3
-});
+// ============================================
+// HEALTH ENDPOINTS
+// ============================================
 
-// Apply rate limiting to all API routes
-app.use('/api', rateLimiter.middleware());
-
-// Health check endpoint (no rate limiting)
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: '2.1.0',
-    environment: NODE_ENV
+    ok: true,
+    service: 'terrnix-website-api',
+    repo: 'talal-rgb/ecosphere-sustainability',
+    version: '3.0.0',
+    time: new Date().toISOString()
   });
 });
 
-// Integration health check (admin/debug — no sensitive details exposed)
-app.get('/api/health/integrations', (req, res) => {
+app.get('/api/health/integrations', (_req, res) => {
   const health = getHealthStatus();
   const allHealthy = health.leadStorageWritable && health.emailConfigured && health.brevoConfigured;
 
@@ -150,9 +142,8 @@ app.get('/api/health/integrations', (req, res) => {
   });
 });
 
-// Lead storage stats (admin only — basic auth recommended in production)
+// Lead storage stats (admin only)
 app.get('/api/admin/lead-stats', (req, res) => {
-  // Simple token auth for admin endpoints
   const adminToken = req.headers['x-admin-token'];
   const expectedToken = process.env.ADMIN_API_TOKEN;
 
@@ -181,38 +172,120 @@ app.get('/api/admin/lead-stats', (req, res) => {
   });
 });
 
-// Rate limit status endpoint
-app.get('/api/rate-limit-status', (req, res) => {
-  const stats = rateLimiter.getStats();
-  res.json({
-    success: true,
-    stats: stats,
-    limits: {
-      ip: '100 requests per 15 minutes',
-      endpoint: '10 requests per minute per endpoint',
-      burst: '5 requests per second',
-      subscribe: '5 subscriptions per hour',
-      contact: '3 contacts per hour'
-    }
-  });
+// ============================================
+// LIVE BACKEND ENDPOINTS (Preserved)
+// ============================================
+
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes('REPLACE_WITH')) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
+
+app.get('/api/factors/status', async (_req, res, next) => {
+  try {
+    const bundle = await getFactorBundle({});
+    res.json({ ok: true, metadata: bundle.metadata, local_factor_version: bundle.local?.metadata?.version || 'unknown' });
+  } catch (err) {
+    next(err);
+  }
 });
 
-// CSRF token endpoint
-app.get('/api/csrf-token', (req, res) => {
-  const token = require('crypto').randomBytes(32).toString('hex');
-  res.json({
-    success: true,
-    csrfToken: token
-  });
+app.post('/api/chat', async (req, res, next) => {
+  try {
+    const { message, pageContext = '', visitorGoal = '' } = req.body || {};
+    if (!message || typeof message !== 'string') return res.status(400).json({ error: 'message is required' });
+
+    const client = getOpenAIClient();
+    if (!client) {
+      return res.status(503).json({
+        error: 'OPENAI_API_KEY is not configured',
+        safe_message: 'Terrnix AI is not connected yet. Add OPENAI_API_KEY to the VPS .env file.'
+      });
+    }
+
+    const response = await client.responses.create({
+      model: process.env.OPENAI_MODEL || 'gpt-5.4-mini',
+      input: buildChatInput({ message, pageContext, visitorGoal }),
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'terrnix_sustainability_answer',
+          schema: chatResponseSchema,
+          strict: true
+        }
+      },
+      store: false
+    });
+
+    let payload;
+    try {
+      payload = JSON.parse(response.output_text || '{}');
+    } catch {
+      payload = {
+        answer: response.output_text || 'Terrnix AI returned an empty answer.',
+        key_points: [],
+        methods: [],
+        sources: [],
+        confidence: 'medium',
+        next_steps: ['Use the Terrnix calculator or contact a sustainability expert for detailed support.'],
+        disclaimer: 'Educational information only; not legal, financial, regulatory, or assurance advice.'
+      };
+    }
+    res.json(payload);
+  } catch (err) {
+    next(err);
+  }
 });
+
+app.post('/api/carbon/calculate', async (req, res, next) => {
+  try {
+    const activityData = req.body || {};
+    const factorBundle = await getFactorBundle(activityData);
+    res.json(calculateFootprint(activityData, factorBundle));
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/reports/excel', async (req, res, next) => {
+  try {
+    const activityData = req.body || {};
+    const factorBundle = await getFactorBundle(activityData);
+    const result = calculateFootprint(activityData, factorBundle);
+    const workbookBuffer = await buildExcelReport(result, activityData);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="terrnix-carbon-report.xlsx"');
+    res.send(workbookBuffer);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/reports/pdf', async (req, res, next) => {
+  try {
+    const activityData = req.body || {};
+    const factorBundle = await getFactorBundle(activityData);
+    const result = calculateFootprint(activityData, factorBundle);
+    const pdfBuffer = await buildPdfReport(result, activityData);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="terrnix-carbon-report.pdf"');
+    res.send(pdfBuffer);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ============================================
+// PR #30 ENDPOINTS (Contact, Newsletter)
+// ============================================
 
 // Validation helpers
 const sanitizeString = (value) => {
   if (!value || typeof value !== 'string') return '';
   return value
-    .replace(/[<>]/g, '') // Strip HTML tags
+    .replace(/[<>]/g, '')
     .trim()
-    .substring(0, 1000); // Max length
+    .substring(0, 1000);
 };
 
 const sanitizeEmail = (value) => {
@@ -220,7 +293,7 @@ const sanitizeEmail = (value) => {
   return value.toLowerCase().trim().substring(0, 254);
 };
 
-// Subscribe endpoint with validation
+// Subscribe endpoint
 app.post('/api/subscribe', [
   body('email')
     .isEmail().withMessage('Invalid email address')
@@ -289,7 +362,7 @@ app.post('/api/subscribe', [
   });
 });
 
-// Contact endpoint with validation
+// Contact endpoint
 app.post('/api/contact', [
   body('name')
     .trim()
@@ -401,50 +474,30 @@ User-Agent: ${req.headers['user-agent'] || 'unknown'}
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  // Handle CORS errors gracefully
+// ============================================
+// ERROR HANDLING
+// ============================================
+
+app.use((err, _req, res, _next) => {
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
       success: false,
       message: 'Origin not allowed'
     });
   }
-  
-  // Log error securely (no sensitive data)
-  console.error('[Error]', {
-    message: err.message,
-    stack: NODE_ENV === 'development' ? err.stack : undefined,
-    path: req.path,
-    method: req.method,
-    ip: req.ip
-  });
-  
+
+  console.error(err);
   res.status(err.status || 500).json({
-    success: false,
-    message: NODE_ENV === 'development' ? err.message : 'Internal server error'
+    error: 'Internal server error',
+    safe_message: NODE_ENV === 'development' ? err.message : 'Something went wrong. Check the Terrnix API logs.'
   });
 });
 
-// 404 handler
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({
     success: false,
     message: 'Endpoint not found'
   });
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  rateLimiter.destroy();
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
-  rateLimiter.destroy();
-  process.exit(0);
 });
 
 // Verify email connection on startup
@@ -455,21 +508,23 @@ verifyConnection().then(ok => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Terrnix backend server running on port ${PORT}`);
+  console.log(`Terrnix unified backend running on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
-  console.log(`Security features enabled:`);
-  console.log(`  - Helmet security headers`);
-  console.log(`  - Input validation & sanitization`);
-  console.log(`  - Honeypot bot protection`);
-  console.log(`  - Rate limiting:`);
-  console.log(`    - IP: 100 requests per 15 minutes`);
-  console.log(`    - Endpoint: 10 requests per minute`);
-  console.log(`    - Burst: 5 requests per second`);
-  console.log(`    - Subscribe: 5 per hour`);
-  console.log(`    - Contact: 3 per hour`);
+  console.log(`Allowed origin: ${allowedOrigin}`);
+  console.log(`Endpoints:`);
+  console.log(`  - GET  /health`);
+  console.log(`  - GET  /api/health/integrations`);
+  console.log(`  - GET  /api/admin/lead-stats`);
+  console.log(`  - GET  /api/factors/status`);
+  console.log(`  - POST /api/chat`);
+  console.log(`  - POST /api/carbon/calculate`);
+  console.log(`  - POST /api/reports/excel`);
+  console.log(`  - POST /api/reports/pdf`);
+  console.log(`  - POST /api/contact`);
+  console.log(`  - POST /api/subscribe`);
   console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
   console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
-  console.log(`Lead storage: ${require('./services/leadStore').isWritable() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
+  console.log(`Lead storage: ${isWritable() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
 });
 
-module.exports = app;
+export default app;

@@ -17,10 +17,11 @@
  * @version 1.0.0
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 
-const LEADS_FILE = process.env.LEADS_FILE_PATH || path.join(__dirname, '..', 'data', 'leads.jsonl');
+const LEADS_FILE = process.env.LEADS_FILE_PATH || path.join(process.cwd(), 'data', 'leads.jsonl');
 const MAX_FILE_SIZE_MB = parseInt(process.env.LEADS_MAX_SIZE_MB, 10) || 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
@@ -67,7 +68,7 @@ function isWritable() {
  * @param {string} lead.phone      — optional
  * @returns {Promise<{success: boolean, id: string, error?: string}>}
  */
-async function saveLead({ type, name, email, company, message, source, discipline, phone }) {
+export async function saveLead({ type, name, email, company, message, source, discipline, phone }) {
   ensureDirectory();
 
   if (!isWritable()) {
@@ -81,7 +82,7 @@ async function saveLead({ type, name, email, company, message, source, disciplin
     return { success: false, error: 'Lead storage file size limit exceeded' };
   }
 
-  const id = require('crypto').randomUUID();
+  const id = crypto.randomUUID();
   const record = {
     id,
     timestamp: new Date().toISOString(),
@@ -112,7 +113,7 @@ async function saveLead({ type, name, email, company, message, source, disciplin
  * Get integration health status (safe for public exposure).
  * @returns {{leadStorageWritable: boolean, emailConfigured: boolean, brevoConfigured: boolean}}
  */
-function getHealthStatus() {
+export function getHealthStatus() {
   return {
     leadStorageWritable: isWritable(),
     emailConfigured: !!(process.env.ZOHO_SMTP_USER && process.env.ZOHO_SMTP_PASS && process.env.CONTACT_TO_EMAIL),
@@ -124,7 +125,7 @@ function getHealthStatus() {
  * Get lead storage statistics (admin only).
  * @returns {{totalLeads: number, fileSize: number, filePath: string, writable: boolean}}
  */
-function getStats() {
+export function getStats() {
   ensureDirectory();
   let totalLeads = 0;
   let fileSize = 0;
@@ -146,9 +147,4 @@ function getStats() {
   };
 }
 
-module.exports = {
-  saveLead,
-  getHealthStatus,
-  getStats,
-  isWritable
-};
+export { isWritable };
