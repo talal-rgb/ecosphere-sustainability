@@ -9,9 +9,10 @@
  * - CORS restrictions
  * - Request size limits
  * - Honeypot fields
+ * - Lead persistence (file-based fallback when integrations fail)
  * 
  * @author Terrnix Security Team
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 const express = require('express');
@@ -21,6 +22,7 @@ const { body, validationResult } = require('express-validator');
 const { RateLimiter } = require('./middleware/rateLimiter');
 const { sendNotificationEmail, verifyConnection } = require('./services/email');
 const { addContact } = require('./services/brevo');
+const { saveLead, getHealthStatus, getStats } = require('./services/leadStore');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -126,8 +128,56 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    version: '2.0.0',
+    version: '2.1.0',
     environment: NODE_ENV
+  });
+});
+
+// Integration health check (admin/debug — no sensitive details exposed)
+app.get('/api/health/integrations', (req, res) => {
+  const health = getHealthStatus();
+  const allHealthy = health.leadStorageWritable && health.emailConfigured && health.brevoConfigured;
+
+  res.json({
+    success: true,
+    status: allHealthy ? 'healthy' : 'degraded',
+    integrations: {
+      emailConfigured: health.emailConfigured,
+      brevoConfigured: health.brevoConfigured,
+      leadStorageWritable: health.leadStorageWritable
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Lead storage stats (admin only — basic auth recommended in production)
+app.get('/api/admin/lead-stats', (req, res) => {
+  // Simple token auth for admin endpoints
+  const adminToken = req.headers['x-admin-token'];
+  const expectedToken = process.env.ADMIN_API_TOKEN;
+
+  if (!expectedToken) {
+    return res.status(503).json({
+      success: false,
+      message: 'Admin token not configured'
+    });
+  }
+
+  if (adminToken !== expectedToken) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
+  const stats = getStats();
+  res.json({
+    success: true,
+    stats: {
+      totalLeads: stats.totalLeads,
+      fileSize: stats.fileSizeHuman,
+      writable: stats.writable
+    }
   });
 });
 
@@ -196,20 +246,44 @@ app.post('/api/subscribe', [
   }
 
   const { email } = req.body;
-  
+  let brevoSuccess = false;
+  let emailSuccess = false;
+
   // Add to Brevo newsletter list
   const brevoResult = await addContact(email);
-  if (!brevoResult.success) {
+  if (brevoResult.success) {
+    brevoSuccess = true;
+  } else {
     console.warn('[Subscribe] Brevo sync failed:', brevoResult.error);
   }
 
   // Notify admin of new subscriber
-  await sendNotificationEmail({
+  const emailResult = await sendNotificationEmail({
     subject: 'New Terrnix Newsletter Subscriber',
     text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
   });
+  if (emailResult.success) {
+    emailSuccess = true;
+  } else {
+    console.warn('[Subscribe] Email notification failed:', emailResult.error);
+  }
 
-  console.log(`[Subscribe] ${email} from ${req.rateLimit?.ip?.count || '?'} requests`);
+  // Persist lead if either integration failed
+  if (!brevoSuccess || !emailSuccess) {
+    const leadResult = await saveLead({
+      type: 'newsletter',
+      email,
+      source: 'newsletter-form',
+      name: null,
+      company: null,
+      message: null
+    });
+    if (!leadResult.success) {
+      console.error('[Subscribe] CRITICAL: Lead persistence also failed:', leadResult.error);
+    }
+  }
+
+  console.log(`[Subscribe] ${email} — Brevo:${brevoSuccess} Email:${emailSuccess}`);
 
   res.json({
     success: true,
@@ -300,11 +374,31 @@ User-Agent: ${req.headers['user-agent'] || 'unknown'}
 `.trim()
   });
 
-  if (!emailResult.success) {
+  let emailSuccess = false;
+  if (emailResult.success) {
+    emailSuccess = true;
+  } else {
     console.warn('[Contact] Email notification failed:', emailResult.error);
   }
 
-  console.log(`[Contact] ${name} (${email}) - ${discipline || 'General'}`);
+  // Persist lead if email failed
+  if (!emailSuccess) {
+    const leadResult = await saveLead({
+      type: 'contact',
+      name,
+      email,
+      company,
+      message,
+      source: 'contact-form',
+      discipline,
+      phone
+    });
+    if (!leadResult.success) {
+      console.error('[Contact] CRITICAL: Lead persistence also failed:', leadResult.error);
+    }
+  }
+
+  console.log(`[Contact] ${name} (${email}) — Email:${emailSuccess}`);
 
   res.json({
     success: true,
@@ -380,6 +474,7 @@ app.listen(PORT, () => {
   console.log(`    - Contact: 3 per hour`);
   console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
   console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
+  console.log(`Lead storage: ${require('./services/leadStore').isWritable() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
 });
 
 module.exports = app;
