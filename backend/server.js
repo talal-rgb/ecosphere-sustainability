@@ -246,18 +246,22 @@ app.post('/api/subscribe', [
   }
 
   const { email } = req.body;
-  let brevoSuccess = false;
-  let emailSuccess = false;
 
-  // Add to Brevo newsletter list
-  const brevoResult = await addContact(email);
-  if (brevoResult.success) {
-    brevoSuccess = true;
-  } else {
-    console.warn('[Subscribe] Brevo sync failed:', brevoResult.error);
+  // 1. ALWAYS persist lead first (source of truth)
+  const leadResult = await saveLead({
+    type: 'newsletter',
+    email,
+    source: 'newsletter-form',
+    name: null,
+    company: null,
+    message: null
+  });
+  if (!leadResult.success) {
+    console.error('[Subscribe] CRITICAL: Lead persistence failed:', leadResult.error);
   }
 
-  // Notify admin of new subscriber
+  // 2. Send notification email
+  let emailSuccess = false;
   const emailResult = await sendNotificationEmail({
     subject: 'New Terrnix Newsletter Subscriber',
     text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
@@ -268,22 +272,16 @@ app.post('/api/subscribe', [
     console.warn('[Subscribe] Email notification failed:', emailResult.error);
   }
 
-  // Persist lead if either integration failed
-  if (!brevoSuccess || !emailSuccess) {
-    const leadResult = await saveLead({
-      type: 'newsletter',
-      email,
-      source: 'newsletter-form',
-      name: null,
-      company: null,
-      message: null
-    });
-    if (!leadResult.success) {
-      console.error('[Subscribe] CRITICAL: Lead persistence also failed:', leadResult.error);
-    }
+  // 3. Sync to Brevo
+  let brevoSuccess = false;
+  const brevoResult = await addContact(email);
+  if (brevoResult.success) {
+    brevoSuccess = true;
+  } else {
+    console.warn('[Subscribe] Brevo sync failed:', brevoResult.error);
   }
 
-  console.log(`[Subscribe] ${email} — Brevo:${brevoSuccess} Email:${emailSuccess}`);
+  console.log(`[Subscribe] ${email} — Lead:${leadResult.success} Brevo:${brevoSuccess} Email:${emailSuccess}`);
 
   res.json({
     success: true,
@@ -353,7 +351,23 @@ app.post('/api/contact', [
 
   const { name, email, company, phone, discipline, message } = req.body;
 
-  // Send notification email to admin
+  // 1. ALWAYS persist lead first (source of truth)
+  const leadResult = await saveLead({
+    type: 'contact',
+    name,
+    email,
+    company,
+    message,
+    source: 'contact-form',
+    discipline,
+    phone
+  });
+  if (!leadResult.success) {
+    console.error('[Contact] CRITICAL: Lead persistence failed:', leadResult.error);
+  }
+
+  // 2. Send notification email to admin
+  let emailSuccess = false;
   const emailResult = await sendNotificationEmail({
     subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
     text: `New contact form submission on terrnix.com
@@ -373,32 +387,13 @@ IP: ${req.ip || 'unknown'}
 User-Agent: ${req.headers['user-agent'] || 'unknown'}
 `.trim()
   });
-
-  let emailSuccess = false;
   if (emailResult.success) {
     emailSuccess = true;
   } else {
     console.warn('[Contact] Email notification failed:', emailResult.error);
   }
 
-  // Persist lead if email failed
-  if (!emailSuccess) {
-    const leadResult = await saveLead({
-      type: 'contact',
-      name,
-      email,
-      company,
-      message,
-      source: 'contact-form',
-      discipline,
-      phone
-    });
-    if (!leadResult.success) {
-      console.error('[Contact] CRITICAL: Lead persistence also failed:', leadResult.error);
-    }
-  }
-
-  console.log(`[Contact] ${name} (${email}) — Email:${emailSuccess}`);
+  console.log(`[Contact] ${name} (${email}) — Lead:${leadResult.success} Email:${emailSuccess}`);
 
   res.json({
     success: true,
