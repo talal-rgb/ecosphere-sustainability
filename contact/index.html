@@ -67,23 +67,29 @@
         <div class="max-w-2xl mx-auto">
             <div class="glass rounded-2xl p-8 md:p-12">
                 <form id="contactForm" class="space-y-6">
+                    <div id="formSuccess" class="hidden mb-4 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
+                        ✅ Thank you! Your inquiry has been sent. We'll get back to you within 24 hours.
+                    </div>
+                    <div id="formError" class="hidden mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                        ❌ Something went wrong. Please try again or email us directly at info@terrnix.com.
+                    </div>
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-slate-300 mb-2">Full Name *</label>
-                            <input type="text" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="e.g. Jane Doe">
+                            <input id="contactName" type="text" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="e.g. Jane Doe">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-300 mb-2">Email Address *</label>
-                            <input type="email" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="jane@company.com">
+                            <input id="contactEmail" type="email" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="jane@company.com">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Company / Organisation</label>
-                        <input type="text" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Your organisation">
+                        <input id="contactCompany" type="text" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Your organisation">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Discipline / Area of Interest *</label>
-                        <select required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white focus:border-emerald-400 focus:outline-none">
+                        <select id="contactDiscipline" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white focus:border-emerald-400 focus:outline-none">
                             <option value="">Select a discipline...</option>
                             <option>Energy & Renewables</option>
                             <option>ESG Strategy & Reporting</option>
@@ -96,13 +102,16 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Your Request / Message *</label>
-                        <textarea required rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Describe your project, challenge, or question in detail..."></textarea>
+                        <textarea id="contactMessage" required rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Describe your project, challenge, or question in detail..."></textarea>
                     </div>
                     <!-- Honeypot field - hidden from humans, visible to bots -->
                     <div class="honeypot-field" style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
-                        <input type="text" name="hp_field" tabindex="-1" autocomplete="off" value="">
+                        <input type="text" id="contactHp" tabindex="-1" autocomplete="off" value="">
                     </div>
-                    <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold">Send Inquiry</button>
+                    <button type="submit" id="contactSubmit" class="btn-primary w-full py-3 rounded-lg font-semibold">
+                        <span id="contactSubmitText">Send Inquiry</span>
+                        <span id="contactSubmitSpinner" class="hidden">Sending...</span>
+                    </button>
                     <p class="text-slate-500 text-sm text-center">We typically respond within 1-2 business days.</p>
                 </form>
             </div>
@@ -164,10 +173,62 @@
     </footer>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Thank you for your inquiry! We will get back to you within 1-2 business days.');
+
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const company = document.getElementById('contactCompany').value.trim();
+            const discipline = document.getElementById('contactDiscipline').value;
+            const message = document.getElementById('contactMessage').value.trim();
+            const hp = document.getElementById('contactHp').value;
+
+            if (!name || !email || !discipline || !message) {
+                showError('Please fill in all required fields.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('contactSubmit');
+            const submitText = document.getElementById('contactSubmitText');
+            const submitSpinner = document.getElementById('contactSubmitSpinner');
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch('https://terrnix-backend.onrender.com/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, company, discipline, message, hp_field: hp })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('contactForm').reset();
+                    document.getElementById('formSuccess').classList.remove('hidden');
+                    document.getElementById('formError').classList.add('hidden');
+                    setTimeout(() => {
+                        document.getElementById('formSuccess').classList.add('hidden');
+                    }, 8000);
+                } else {
+                    showError(data.message || 'Failed to send. Please try again.');
+                }
+            } catch (err) {
+                showError('Network error. Please try again or email us at info@terrnix.com.');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                submitSpinner.classList.add('hidden');
+            }
         });
+
+        function showError(msg) {
+            const el = document.getElementById('formError');
+            el.textContent = '❌ ' + msg;
+            el.classList.remove('hidden');
+            document.getElementById('formSuccess').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
