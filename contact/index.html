@@ -76,16 +76,19 @@
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-slate-300 mb-2">Full Name *</label>
-                            <input id="contactName" type="text" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="e.g. Jane Doe">
+                            <input id="contactName" type="text" required minlength="1" maxlength="100" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="e.g. Jane Doe">
+                            <p id="error-name" class="hidden mt-1 text-xs text-red-400"></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-300 mb-2">Email Address *</label>
-                            <input id="contactEmail" type="email" required class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="jane@company.com">
+                            <input id="contactEmail" type="email" required maxlength="254" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="jane@company.com">
+                            <p id="error-email" class="hidden mt-1 text-xs text-red-400"></p>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Company / Organisation</label>
-                        <input id="contactCompany" type="text" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Your organisation">
+                        <input id="contactCompany" type="text" maxlength="200" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Your organisation">
+                        <p id="error-company" class="hidden mt-1 text-xs text-red-400"></p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Discipline / Area of Interest *</label>
@@ -99,10 +102,12 @@
                             <option>Carbon Pricing & Tax</option>
                             <option>Other / General Inquiry</option>
                         </select>
+                        <p id="error-discipline" class="hidden mt-1 text-xs text-red-400"></p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-2">Your Request / Message *</label>
-                        <textarea id="contactMessage" required rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Describe your project, challenge, or question in detail..."></textarea>
+                        <textarea id="contactMessage" required minlength="10" maxlength="5000" rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Describe your project, challenge, or question in detail..."></textarea>
+                        <p id="error-message" class="hidden mt-1 text-xs text-red-400"></p>
                     </div>
                     <!-- Honeypot field - hidden from humans, visible to bots -->
                     <div class="honeypot-field" style="position: absolute; left: -9999px; opacity: 0;" aria-hidden="true">
@@ -173,62 +178,160 @@
     </footer>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        (function() {
+            const FIELD_CONFIG = {
+                name:    { required: true,  minLength: 1,   maxLength: 100,  label: 'Full Name' },
+                email:   { required: true,  minLength: 3,   maxLength: 254,  label: 'Email Address' },
+                company: { required: false, minLength: 0,   maxLength: 200,  label: 'Company' },
+                discipline: { required: true, label: 'Discipline' },
+                message: { required: true,  minLength: 10,  maxLength: 5000, label: 'Message' }
+            };
 
-            const name = document.getElementById('contactName').value.trim();
-            const email = document.getElementById('contactEmail').value.trim();
-            const company = document.getElementById('contactCompany').value.trim();
-            const discipline = document.getElementById('contactDiscipline').value;
-            const message = document.getElementById('contactMessage').value.trim();
-            const hp = document.getElementById('contactHp').value;
-
-            if (!name || !email || !discipline || !message) {
-                showError('Please fill in all required fields.');
-                return;
-            }
-
-            const submitBtn = document.getElementById('contactSubmit');
-            const submitText = document.getElementById('contactSubmitText');
-            const submitSpinner = document.getElementById('contactSubmitSpinner');
-            submitBtn.disabled = true;
-            submitText.classList.add('hidden');
-            submitSpinner.classList.remove('hidden');
-
-            try {
-                const response = await fetch('https://terrnix-backend.onrender.com/api/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, company, discipline, message, hp_field: hp })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('contactForm').reset();
-                    document.getElementById('formSuccess').classList.remove('hidden');
-                    document.getElementById('formError').classList.add('hidden');
-                    setTimeout(() => {
-                        document.getElementById('formSuccess').classList.add('hidden');
-                    }, 8000);
-                } else {
-                    showError(data.message || 'Failed to send. Please try again.');
+            function clearFieldErrors() {
+                for (const key of Object.keys(FIELD_CONFIG)) {
+                    const el = document.getElementById('error-' + key);
+                    if (el) { el.textContent = ''; el.classList.add('hidden'); }
+                    const input = document.getElementById('contact' + key.charAt(0).toUpperCase() + key.slice(1));
+                    if (input) input.classList.remove('border-red-500');
                 }
-            } catch (err) {
-                showError('Network error. Please try again or email us at info@terrnix.com.');
-            } finally {
-                submitBtn.disabled = false;
-                submitText.classList.remove('hidden');
-                submitSpinner.classList.add('hidden');
+                document.getElementById('formError').classList.add('hidden');
             }
-        });
 
-        function showError(msg) {
-            const el = document.getElementById('formError');
-            el.textContent = '❌ ' + msg;
-            el.classList.remove('hidden');
-            document.getElementById('formSuccess').classList.add('hidden');
-        }
+            function showFieldError(field, msg) {
+                const el = document.getElementById('error-' + field);
+                if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+                const inputId = 'contact' + field.charAt(0).toUpperCase() + field.slice(1);
+                const input = document.getElementById(inputId);
+                if (input) input.classList.add('border-red-500');
+            }
+
+            function showBannerError(msg) {
+                const el = document.getElementById('formError');
+                el.textContent = '❌ ' + msg;
+                el.classList.remove('hidden');
+                document.getElementById('formSuccess').classList.add('hidden');
+            }
+
+            function validateFrontend() {
+                clearFieldErrors();
+                let ok = true;
+                const values = {
+                    name: document.getElementById('contactName').value.trim(),
+                    email: document.getElementById('contactEmail').value.trim(),
+                    company: document.getElementById('contactCompany').value.trim(),
+                    discipline: document.getElementById('contactDiscipline').value,
+                    message: document.getElementById('contactMessage').value.trim()
+                };
+
+                for (const [key, cfg] of Object.entries(FIELD_CONFIG)) {
+                    const val = values[key];
+                    if (cfg.required && !val) {
+                        showFieldError(key, cfg.label + ' is required.');
+                        ok = false;
+                        continue;
+                    }
+                    if (val && cfg.minLength > 0 && val.length < cfg.minLength) {
+                        showFieldError(key, cfg.label + ' must be at least ' + cfg.minLength + ' characters.');
+                        ok = false;
+                        continue;
+                    }
+                    if (val && cfg.maxLength && val.length > cfg.maxLength) {
+                        showFieldError(key, cfg.label + ' must be at most ' + cfg.maxLength + ' characters.');
+                        ok = false;
+                        continue;
+                    }
+                    if (key === 'email' && val) {
+                        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRe.test(val)) {
+                            showFieldError('email', 'Please enter a valid email address.');
+                            ok = false;
+                        }
+                    }
+                }
+                return ok;
+            }
+
+            function setLoading(isLoading) {
+                const submitBtn = document.getElementById('contactSubmit');
+                const submitText = document.getElementById('contactSubmitText');
+                const submitSpinner = document.getElementById('contactSubmitSpinner');
+                submitBtn.disabled = isLoading;
+                if (isLoading) {
+                    submitText.classList.add('hidden');
+                    submitSpinner.classList.remove('hidden');
+                } else {
+                    submitText.classList.remove('hidden');
+                    submitSpinner.classList.add('hidden');
+                }
+            }
+
+            async function fetchWithTimeout(url, options, timeoutMs) {
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const response = await fetch(url, { ...options, signal: controller.signal });
+                    clearTimeout(id);
+                    return response;
+                } catch (err) {
+                    clearTimeout(id);
+                    if (err.name === 'AbortError') {
+                        throw new Error('Request timed out. Please try again.');
+                    }
+                    throw err;
+                }
+            }
+
+            document.getElementById('contactForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                clearFieldErrors();
+
+                if (!validateFrontend()) return;
+
+                const name = document.getElementById('contactName').value.trim();
+                const email = document.getElementById('contactEmail').value.trim();
+                const company = document.getElementById('contactCompany').value.trim();
+                const discipline = document.getElementById('contactDiscipline').value;
+                const message = document.getElementById('contactMessage').value.trim();
+                const hp = document.getElementById('contactHp').value;
+
+                setLoading(true);
+
+                try {
+                    const response = await fetchWithTimeout(
+                        'https://terrnix-backend.onrender.com/api/contact',
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, email, company, discipline, message, hp_field: hp })
+                        },
+                        15000
+                    );
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        document.getElementById('contactForm').reset();
+                        document.getElementById('formSuccess').classList.remove('hidden');
+                        document.getElementById('formError').classList.add('hidden');
+                        setTimeout(() => {
+                            document.getElementById('formSuccess').classList.add('hidden');
+                        }, 8000);
+                    } else {
+                        if (data.fieldErrors && typeof data.fieldErrors === 'object') {
+                            for (const [field, msgs] of Object.entries(data.fieldErrors)) {
+                                const msg = Array.isArray(msgs) ? msgs[0] : msgs;
+                                showFieldError(field, msg);
+                            }
+                        }
+                        showBannerError(data.message || 'Failed to send. Please check the fields above and try again.');
+                    }
+                } catch (err) {
+                    showBannerError(err.message || 'Network error. Please try again or email us at info@terrnix.com.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        })();
     </script>
 </body>
 </html>

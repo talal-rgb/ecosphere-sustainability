@@ -415,9 +415,16 @@ app.post('/api/contact', [
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const fieldErrors = {};
+    for (const e of errors.array()) {
+      const field = e.path || e.param || 'general';
+      if (!fieldErrors[field]) fieldErrors[field] = [];
+      fieldErrors[field].push(e.msg);
+    }
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
+      fieldErrors,
       errors: errors.array().map(e => e.msg)
     });
   }
