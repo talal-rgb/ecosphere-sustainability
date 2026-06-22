@@ -67,24 +67,28 @@ export async function saveLead({ type, name, email, company, message, source, di
 
   // Use setImmediate to yield event loop before sync operations
   await new Promise(resolve => setImmediate(resolve));
+  console.log(`[LeadStore] step 1: after setImmediate, elapsed=${Date.now() - startTime}ms`);
 
   ensureDirectory();
-  console.log(`[LeadStore] ensureDirectory took ${Date.now() - startTime}ms`);
+  console.log(`[LeadStore] step 2: after ensureDirectory, elapsed=${Date.now() - startTime}ms`);
 
   if (!isWritable()) {
     console.error('[LeadStore] Directory not writable:', path.dirname(LEADS_FILE));
     return { success: false, error: 'Lead storage directory not writable' };
   }
-  console.log(`[LeadStore] isWritable took ${Date.now() - startTime}ms`);
+  console.log(`[LeadStore] step 3: after isWritable, elapsed=${Date.now() - startTime}ms`);
 
   const fileSize = getFileSize();
-  console.log(`[LeadStore] getFileSize took ${Date.now() - startTime}ms, size=${fileSize}`);
+  console.log(`[LeadStore] step 4: after getFileSize, elapsed=${Date.now() - startTime}ms, size=${fileSize}`);
   if (fileSize > MAX_FILE_SIZE_BYTES) {
     console.error('[LeadStore] File size limit exceeded:', LEADS_FILE);
     return { success: false, error: 'Lead storage file size limit exceeded' };
   }
 
+  console.log(`[LeadStore] step 5: before crypto.randomUUID, elapsed=${Date.now() - startTime}ms`);
   const id = crypto.randomUUID();
+  console.log(`[LeadStore] step 6: after crypto.randomUUID, elapsed=${Date.now() - startTime}ms, id=${id}`);
+
   const record = {
     id,
     timestamp: new Date().toISOString(),
@@ -106,18 +110,21 @@ export async function saveLead({ type, name, email, company, message, source, di
     ip: null,
     userAgent: null
   };
+  console.log(`[LeadStore] step 7: after record creation, elapsed=${Date.now() - startTime}ms`);
 
   try {
     const line = JSON.stringify(record) + '\n';
-    const writeStart = Date.now();
+    console.log(`[LeadStore] step 8: after JSON.stringify, elapsed=${Date.now() - startTime}ms`);
 
-    // Use writeFileSync with append flag via openSync + writeSync + closeSync
-    // This gives us explicit control over the file descriptor
+    const writeStart = Date.now();
     const fd = fs.openSync(LEADS_FILE, 'a', 0o600);
+    console.log(`[LeadStore] step 9: after openSync, elapsed=${Date.now() - startTime}ms`);
     try {
       fs.writeSync(fd, line);
+      console.log(`[LeadStore] step 10: after writeSync, elapsed=${Date.now() - startTime}ms`);
     } finally {
       fs.closeSync(fd);
+      console.log(`[LeadStore] step 11: after closeSync, elapsed=${Date.now() - startTime}ms`);
     }
 
     console.log(`[LeadStore] writeSync took ${Date.now() - writeStart}ms`);
