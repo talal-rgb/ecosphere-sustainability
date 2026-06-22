@@ -144,7 +144,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.get('/api/health/integrations', (_req, res) => {
-  const health = getHealthStatus();
+  const health = getHealthStatusSync();
   const allHealthy = health.leadStorageWritable && health.emailConfigured && health.brevoConfigured;
 
   res.json({
