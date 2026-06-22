@@ -18,6 +18,7 @@
  */
 
 import fs from 'fs';
+import { promises as fsp } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -27,28 +28,31 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 let directoryChecked = false;
 
-function ensureDirectory() {
+async function ensureDirectory() {
   if (directoryChecked) return;
   const dir = path.dirname(LEADS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  try {
+    await fsp.access(dir);
+  } catch {
+    await fsp.mkdir(dir, { recursive: true, mode: 0o700 });
     console.log('[LeadStore] Created directory:', dir);
   }
   directoryChecked = true;
 }
 
-function getFileSize() {
+async function getFileSize() {
   try {
-    return fs.statSync(LEADS_FILE).size;
+    const stat = await fsp.stat(LEADS_FILE);
+    return stat.size;
   } catch {
     return 0;
   }
 }
 
-function isWritable() {
-  ensureDirectory();
+async function isWritable() {
+  await ensureDirectory();
   try {
-    fs.accessSync(path.dirname(LEADS_FILE), fs.constants.W_OK);
+    await fsp.access(path.dirname(LEADS_FILE), fs.constants.W_OK);
     return true;
   } catch {
     return false;
@@ -76,14 +80,20 @@ function isWritable() {
  * @returns {Promise<{success: boolean, id: string, error?: string}>}
  */
 export async function saveLead({ type, name, email, company, message, source, discipline, phone, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore }) {
-  ensureDirectory();
+  const startTime = Date.now();
+  console.log(`[LeadStore] saveLead started for ${email}`);
 
-  if (!isWritable()) {
+  await ensureDirectory();
+  console.log(`[LeadStore] ensureDirectory took ${Date.now() - startTime}ms`);
+
+  if (!await isWritable()) {
     console.error('[LeadStore] Directory not writable:', path.dirname(LEADS_FILE));
     return { success: false, error: 'Lead storage directory not writable' };
   }
+  console.log(`[LeadStore] isWritable took ${Date.now() - startTime}ms`);
 
-  const fileSize = getFileSize();
+  const fileSize = await getFileSize();
+  console.log(`[LeadStore] getFileSize took ${Date.now() - startTime}ms, size=${fileSize}`);
   if (fileSize > MAX_FILE_SIZE_BYTES) {
     console.error('[LeadStore] File size limit exceeded:', LEADS_FILE);
     return { success: false, error: 'Lead storage file size limit exceeded' };
@@ -114,8 +124,11 @@ export async function saveLead({ type, name, email, company, message, source, di
 
   try {
     const line = JSON.stringify(record) + '\n';
-    fs.appendFileSync(LEADS_FILE, line, { flag: 'a', mode: 0o600 });
+    const writeStart = Date.now();
+    await fsp.appendFile(LEADS_FILE, line, { flag: 'a', mode: 0o600 });
+    console.log(`[LeadStore] appendFile took ${Date.now() - writeStart}ms`);
     console.log(`[LeadStore] Saved ${type} lead: ${id} (${email})`);
+    console.log(`[LeadStore] saveLead total took ${Date.now() - startTime}ms`);
     return { success: true, id };
   } catch (error) {
     console.error('[LeadStore] Failed to save lead:', error.message);
@@ -127,9 +140,9 @@ export async function saveLead({ type, name, email, company, message, source, di
  * Get integration health status (safe for public exposure).
  * @returns {{leadStorageWritable: boolean, emailConfigured: boolean, brevoConfigured: boolean}}
  */
-export function getHealthStatus() {
+export async function getHealthStatus() {
   return {
-    leadStorageWritable: isWritable(),
+    leadStorageWritable: await isWritable(),
     emailConfigured: !!(process.env.ZOHO_SMTP_USER && process.env.ZOHO_SMTP_PASS && process.env.CONTACT_TO_EMAIL),
     brevoConfigured: !!(process.env.BREVO_API_KEY)
   };
@@ -139,14 +152,15 @@ export function getHealthStatus() {
  * Get lead storage statistics (admin only).
  * @returns {{totalLeads: number, fileSize: number, filePath: string, writable: boolean}}
  */
-export function getStats() {
-  ensureDirectory();
+export async function getStats() {
+  await ensureDirectory();
   let totalLeads = 0;
   let fileSize = 0;
 
   try {
-    fileSize = fs.statSync(LEADS_FILE).size;
-    const content = fs.readFileSync(LEADS_FILE, 'utf8');
+    const stat = await fsp.stat(LEADS_FILE);
+    fileSize = stat.size;
+    const content = await fsp.readFile(LEADS_FILE, 'utf8');
     totalLeads = content.split('\n').filter(line => line.trim()).length;
   } catch {
     // File doesn't exist yet
@@ -157,8 +171,18 @@ export function getStats() {
     fileSize,
     fileSizeHuman: `${(fileSize / 1024).toFixed(2)} KB`,
     filePath: LEADS_FILE,
-    writable: isWritable()
+    writable: await isWritable()
   };
 }
 
 export { isWritable };
+
+// Backward-compatible sync version for non-async callers
+export function isWritableSync() {
+  try {
+    fs.accessSync(path.dirname(LEADS_FILE), fs.constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}

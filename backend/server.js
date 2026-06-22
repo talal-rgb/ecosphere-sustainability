@@ -43,7 +43,7 @@ import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
 // PR #30 services
 import { sendNotificationEmail, verifyConnection } from './services/email.js';
 import { addContact } from './services/brevo.js';
-import { saveLead, getHealthStatus, getStats, isWritable } from './services/leadStore.js';
+import { saveLead, getHealthStatus, getStats, isWritableSync } from './services/leadStore.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -126,8 +126,8 @@ app.get('/health', (_req, res) => {
   });
 });
 
-app.get('/api/health/integrations', (_req, res) => {
-  const health = getHealthStatus();
+app.get('/api/health/integrations', async (_req, res) => {
+  const health = await getHealthStatus();
   const allHealthy = health.leadStorageWritable && health.emailConfigured && health.brevoConfigured;
 
   res.json({
@@ -614,7 +614,7 @@ app.listen(PORT, () => {
   console.log(`  - POST /api/subscribe`);
   console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
   console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
-  console.log(`Lead storage: ${isWritable() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
+  console.log(`Lead storage: ${isWritableSync() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
 });
 
 export default app;
