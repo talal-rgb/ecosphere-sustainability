@@ -604,12 +604,16 @@ app.use((_req, res) => {
   });
 });
 
-// Verify email connection on startup
-verifyConnection().then(ok => {
-  if (!ok) {
-    console.warn('[Startup] Email service not fully configured. Check ZOHO_SMTP_* env vars.');
-  }
-});
+// Verify email connection on startup (fire-and-forget, never block)
+setTimeout(() => {
+  verifyConnection().then(ok => {
+    if (!ok) {
+      console.warn('[Startup] Email service not fully configured. Check ZOHO_SMTP_* env vars.');
+    }
+  }).catch(err => {
+    console.error('[Startup] Email verification error:', err.message);
+  });
+}, 100);
 
 app.listen(PORT, () => {
   console.log(`Terrnix unified backend running on port ${PORT}`);
