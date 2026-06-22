@@ -404,6 +404,37 @@ app.post('/api/contact', [
     .trim()
     .isLength({ min: 10, max: 5000 }).withMessage('Message must be 10-5000 characters')
     .customSanitizer(sanitizeString),
+  body('sourceUrl')
+    .optional()
+    .trim()
+    .isURL({ require_protocol: true, protocols: ['http','https'] }).withMessage('Invalid source URL')
+    .isLength({ max: 2048 }).withMessage('Source URL too long'),
+  body('submissionTimestamp')
+    .optional()
+    .trim()
+    .isISO8601().withMessage('Invalid timestamp format'),
+  body('utmSource')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('UTM source too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM source contains invalid characters'),
+  body('utmMedium')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('UTM medium too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM medium contains invalid characters'),
+  body('utmCampaign')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('UTM campaign too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM campaign contains invalid characters'),
+  body('referrer')
+    .optional()
+    .trim()
+    .isLength({ max: 2048 }).withMessage('Referrer too long'),
+  body('leadScore')
+    .optional()
+    .isInt({ min: 0, max: 100 }).withMessage('Lead score must be 0-100'),
   body('hp_field')
     .optional()
     .custom((value) => {
@@ -429,7 +460,7 @@ app.post('/api/contact', [
     });
   }
 
-  const { name, email, company, phone, discipline, message } = req.body;
+  const { name, email, company, phone, discipline, message, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore } = req.body;
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -440,7 +471,14 @@ app.post('/api/contact', [
     message,
     source: 'contact-form',
     discipline,
-    phone
+    phone,
+    sourceUrl,
+    submissionTimestamp,
+    utmSource,
+    utmMedium,
+    utmCampaign,
+    referrer,
+    leadScore
   });
   if (!leadResult.success) {
     console.error('[Contact] CRITICAL: Lead persistence failed:', leadResult.error);
@@ -457,12 +495,22 @@ Email: ${email}
 Company: ${company || 'Not provided'}
 Phone: ${phone || 'Not provided'}
 Discipline: ${discipline || 'General Inquiry'}
+Lead Score: ${leadScore ?? 'N/A'}/100
 
 Message:
 ${message}
 
 ---
-Submitted: ${new Date().toISOString()}
+Attribution:
+Source URL: ${sourceUrl || 'N/A'}
+Submission Time: ${submissionTimestamp || 'N/A'}
+UTM Source: ${utmSource || 'N/A'}
+UTM Medium: ${utmMedium || 'N/A'}
+UTM Campaign: ${utmCampaign || 'N/A'}
+Referrer: ${referrer || 'N/A'}
+
+---
+Server Time: ${new Date().toISOString()}
 IP: ${req.ip || 'unknown'}
 User-Agent: ${req.headers['user-agent'] || 'unknown'}
 `.trim()
