@@ -237,18 +237,182 @@ The async fix didn't work. This means the hang is NOT in the file I/O operations
 
 **Required Evidence:** Restart instance, test immediately.
 
-## Recommended Action: Restart Render Instance
-The evidence strongly suggests the Render instance itself is in a bad state. The fact that:
-1. GET works perfectly
-2. POST hangs indefinitely
-3. Request logging at the app entry point shows nothing
-4. The issue persists across code changes
+## Render Instance Restart Test
+**Timestamp:** 2026-06-22 21:03 GMT+2
+**Action:** Render instance restarted
 
-All point to an instance-level problem that a restart may fix.
+### Test 12: GET /health after restart
+**Result:** ✅ HTTP 200 in 4.15s (first request after restart, slower due to cold start)
+**Subsequent GET:** ✅ HTTP 200 in 0.31s
 
-## Next Steps
-1. **Restart Render instance** — Via Render dashboard or deploy trigger
-2. **Test immediately after restart** — Before any other requests
-3. **Check if POST works after restart** — If yes, confirms instance state issue
-4. **Monitor for recurrence** — If it happens again, investigate deeper
+### Test 13: OPTIONS /api/contact after restart
+**Result:** ✅ HTTP 204 in 0.31s
+
+### Test 14: POST /api/contact after restart (FAILED)
+**Result:** ❌ Timeout after 15.00s — HTTP 000
+**Conclusion:** Restart did NOT fix the issue. POST still hangs.
+
+### Test 15: POST /api/subscribe after restart (FAILED)
+**Result:** ❌ Timeout after 15.00s — HTTP 000
+**Conclusion:** Restart did NOT fix the issue. POST still hangs.
+
+## Critical Update: Restart Did Not Fix
+The Render instance restart DID NOT resolve the timeout. This rules out:
+- Instance state corruption
+- Memory leaks
+- Process hangs
+
+The issue is **REPRODUCIBLE** and **CONSISTENT** across restarts.
+
+## Fix Attempt 2: Defer verifyConnection (PARTIAL SUCCESS)
+**Timestamp:** 2026-06-22 21:05 GMT+2
+**Commit:** `177a28a`
+**Changes:** Moved `verifyConnection()` into `setTimeout(..., 100)` to prevent any startup blocking
+**Test Results:**
+- POST /api/contact: ✅ HTTP 200 in 6.58s (SUCCESS!)
+- POST /api/subscribe: ❌ Timeout after 15s (STILL FAILS)
+- POST /api/contact (2nd try): ❌ Timeout after 15s (INTERMITTENT)
+
+**Conclusion:** Deferring `verifyConnection()` helped — we got ONE successful contact submission! But it's still intermittent. The 6.58s response time is slow but within tolerance.
+
+## Fix Attempt 4: Defer All Email/Brevo Operations (FAILED)
+**Timestamp:** 2026-06-22 21:10 GMT+2
+**Commit:** `f3f2ded`
+**Changes:** Deferred all email and Brevo operations with setTimeout(..., 100)
+**Test Results:**
+- POST /api/contact (1st): ❌ Timeout after 15s
+- POST /api/contact (2nd): ❌ Timeout after 15s
+
+**Conclusion:** Deferring email operations didn't help either.
+
+## Updated Critical Evidence
+All fixes have failed:
+1. ❌ Async fs.promises
+2. ❌ Explicit fd close
+3. ❌ Defer all email/brevo operations
+4. ✅ Defer verifyConnection — ONE success (6.58s), then failed
+
+The fact that we got ONE success after deferring verifyConnection but cannot reproduce it suggests the issue is **NOT consistently in any single component**.
+
+## New Leading Hypothesis: Render Platform Issue with POST Requests
+**Theory:** This may be a Render platform-level issue where:
+1. POST requests to specific paths are being dropped or mishandled
+2. The reverse proxy or load balancer has a bug
+3. There's an IP-based rate limit or block affecting POST
+
+**Evidence:**
+- GET always works
+- POST to /api/chat works (returns 503 quickly)
+- POST to /api/contact and /api/subscribe hang
+- The issue is consistent across restarts and code changes
+- The ONE success might have been a fluke or different routing
+
+## Alternative: Express Body Parser Issue
+**Theory:** The `express.json()` body parser might be hanging on POST requests with specific body sizes or content types.
+
+**Evidence:**
+- /api/chat also uses express.json() and works
+- But /api/chat has a simpler body structure
+
+### Test 12: POST with empty body (WORKS!)
+**Timestamp:** 2026-06-22 21:12 GMT+2
+**Payload:** `{}`
+**Result:** ✅ HTTP 400 in 0.34s
+**Response:** Validation errors (expected)
+**Conclusion:** Empty body POST works! Validation runs and returns errors quickly.
+
+### Test 13: POST with valid body (FAILED)
+**Timestamp:** 2026-06-22 21:12 GMT+2
+**Payload:** `{"name":"Empty Body Test","email":"empty-body@example.com",...}`
+**Result:** ❌ Timeout after 15s
+**Conclusion:** Valid body POST still hangs. The issue occurs AFTER validation, during processing.
+
+## Critical Finding: Empty Body Works, Valid Body Hangs
+This is the most important finding yet:
+- **Empty body** → Validation fails quickly (0.34s)
+- **Valid body** → Hangs indefinitely
+
+This means the hang occurs **AFTER validation** and **BEFORE or DURING** `saveLead()` or response.
+
+## Updated Leading Hypothesis: saveLead() Hangs on Valid Data
+**Theory:** The `saveLead()` function hangs when it tries to process valid lead data. The empty body test proves validation works, but something in the save process hangs.
+
+**Possible causes:**
+1. `crypto.randomUUID()` hangs (unlikely but possible in some Node.js versions)
+2. `JSON.stringify()` hangs on certain data (unlikely)
+3. File system operations hang when writing valid data (but we tested this)
+4. Something else in the save process
+
+### Test 14: POST with step-by-step logging (FAILED — NO LOGS)
+**Timestamp:** 2026-06-22 21:14 GMT+2
+**Commit:** `7be1384`
+**Result:** ❌ Timeout after 15s
+**Critical Finding:** Even with step-by-step logging at the VERY START of saveLead(), we see NO logs for timed-out requests.
+
+### Test 15: POST with handler-start logging (FAILED — NO LOGS)
+**Timestamp:** 2026-06-22 21:16 GMT+2
+**Commit:** `2f85b4b`
+**Result:** ❌ Timeout after 15s
+**Critical Finding:** Even with logging at the VERY START of the contact handler (before validationResult), we see NO logs for timed-out requests.
+
+This means the handler is **NEVER BEING CALLED** for timed-out requests.
+
+## Updated Leading Hypothesis: Express Router/Route Matching Issue
+Since:
+1. Empty body POST works (returns 400 from validation)
+2. Valid body POST hangs (no handler logs)
+3. Request logging at app level shows nothing for timed-out requests
+
+The hang occurs **BEFORE the route handler is invoked**.
+
+### Most Likely Cause: Express Middleware Hanging Before Handler
+**Theory:** One of the middlewares (CORS, helmet, body parser) is hanging when processing a valid POST request body. The empty body works because the body parser completes quickly with no data to parse.
+
+**But wait:** /api/chat uses the SAME middleware and works fine with a valid body.
+
+### Alternative: Route Registration Order Issue
+**Theory:** There might be an issue with how Express matches routes. If a previous route is matching and hanging, the contact route never gets called.
+
+### Alternative: Render Platform Issue
+**Theory:** Render's infrastructure might be doing something with POST requests that causes them to hang at the platform level before reaching our app.
+
+### Test 16: POST after getHealthStatusSync fix (FAILED)
+**Timestamp:** 2026-06-22 21:18 GMT+2
+**Commit:** `59f6fd9`
+**Result:** ❌ Timeout after 15s
+**Conclusion:** The getHealthStatus sync fix didn't help either.
+
+## Summary of All Fix Attempts
+| Fix | Commit | Result |
+|-----|--------|--------|
+| Async file I/O | 2dda26c | ❌ Failed |
+| Defer verifyConnection | 177a28a | ✅ One success (6.58s) |
+| Explicit fd close | 6ea9e1d | ❌ Failed |
+| Defer all email/brevo | f3f2ded | ❌ Failed |
+| Step-by-step logging | 7be1384 | ❌ Failed (no logs) |
+| Handler-start logging | 2f85b4b | ❌ Failed (no logs) |
+| getHealthStatusSync | 59f6fd9 | ❌ Failed |
+
+## Current Status
+**The contact form timeout issue remains unresolved.**
+
+### What We Know
+1. GET works fine
+2. POST with empty body works (validation returns 400)
+3. POST with valid body hangs (no handler logs)
+4. The hang occurs BEFORE the route handler is called
+5. Other POST endpoints (/api/chat) work fine
+6. Restart doesn't fix it
+7. Multiple code fixes haven't resolved it
+
+### What We Don't Know
+1. Whether requests are reaching the Express app at all for valid POSTs
+2. What's different between empty-body and valid-body POSTs at the middleware level
+3. Whether this is a Render platform issue or code issue
+
+## Recommended Next Steps
+1. **Create a minimal test endpoint** — `app.post('/test', (req, res) => res.json({ok: true}))` to see if ANY valid POST works
+2. **Test from browser** — Browser may handle requests differently than curl
+3. **Check Render logs** — Look for any request logs at all
+4. **Consider Render support ticket** — If it's a platform issue
 5. **Only declare root cause after evidence confirms it**
