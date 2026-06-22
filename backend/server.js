@@ -496,7 +496,11 @@ app.post('/api/contact', [
       return true;
     })
 ], async (req, res) => {
+  const reqId = `con-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] handler_started /api/contact`);
+
   const errors = validationResult(req);
+  console.log(`[${reqId}] validationResult completed, errors=${errors.isEmpty() ? 'none' : errors.array().length}`);
   if (!errors.isEmpty()) {
     const fieldErrors = {};
     for (const e of errors.array()) {
@@ -504,6 +508,7 @@ app.post('/api/contact', [
       if (!fieldErrors[field]) fieldErrors[field] = [];
       fieldErrors[field].push(e.msg);
     }
+    console.log(`[${reqId}] validation_failed, returning 400`);
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -512,9 +517,9 @@ app.post('/api/contact', [
     });
   }
 
+  console.log(`[${reqId}] validation_passed`);
   const { name, email, company, phone, discipline, message, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore } = req.body;
-  const reqId = `con-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  console.log(`[${reqId}] request_received /api/contact name=${name} email=${email}`);
+  console.log(`[${reqId}] request_received name=${name} email=${email}`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
