@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Terrnix default fallback",
+    "generated_at": "2026-06-22T00:00:00Z",
+    "description": "Default emission factors for carbon calculator fallback"
+  },
+  "factors": {
+    "electricity": {
+      "global_average": {
+        "value": 0.475,
+        "unit": "kgCO2e/kWh",
+        "source": "IEA World Energy Outlook 2023"
+      }
+    },
+    "natural_gas": {
+      "value": 2.02,
+      "unit": "kgCO2e/m3",
+      "source": "EPA GHG Emission Factors Hub"
+    },
+    "diesel": {
+      "value": 2.68,
+      "unit": "kgCO2e/litre",
+      "source": "UK DESNZ GHG Conversion Factors 2024"
+    },
+    "gasoline": {
+      "value": 2.31,
+      "unit": "kgCO2e/litre",
+      "source": "UK DESNZ GHG Conversion Factors 2024"
+    },
+    "flight_short_haul": {
+      "value": 0.255,
+      "unit": "kgCO2e/passenger-km",
+      "source": "DEFRA 2024"
+    },
+    "flight_long_haul": {
+      "value": 0.195,
+      "unit": "kgCO2e/passenger-km",
+      "source": "DEFRA 2024"
+    }
+  }
+}
