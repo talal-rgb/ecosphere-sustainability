@@ -6598,6 +6598,32 @@ function closeOverlay(key) {
 // ============================================
 // NEWSLETTER SUBSCRIPTION
 // ============================================
+function getUrlParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name) || '';
+}
+
+function calculateLeadScore(name, email, company, phone, discipline, message) {
+    let score = 0;
+    // Company provided (+25)
+    if (company && company.length > 1) score += 25;
+    // Phone provided (+20)
+    if (phone && phone.length > 5) score += 20;
+    // Business email domain (+20)
+    const freeDomains = ['gmail.com','yahoo.com','hotmail.com','outlook.com','aol.com','icloud.com','protonmail.com','mail.com','yandex.com','qq.com','163.com','126.com'];
+    const domain = email.split('@')[1];
+    if (domain && !freeDomains.includes(domain.toLowerCase())) score += 20;
+    // Specific discipline selected (not "other") (+15)
+    if (discipline && discipline !== 'Other / General Inquiry') score += 15;
+    // Detailed message (+15)
+    if (message && message.length >= 100) score += 15;
+    // Message mentions budget/timeline/project keywords (+5)
+    const keywords = ['budget','timeline','project','consulting','audit','report','scope 1','scope 2','scope 3','esg','carbon','footprint','assessment','roadmap','strategy'];
+    const msgLower = message.toLowerCase();
+    if (keywords.some(k => msgLower.includes(k))) score += 5;
+    return Math.min(score, 100);
+}
+
 function handleExpertSubmit() {
     const name = document.getElementById('expertName').value.trim();
     const email = document.getElementById('expertEmail').value.trim();
@@ -6622,16 +6648,33 @@ function handleExpertSubmit() {
 
     const disciplineName = disciplineLabels[discipline] || discipline;
 
+    // Capture attribution data
+    const attribution = {
+        sourceUrl: window.location.href,
+        submissionTimestamp: new Date().toISOString(),
+        utmSource: getUrlParam('utm_source'),
+        utmMedium: getUrlParam('utm_medium'),
+        utmCampaign: getUrlParam('utm_campaign'),
+        referrer: document.referrer || '',
+        leadScore: calculateLeadScore(name, email, company, phone, disciplineName, message)
+    };
+
     // Use API client with rate limiting
     if (typeof apiClient !== 'undefined') {
+        const startTime = performance.now();
         apiClient.contact({
             name: name,
             email: email,
             company: company,
             phone: phone,
             discipline: disciplineName,
-            message: message
+            message: message,
+            ...attribution
         }).then(result => {
+            const elapsed = Math.round(performance.now() - startTime);
+            if (location.hostname === 'localhost' || location.search.includes('debug=1')) {
+                console.log(`[ExpertContact] Response in ${elapsed}ms, success=${result.success}`);
+            }
             if (result.success) {
                 document.getElementById('expertContactForm').reset();
                 document.getElementById('expertFormSuccess').classList.remove('hidden');
@@ -6653,7 +6696,14 @@ function handleExpertSubmit() {
                 company: company,
                 phone: phone,
                 discipline: disciplineName,
-                message: message
+                message: message,
+                sourceUrl: attribution.sourceUrl,
+                submissionTimestamp: attribution.submissionTimestamp,
+                utmSource: attribution.utmSource,
+                utmMedium: attribution.utmMedium,
+                utmCampaign: attribution.utmCampaign,
+                referrer: attribution.referrer,
+                leadScore: attribution.leadScore
             })
         }).then(response => response.json()).then(data => {
             if (data.success) {

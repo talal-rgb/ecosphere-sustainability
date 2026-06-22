@@ -273,6 +273,11 @@ class RateLimitHelper {
       } catch (error) {
         lastError = error;
         
+        // Don't retry on AbortError (timeout) — let it propagate
+        if (error.name === 'AbortError') {
+          throw error;
+        }
+        
         // Don't retry on client errors (4xx except 429)
         if (error.response && error.response.status >= 400 && error.response.status < 500) {
           throw error;

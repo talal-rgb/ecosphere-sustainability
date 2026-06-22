@@ -63,12 +63,19 @@ function isWritable() {
  * @param {string} lead.email      — required
  * @param {string} lead.company    — optional
  * @param {string} lead.message    — optional
- * @param {string} lead.source     — 'contact-form' | 'newsletter-form' | etc
- * @param {string} lead.discipline — optional
- * @param {string} lead.phone      — optional
+ * @param {string} lead.source              — 'contact-form' | 'newsletter-form' | etc
+ * @param {string} lead.discipline          — optional
+ * @param {string} lead.phone               — optional
+ * @param {string} lead.sourceUrl           — optional
+ * @param {string} lead.submissionTimestamp — optional
+ * @param {string} lead.utmSource           — optional
+ * @param {string} lead.utmMedium           — optional
+ * @param {string} lead.utmCampaign         — optional
+ * @param {string} lead.referrer            — optional
+ * @param {number} lead.leadScore           — optional
  * @returns {Promise<{success: boolean, id: string, error?: string}>}
  */
-export async function saveLead({ type, name, email, company, message, source, discipline, phone }) {
+export async function saveLead({ type, name, email, company, message, source, discipline, phone, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore }) {
   ensureDirectory();
 
   if (!isWritable()) {
@@ -94,6 +101,13 @@ export async function saveLead({ type, name, email, company, message, source, di
     source: source || 'unknown',
     discipline: discipline || null,
     phone: phone || null,
+    sourceUrl: sourceUrl || null,
+    submissionTimestamp: submissionTimestamp || null,
+    utmSource: utmSource || null,
+    utmMedium: utmMedium || null,
+    utmCampaign: utmCampaign || null,
+    referrer: referrer || null,
+    leadScore: typeof leadScore === 'number' ? leadScore : null,
     ip: null, // Do not store IP in file (privacy)
     userAgent: null // Do not store UA in file (privacy)
   };

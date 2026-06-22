@@ -293,6 +293,26 @@ const sanitizeEmail = (value) => {
   return value.toLowerCase().trim().substring(0, 254);
 };
 
+// ============================================
+// ASYNC HELPERS — fire-and-forget with timeout
+// Never block HTTP response on external services
+// ============================================
+
+function withTimeout(promise, timeoutMs, context) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${context} timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+function fireAndForget(promise, context) {
+  promise.catch(err => {
+    console.error(`[Async] ${context} failed:`, err.message);
+  });
+}
+
 // Subscribe endpoint
 app.post('/api/subscribe', [
   body('email')
@@ -319,6 +339,8 @@ app.post('/api/subscribe', [
   }
 
   const { email } = req.body;
+  const reqId = `sub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] request_received /api/subscribe email=${email}`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -329,37 +351,44 @@ app.post('/api/subscribe', [
     company: null,
     message: null
   });
+  console.log(`[${reqId}] lead_saved success=${leadResult.success}`);
   if (!leadResult.success) {
-    console.error('[Subscribe] CRITICAL: Lead persistence failed:', leadResult.error);
+    console.error(`[${reqId}] CRITICAL: Lead persistence failed:`, leadResult.error);
   }
 
-  // 2. Send notification email
-  let emailSuccess = false;
-  const emailResult = await sendNotificationEmail({
-    subject: 'New Terrnix Newsletter Subscriber',
-    text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
-  });
-  if (emailResult.success) {
-    emailSuccess = true;
-  } else {
-    console.warn('[Subscribe] Email notification failed:', emailResult.error);
-  }
-
-  // 3. Sync to Brevo
-  let brevoSuccess = false;
-  const brevoResult = await addContact(email);
-  if (brevoResult.success) {
-    brevoSuccess = true;
-  } else {
-    console.warn('[Subscribe] Brevo sync failed:', brevoResult.error);
-  }
-
-  console.log(`[Subscribe] ${email} — Lead:${leadResult.success} Brevo:${brevoSuccess} Email:${emailSuccess}`);
-
+  // 2. Return success immediately — do NOT wait for email or Brevo
   res.json({
     success: true,
     message: 'Thank you for subscribing! Please check your email for confirmation.'
   });
+  console.log(`[${reqId}] response_sent`);
+
+  // 3. Fire-and-forget: notification email (5s timeout)
+  console.log(`[${reqId}] email_async_started`);
+  fireAndForget(
+    withTimeout(
+      sendNotificationEmail({
+        subject: 'New Terrnix Newsletter Subscriber',
+        text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+      }),
+      5000,
+      'Subscribe email'
+    ).then(() => console.log(`[${reqId}] email_async_finished`))
+     .catch(() => console.log(`[${reqId}] email_async_failed`)),
+    'Subscribe email'
+  );
+
+  // 4. Fire-and-forget: Brevo sync (5s timeout)
+  console.log(`[${reqId}] brevo_async_started`);
+  fireAndForget(
+    withTimeout(
+      addContact(email),
+      5000,
+      'Subscribe Brevo'
+    ).then(() => console.log(`[${reqId}] brevo_async_finished`))
+     .catch(() => console.log(`[${reqId}] brevo_async_failed`)),
+    'Subscribe Brevo'
+  );
 });
 
 // Contact endpoint
@@ -404,6 +433,37 @@ app.post('/api/contact', [
     .trim()
     .isLength({ min: 10, max: 5000 }).withMessage('Message must be 10-5000 characters')
     .customSanitizer(sanitizeString),
+  body('sourceUrl')
+    .optional()
+    .trim()
+    .isURL({ require_protocol: true, protocols: ['http','https'] }).withMessage('Invalid source URL')
+    .isLength({ max: 2048 }).withMessage('Source URL too long'),
+  body('submissionTimestamp')
+    .optional()
+    .trim()
+    .isISO8601().withMessage('Invalid timestamp format'),
+  body('utmSource')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('UTM source too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM source contains invalid characters'),
+  body('utmMedium')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('UTM medium too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM medium contains invalid characters'),
+  body('utmCampaign')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('UTM campaign too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM campaign contains invalid characters'),
+  body('referrer')
+    .optional()
+    .trim()
+    .isLength({ max: 2048 }).withMessage('Referrer too long'),
+  body('leadScore')
+    .optional()
+    .isInt({ min: 0, max: 100 }).withMessage('Lead score must be 0-100'),
   body('hp_field')
     .optional()
     .custom((value) => {
@@ -429,7 +489,9 @@ app.post('/api/contact', [
     });
   }
 
-  const { name, email, company, phone, discipline, message } = req.body;
+  const { name, email, company, phone, discipline, message, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore } = req.body;
+  const reqId = `con-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] request_received /api/contact name=${name} email=${email}`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -440,45 +502,66 @@ app.post('/api/contact', [
     message,
     source: 'contact-form',
     discipline,
-    phone
+    phone,
+    sourceUrl,
+    submissionTimestamp,
+    utmSource,
+    utmMedium,
+    utmCampaign,
+    referrer,
+    leadScore
   });
+  console.log(`[${reqId}] lead_saved success=${leadResult.success}`);
   if (!leadResult.success) {
-    console.error('[Contact] CRITICAL: Lead persistence failed:', leadResult.error);
+    console.error(`[${reqId}] CRITICAL: Lead persistence failed:`, leadResult.error);
   }
 
-  // 2. Send notification email to admin
-  let emailSuccess = false;
-  const emailResult = await sendNotificationEmail({
-    subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
-    text: `New contact form submission on terrnix.com
+  // 2. Return success immediately — do NOT wait for email
+  res.json({
+    success: true,
+    message: 'Thank you for your message. We will get back to you within 24 hours.'
+  });
+  console.log(`[${reqId}] response_sent`);
+
+  // 3. Fire-and-forget: notification email (5s timeout)
+  console.log(`[${reqId}] email_async_started`);
+  fireAndForget(
+    withTimeout(
+      sendNotificationEmail({
+        subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+        text: `New contact form submission on terrnix.com
 
 Name: ${name}
 Email: ${email}
 Company: ${company || 'Not provided'}
 Phone: ${phone || 'Not provided'}
 Discipline: ${discipline || 'General Inquiry'}
+Lead Score: ${leadScore ?? 'N/A'}/100
 
 Message:
 ${message}
 
 ---
-Submitted: ${new Date().toISOString()}
+Attribution:
+Source URL: ${sourceUrl || 'N/A'}
+Submission Time: ${submissionTimestamp || 'N/A'}
+UTM Source: ${utmSource || 'N/A'}
+UTM Medium: ${utmMedium || 'N/A'}
+UTM Campaign: ${utmCampaign || 'N/A'}
+Referrer: ${referrer || 'N/A'}
+
+---
+Server Time: ${new Date().toISOString()}
 IP: ${req.ip || 'unknown'}
 User-Agent: ${req.headers['user-agent'] || 'unknown'}
 `.trim()
-  });
-  if (emailResult.success) {
-    emailSuccess = true;
-  } else {
-    console.warn('[Contact] Email notification failed:', emailResult.error);
-  }
-
-  console.log(`[Contact] ${name} (${email}) — Lead:${leadResult.success} Email:${emailSuccess}`);
-
-  res.json({
-    success: true,
-    message: 'Thank you for your message. We will get back to you within 24 hours.'
-  });
+      }),
+      5000,
+      'Contact email'
+    ).then(() => console.log(`[${reqId}] email_async_finished`))
+     .catch(() => console.log(`[${reqId}] email_async_failed`)),
+    'Contact email'
+  );
 });
 
 // ============================================
