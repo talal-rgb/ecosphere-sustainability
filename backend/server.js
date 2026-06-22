@@ -596,6 +596,93 @@ User-Agent: ${req.headers['user-agent'] || 'unknown'}
 });
 
 // ============================================
+// DEBUG ENDPOINTS — Root Cause Isolation
+// ============================================
+
+// Debug Echo — no validation, no saveLead, no email
+app.post('/api/debug-echo', (req, res) => {
+  console.log('[DEBUG-ECHO] received body:', JSON.stringify(req.body).substring(0, 200));
+  res.json({ ok: true, received: true });
+});
+
+// Debug Validation — same validation chain as /api/contact, no saveLead, no email
+app.post('/api/debug-validation', [
+  body('name')
+    .trim()
+    .isLength({ min: 1, max: 100 }).withMessage('Name must be 1-100 characters')
+    .matches(/^[a-zA-Z0-9\s\-\.'']+$/).withMessage('Name contains invalid characters')
+    .customSanitizer(sanitizeString),
+  body('email')
+    .isEmail().withMessage('Invalid email address')
+    .normalizeEmail()
+    .isLength({ max: 254 }).withMessage('Email too long')
+    .customSanitizer(sanitizeEmail),
+  body('company')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('Company name too long')
+    .matches(/^[a-zA-Z0-9\s\-\.'',&]+$/).withMessage('Company contains invalid characters')
+    .customSanitizer(sanitizeString),
+  body('phone')
+    .optional()
+    .trim()
+    .isLength({ max: 50 }).withMessage('Phone number too long')
+    .matches(/^[\d\s\-\+\(\)]+$/).withMessage('Phone contains invalid characters')
+    .customSanitizer(sanitizeString),
+  body('discipline')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('Discipline too long')
+    .isIn([
+      'Energy & Renewables',
+      'ESG Strategy & Reporting',
+      'Decarbonisation Strategies',
+      'Carbon Accounting & GHG Protocol',
+      'Sustainability Regulation & Compliance',
+      'Carbon Pricing & Tax',
+      'Other / General Inquiry'
+    ]).withMessage('Invalid discipline selected')
+    .customSanitizer(sanitizeString),
+  body('message')
+    .trim()
+    .isLength({ min: 10, max: 5000 }).withMessage('Message must be 10-5000 characters')
+    .customSanitizer(sanitizeString),
+  body('hp_field')
+    .optional()
+    .custom((value) => {
+      if (value && value.length > 0) {
+        throw new Error('Bot detected');
+      }
+      return true;
+    })
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      validation: 'failed',
+      errors: errors.array().map(e => e.msg)
+    });
+  }
+  res.json({ ok: true, validation: 'passed' });
+});
+
+// Debug SaveLead — only saveLead, no validation, no email
+app.post('/api/debug-savelead', async (req, res) => {
+  console.log('[DEBUG-SAVELEAD] received body:', JSON.stringify(req.body).substring(0, 200));
+  const { name, email, company, message } = req.body || {};
+  const result = await saveLead({
+    type: 'debug',
+    name: name || 'Debug Test',
+    email: email || 'debug@example.com',
+    company: company || 'DebugCo',
+    message: message || 'Debug saveLead test',
+    source: 'debug-endpoint'
+  });
+  res.json({ ok: true, saveLead: result });
+});
+
+// ============================================
 // ERROR HANDLING
 // ============================================
 
