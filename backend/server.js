@@ -380,32 +380,38 @@ app.post('/api/subscribe', [
   });
   console.log(`[${reqId}] response_sent`);
 
-  // 3. Fire-and-forget: notification email (5s timeout)
-  console.log(`[${reqId}] email_async_started`);
-  fireAndForget(
-    withTimeout(
-      sendNotificationEmail({
-        subject: 'New Terrnix Newsletter Subscriber',
-        text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
-      }),
-      5000,
+  // 3. Fire-and-forget: notification email (5s timeout) — DEFERRED
+  console.log(`[${reqId}] email_async_deferred`);
+  setTimeout(() => {
+    console.log(`[${reqId}] email_async_started`);
+    fireAndForget(
+      withTimeout(
+        sendNotificationEmail({
+          subject: 'New Terrnix Newsletter Subscriber',
+          text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+        }),
+        5000,
+        'Subscribe email'
+      ).then(() => console.log(`[${reqId}] email_async_finished`))
+       .catch(() => console.log(`[${reqId}] email_async_failed`)),
       'Subscribe email'
-    ).then(() => console.log(`[${reqId}] email_async_finished`))
-     .catch(() => console.log(`[${reqId}] email_async_failed`)),
-    'Subscribe email'
-  );
+    );
+  }, 100);
 
-  // 4. Fire-and-forget: Brevo sync (5s timeout)
-  console.log(`[${reqId}] brevo_async_started`);
-  fireAndForget(
-    withTimeout(
-      addContact(email),
-      5000,
+  // 4. Fire-and-forget: Brevo sync (5s timeout) — DEFERRED
+  console.log(`[${reqId}] brevo_async_deferred`);
+  setTimeout(() => {
+    console.log(`[${reqId}] brevo_async_started`);
+    fireAndForget(
+      withTimeout(
+        addContact(email),
+        5000,
+        'Subscribe Brevo'
+      ).then(() => console.log(`[${reqId}] brevo_async_finished`))
+       .catch(() => console.log(`[${reqId}] brevo_async_failed`)),
       'Subscribe Brevo'
-    ).then(() => console.log(`[${reqId}] brevo_async_finished`))
-     .catch(() => console.log(`[${reqId}] brevo_async_failed`)),
-    'Subscribe Brevo'
-  );
+    );
+  }, 100);
 });
 
 // Contact endpoint
@@ -540,13 +546,15 @@ app.post('/api/contact', [
   });
   console.log(`[${reqId}] response_sent`);
 
-  // 3. Fire-and-forget: notification email (5s timeout)
-  console.log(`[${reqId}] email_async_started`);
-  fireAndForget(
-    withTimeout(
-      sendNotificationEmail({
-        subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
-        text: `New contact form submission on terrnix.com
+  // 3. Fire-and-forget: notification email (5s timeout) — DEFERRED to prevent blocking
+  console.log(`[${reqId}] email_async_deferred`);
+  setTimeout(() => {
+    console.log(`[${reqId}] email_async_started`);
+    fireAndForget(
+      withTimeout(
+        sendNotificationEmail({
+          subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+          text: `New contact form submission on terrnix.com
 
 Name: ${name}
 Email: ${email}
@@ -572,13 +580,14 @@ Server Time: ${new Date().toISOString()}
 IP: ${req.ip || 'unknown'}
 User-Agent: ${req.headers['user-agent'] || 'unknown'}
 `.trim()
-      }),
-      5000,
+        }),
+        5000,
+        'Contact email'
+      ).then(() => console.log(`[${reqId}] email_async_finished`))
+       .catch(() => console.log(`[${reqId}] email_async_failed`)),
       'Contact email'
-    ).then(() => console.log(`[${reqId}] email_async_finished`))
-     .catch(() => console.log(`[${reqId}] email_async_failed`)),
-    'Contact email'
-  );
+    );
+  }, 100);
 });
 
 // ============================================
