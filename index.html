@@ -6661,6 +6661,7 @@ function handleExpertSubmit() {
 
     // Use API client with rate limiting
     if (typeof apiClient !== 'undefined') {
+        const startTime = performance.now();
         apiClient.contact({
             name: name,
             email: email,
@@ -6670,6 +6671,10 @@ function handleExpertSubmit() {
             message: message,
             ...attribution
         }).then(result => {
+            const elapsed = Math.round(performance.now() - startTime);
+            if (location.hostname === 'localhost' || location.search.includes('debug=1')) {
+                console.log(`[ExpertContact] Response in ${elapsed}ms, success=${result.success}`);
+            }
             if (result.success) {
                 document.getElementById('expertContactForm').reset();
                 document.getElementById('expertFormSuccess').classList.remove('hidden');

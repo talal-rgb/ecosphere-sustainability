@@ -293,6 +293,26 @@ const sanitizeEmail = (value) => {
   return value.toLowerCase().trim().substring(0, 254);
 };
 
+// ============================================
+// ASYNC HELPERS — fire-and-forget with timeout
+// Never block HTTP response on external services
+// ============================================
+
+function withTimeout(promise, timeoutMs, context) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${context} timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+function fireAndForget(promise, context) {
+  promise.catch(err => {
+    console.error(`[Async] ${context} failed:`, err.message);
+  });
+}
+
 // Subscribe endpoint
 app.post('/api/subscribe', [
   body('email')
@@ -333,33 +353,36 @@ app.post('/api/subscribe', [
     console.error('[Subscribe] CRITICAL: Lead persistence failed:', leadResult.error);
   }
 
-  // 2. Send notification email
-  let emailSuccess = false;
-  const emailResult = await sendNotificationEmail({
-    subject: 'New Terrnix Newsletter Subscriber',
-    text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
-  });
-  if (emailResult.success) {
-    emailSuccess = true;
-  } else {
-    console.warn('[Subscribe] Email notification failed:', emailResult.error);
-  }
-
-  // 3. Sync to Brevo
-  let brevoSuccess = false;
-  const brevoResult = await addContact(email);
-  if (brevoResult.success) {
-    brevoSuccess = true;
-  } else {
-    console.warn('[Subscribe] Brevo sync failed:', brevoResult.error);
-  }
-
-  console.log(`[Subscribe] ${email} — Lead:${leadResult.success} Brevo:${brevoSuccess} Email:${emailSuccess}`);
-
+  // 2. Return success immediately — do NOT wait for email or Brevo
   res.json({
     success: true,
     message: 'Thank you for subscribing! Please check your email for confirmation.'
   });
+
+  // 3. Fire-and-forget: notification email (5s timeout)
+  fireAndForget(
+    withTimeout(
+      sendNotificationEmail({
+        subject: 'New Terrnix Newsletter Subscriber',
+        text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+      }),
+      5000,
+      'Subscribe email'
+    ),
+    'Subscribe email'
+  );
+
+  // 4. Fire-and-forget: Brevo sync (5s timeout)
+  fireAndForget(
+    withTimeout(
+      addContact(email),
+      5000,
+      'Subscribe Brevo'
+    ),
+    'Subscribe Brevo'
+  );
+
+  console.log(`[Subscribe] ${email} — Lead:${leadResult.success} (response sent, async jobs running)`);
 });
 
 // Contact endpoint
@@ -484,11 +507,18 @@ app.post('/api/contact', [
     console.error('[Contact] CRITICAL: Lead persistence failed:', leadResult.error);
   }
 
-  // 2. Send notification email to admin
-  let emailSuccess = false;
-  const emailResult = await sendNotificationEmail({
-    subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
-    text: `New contact form submission on terrnix.com
+  // 2. Return success immediately — do NOT wait for email
+  res.json({
+    success: true,
+    message: 'Thank you for your message. We will get back to you within 24 hours.'
+  });
+
+  // 3. Fire-and-forget: notification email (5s timeout)
+  fireAndForget(
+    withTimeout(
+      sendNotificationEmail({
+        subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+        text: `New contact form submission on terrnix.com
 
 Name: ${name}
 Email: ${email}
@@ -514,19 +544,14 @@ Server Time: ${new Date().toISOString()}
 IP: ${req.ip || 'unknown'}
 User-Agent: ${req.headers['user-agent'] || 'unknown'}
 `.trim()
-  });
-  if (emailResult.success) {
-    emailSuccess = true;
-  } else {
-    console.warn('[Contact] Email notification failed:', emailResult.error);
-  }
+      }),
+      5000,
+      'Contact email'
+    ),
+    'Contact email'
+  );
 
-  console.log(`[Contact] ${name} (${email}) — Lead:${leadResult.success} Email:${emailSuccess}`);
-
-  res.json({
-    success: true,
-    message: 'Thank you for your message. We will get back to you within 24 hours.'
-  });
+  console.log(`[Contact] ${name} (${email}) — Lead:${leadResult.success} (response sent, async email running)`);
 });
 
 // ============================================

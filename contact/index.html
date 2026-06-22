@@ -297,6 +297,7 @@
                 setLoading(true);
 
                 try {
+                    const startTime = performance.now();
                     const response = await fetchWithTimeout(
                         'https://terrnix-backend.onrender.com/api/contact',
                         {
@@ -304,8 +305,12 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ name, email, company, discipline, message, hp_field: hp })
                         },
-                        15000
+                        30000
                     );
+                    const elapsed = Math.round(performance.now() - startTime);
+                    if (location.hostname === 'localhost' || location.search.includes('debug=1')) {
+                        console.log(`[Contact] Response: ${response.status} in ${elapsed}ms`);
+                    }
 
                     const data = await response.json();
 

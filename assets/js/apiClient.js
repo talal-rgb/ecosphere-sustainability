@@ -19,16 +19,19 @@ class ApiClient {
   }
 
   /**
-   * Make API request with rate limiting
+   * Make API request with rate limiting and timeout
    */
-  async request(endpoint, options = {}, endpointType = 'default') {
+  async request(endpoint, options = {}, endpointType = 'default', timeoutMs = 30000) {
     const url = `${this.baseUrl}${endpoint}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
       const response = await this.rateLimitHelper.fetchWithRateLimit(
         url,
         {
           ...options,
+          signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
             ...options.headers
@@ -36,10 +39,21 @@ class ApiClient {
         },
         endpointType
       );
+      clearTimeout(timeoutId);
       
       const data = await response.json();
       return { success: true, data, response };
     } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'TIMEOUT',
+          message: 'Request timed out. Please try again.'
+        };
+      }
+      
       // Check if it's a rate limit error
       if (error.message && error.message.includes('Rate limit')) {
         return {
