@@ -50,6 +50,20 @@ const PORT = Number(process.env.PORT || 3000);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://terrnix.com';
 
+// Request logging middleware — log EVERY request before any other middleware
+app.use((req, res, next) => {
+  const reqId = `req-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  req.reqId = reqId;
+  console.log(`[${reqId}] REQUEST ${req.method} ${req.path} from ${req.ip || 'unknown'}`);
+  
+  // Log response status when finished
+  res.on('finish', () => {
+    console.log(`[${reqId}] RESPONSE ${res.statusCode} in ${Date.now() - parseInt(reqId.split('-')[1])}ms`);
+  });
+  
+  next();
+});
+
 // Trust proxy (required for accurate IP behind Render's reverse proxy)
 app.set('trust proxy', 1);
 
