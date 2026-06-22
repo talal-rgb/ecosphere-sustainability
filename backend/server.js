@@ -339,6 +339,8 @@ app.post('/api/subscribe', [
   }
 
   const { email } = req.body;
+  const reqId = `sub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] request_received /api/subscribe email=${email}`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -349,8 +351,9 @@ app.post('/api/subscribe', [
     company: null,
     message: null
   });
+  console.log(`[${reqId}] lead_saved success=${leadResult.success}`);
   if (!leadResult.success) {
-    console.error('[Subscribe] CRITICAL: Lead persistence failed:', leadResult.error);
+    console.error(`[${reqId}] CRITICAL: Lead persistence failed:`, leadResult.error);
   }
 
   // 2. Return success immediately — do NOT wait for email or Brevo
@@ -358,8 +361,10 @@ app.post('/api/subscribe', [
     success: true,
     message: 'Thank you for subscribing! Please check your email for confirmation.'
   });
+  console.log(`[${reqId}] response_sent`);
 
   // 3. Fire-and-forget: notification email (5s timeout)
+  console.log(`[${reqId}] email_async_started`);
   fireAndForget(
     withTimeout(
       sendNotificationEmail({
@@ -368,21 +373,22 @@ app.post('/api/subscribe', [
       }),
       5000,
       'Subscribe email'
-    ),
+    ).then(() => console.log(`[${reqId}] email_async_finished`))
+     .catch(() => console.log(`[${reqId}] email_async_failed`)),
     'Subscribe email'
   );
 
   // 4. Fire-and-forget: Brevo sync (5s timeout)
+  console.log(`[${reqId}] brevo_async_started`);
   fireAndForget(
     withTimeout(
       addContact(email),
       5000,
       'Subscribe Brevo'
-    ),
+    ).then(() => console.log(`[${reqId}] brevo_async_finished`))
+     .catch(() => console.log(`[${reqId}] brevo_async_failed`)),
     'Subscribe Brevo'
   );
-
-  console.log(`[Subscribe] ${email} — Lead:${leadResult.success} (response sent, async jobs running)`);
 });
 
 // Contact endpoint
@@ -484,6 +490,8 @@ app.post('/api/contact', [
   }
 
   const { name, email, company, phone, discipline, message, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore } = req.body;
+  const reqId = `con-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] request_received /api/contact name=${name} email=${email}`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -503,8 +511,9 @@ app.post('/api/contact', [
     referrer,
     leadScore
   });
+  console.log(`[${reqId}] lead_saved success=${leadResult.success}`);
   if (!leadResult.success) {
-    console.error('[Contact] CRITICAL: Lead persistence failed:', leadResult.error);
+    console.error(`[${reqId}] CRITICAL: Lead persistence failed:`, leadResult.error);
   }
 
   // 2. Return success immediately — do NOT wait for email
@@ -512,8 +521,10 @@ app.post('/api/contact', [
     success: true,
     message: 'Thank you for your message. We will get back to you within 24 hours.'
   });
+  console.log(`[${reqId}] response_sent`);
 
   // 3. Fire-and-forget: notification email (5s timeout)
+  console.log(`[${reqId}] email_async_started`);
   fireAndForget(
     withTimeout(
       sendNotificationEmail({
@@ -547,11 +558,10 @@ User-Agent: ${req.headers['user-agent'] || 'unknown'}
       }),
       5000,
       'Contact email'
-    ),
+    ).then(() => console.log(`[${reqId}] email_async_finished`))
+     .catch(() => console.log(`[${reqId}] email_async_failed`)),
     'Contact email'
   );
-
-  console.log(`[Contact] ${name} (${email}) — Lead:${leadResult.success} (response sent, async email running)`);
 });
 
 // ============================================
