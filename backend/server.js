@@ -45,6 +45,9 @@ import { sendNotificationEmail, verifyConnection } from './services/email.js';
 import { addContact } from './services/brevo.js';
 import { saveLead, getHealthStatus, getStats, isWritableSync } from './services/leadStore.js';
 
+// Make getHealthStatus backward-compatible (sync wrapper)
+const getHealthStatusSync = () => getHealthStatus();
+
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -140,8 +143,8 @@ app.get('/health', (_req, res) => {
   });
 });
 
-app.get('/api/health/integrations', async (_req, res) => {
-  const health = await getHealthStatus();
+app.get('/api/health/integrations', (_req, res) => {
+  const health = getHealthStatus();
   const allHealthy = health.leadStorageWritable && health.emailConfigured && health.brevoConfigured;
 
   res.json({
