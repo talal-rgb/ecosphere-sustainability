@@ -138,7 +138,9 @@ app.get('/health', (_req, res) => {
     ok: true,
     service: 'terrnix-website-api',
     repo: 'talal-rgb/ecosphere-sustainability',
-    version: '3.0.0',
+    version: 'email-debug-2026-06-26',
+    commit: process.env.RENDER_GIT_COMMIT || 'unknown',
+    deployedAt: new Date().toISOString(),
     time: new Date().toISOString()
   });
 });
@@ -392,8 +394,14 @@ app.post('/api/subscribe', [
         }),
         5000,
         'Subscribe email'
-      ).then(() => console.log(`[${reqId}] email_async_finished`))
-       .catch(() => console.log(`[${reqId}] email_async_failed`)),
+      ).then(result => {
+        if (result.success) {
+          console.log(`[${reqId}] email_async_finished messageId=${result.messageId}`);
+        } else {
+          console.error(`[${reqId}] email_async_failed error="${result.error}" code=${result.code || 'none'}`);
+        }
+      })
+       .catch(err => console.error(`[${reqId}] email_async_exception error="${err.message}"`)),
       'Subscribe email'
     );
   }, 100);
@@ -588,8 +596,14 @@ User-Agent: ${req.headers['user-agent'] || 'unknown'}
         }),
         5000,
         'Contact email'
-      ).then(() => console.log(`[${reqId}] email_async_finished`))
-       .catch(() => console.log(`[${reqId}] email_async_failed`)),
+      ).then(result => {
+        if (result.success) {
+          console.log(`[${reqId}] email_async_finished messageId=${result.messageId}`);
+        } else {
+          console.error(`[${reqId}] email_async_failed error="${result.error}" code=${result.code || 'none'}`);
+        }
+      })
+       .catch(err => console.error(`[${reqId}] email_async_exception error="${err.message}"`)),
       'Contact email'
     );
   }, 100);
@@ -682,6 +696,60 @@ app.post('/api/debug-savelead', async (req, res) => {
   res.json({ ok: true, saveLead: result });
 });
 
+// Debug SMTP — test email configuration and send a diagnostic email
+app.post('/api/debug-smtp', async (req, res) => {
+  const reqId = `smtp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] debug-smtp_started`);
+
+  // Check env vars (redacted in response)
+  const envCheck = {
+    ZOHO_SMTP_HOST: !!process.env.ZOHO_SMTP_HOST,
+    ZOHO_SMTP_PORT: !!process.env.ZOHO_SMTP_PORT,
+    ZOHO_SMTP_USER: !!process.env.ZOHO_SMTP_USER,
+    ZOHO_SMTP_PASS: !!process.env.ZOHO_SMTP_PASS,
+    CONTACT_TO_EMAIL: !!process.env.CONTACT_TO_EMAIL,
+    CONTACT_FROM_EMAIL: !!process.env.CONTACT_FROM_EMAIL
+  };
+  console.log(`[${reqId}] env_check`, JSON.stringify(envCheck));
+
+  // Verify SMTP connection
+  let verifyResult;
+  try {
+    verifyResult = await verifyConnection();
+    console.log(`[${reqId}] verifyConnection=${verifyResult}`);
+  } catch (err) {
+    verifyResult = false;
+    console.error(`[${reqId}] verifyConnection_exception:`, err.message);
+  }
+
+  // Send test email
+  let sendResult;
+  try {
+    sendResult = await sendNotificationEmail({
+      subject: `[Terrnix Debug] SMTP Test ${reqId}`,
+      text: `This is a diagnostic test email from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, SMTP is working correctly.`
+    });
+    console.log(`[${reqId}] sendResult:`, JSON.stringify(sendResult));
+  } catch (err) {
+    sendResult = { success: false, error: err.message };
+    console.error(`[${reqId}] send_exception:`, err.message);
+  }
+
+  res.json({
+    ok: true,
+    reqId,
+    envConfigured: envCheck,
+    smtpVerified: verifyResult,
+    sendResult: {
+      success: sendResult.success,
+      messageId: sendResult.messageId || null,
+      error: sendResult.error || null,
+      code: sendResult.code || null
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // ============================================
 // ERROR HANDLING
 // ============================================
@@ -734,6 +802,7 @@ app.listen(PORT, () => {
   console.log(`  - POST /api/reports/pdf`);
   console.log(`  - POST /api/contact`);
   console.log(`  - POST /api/subscribe`);
+  console.log(`  - POST /api/debug-smtp`);
   console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
   console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
   console.log(`Lead storage: ${isWritableSync() ? 'writable' : 'NOT WRITABLE — check permissions'}`);

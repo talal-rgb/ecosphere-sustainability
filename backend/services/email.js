@@ -83,8 +83,8 @@ export async function sendNotificationEmail({ to, subject, text, html }) {
     console.log(`[Email] Sent: ${info.messageId} to ${recipient}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('[Email] Failed:', error.message);
-    return { success: false, error: error.message };
+    console.error('[Email] Failed:', error.message, '| Code:', error.code || 'none', '| Command:', error.command || 'none');
+    return { success: false, error: error.message, code: error.code || null };
   }
 }
 
