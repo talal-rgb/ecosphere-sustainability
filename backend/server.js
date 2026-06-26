@@ -42,6 +42,7 @@ import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
 
 // PR #30 services
 import { sendNotificationEmail, sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
+import { sendBrevoEmailWithTimeout } from './services/brevoEmail.js';
 import { addContact } from './services/brevo.js';
 import { saveLead, getHealthStatus, getStats, isWritableSync } from './services/leadStore.js';
 
@@ -138,7 +139,7 @@ app.get('/health', (_req, res) => {
     ok: true,
     service: 'terrnix-website-api',
     repo: 'talal-rgb/ecosphere-sustainability',
-    version: 'email-debug-2026-06-26',
+    version: 'brevo-primary-2026-06-26',
     commit: process.env.RENDER_GIT_COMMIT || 'unknown',
     deployedAt: new Date().toISOString(),
     time: new Date().toISOString()
@@ -382,31 +383,70 @@ app.post('/api/subscribe', [
   });
   console.log(`[${reqId}] response_sent`);
 
-  // 3. Fire-and-forget: notification email (5s timeout) — DEFERRED
-  console.log(`[${reqId}] email_async_deferred`);
-  setTimeout(() => {
-    console.log(`[${reqId}] email_async_started`);
-    fireAndForget(
-      withTimeout(
-        sendNotificationEmail({
-          subject: 'New Terrnix Newsletter Subscriber',
-          text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
-        }),
-        5000,
-        'Subscribe email'
-      ).then(result => {
-        if (result.success) {
-          console.log(`[${reqId}] email_async_finished messageId=${result.messageId}`);
-        } else {
-          console.error(`[${reqId}] email_async_failed error="${result.error}" code=${result.code || 'none'}`);
-        }
-      })
-       .catch(err => console.error(`[${reqId}] email_async_exception error="${err.message}"`)),
-      'Subscribe email'
-    );
-  }, 100);
+  // 3. Fire-and-forget: Brevo notification email PRIMARY (5s timeout)
+  console.log(`[${reqId}] brevo_notification_started`);
+  fireAndForget(
+    withTimeout(
+      sendBrevoEmailWithTimeout({
+        subject: 'New Terrnix Newsletter Subscriber',
+        text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+      }, 5000),
+      5000,
+      'Brevo subscribe notification'
+    ).then(result => {
+      if (result.success) {
+        console.log(`[${reqId}] brevo_notification_sent messageId=${result.messageId}`);
+      } else {
+        console.error(`[${reqId}] brevo_notification_failed error="${result.error}"`);
+        // Fallback to Zoho SMTP
+        console.log(`[${reqId}] zoho_fallback_started`);
+        fireAndForget(
+          withTimeout(
+            sendNotificationEmailWithTimeout({
+              subject: 'New Terrnix Newsletter Subscriber',
+              text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+            }, 5000),
+            5000,
+            'Zoho fallback subscribe'
+          ).then(fbResult => {
+            if (fbResult.success) {
+              console.log(`[${reqId}] zoho_fallback_sent messageId=${fbResult.messageId}`);
+            } else {
+              console.error(`[${reqId}] zoho_fallback_failed error="${fbResult.error}" code=${fbResult.code || 'none'}`);
+            }
+          })
+           .catch(err => console.error(`[${reqId}] zoho_fallback_exception error="${err.message}"`)),
+          'Zoho fallback subscribe'
+        );
+      }
+    })
+     .catch(err => {
+       console.error(`[${reqId}] brevo_notification_exception error="${err.message}"`);
+       // Fallback to Zoho SMTP
+       console.log(`[${reqId}] zoho_fallback_started`);
+       fireAndForget(
+         withTimeout(
+           sendNotificationEmailWithTimeout({
+             subject: 'New Terrnix Newsletter Subscriber',
+             text: `New subscriber: ${email}\nDate: ${new Date().toISOString()}\nSource: terrnix.com`
+           }, 5000),
+           5000,
+           'Zoho fallback subscribe'
+         ).then(fbResult => {
+           if (fbResult.success) {
+             console.log(`[${reqId}] zoho_fallback_sent messageId=${fbResult.messageId}`);
+           } else {
+             console.error(`[${reqId}] zoho_fallback_failed error="${fbResult.error}" code=${fbResult.code || 'none'}`);
+           }
+         })
+          .catch(err2 => console.error(`[${reqId}] zoho_fallback_exception error="${err2.message}"`)),
+         'Zoho fallback subscribe'
+       );
+     }),
+    'Brevo subscribe notification'
+  );
 
-  // 4. Fire-and-forget: Brevo sync (5s timeout) — DEFERRED
+  // 4. Fire-and-forget: Brevo contact sync (5s timeout)
   console.log(`[${reqId}] brevo_async_deferred`);
   setTimeout(() => {
     console.log(`[${reqId}] brevo_async_started`);
@@ -559,15 +599,8 @@ app.post('/api/contact', [
   });
   console.log(`[${reqId}] response_sent`);
 
-  // 3. Fire-and-forget: notification email (5s timeout) — DEFERRED to prevent blocking
-  console.log(`[${reqId}] email_async_deferred`);
-  setTimeout(() => {
-    console.log(`[${reqId}] email_async_started`);
-    fireAndForget(
-      withTimeout(
-        sendNotificationEmail({
-          subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
-          text: `New contact form submission on terrnix.com
+  // 3. Fire-and-forget: Brevo notification email PRIMARY (5s timeout)
+  const notificationText = `New contact form submission on terrnix.com
 
 Name: ${name}
 Email: ${email}
@@ -591,22 +624,69 @@ Referrer: ${referrer || 'N/A'}
 ---
 Server Time: ${new Date().toISOString()}
 IP: ${req.ip || 'unknown'}
-User-Agent: ${req.headers['user-agent'] || 'unknown'}
-`.trim()
-        }),
-        5000,
-        'Contact email'
-      ).then(result => {
-        if (result.success) {
-          console.log(`[${reqId}] email_async_finished messageId=${result.messageId}`);
-        } else {
-          console.error(`[${reqId}] email_async_failed error="${result.error}" code=${result.code || 'none'}`);
-        }
-      })
-       .catch(err => console.error(`[${reqId}] email_async_exception error="${err.message}"`)),
-      'Contact email'
-    );
-  }, 100);
+User-Agent: ${req.headers['user-agent'] || 'unknown'}`;
+
+  console.log(`[${reqId}] brevo_notification_started`);
+  fireAndForget(
+    withTimeout(
+      sendBrevoEmailWithTimeout({
+        subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+        text: notificationText
+      }, 5000),
+      5000,
+      'Brevo contact notification'
+    ).then(result => {
+      if (result.success) {
+        console.log(`[${reqId}] brevo_notification_sent messageId=${result.messageId}`);
+      } else {
+        console.error(`[${reqId}] brevo_notification_failed error="${result.error}"`);
+        // Fallback to Zoho SMTP
+        console.log(`[${reqId}] zoho_fallback_started`);
+        fireAndForget(
+          withTimeout(
+            sendNotificationEmailWithTimeout({
+              subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+              text: notificationText
+            }, 5000),
+            5000,
+            'Zoho fallback contact'
+          ).then(fbResult => {
+            if (fbResult.success) {
+              console.log(`[${reqId}] zoho_fallback_sent messageId=${fbResult.messageId}`);
+            } else {
+              console.error(`[${reqId}] zoho_fallback_failed error="${fbResult.error}" code=${fbResult.code || 'none'}`);
+            }
+          })
+           .catch(err => console.error(`[${reqId}] zoho_fallback_exception error="${err.message}"`)),
+          'Zoho fallback contact'
+        );
+      }
+    })
+     .catch(err => {
+       console.error(`[${reqId}] brevo_notification_exception error="${err.message}"`);
+       // Fallback to Zoho SMTP
+       console.log(`[${reqId}] zoho_fallback_started`);
+       fireAndForget(
+         withTimeout(
+           sendNotificationEmailWithTimeout({
+             subject: `New Contact: ${name} — ${discipline || 'General Inquiry'}`,
+             text: notificationText
+           }, 5000),
+           5000,
+           'Zoho fallback contact'
+         ).then(fbResult => {
+           if (fbResult.success) {
+             console.log(`[${reqId}] zoho_fallback_sent messageId=${fbResult.messageId}`);
+           } else {
+             console.error(`[${reqId}] zoho_fallback_failed error="${fbResult.error}" code=${fbResult.code || 'none'}`);
+           }
+         })
+          .catch(err2 => console.error(`[${reqId}] zoho_fallback_exception error="${err2.message}"`)),
+         'Zoho fallback contact'
+       );
+     }),
+    'Brevo contact notification'
+  );
 });
 
 // ============================================
@@ -708,47 +788,55 @@ app.post('/api/debug-smtp', async (req, res) => {
     ZOHO_SMTP_USER: !!process.env.ZOHO_SMTP_USER,
     ZOHO_SMTP_PASS: !!process.env.ZOHO_SMTP_PASS,
     CONTACT_TO_EMAIL: !!process.env.CONTACT_TO_EMAIL,
-    CONTACT_FROM_EMAIL: !!process.env.CONTACT_FROM_EMAIL
+    CONTACT_FROM_EMAIL: !!process.env.CONTACT_FROM_EMAIL,
+    BREVO_API_KEY: !!process.env.BREVO_API_KEY
   };
   console.log(`[${reqId}] env_check`, JSON.stringify(envCheck));
 
-  // Verify SMTP connection (with timeout)
-  let verifyResult;
+  // Test Brevo email (PRIMARY)
+  let brevoResult;
   try {
-    verifyResult = await Promise.race([
-      verifyConnection(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('verify timeout')), 10000))
-    ]);
-    console.log(`[${reqId}] verifyConnection=${verifyResult}`);
+    brevoResult = await sendBrevoEmailWithTimeout({
+      subject: `[Terrnix Debug] Brevo Test ${reqId}`,
+      text: `This is a Brevo diagnostic test email from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, Brevo email is working correctly.`
+    }, 10000);
+    console.log(`[${reqId}] brevoResult:`, JSON.stringify(brevoResult));
   } catch (err) {
-    verifyResult = false;
-    console.error(`[${reqId}] verifyConnection_exception:`, err.message);
+    brevoResult = { success: false, error: err.message };
+    console.error(`[${reqId}] brevo_exception:`, err.message);
   }
 
-  // Send test email (with timeout)
-  let sendResult;
-  try {
-    sendResult = await sendNotificationEmailWithTimeout({
-      subject: `[Terrnix Debug] SMTP Test ${reqId}`,
-      text: `This is a diagnostic test email from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, SMTP is working correctly.`
-    }, 15000);
-    console.log(`[${reqId}] sendResult:`, JSON.stringify(sendResult));
-  } catch (err) {
-    sendResult = { success: false, error: err.message };
-    console.error(`[${reqId}] send_exception:`, err.message);
+  // Test Zoho SMTP fallback (only if Brevo failed)
+  let zohoResult = null;
+  if (!brevoResult.success) {
+    try {
+      zohoResult = await sendNotificationEmailWithTimeout({
+        subject: `[Terrnix Debug] Zoho Fallback Test ${reqId}`,
+        text: `This is a Zoho SMTP fallback diagnostic test from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, Zoho SMTP fallback is working.`
+      }, 10000);
+      console.log(`[${reqId}] zohoResult:`, JSON.stringify(zohoResult));
+    } catch (err) {
+      zohoResult = { success: false, error: err.message };
+      console.error(`[${reqId}] zoho_exception:`, err.message);
+    }
   }
 
   res.json({
     ok: true,
     reqId,
     envConfigured: envCheck,
-    smtpVerified: verifyResult,
-    sendResult: {
-      success: sendResult.success,
-      messageId: sendResult.messageId || null,
-      error: sendResult.error || null,
-      code: sendResult.code || null
+    brevoResult: {
+      success: brevoResult.success,
+      messageId: brevoResult.messageId || null,
+      error: brevoResult.error || null,
+      status: brevoResult.status || null
     },
+    zohoResult: zohoResult ? {
+      success: zohoResult.success,
+      messageId: zohoResult.messageId || null,
+      error: zohoResult.error || null,
+      code: zohoResult.code || null
+    } : null,
     timestamp: new Date().toISOString()
   });
 });
