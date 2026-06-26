@@ -40,7 +40,10 @@ function getTransporter() {
     },
     tls: {
       rejectUnauthorized: true
-    }
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000
   });
 
   return transporter;
@@ -86,6 +89,20 @@ export async function sendNotificationEmail({ to, subject, text, html }) {
     console.error('[Email] Failed:', error.message, '| Code:', error.code || 'none', '| Command:', error.command || 'none');
     return { success: false, error: error.message, code: error.code || null };
   }
+}
+
+/**
+ * Send a notification email with explicit timeout wrapper.
+ * Prevents indefinite hangs when SMTP server is unreachable.
+ * @returns {Promise<{success: boolean, messageId?: string, error?: string, code?: string}>}
+ */
+export async function sendNotificationEmailWithTimeout(opts, timeoutMs = 15000) {
+  return Promise.race([
+    sendNotificationEmail(opts),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`SMTP send timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
 }
 
 function escapeHtml(str) {

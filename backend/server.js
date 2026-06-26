@@ -41,7 +41,7 @@ import { getFactorBundle } from './services/factorProvider.js';
 import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
 
 // PR #30 services
-import { sendNotificationEmail, verifyConnection } from './services/email.js';
+import { sendNotificationEmail, sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
 import { addContact } from './services/brevo.js';
 import { saveLead, getHealthStatus, getStats, isWritableSync } from './services/leadStore.js';
 
@@ -712,23 +712,26 @@ app.post('/api/debug-smtp', async (req, res) => {
   };
   console.log(`[${reqId}] env_check`, JSON.stringify(envCheck));
 
-  // Verify SMTP connection
+  // Verify SMTP connection (with timeout)
   let verifyResult;
   try {
-    verifyResult = await verifyConnection();
+    verifyResult = await Promise.race([
+      verifyConnection(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('verify timeout')), 10000))
+    ]);
     console.log(`[${reqId}] verifyConnection=${verifyResult}`);
   } catch (err) {
     verifyResult = false;
     console.error(`[${reqId}] verifyConnection_exception:`, err.message);
   }
 
-  // Send test email
+  // Send test email (with timeout)
   let sendResult;
   try {
-    sendResult = await sendNotificationEmail({
+    sendResult = await sendNotificationEmailWithTimeout({
       subject: `[Terrnix Debug] SMTP Test ${reqId}`,
       text: `This is a diagnostic test email from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, SMTP is working correctly.`
-    });
+    }, 15000);
     console.log(`[${reqId}] sendResult:`, JSON.stringify(sendResult));
   } catch (err) {
     sendResult = { success: false, error: err.message };
