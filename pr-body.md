@@ -1,44 +1,34 @@
+# Sustainability Intelligence Flywheel — Phase 1 Growth Mission
+
 ## Goal
-Add comprehensive lead attribution tracking to the contact form submission pipeline.
+Transform Terrnix from a static content site into a **self-reinforcing Sustainability Intelligence Platform** that continuously generates qualified traffic and consulting leads.
 
-## Files Changed
-- `index.html` — Frontend: capture UTM params, referrer, source URL, timestamp; calculate lead score
-- `backend/server.js` — Backend: validate new fields, persist to lead store, include in notification email
-- `backend/services/leadStore.js` — Storage: extend record schema with attribution fields
-
-## What Gets Tracked
-| Field | Source | Example |
-|-------|--------|---------|
-| **sourceUrl** | `window.location.href` | `https://terrnix.com/?utm_source=linkedin` |
-| **submissionTimestamp** | `new Date().toISOString()` | `2026-06-22T10:54:00.000Z` |
-| **utmSource** | URL param `utm_source` | `linkedin`, `google`, `newsletter` |
-| **utmMedium** | URL param `utm_medium` | `cpc`, `organic`, `email` |
-| **utmCampaign** | URL param `utm_campaign` | `q3-esg-webinar` |
-| **referrer** | `document.referrer` | `https://linkedin.com/...` |
-| **leadScore** | Calculated (0-100) | `85` |
-
-## Lead Scoring Logic
-| Criteria | Points |
-|----------|--------|
-| Company provided | +25 |
-| Phone provided | +20 |
-| Business email domain (not free) | +20 |
-| Specific discipline selected | +15 |
-| Detailed message (≥100 chars) | +15 |
-| Message contains project keywords | +5 |
-| **Max** | **100** |
-
-## Security
-- All new fields are optional (backward-compatible)
-- Server-side validation: URL format, ISO8601 timestamp, length limits, regex sanitization
-- Lead score validated as integer 0-100
-- No PII stored in lead file (IP/UA still null)
+## What Changed
+- **INTELLIGENCE_FLYWHEEL.md** — Complete operational system document
+  - Flywheel architecture diagram (Monitor → Score → Produce → Distribute → Convert → Measure)
+  - 8-week Success KPIs table with current baselines and targets
+  - Priority 1: Intelligence Engine — monitoring scope (regulatory, market, search) + 7-factor scoring formula (threshold ≥7.0)
+  - Priority 2: Intelligence Articles — mandatory article structure (7 questions + 11 quality standards)
+  - Priority 3: Content Distribution — 9 assets per article + distribution checklist
+  - Priority 4: Product Integration — conversion flow (Article → Calculator → Quiz → PDF → Consultation → Newsletter)
+  - Priority 5: Competitor Intelligence — 15-20 tracked orgs + weekly report template
+  - Editorial rules (forbidden vs required)
+  - Daily workflow (morning/midday/afternoon/eod)
+  - Article production decision framework (traffic, consulting, authority, ROI, effort, priority)
+  - Content lifecycle states (Double Down / Maintain / Sunset)
+  - File map linking to all existing intelligence documents
 
 ## Tests
-- [ ] Submit form with UTM params → verify all fields in lead JSONL
-- [ ] Submit form without UTM params → verify backward compatibility
-- [ ] Verify lead score calculation accuracy
-- [ ] Verify email notification includes attribution block
+- Document structure validated (all 5 priorities present)
+- Cross-references to existing files verified (SUSTAINABILITY_INTELLIGENCE_ENGINE.md, WEEKLY_SUSTAINABILITY_BRIEF_TEMPLATE.md, etc.)
+- Scoring formula math verified (weights sum to 1.0)
+- KPI targets aligned with TERRNIX_90_DAY_GROWTH_PLAN.md
+
+## Risks
+- **Low risk** — this is a documentation/strategy PR, no code changes
+- Execution risk: daily workflow requires discipline; mitigated by checklist format
+- KPI targets are aggressive; will adjust in weekly reviews based on actuals
 
 ## Rollback
-Revert commit `b756baa` or restore previous `saveLead()` signature.
+- Single file addition — revert with `git rm INTELLIGENCE_FLYWHEEL.md`
+- No production impact
