@@ -59,9 +59,30 @@
 
   <url>
     <loc>https://terrnix.com/sustainability-intelligence/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <lastmod>2026-06-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/sustainability-intelligence/2026/06/ghg-protocol-scope-3-revisions-2026/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/sustainability-intelligence/2026/06/cbam-definitive-phase-2026-compliance/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/sustainability-intelligence/2026/06/sbti-rules-update-2026-2030-targets/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <url>
