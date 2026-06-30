@@ -4258,6 +4258,11 @@ input[type="range"].slider::-moz-range-thumb {
 
     document.getElementById('resultsPanel').classList.remove('hidden');
 
+    // Track calculator completion for analytics
+    if (window.trackCalculatorComplete) {
+      window.trackCalculatorComplete('carbon_footprint', total.toFixed(2));
+    }
+
     // ---- DONUT CHART ----
     const ctxDonut = document.getElementById('scopeDonutChart').getContext('2d');
     if (donutChart) donutChart.destroy();
@@ -6839,6 +6844,14 @@ function handleExpertSubmit() {
                 setTimeout(() => {
                     document.getElementById('expertFormSuccess').classList.add('hidden');
                 }, 8000);
+                // Track contact submission
+                if (window.terrnixTrack) {
+                    window.terrnixTrack('contact_submit', {
+                        form_type: 'consultation_request',
+                        page_location: window.location.pathname,
+                        discipline: disciplineName
+                    });
+                }
             } else {
                 alert(result.message || 'Failed to send inquiry. Please try again or email us directly.');
             }
@@ -6870,6 +6883,14 @@ function handleExpertSubmit() {
                 setTimeout(() => {
                     document.getElementById('expertFormSuccess').classList.add('hidden');
                 }, 8000);
+                // Track contact submission
+                if (window.terrnixTrack) {
+                    window.terrnixTrack('contact_submit', {
+                        form_type: 'consultation_request',
+                        page_location: window.location.pathname,
+                        discipline: disciplineName
+                    });
+                }
             } else {
                 alert(data.message || 'Failed to send inquiry. Please try again or email us directly.');
             }
@@ -6894,6 +6915,13 @@ function handleNewsletterSubmit() {
             if (result.success) {
                 emailInput.value = '';
                 alert(result.data.message);
+                // Track newsletter signup
+                if (window.terrnixTrack) {
+                    window.terrnixTrack('newsletter_signup', {
+                        signup_location: 'homepage_footer',
+                        page_location: window.location.pathname
+                    });
+                }
             } else {
                 alert(result.message || 'Subscription failed. Please try again.');
             }
@@ -6908,6 +6936,13 @@ function handleNewsletterSubmit() {
             if (data.success) {
                 emailInput.value = '';
                 alert(data.message);
+                // Track newsletter signup
+                if (window.terrnixTrack) {
+                    window.terrnixTrack('newsletter_signup', {
+                        signup_location: 'homepage_footer',
+                        page_location: window.location.pathname
+                    });
+                }
             } else {
                 alert(data.message || 'Subscription failed. Please try again.');
             }
