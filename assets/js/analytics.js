@@ -27,11 +27,11 @@
 
   const CONFIG = {
     // Set to TRUE after replacing all placeholders and deploying
-    enabled: false,
+    enabled: true,
 
     // Google Analytics 4 Measurement ID
     // Format: G-XXXXXXXXXX (10 characters after G-)
-    ga4Id: 'G-XXXXXXXXXX',
+    ga4Id: 'G-5YKG282HDD',
 
     // Google Tag Manager Container ID
     // Format: GTM-XXXXXXX (7 characters after GTM-)
