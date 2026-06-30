@@ -39,7 +39,7 @@
 
     // Microsoft Clarity Project ID
     // Format: alphanumeric string (e.g., "abcdefghij")
-    clarityId: 'CLARITY_PROJECT_ID',
+    clarityId: 'xf95a67vp9',
 
     // Scroll depth thresholds (%)
     scrollDepths: [50, 90],
