@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSRD Compliance Hub 2026 | Terrnix Sustainability Intelligence</title>
+  <meta name="description" content="Master CSRD compliance with Terrnix: ESRS-aligned reporting, materiality assessments, gap analysis, and cost calculators. Who must comply, why now, business risks, and financial impact—explained.">
+  <meta name="keywords" content="CSRD, ESRS, sustainability reporting, ESG compliance, double materiality, Terrnix, carbon accounting">
+  <meta name="author" content="Terrnix">
+  <meta name="robots" content="index, follow">
+
+  <link rel="canonical" href="https://terrnix.com/csrd/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="CSRD Compliance Hub 2026 | Terrnix Sustainability Intelligence">
+  <meta property="og:description" content="Who should care about CSRD? Why now? Business risk, financial impact, and how Terrnix helps you comply on time and under budget.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://terrnix.com/csrd/">
+  <meta property="og:image" content="https://terrnix.com/assets/og-csrd-hub.png">
+  <meta property="og:site_name" content="Terrnix">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CSRD Compliance Hub 2026 | Terrnix">
+  <meta name="twitter:description" content="Master CSRD compliance with Terrnix: ESRS-aligned reporting, materiality assessments, gap analysis, and cost calculators.">
+  <meta name="twitter:image" content="https://terrnix.com/assets/og-csrd-hub.png">
+
+  <!-- Schema: WebPage + FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://terrnix.com/csrd/#webpage",
+        "url": "https://terrnix.com/csrd/",
+        "name": "CSRD Compliance Hub 2026 | Terrnix Sustainability Intelligence",
+        "description": "Master CSRD compliance with Terrnix: ESRS-aligned reporting, materiality assessments, gap analysis, and cost calculators.",
+        "inLanguage": "en",
+        "isPartOf": { "@id": "https://terrnix.com/#website" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Who must comply with CSRD?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Large EU undertakings, listed SMEs, and non-EU companies with significant EU turnover or subsidiaries must comply. The rules apply to ~50,000 companies in phases from 2024 to 2028."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the financial impact of non-compliance?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Fines vary by member state but can reach millions of euros. Beyond penalties, non-compliance increases cost of capital, exclusion from public procurement, and reputational damage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Terrnix help with CSRD?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Terrnix provides a double materiality assessment engine, ESRS gap analysis, automated data collection, CSRD cost calculator, and export-ready reporting aligned with EFRAG standards."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg-dark: #0a0f0d;
+      --bg-card: #111915;
+      --bg-elevated: #1a231f;
+      --emerald: #34d399;
+      --emerald-bright: #10b981;
+      --emerald-dim: #064e3b;
+      --text-primary: #f0fdf4;
+      --text-secondary: #a7f3d0;
+      --text-muted: #6b7280;
+      --border: #1f2937;
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    a { color: var(--emerald); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,15,13,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-weight: 700; font-size: 1.25rem; color: var(--emerald); letter-spacing: -0.02em; }
+    .nav-links { display: flex; gap: 20px; list-style: none; }
+    .nav-links a { font-size: 0.9rem; color: var(--text-secondary); }
+    .nav-links a:hover { color: var(--emerald); }
+    .nav-cta {
+      background: var(--emerald-bright); color: #000; padding: 8px 16px;
+      border-radius: 999px; font-weight: 600; font-size: 0.85rem;
+    }
+    .nav-cta:hover { background: var(--emerald); }
+
+    /* Hero */
+    .hero {
+      padding: 96px 0 72px;
+      background: radial-gradient(ellipse at 50% 0%, var(--bg-elevated), var(--bg-dark) 60%);
+      text-align: center;
+    }
+    .hero h1 { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+    .hero h1 span { color: var(--emerald); }
+    .hero p { font-size: 1.15rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 32px; }
+    .btn {
+      display: inline-block; padding: 14px 28px; border-radius: 999px; font-weight: 700;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(16,185,129,0.25); text-decoration: none; }
+    .btn-primary { background: var(--emerald-bright); color: #000; }
+    .btn-secondary { background: var(--bg-elevated); color: var(--emerald); border: 1px solid var(--border); margin-left: 12px; }
+
+    /* Sections */
+    section { padding: 72px 0; }
+    .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+    .section-sub { color: var(--text-secondary); margin-bottom: 40px; max-width: 720px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; transition: border-color .2s ease, transform .2s ease;
+    }
+    .card:hover { border-color: var(--emerald-dim); transform: translateY(-2px); }
+    .card h3 { font-size: 1.15rem; margin-bottom: 10px; color: var(--emerald); }
+    .card p { color: var(--text-secondary); font-size: 0.95rem; }
+    .card ul { margin-top: 12px; padding-left: 18px; color: var(--text-secondary); font-size: 0.95rem; }
+
+    /* Commercial banner */
+    .commercial {
+      background: linear-gradient(90deg, var(--bg-elevated), var(--bg-card));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 40px; display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between;
+    }
+    .commercial .text { flex: 1 1 400px; }
+    .commercial .text h2 { font-size: 1.6rem; margin-bottom: 12px; }
+    .commercial .text p { color: var(--text-secondary); }
+
+    /* Cost calculator */
+    .calc-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; }
+    .calc-wrap h3 { margin-bottom: 20px; font-size: 1.2rem; }
+    .calc-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; align-items: center; }
+    .calc-row label { min-width: 160px; font-size: 0.9rem; color: var(--text-secondary); }
+    .calc-row input, .calc-row select {
+      flex: 1; min-width: 200px; background: var(--bg-dark); border: 1px solid var(--border);
+      color: var(--text-primary); padding: 10px 14px; border-radius: 8px;
+    }
+    .calc-result {
+      margin-top: 20px; padding: 20px; background: var(--bg-elevated); border-radius: var(--radius);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .calc-result strong { color: var(--emerald); font-size: 1.3rem; }
+
+    /* CTA Box */
+    .cta-box {
+      background: var(--emerald-dim); border: 1px solid var(--emerald-bright);
+      border-radius: var(--radius); padding: 48px; text-align: center;
+    }
+    .cta-box h2 { font-size: 1.8rem; margin-bottom: 12px; }
+    .cta-box p { color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--text-muted); font-size: 0.9rem; text-align: center; }
+    footer a { color: var(--text-muted); margin: 0 10px; }
+    footer a:hover { color: var(--emerald); }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .nav-links { display: none; }
+      .commercial { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="/" class="logo">Terrnix</a>
+    <ul class="nav-links">
+      <li><a href="/carbon-accounting/">Carbon Accounting</a></li>
+      <li><a href="/esg-reporting/">ESG Reporting</a></li>
+      <li><a href="/sustainability-intelligence/">Intelligence</a></li>
+      <li><a href="/cbam/">CBAM</a></li>
+      <li><a href="/tools/">Tools</a></li>
+      <li><a href="/csrd/faq.html">CSRD FAQ</a></li>
+    </ul>
+    <a href="#consultation" class="nav-cta">Book Consultation</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>CSRD Compliance <span>Hub 2026</span></h1>
+    <p>Who should care? Why now? What are the business risks and financial impacts? Terrnix gives you the tools, templates, and talent to comply on time and under budget.</p>
+    <a href="#calculator" class="btn btn-primary">Run Cost Calculator</a>
+    <a href="implementation-guide.html" class="btn btn-secondary">Implementation Guide</a>
+  </div>
+</section>
+
+<!-- Commercial Focus -->
+<section class="container">
+  <div class="commercial">
+    <div class="text">
+      <h2>CSRD is a Board-Level Risk</h2>
+      <p>The Corporate Sustainability Reporting Directive affects ~50,000 companies. Non-compliance exposes your organization to regulatory fines, higher cost of capital, and exclusion from EU public procurement. The first reports are due in 2025 (for FY2024). If you have not started, the window to close gaps is closing fast.</p>
+      <ul style="margin-top:12px; padding-left:18px; color:var(--text-secondary);">
+        <li><strong>Who:</strong> Large EU undertakings, listed SMEs, and large non-EU parents with EU subsidiaries/turnover.</li>
+        <li><strong>Why now:</strong> ESRS standards are final. Auditors are booking capacity. Data gaps take 6–12 months to close.</li>
+        <li><strong>Risk:</strong> Fines, litigation, credit downgrades, investor withdrawals.</li>
+        <li><strong>Impact:</strong> Average first-year compliance cost €150K–€1.2M depending on size and maturity.</li>
+      </ul>
+      <p style="margin-top:14px;"><a href="industry-examples.html" style="font-weight:700;">See industry examples →</a></p>
+    </div>
+    <div>
+      <a href="#consultation" class="btn btn-primary" style="display:inline-block;">Get a Gap Assessment</a>
+    </div>
+  </div>
+</section>
+
+<!-- Pillars -->
+<section class="container">
+  <h2 class="section-title">The Four Pillars of CSRD Readiness</h2>
+  <p class="section-sub">Terrnix covers every stage of the CSRD lifecycle—from materiality to audit-ready disclosure.</p>
+  <div class="grid-3">
+    <div class="card">
+      <h3>1. Double Materiality Assessment</h3>
+      <p>Identify what matters to your stakeholders and your bottom line. Terrnix maps financial and impact materiality across ESRS topical standards.</p>
+      <ul>
+        <li><a href="/tools/">Materiality matrix builder</a></li>
+        <li>Stakeholder survey templates</li>
+        <li>Peer benchmarking</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>2. ESRS Gap Analysis</h3>
+      <p>Compare your current ESG data to ESRS disclosure requirements. Get a prioritized roadmap with owners and deadlines.</p>
+      <ul>
+        <li><a href="/sustainability-intelligence/">Data coverage scan</a></li>
+        <li>Policy & KPI gap list</li>
+        <li>RACI-based action plan</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>3. Data Collection & Calculation</h3>
+      <p>Automate emissions, water, waste, and workforce metrics. Connect ERP, HR, and utility data for a single source of truth.</p>
+      <ul>
+        <li><a href="/carbon-accounting/">Carbon accounting engine</a></li>
+        <li>API integrations</li>
+        <li>Audit trail & version control</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>4. Report Assembly & Review</h3>
+      <p>Generate ESRS-aligned sustainability statements in Word, PDF, and XBRL. Built-in quality checks and cross-referencing.</p>
+      <ul>
+        <li><a href="/esg-reporting/">ESG report builder</a></li>
+        <li>XBRL tagging (prepared)</li>
+        <li>Review comment workflow</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>5. Governance & Training</h3>
+      <p>Educate your board and sustainability team. Access CSRD e-learning, policy templates, and governance frameworks.</p>
+      <ul>
+        <li><a href="/knowledge-quiz">CSRD knowledge quiz</a></li>
+        <li>Board-ready briefings</li>
+        <li>Policy template library</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>6. Ongoing Monitoring</h3>
+      <p>CSRD is not a one-off project. Terrnix tracks KPIs, flags thresholds, and updates your materiality as the business evolves.</p>
+      <ul>
+        <li><a href="/sustainability-intelligence/">Real-time dashboards</a></li>
+        <li>Threshold alerts</li>
+        <li>Annual reassessment reminders</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Cost Calculator -->
+<section class="container" id="calculator">
+  <div class="calc-wrap">
+    <h3>CSRD Compliance Cost Estimator</h3>
+    <div class="calc-row">
+      <label>Company size (FTE)</label>
+      <input type="number" id="calc-ftes" value="500" min="1">
+    </div>
+    <div class="calc-row">
+      <label>Current ESG maturity</label>
+      <select id="calc-maturity">
+        <option value="0.8">None / ad-hoc</option>
+        <option value="0.5">Basic reporting in place</option>
+        <option value="0.3">Mature sustainability program</option>
+      </select>
+    </div>
+    <div class="calc-row">
+      <label>Scope complexity</label>
+      <select id="calc-scope">
+        <option value="1.0">Single country / simple ops</option>
+        <option value="1.4">Multi-country / moderate complexity</option>
+        <option value="1.8">Global / high complexity</option>
+      </select>
+    </div>
+    <div class="calc-result">
+      <span>Estimated first-year cost:</span>
+      <strong id="calc-total">€0</strong>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-top:12px;">Estimate includes materiality, gap remediation, data infrastructure, external assurance, and internal labor. <a href="#consultation">Get a tailored quote →</a></p>
+  </div>
+</section>
+
+<!-- Internal Links Cluster -->
+<section class="container">
+  <h2 class="section-title">Explore the CSRD Knowledge Cluster</h2>
+  <p class="section-sub">Deep dives, tools, and real-world examples to accelerate your program.</p>
+  <div class="grid-3">
+    <a href="faq.html" class="card" style="display:block;">
+      <h3>CSRD FAQ</h3>
+      <p>Accordion answers on applicability, timelines, ESRS standards, assurance, and how to start.</p>
+    </a>
+    <a href="implementation-guide.html" class="card" style="display:block;">
+      <h3>Implementation Guide</h3>
+      <p>Step-by-step playbook from project kickoff to audit-ready report. Templates and checklists included.</p>
+    </a>
+    <a href="industry-examples.html" class="card" style="display:block;">
+      <h3>Industry Examples</h3>
+      <p>See how manufacturing, financial services, real estate, and tech firms approach CSRD.</p>
+    </a>
+    <a href="/carbon-accounting/" class="card" style="display:block;">
+      <h3>Carbon Accounting</h3>
+      <p>Scope 1, 2 & 3 calculations aligned with GHG Protocol and ESRS E1 Climate Change.</p>
+    </a>
+    <a href="/esg-reporting/" class="card" style="display:block;">
+      <h3>ESG Reporting</h3>
+      <p>Report builder, KPI libraries, and disclosure templates for ESRS topical standards.</p>
+    </a>
+    <a href="/tools/" class="card" style="display:block;">
+      <h3>Tools & Calculators</h3>
+      <p>Materiality matrix, cost estimator, scenario models, and export utilities.</p>
+    </a>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="container" id="consultation">
+  <div class="cta-box">
+    <h2>Need Help With CSRD?</h2>
+    <p>Our sustainability consultants have supported 100+ companies through CSRD readiness. Book a free 30-minute gap assessment and receive a prioritized roadmap.</p>
+    <a href="/contact" class="btn btn-primary" style="background:#000;color:var(--emerald);border:2px solid var(--emerald);">Book Free Consultation</a>
+    <a href="#" class="btn btn-secondary" id="download-guide">Download Implementation Guide (PDF)</a>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--text-muted);">No spam. Unsubscribe anytime. 12-page guide covers timelines, team structure, and budget templates.</p>
+  </div>
+</section>
+
+<!-- FAQ Snippet (schema above) -->
+<section class="container">
+  <h2 class="section-title">Quick Answers</h2>
+  <div class="grid-2" style="margin-top:24px;">
+    <div class="card">
+      <h3>Who should care about CSRD?</h3>
+      <p>Board members, CFOs, CSOs, IR teams, and legal counsel. If your company is a large EU undertaking, a listed SME, or a non-EU parent with significant EU operations, CSRD applies to you—or to your subsidiaries.</p>
+    </div>
+    <div class="card">
+      <h3>Why now?</h3>
+      <p>First reports are due in 2025 (FY2024 data). Auditor capacity is limited. ESRS standards are finalized. Delaying means higher costs, rushed data, and greater assurance risk.</p>
+    </div>
+    <div class="card">
+      <h3>What is the business risk?</h3>
+      <p>Regulatory fines, director liability in some jurisdictions, credit downgrades, investor divestment, and exclusion from EU public procurement contracts.</p>
+    </div>
+    <div class="card">
+      <h3>What is the financial impact?</h3>
+      <p>Direct costs: €150K–€1.2M for first-year compliance. Indirect costs: higher capital costs if ESG data is missing. Upside: improved ESG ratings attract green capital and premium valuations.</p>
+    </div>
+  </div>
+  <p style="margin-top:20px;"><a href="faq.html">See all 25+ CSRD questions →</a></p>
+</section>
+
+<footer>
+  <div class="container">
+    <p>© Terrnix. All rights reserved.</p>
+    <p>
+      <a href="/carbon-accounting/">Carbon Accounting</a>
+      <a href="/esg-reporting/">ESG Reporting</a>
+      <a href="/sustainability-intelligence/">Intelligence</a>
+      <a href="/cbam/">CBAM</a>
+      <a href="/tools/">Tools</a>
+      <a href="/contact">Contact</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  // Cost calculator
+  const ftes = document.getElementById('calc-ftes');
+  const maturity = document.getElementById('calc-maturity');
+  const scope = document.getElementById('calc-scope');
+  const total = document.getElementById('calc-total');
+  function updateCalc() {
+    const base = 50000 + (parseInt(ftes.value || 0) * 180);
+    const mat = parseFloat(maturity.value);
+    const sc = parseFloat(scope.value);
+    const val = Math.round(base * mat * sc);
+    total.textContent = '€' + val.toLocaleString();
+  }
+  [ftes, maturity, scope].forEach(el => el.addEventListener('input', updateCalc));
+  updateCalc();
+
+  // Download lead magnet
+  document.getElementById('download-guide').addEventListener('click', function(e) {
+    e.preventDefault();
+    alert('Thank you! Your CSRD Implementation Guide download will start shortly. (Link to PDF delivery)');
+  });
+</script>
+</body>
+</html>
