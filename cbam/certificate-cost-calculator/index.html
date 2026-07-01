@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CBAM Certificate Cost Calculator | Free Estimator | Terrnix</title>
+<meta name="description" content="Free CBAM certificate cost calculator. Estimate your EU Carbon Border Adjustment Mechanism costs based on import volume, material type, and emissions data quality."/>
+<link rel="canonical" href="https://www.terrnix.com/cbam/certificate-cost-calculator/"/>
+<meta property="og:title" content="CBAM Certificate Cost Calculator | Free Estimator | Terrnix"/>
+<meta property="og:description" content="Free CBAM certificate cost calculator. Estimate your EU Carbon Border Adjustment Mechanism costs."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.terrnix.com/cbam/certificate-cost-calculator/"/>
+
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
+        <a href="/cbam/" class="text-emerald-400 text-sm font-medium">CBAM</a>
+        <a href="/tools/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Tools</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <nav class="text-sm text-gray-500">
+    <a href="/" class="hover:text-emerald-400">Home</a>
+    <span class="mx-2">/</span>
+    <a href="/cbam/" class="hover:text-emerald-400">CBAM</a>
+    <span class="mx-2">/</span>
+    <span class="text-emerald-400">Cost Calculator</span>
+  </nav>
+</div>
+
+<!-- Hero -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="max-w-3xl">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">CBAM Cost Calculator</h1>
+    <p class="text-xl text-gray-400 mb-8">Estimate your annual CBAM certificate costs in under 60 seconds. Compare default values vs. actual supplier data to see your potential savings.</p>
+  </div>
+</section>
+
+<!-- Calculator -->
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+  <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8">
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-2">Annual Import Volume (tonnes)</label>
+        <input type="number" id="calc-volume" class="w-full px-4 py-3 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 1000"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-2">Material Type</label>
+        <select id="calc-material" class="w-full px-4 py-3 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl text-white focus:border-emerald-500 focus:outline-none">
+          <option value="steel">Iron & Steel (2.0 tCO2e/t)</option>
+          <option value="aluminium">Aluminium (1.5 tCO2e/t)</option>
+          <option value="cement">Cement (0.9 tCO2e/t)</option>
+          <option value="fertiliser">Fertiliser (1.8 tCO2e/t)</option>
+          <option value="electricity">Electricity (0.5 tCO2e/MWh)</option>
+          <option value="hydrogen">Hydrogen (10.0 tCO2e/t)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-2">EU Carbon Price (€/tCO2e)</label>
+        <input type="number" id="calc-price" value="75" class="w-full px-4 py-3 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl text-white focus:border-emerald-500 focus:outline-none"/>
+        <p class="text-gray-500 text-xs mt-1">Current range: €65-85/tonne</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-2">Data Quality</label>
+        <select id="calc-data" class="w-full px-4 py-3 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl text-white focus:border-emerald-500 focus:outline-none">
+          <option value="default">Default Values (baseline)</option>
+          <option value="actual">Actual Supplier Data (-30%)</option>
+        </select>
+      </div>
+    </div>
+    
+    <button onclick="calculateCBAMCost()" class="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+      Calculate CBAM Cost
+    </button>
+    
+    <div id="calc-result" class="mt-8 hidden">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6 text-center">
+          <p class="text-gray-500 text-sm mb-1">Annual CBAM Cost</p>
+          <p class="text-3xl font-bold text-white" id="result-cost">€0</p>
+          <p class="text-gray-500 text-sm mt-1">At selected carbon price</p>
+        </div>
+        <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6 text-center">
+          <p class="text-gray-500 text-sm mb-1">Embedded Emissions</p>
+          <p class="text-3xl font-bold text-emerald-400" id="result-emissions">0 tCO2e</p>
+          <p class="text-gray-500 text-sm mt-1">Annual obligation</p>
+        </div>
+        <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6 text-center">
+          <p class="text-gray-500 text-sm mb-1">vs. Default Values</p>
+          <p class="text-3xl font-bold text-emerald-400" id="result-savings">€0</p>
+          <p class="text-gray-500 text-sm mt-1">Potential savings</p>
+        </div>
+      </div>
+      
+      <div class="mt-6 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+        <p class="text-emerald-400 font-medium">💡 This is an estimate. For a precise calculation including your specific products, supplier locations, and verification requirements, <a href="/contact/" class="underline">book a free consultation</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+  <h2 class="text-3xl font-bold text-white mb-8">How the Calculator Works</h2>
+  
+  <div class="space-y-6">
+    <div class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-semibold flex-shrink-0">1</div>
+      <div>
+        <h3 class="text-lg font-semibold text-white mb-1">Enter Your Import Volume</h3>
+        <p class="text-gray-400">Input your annual import volume in tonnes (or MWh for electricity). Use your customs data or procurement records.</p>
+      </div>
+    </div>
+    
+    <div class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-semibold flex-shrink-0">2</div>
+      <div>
+        <h3 class="text-lg font-semibold text-white mb-1">Select Material Type</h3>
+        <p class="text-gray-400">Choose from steel, aluminium, cement, fertiliser, electricity, or hydrogen. Each has different default emission factors.</p>
+      </div>
+    </div>
+    
+    <div class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-semibold flex-shrink-0">3</div>
+      <div>
+        <h3 class="text-lg font-semibold text-white mb-1">Adjust Carbon Price</h3>
+        <p class="text-gray-400">The default is €75/tonne (mid-2026 range). Adjust based on your risk assessment or budget planning.</p>
+      </div>
+    </div>
+    
+    <div class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-semibold flex-shrink-0">4</div>
+      <div>
+        <h3 class="text-lg font-semibold text-white mb-1">Compare Data Scenarios</h3>
+        <p class="text-gray-400">Toggle between default values and actual supplier data to see your potential savings from data collection.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function calculateCBAMCost() {
+  const volume = parseFloat(document.getElementById('calc-volume').value) || 0;
+  const material = document.getElementById('calc-material').value;
+  const price = parseFloat(document.getElementById('calc-price').value) || 75;
+  const dataQuality = document.getElementById('calc-data').value;
+  
+  const emissionFactors = {
+    steel: 2.0, aluminium: 1.5, cement: 0.9, fertiliser: 1.8, electricity: 0.5, hydrogen: 10.0
+  };
+  
+  const factor = emissionFactors[material] || 2.0;
+  const emissions = volume * factor;
+  let cost = emissions * price;
+  
+  if (dataQuality === 'actual') {
+    cost = cost * 0.7;
+  }
+  
+  const defaultCost = emissions * price;
+  const savings = dataQuality === 'actual' ? 0 : defaultCost * 0.3;
+  
+  document.getElementById('result-cost').textContent = '€' + Math.round(cost).toLocaleString();
+  document.getElementById('result-emissions').textContent = Math.round(emissions).toLocaleString() + ' tCO2e';
+  document.getElementById('result-savings').textContent = '€' + Math.round(savings).toLocaleString();
+  document.getElementById('calc-result').classList.remove('hidden');
+}
+</script>
+
+<!-- CTA -->
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="bg-gradient-to-r from-emerald-900/20 to-[#111a16] border border-emerald-500/20 rounded-2xl p-12 text-center">
+    <h2 class="text-3xl font-bold text-white mb-4">Need a Precise Calculation?</h2>
+    <p class="text-xl text-gray-400 mb-8">This calculator provides estimates. For a precise calculation tailored to your specific products, suppliers, and verification requirements, book a free consultation.</p>
+    <a href="/contact/" class="inline-flex items-center px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+      Book Free Consultation <span class="ml-2">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-[#2d3d35] mt-16 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-gray-500 text-sm">© 2026 Terrnix. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="/privacy-policy.html" class="text-gray-500 hover:text-emerald-400 text-sm transition-colors">Privacy Policy</a>
+        <a href="/terms-of-use.html" class="text-gray-500 hover:text-emerald-400 text-sm transition-colors">Terms of Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
