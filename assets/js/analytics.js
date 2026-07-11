@@ -31,7 +31,7 @@
 
     // Google Analytics 4 Measurement ID
     // Format: G-XXXXXXXXXX (10 characters after G-)
-    ga4Id: 'G-5YKG282HDD',
+    ga4Id: 'G-MVBZJTV3S9',
 
     // Google Tag Manager Container ID
     // Format: GTM-XXXXXXX (7 characters after GTM-)
