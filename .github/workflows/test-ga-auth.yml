@@ -1,0 +1,98 @@
+name: Test GA4 Authentication
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ga:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify secrets configured
+        run: |
+          if [ -z "${{ secrets.GA_PROPERTY_ID }}" ]; then
+            echo "❌ GA_PROPERTY_ID not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GA_CREDENTIALS }}" ]; then
+            echo "❌ GA_CREDENTIALS not set"
+            exit 1
+          fi
+          echo "✅ Secrets are configured"
+
+      - name: Install dependencies
+        run: npm install @google-analytics/data
+
+      - name: Test GA4 Connection
+        env:
+          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+          GA_CREDENTIALS: ${{ secrets.GA_CREDENTIALS }}
+        run: |
+          cat > test-ga.js << 'EOF'
+          const { BetaAnalyticsDataClient } = require('@google-analytics/data');
+          const fs = require('fs');
+
+          async function test() {
+            const propertyId = process.env.GA_PROPERTY_ID;
+            const credentials = process.env.GA_CREDENTIALS;
+
+            // Write credentials to temp file
+            const credsPath = '/tmp/ga-credentials.json';
+            fs.writeFileSync(credsPath, credentials);
+
+            try {
+              const client = new BetaAnalyticsDataClient({ keyFilename: credsPath });
+
+              const [response] = await client.runReport({
+                property: `properties/${propertyId}`,
+                dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+                dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+                metrics: [{ name: 'sessions' }]
+              });
+
+              console.log('✅ GA4 connection successful!');
+              console.log(`📊 Property: ${propertyId}`);
+              console.log(`📈 Rows returned: ${response.rows.length}`);
+
+              if (response.rows.length > 0) {
+                response.rows.forEach(row => {
+                  const channel = row.dimensionValues[0].value;
+                  const sessions = row.metricValues[0].value;
+                  console.log(`   ${channel}: ${sessions} sessions`);
+                });
+              } else {
+                console.log('⚠️  No data in the last 7 days (normal for new properties)');
+              }
+
+              return 0;
+            } catch (error) {
+              console.error('❌ GA4 connection failed:', error.message);
+              if (error.message.includes('UNAUTHENTICATED')) {
+                console.error('   → Service account not authorized for this property');
+              }
+              if (error.message.includes('Permission denied')) {
+                console.error('   → Service account lacks Viewer permission');
+              }
+              if (error.message.includes('not found')) {
+                console.error('   → Property ID incorrect or service account not added');
+              }
+              return 1;
+            } finally {
+              fs.unlinkSync(credsPath);
+            }
+          }
+
+          test().then(code => process.exit(code));
+          EOF
+
+          node test-ga.js
+
+      - name: Cleanup
+        if: always()
+        run: rm -f test-ga.js /tmp/ga-credentials.json
