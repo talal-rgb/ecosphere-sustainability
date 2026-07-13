@@ -1,0 +1,103 @@
+name: Test GSC Authentication
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-gsc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify secrets configured
+        run: |
+          if [ -z "${{ secrets.GSC_CREDENTIALS }}" ]; then
+            echo "❌ GSC_CREDENTIALS not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GSC_SITE_URL }}" ]; then
+            echo "❌ GSC_SITE_URL not set"
+            exit 1
+          fi
+          echo "✅ GSC secrets are configured"
+
+      - name: Install dependencies
+        run: npm install googleapis
+
+      - name: Test GSC Connection
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        run: |
+          cat > test-gsc.js << 'EOFJS'
+          const { google } = require('googleapis');
+          const fs = require('fs');
+
+          async function test() {
+            const credentials = process.env.GSC_CREDENTIALS;
+            const siteUrl = process.env.GSC_SITE_URL;
+
+            const credsPath = '/tmp/gsc-credentials.json';
+            fs.writeFileSync(credsPath, credentials);
+
+            try {
+              const auth = new google.auth.GoogleAuth({
+                keyFile: credsPath,
+                scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
+              });
+
+              const webmasters = google.webmasters({ version: 'v3', auth });
+
+              const endDate = new Date().toISOString().split('T')[0];
+              const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+              const res = await webmasters.searchanalytics.query({
+                siteUrl: siteUrl,
+                requestBody: {
+                  startDate,
+                  endDate,
+                  dimensions: ['query'],
+                  rowLimit: 5
+                }
+              });
+
+              console.log('✅ GSC connection successful!');
+              console.log(`📊 Site: ${siteUrl}`);
+              console.log(`📈 Rows returned: ${res.data.rows ? res.data.rows.length : 0}`);
+
+              if (res.data.rows && res.data.rows.length > 0) {
+                res.data.rows.forEach(row => {
+                  console.log(`   ${row.keys[0]}: ${row.clicks} clicks, ${row.impressions} impressions`);
+                });
+              } else {
+                console.log('⚠️  No search data in the last 7 days');
+              }
+
+              return 0;
+            } catch (error) {
+              console.error('❌ GSC connection failed:', error.message);
+              if (error.message.includes('403')) {
+                console.error('   → Service account not authorized for this site');
+              }
+              if (error.message.includes('notFound')) {
+                console.error('   → Site URL incorrect or not verified');
+              }
+              return 1;
+            } finally {
+              fs.unlinkSync(credsPath);
+            }
+          }
+
+          test().then(code => process.exit(code));
+          EOFJS
+
+          node test-gsc.js
+
+      - name: Cleanup
+        if: always()
+        run: rm -f test-gsc.js /tmp/gsc-credentials.json
