@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Energy & Project Finance Calculators | Terrnix</title>
+<meta content="Free energy calculators for solar PV ROI, energy efficiency, heat pumps, LED lighting, and EV fleet transition. Calculate savings, CO2 reduction, NPV, IRR, and payback periods." name="description"/>
+<meta content="solar calculator, energy efficiency calculator, heat pump calculator, LED lighting calculator, EV fleet calculator, ROI, NPV, IRR, payback, CO2 reduction" name="keywords"/>
+<link rel="canonical" href="https://terrnix.com/tools/energy-suite/"/>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent2: #22d3ee; --accent3: #a3e635; --text: #e2e8f0; --muted: #94a3b8; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); }
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.glass { background: rgba(17, 26, 22, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(45, 61, 53, 0.5); }
+.tool-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s ease; }
+.tool-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+.input-field { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--text); width: 100%; }
+.input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--bg-dark); font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; }
+.result-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+</style>
+</head>
+<body class="min-h-screen">
+<nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-[#2d3d35]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<a class="flex items-center gap-2.5" href="/">
+<div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), var(--accent2));">
+<i class="fas fa-leaf text-sm" style="color: var(--bg-dark);"></i>
+</div>
+<span class="font-display font-bold text-lg">Terrnix</span>
+</a>
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-sm text-gray-400 hover:text-emerald-400 transition" href="/carbon-accounting/">Carbon Accounting</a>
+<a class="text-sm text-gray-400 hover:text-emerald-400 transition" href="/esg-reporting/">ESG Reporting</a>
+<a class="text-sm text-gray-400 hover:text-emerald-400 transition" href="/sustainability-intelligence/">Intelligence</a>
+<a class="text-sm text-emerald-400 font-medium" href="/tools/">Tools</a>
+</div>
+</div>
+</div>
+</nav>
+
+<main class="pt-24 pb-12 px-4 max-w-7xl mx-auto">
+<div class="text-center mb-12">
+<h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Energy & Project Finance <span class="gradient-text">Calculators</span></h1>
+<p class="text-gray-400 max-w-2xl mx-auto">Calculate ROI, NPV, IRR, payback periods, and CO2 reduction for solar, efficiency, heat pumps, LED lighting, and EV fleet transitions.</p>
+</div>
+
+<!-- Calculator Navigation -->
+<div class="flex flex-wrap justify-center gap-3 mb-12">
+<button class="calc-tab btn-primary" data-calc="solar">Solar PV ROI</button>
+<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="efficiency">Energy Efficiency</button>
+<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="heatpump">Heat Pump</button>
+<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="led">LED Lighting</button>
+<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="ev">EV Fleet</button>
+</div>
+
+<!-- Solar PV Calculator -->
+<div class="calc-section" id="calc-solar">
+<div class="grid lg:grid-cols-2 gap-8">
+<div class="glass rounded-xl p-6">
+<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">Solar PV ROI Calculator</h2>
+<div class="space-y-4">
+<div><label class="block text-sm text-gray-400 mb-1">System Size (kW)</label><input class="input-field" id="solar-size" type="number" value="100"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Installation Cost ($/kW)</label><input class="input-field" id="solar-cost" type="number" value="1200"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Annual Solar Irradiance (kWh/m2/year)</label><input class="input-field" id="solar-irradiance" type="number" value="1800"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Electricity Price ($/kWh)</label><input class="input-field" id="solar-price" type="number" value="0.15" step="0.01"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Grid Emission Factor (kg CO2/kWh)</label><input class="input-field" id="solar-grid-factor" type="number" value="0.5" step="0.01"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Discount Rate (%)</label><input class="input-field" id="solar-discount" type="number" value="6"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Project Lifetime (years)</label><input class="input-field" id="solar-lifetime" type="number" value="25"/></div>
+<button class="btn-primary w-full mt-4" onclick="calculateSolar()">Calculate</button>
+</div>
+</div>
+<div class="space-y-4" id="solar-results">
+<div class="result-card"><div class="text-sm text-gray-400">Annual Energy Production</div><div class="text-2xl font-bold text-emerald-400" id="solar-annual-kwh">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Annual Savings</div><div class="text-2xl font-bold text-emerald-400" id="solar-annual-savings">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="solar-co2">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">NPV</div><div class="text-2xl font-bold text-emerald-400" id="solar-npv">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">IRR</div><div class="text-2xl font-bold text-emerald-400" id="solar-irr">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Payback Period</div><div class="text-2xl font-bold text-emerald-400" id="solar-payback">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">LCOE ($/kWh)</div><div class="text-2xl font-bold text-emerald-400" id="solar-lcoe">-</div></div>
+</div>
+</div>
+<div class="mt-8 glass rounded-xl p-6">
+<h3 class="font-display text-xl font-bold mb-4">20-Year Cash Flow Projection</h3>
+<canvas height="300" id="solar-chart"></canvas>
+</div>
+</div>
+
+<!-- Energy Efficiency Calculator -->
+<div class="calc-section hidden" id="calc-efficiency">
+<div class="grid lg:grid-cols-2 gap-8">
+<div class="glass rounded-xl p-6">
+<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">Energy Efficiency Calculator</h2>
+<div class="space-y-4">
+<div><label class="block text-sm text-gray-400 mb-1">Current Annual Energy Use (MWh)</label><input class="input-field" id="eff-current" type="number" value="500"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Expected Reduction (%)</label><input class="input-field" id="eff-reduction" type="number" value="20"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Investment Cost ($)</label><input class="input-field" id="eff-investment" type="number" value="50000"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Energy Price ($/MWh)</label><input class="input-field" id="eff-price" type="number" value="120"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Grid Emission Factor (kg CO2/kWh)</label><input class="input-field" id="eff-grid-factor" type="number" value="0.5" step="0.01"/></div>
+<button class="btn-primary w-full mt-4" onclick="calculateEfficiency()">Calculate</button>
+</div>
+</div>
+<div class="space-y-4" id="eff-results">
+<div class="result-card"><div class="text-sm text-gray-400">Annual Energy Savings (MWh)</div><div class="text-2xl font-bold text-emerald-400" id="eff-savings-mwh">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Annual Financial Savings</div><div class="text-2xl font-bold text-emerald-400" id="eff-savings-cost">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="eff-co2">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">ROI (%)</div><div class="text-2xl font-bold text-emerald-400" id="eff-roi">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="eff-payback">-</div></div>
+</div>
+</div>
+</div>
+
+<!-- Heat Pump Calculator -->
+<div class="calc-section hidden" id="calc-heatpump">
+<div class="grid lg:grid-cols-2 gap-8">
+<div class="glass rounded-xl p-6">
+<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">Heat Pump Calculator</h2>
+<div class="space-y-4">
+<div><label class="block text-sm text-gray-400 mb-1">Building Area (m2)</label><input class="input-field" id="hp-area" type="number" value="1000"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Current Heating System</label><select class="input-field" id="hp-current"><option value="gas">Natural Gas</option><option value="oil">Heating Oil</option><option value="electric">Electric Resistance</option><option value="coal">Coal</option></select></div>
+<div><label class="block text-sm text-gray-400 mb-1">Heat Pump COP</label><input class="input-field" id="hp-cop" type="number" value="3.5" step="0.1"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Heat Pump Cost ($)</label><input class="input-field" id="hp-cost" type="number" value="25000"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Annual Heating Degree Days</label><input class="input-field" id="hp-hdd" type="number" value="2500"/></div>
+<button class="btn-primary w-full mt-4" onclick="calculateHeatPump()">Calculate</button>
+</div>
+</div>
+<div class="space-y-4" id="hp-results">
+<div class="result-card"><div class="text-sm text-gray-400">Annual Fuel Savings</div><div class="text-2xl font-bold text-emerald-400" id="hp-fuel-savings">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Annual Operating Cost</div><div class="text-2xl font-bold text-emerald-400" id="hp-operating-cost">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="hp-co2">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="hp-payback">-</div></div>
+</div>
+</div>
+</div>
+
+<!-- LED Lighting Calculator -->
+<div class="calc-section hidden" id="calc-led">
+<div class="grid lg:grid-cols-2 gap-8">
+<div class="glass rounded-xl p-6">
+<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">LED Lighting Calculator</h2>
+<div class="space-y-4">
+<div><label class="block text-sm text-gray-400 mb-1">Number of Fixtures</label><input class="input-field" id="led-fixtures" type="number" value="100"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Current Wattage per Fixture (W)</label><input class="input-field" id="led-current-watt" type="number" value="60"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">LED Wattage per Fixture (W)</label><input class="input-field" id="led-new-watt" type="number" value="15"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Daily Operating Hours</label><input class="input-field" id="led-hours" type="number" value="10"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">LED Upgrade Cost ($)</label><input class="input-field" id="led-cost" type="number" value="3000"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Electricity Price ($/kWh)</label><input class="input-field" id="led-price" type="number" value="0.15" step="0.01"/></div>
+<button class="btn-primary w-full mt-4" onclick="calculateLED()">Calculate</button>
+</div>
+</div>
+<div class="space-y-4" id="led-results">
+<div class="result-card"><div class="text-sm text-gray-400">Annual Energy Savings (kWh)</div><div class="text-2xl font-bold text-emerald-400" id="led-savings-kwh">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Annual Financial Savings</div><div class="text-2xl font-bold text-emerald-400" id="led-savings-cost">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="led-co2">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">ROI (%)</div><div class="text-2xl font-bold text-emerald-400" id="led-roi">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="led-payback">-</div></div>
+</div>
+</div>
+</div>
+
+<!-- EV Fleet Calculator -->
+<div class="calc-section hidden" id="calc-ev">
+<div class="grid lg:grid-cols-2 gap-8">
+<div class="glass rounded-xl p-6">
+<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">EV Fleet Transition Calculator</h2>
+<div class="space-y-4">
+<div><label class="block text-sm text-gray-400 mb-1">Fleet Size (vehicles)</label><input class="input-field" id="ev-fleet-size" type="number" value="20"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Annual km per Vehicle</label><input class="input-field" id="ev-annual-km" type="number" value="30000"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Current Fuel Efficiency (L/100km)</label><input class="input-field" id="ev-fuel-eff" type="number" value="8" step="0.1"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Fuel Price ($/L)</label><input class="input-field" id="ev-fuel-price" type="number" value="1.5" step="0.1"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">EV Efficiency (kWh/100km)</label><input class="input-field" id="ev-kwh-eff" type="number" value="20" step="0.1"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">Electricity Price ($/kWh)</label><input class="input-field" id="ev-elec-price" type="number" value="0.15" step="0.01"/></div>
+<div><label class="block text-sm text-gray-400 mb-1">EV Premium per Vehicle ($)</label><input class="input-field" id="ev-premium" type="number" value="15000"/></div>
+<button class="btn-primary w-full mt-4" onclick="calculateEV()">Calculate</button>
+</div>
+</div>
+<div class="space-y-4" id="ev-results">
+<div class="result-card"><div class="text-sm text-gray-400">Annual Fuel Savings</div><div class="text-2xl font-bold text-emerald-400" id="ev-fuel-savings">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Annual Charging Costs</div><div class="text-2xl font-bold text-emerald-400" id="ev-charging-cost">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Net Annual Savings</div><div class="text-2xl font-bold text-emerald-400" id="ev-net-savings">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="ev-co2">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Fleet TCO (10 years)</div><div class="text-2xl font-bold text-emerald-400" id="ev-tco">-</div></div>
+<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="ev-payback">-</div></div>
+</div>
+</div>
+</div>
+
+</main>
+
+<script>
+// Tab switching
+document.querySelectorAll('.calc-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.calc-tab').forEach(t => {
+            t.classList.remove('btn-primary');
+            t.classList.add('bg-[#1a2520]', 'border', 'border-[#2d3d35]', 'text-gray-300');
+        });
+        tab.classList.remove('bg-[#1a2520]', 'border', 'border-[#2d3d35]', 'text-gray-300');
+        tab.classList.add('btn-primary');
+        document.querySelectorAll('.calc-section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('calc-' + tab.dataset.calc).classList.remove('hidden');
+    });
+});
+
+// Solar PV Calculator
+function calculateSolar() {
+    const size = parseFloat(document.getElementById('solar-size').value) || 0;
+    const costPerKw = parseFloat(document.getElementById('solar-cost').value) || 0;
+    const irradiance = parseFloat(document.getElementById('solar-irradiance').value) || 0;
+    const price = parseFloat(document.getElementById('solar-price').value) || 0;
+    const gridFactor = parseFloat(document.getElementById('solar-grid-factor').value) || 0;
+    const discount = parseFloat(document.getElementById('solar-discount').value) || 0;
+    const lifetime = parseFloat(document.getElementById('solar-lifetime').value) || 0;
+
+    const totalCost = size * costPerKw;
+    const annualKwh = size * irradiance * 0.8; // 80% performance ratio
+    const annualSavings = annualKwh * price;
+    const annualCo2 = annualKwh * gridFactor / 1000;
+
+    // NPV calculation
+    let npv = -totalCost;
+    for (let year = 1; year <= lifetime; year++) {
+        const degradation = Math.pow(0.995, year); // 0.5% annual degradation
+        const cashFlow = annualSavings * degradation;
+        npv += cashFlow / Math.pow(1 + discount / 100, year);
+    }
+
+    // IRR approximation
+    let irr = 0;
+    for (let r = 0; r <= 50; r += 0.1) {
+        let npvTest = -totalCost;
+        for (let year = 1; year <= lifetime; year++) {
+            const degradation = Math.pow(0.995, year);
+            npvTest += (annualSavings * degradation) / Math.pow(1 + r / 100, year);
+        }
+        if (npvTest <= 0) { irr = r; break; }
+    }
+
+    // Payback
+    let cumulative = 0;
+    let payback = lifetime;
+    for (let year = 1; year <= lifetime; year++) {
+        cumulative += annualSavings * Math.pow(0.995, year);
+        if (cumulative >= totalCost) { payback = year; break; }
+    }
+
+    // LCOE
+    let totalKwh = 0;
+    let totalCostLifetime = totalCost;
+    for (let year = 1; year <= lifetime; year++) {
+        totalKwh += annualKwh * Math.pow(0.995, year);
+        totalCostLifetime += size * 20; // $20/kW/year O&M
+    }
+    const lcoe = totalKwh > 0 ? totalCostLifetime / totalKwh : 0;
+
+    document.getElementById('solar-annual-kwh').textContent = annualKwh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kWh';
+    document.getElementById('solar-annual-savings').textContent = '$' + annualSavings.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('solar-co2').textContent = annualCo2.toFixed(1) + ' tCO2';
+    document.getElementById('solar-npv').textContent = '$' + npv.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('solar-irr').textContent = irr.toFixed(1) + '%';
+    document.getElementById('solar-payback').textContent = payback + ' years';
+    document.getElementById('solar-lcoe').textContent = '$' + lcoe.toFixed(3);
+
+    // Chart
+    const ctx = document.getElementById('solar-chart').getContext('2d');
+    const labels = Array.from({length: lifetime}, (_, i) => 'Year ' + (i + 1));
+    const cumulativeCash = labels.map((_, i) => {
+        let cum = -totalCost;
+        for (let y = 1; y <= i + 1; y++) {
+            cum += annualSavings * Math.pow(0.995, y);
+        }
+        return cum;
+    });
+
+    if (window.solarChart) window.solarChart.destroy();
+    window.solarChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cumulative Cash Flow ($)',
+                data: cumulativeCash,
+                borderColor: '#4ade80',
+                backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#94a3b8' } } },
+            scales: {
+                y: { ticks: { color: '#94a3b8' }, grid: { color: '#1f2937' } },
+                x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+            }
+        }
+    });
+}
+
+// Energy Efficiency Calculator
+function calculateEfficiency() {
+    const current = parseFloat(document.getElementById('eff-current').value) || 0;
+    const reduction = parseFloat(document.getElementById('eff-reduction').value) || 0;
+    const investment = parseFloat(document.getElementById('eff-investment').value) || 0;
+    const price = parseFloat(document.getElementById('eff-price').value) || 0;
+    const gridFactor = parseFloat(document.getElementById('eff-grid-factor').value) || 0;
+
+    const savingsMwh = current * reduction / 100;
+    const savingsCost = savingsMwh * price;
+    const co2 = savingsMwh * 1000 * gridFactor / 1000;
+    const roi = investment > 0 ? (savingsCost / investment * 100) : 0;
+    const payback = savingsCost > 0 ? investment / savingsCost : 0;
+
+    document.getElementById('eff-savings-mwh').textContent = savingsMwh.toFixed(1) + ' MWh';
+    document.getElementById('eff-savings-cost').textContent = '$' + savingsCost.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('eff-co2').textContent = co2.toFixed(1) + ' tCO2';
+    document.getElementById('eff-roi').textContent = roi.toFixed(1) + '%';
+    document.getElementById('eff-payback').textContent = payback.toFixed(1) + ' years';
+}
+
+// Heat Pump Calculator
+function calculateHeatPump() {
+    const area = parseFloat(document.getElementById('hp-area').value) || 0;
+    const current = document.getElementById('hp-current').value;
+    const cop = parseFloat(document.getElementById('hp-cop').value) || 0;
+    const cost = parseFloat(document.getElementById('hp-cost').value) || 0;
+    const hdd = parseFloat(document.getElementById('hp-hdd').value) || 0;
+
+    const heatLoad = area * hdd * 0.024; // kWh/year
+    const currentEff = {gas: 0.9, oil: 0.85, electric: 1.0, coal: 0.7}[current] || 0.9;
+    const fuelPrices = {gas: 0.05, oil: 0.08, electric: 0.15, coal: 0.03};
+    const fuelEmissions = {gas: 0.2, oil: 0.27, electric: 0.5, coal: 0.35};
+
+    const currentConsumption = heatLoad / currentEff;
+    const currentCost = currentConsumption * (fuelPrices[current] || 0.05);
+    const hpConsumption = heatLoad / cop;
+    const hpCost = hpConsumption * 0.15; // electricity at $0.15/kWh
+    const fuelSavings = currentCost - hpCost;
+    const co2Reduction = currentConsumption * (fuelEmissions[current] || 0.2) / 1000 - hpConsumption * 0.5 / 1000;
+    const payback = fuelSavings > 0 ? cost / fuelSavings : 0;
+
+    document.getElementById('hp-fuel-savings').textContent = '$' + fuelSavings.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('hp-operating-cost').textContent = '$' + hpCost.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('hp-co2').textContent = co2Reduction.toFixed(1) + ' tCO2';
+    document.getElementById('hp-payback').textContent = payback.toFixed(1) + ' years';
+}
+
+// LED Lighting Calculator
+function calculateLED() {
+    const fixtures = parseFloat(document.getElementById('led-fixtures').value) || 0;
+    const currentWatt = parseFloat(document.getElementById('led-current-watt').value) || 0;
+    const newWatt = parseFloat(document.getElementById('led-new-watt').value) || 0;
+    const hours = parseFloat(document.getElementById('led-hours').value) || 0;
+    const cost = parseFloat(document.getElementById('led-cost').value) || 0;
+    const price = parseFloat(document.getElementById('led-price').value) || 0;
+
+    const currentKwh = fixtures * currentWatt * hours * 365 / 1000;
+    const newKwh = fixtures * newWatt * hours * 365 / 1000;
+    const savingsKwh = currentKwh - newKwh;
+    const savingsCost = savingsKwh * price;
+    const co2 = savingsKwh * 0.5 / 1000;
+    const roi = cost > 0 ? (savingsCost / cost * 100) : 0;
+    const payback = savingsCost > 0 ? cost / savingsCost : 0;
+
+    document.getElementById('led-savings-kwh').textContent = savingsKwh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kWh';
+    document.getElementById('led-savings-cost').textContent = '$' + savingsCost.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('led-co2').textContent = co2.toFixed(1) + ' tCO2';
+    document.getElementById('led-roi').textContent = roi.toFixed(1) + '%';
+    document.getElementById('led-payback').textContent = payback.toFixed(1) + ' years';
+}
+
+// EV Fleet Calculator
+function calculateEV() {
+    const fleetSize = parseFloat(document.getElementById('ev-fleet-size').value) || 0;
+    const annualKm = parseFloat(document.getElementById('ev-annual-km').value) || 0;
+    const fuelEff = parseFloat(document.getElementById('ev-fuel-eff').value) || 0;
+    const fuelPrice = parseFloat(document.getElementById('ev-fuel-price').value) || 0;
+    const kwhEff = parseFloat(document.getElementById('ev-kwh-eff').value) || 0;
+    const elecPrice = parseFloat(document.getElementById('ev-elec-price').value) || 0;
+    const premium = parseFloat(document.getElementById('ev-premium').value) || 0;
+
+    const totalKm = fleetSize * annualKm;
+    const fuelConsumption = totalKm * fuelEff / 100;
+    const fuelCost = fuelConsumption * fuelPrice;
+    const elecConsumption = totalKm * kwhEff / 100;
+    const elecCost = elecConsumption * elecPrice;
+    const netSavings = fuelCost - elecCost;
+    const co2Reduction = fuelConsumption * 2.3 / 1000 - elecConsumption * 0.5 / 1000;
+    const totalPremium = fleetSize * premium;
+    const payback = netSavings > 0 ? totalPremium / netSavings : 0;
+
+    // TCO over 10 years
+    const evTco = totalPremium + elecCost * 10 + fleetSize * 5000; // maintenance
+    const iceTco = fuelCost * 10 + fleetSize * 8000; // maintenance + replacement
+
+    document.getElementById('ev-fuel-savings').textContent = '$' + fuelCost.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('ev-charging-cost').textContent = '$' + elecCost.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('ev-net-savings').textContent = '$' + netSavings.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('ev-co2').textContent = co2Reduction.toFixed(1) + ' tCO2';
+    document.getElementById('ev-tco').textContent = '$' + evTco.toLocaleString('en-US', {maximumFractionDigits: 0});
+    document.getElementById('ev-payback').textContent = payback.toFixed(1) + ' years';
+}
+
+// Initialize
+window.addEventListener('load', () => calculateSolar());
+</script>
+</body>
+</html>
