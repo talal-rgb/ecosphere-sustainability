@@ -15,7 +15,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install googleapis
+        run: npm install --no-save googleapis
 
       - name: Step 1 — Identify service account email
         env:
@@ -115,7 +115,7 @@ jobs:
 
               if (!res.data.siteEntry || res.data.siteEntry.length === 0) {
                 console.log('MISMATCH: No properties accessible — cannot compare.');
-                fs.unlinkSync(credsPath);
+                process.exitCode = 1;
                 return;
               }
 
@@ -136,9 +136,14 @@ jobs:
                 console.log(`Configured: "${configuredSiteUrl}"`);
                 console.log('');
                 console.log('ACTION: Update GSC_SITE_URL secret to one of the exact values above.');
+                process.exitCode = 1;
               }
             } catch (error) {
               console.error('❌ Comparison failed:', error.message);
+              if (error.response && error.response.data) {
+                console.error('Error body:', JSON.stringify(error.response.data, null, 2));
+              }
+              process.exitCode = 1;
             } finally {
               fs.unlinkSync(credsPath);
             }
@@ -181,6 +186,7 @@ jobs:
             if (!siteUrl) {
               console.log('❌ GSC_SITE_URL not set — skipping query.');
               fs.unlinkSync(credsPath);
+              process.exitCode = 1;
               return;
             }
 
@@ -217,13 +223,17 @@ jobs:
             } catch (error) {
               console.error('❌ QUERY FAILED');
               console.error(`Error message: ${error.message}`);
-              if (error.response && error.response.data) {
+              if (error.response) {
                 console.error('HTTP status:', error.response.status);
-                console.error('Error body:', JSON.stringify(error.response.data, null, 2));
+                console.error('HTTP statusText:', error.response.statusText);
+                if (error.response.data) {
+                  console.error('Error body:', JSON.stringify(error.response.data, null, 2));
+                }
               }
               if (error.message.includes('403')) {
                 console.error('→ 403 Forbidden: Check permissionLevel from Step 2 and API scope.');
               }
+              process.exitCode = 1;
             } finally {
               fs.unlinkSync(credsPath);
             }
