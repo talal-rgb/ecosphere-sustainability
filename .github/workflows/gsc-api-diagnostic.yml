@@ -1,0 +1,238 @@
+name: GSC API Diagnostic
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install googleapis
+
+      - name: Step 1 — Identify service account email
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+        run: |
+          cat > step1.js << 'EOFJS'
+          const fs = require('fs');
+          const credentials = process.env.GSC_CREDENTIALS;
+          if (!credentials) {
+            console.error('❌ GSC_CREDENTIALS secret is not set');
+            process.exit(1);
+          }
+          const creds = JSON.parse(credentials);
+          if (!creds.client_email) {
+            console.error('❌ client_email field missing from GSC_CREDENTIALS JSON');
+            process.exit(1);
+          }
+          console.log('=== STEP 1: SERVICE ACCOUNT EMAIL ===');
+          console.log(creds.client_email);
+          EOFJS
+          node step1.js
+
+      - name: Step 2 — List accessible Search Console properties
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+        run: |
+          cat > step2.js << 'EOFJS'
+          const { google } = require('googleapis');
+          const fs = require('fs');
+
+          async function listSites() {
+            const credentials = process.env.GSC_CREDENTIALS;
+            const credsPath = '/tmp/gsc-credentials.json';
+            fs.writeFileSync(credsPath, credentials);
+
+            try {
+              const auth = new google.auth.GoogleAuth({
+                keyFile: credsPath,
+                scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
+              });
+
+              const webmasters = google.webmasters({ version: 'v3', auth });
+              const res = await webmasters.sites.list();
+
+              console.log('=== STEP 2: ACCESSIBLE PROPERTIES ===');
+              if (!res.data.siteEntry || res.data.siteEntry.length === 0) {
+                console.log('NO_PROPERTIES_FOUND');
+                console.log('The service account has access to ZERO Search Console properties.');
+              } else {
+                res.data.siteEntry.forEach(entry => {
+                  console.log(`siteUrl: ${entry.siteUrl}`);
+                  console.log(`permissionLevel: ${entry.permissionLevel}`);
+                  console.log('---');
+                });
+              }
+            } catch (error) {
+              console.error('❌ sites.list failed:', error.message);
+              if (error.response && error.response.data) {
+                console.error('Error body:', JSON.stringify(error.response.data, null, 2));
+              }
+              process.exit(1);
+            } finally {
+              fs.unlinkSync(credsPath);
+            }
+          }
+
+          listSites();
+          EOFJS
+          node step2.js
+
+      - name: Step 3 — Compare property identifier
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        run: |
+          cat > step3.js << 'EOFJS'
+          const { google } = require('googleapis');
+          const fs = require('fs');
+
+          async function compare() {
+            const credentials = process.env.GSC_CREDENTIALS;
+            const configuredSiteUrl = process.env.GSC_SITE_URL;
+            const credsPath = '/tmp/gsc-credentials.json';
+            fs.writeFileSync(credsPath, credentials);
+
+            console.log('=== STEP 3: PROPERTY IDENTIFIER COMPARISON ===');
+            console.log(`Configured GSC_SITE_URL: ${configuredSiteUrl || '(NOT SET)'}`);
+
+            try {
+              const auth = new google.auth.GoogleAuth({
+                keyFile: credsPath,
+                scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
+              });
+
+              const webmasters = google.webmasters({ version: 'v3', auth });
+              const res = await webmasters.sites.list();
+
+              if (!res.data.siteEntry || res.data.siteEntry.length === 0) {
+                console.log('MISMATCH: No properties accessible — cannot compare.');
+                fs.unlinkSync(credsPath);
+                return;
+              }
+
+              const matchingEntry = res.data.siteEntry.find(
+                entry => entry.siteUrl === configuredSiteUrl
+              );
+
+              if (matchingEntry) {
+                console.log('✅ EXACT MATCH');
+                console.log(`siteUrl: ${matchingEntry.siteUrl}`);
+                console.log(`permissionLevel: ${matchingEntry.permissionLevel}`);
+              } else {
+                console.log('❌ MISMATCH');
+                console.log('Accessible properties:');
+                res.data.siteEntry.forEach(entry => {
+                  console.log(`  - "${entry.siteUrl}" (permission: ${entry.permissionLevel})`);
+                });
+                console.log(`Configured: "${configuredSiteUrl}"`);
+                console.log('');
+                console.log('ACTION: Update GSC_SITE_URL secret to one of the exact values above.');
+              }
+            } catch (error) {
+              console.error('❌ Comparison failed:', error.message);
+            } finally {
+              fs.unlinkSync(credsPath);
+            }
+          }
+
+          compare();
+          EOFJS
+          node step3.js
+
+      - name: Step 4 — Verify API configuration
+        run: |
+          echo "=== STEP 4: API CONFIGURATION ==="
+          echo "OAuth scope: https://www.googleapis.com/auth/webmasters.readonly"
+          echo "Required: Search Console API enabled in the Google Cloud project that issued the service-account JSON."
+          echo "Required: Workflow uses secrets.GSC_CREDENTIALS and secrets.GSC_SITE_URL."
+          echo ""
+          echo "Manual verification needed in Google Cloud Console:"
+          echo "  1. APIs & Services → Enabled APIs & services → search 'Search Console API'"
+          echo "  2. IAM & Admin → Service Accounts → confirm the email from Step 1 exists"
+
+      - name: Step 5 — Run one minimal Search Analytics query
+        if: ${{ success() }}
+        env:
+          GSC_CREDENTIALS: ${{ secrets.GSC_CREDENTIALS }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        run: |
+          cat > step5.js << 'EOFJS'
+          const { google } = require('googleapis');
+          const fs = require('fs');
+
+          async function query() {
+            const credentials = process.env.GSC_CREDENTIALS;
+            const siteUrl = process.env.GSC_SITE_URL;
+            const credsPath = '/tmp/gsc-credentials.json';
+            fs.writeFileSync(credsPath, credentials);
+
+            console.log('=== STEP 5: MINIMAL SEARCH ANALYTICS QUERY ===');
+            console.log(`Querying site: ${siteUrl}`);
+
+            if (!siteUrl) {
+              console.log('❌ GSC_SITE_URL not set — skipping query.');
+              fs.unlinkSync(credsPath);
+              return;
+            }
+
+            // Date range: 7 days ago to 3 days ago (avoid same-day data)
+            const endDate = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+            try {
+              const auth = new google.auth.GoogleAuth({
+                keyFile: credsPath,
+                scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
+              });
+
+              const webmasters = google.webmasters({ version: 'v3', auth });
+
+              const res = await webmasters.searchanalytics.query({
+                siteUrl: siteUrl,
+                requestBody: {
+                  startDate,
+                  endDate,
+                  dimensions: ['date'],
+                  rowLimit: 10
+                }
+              });
+
+              console.log('✅ QUERY SUCCEEDED');
+              console.log(`Date range: ${startDate} to ${endDate}`);
+              console.log(`Rows returned: ${res.data.rows ? res.data.rows.length : 0}`);
+              if (res.data.rows && res.data.rows.length > 0) {
+                res.data.rows.forEach(row => {
+                  console.log(`  ${row.keys[0]}: clicks=${row.clicks}, impressions=${row.impressions}`);
+                });
+              }
+            } catch (error) {
+              console.error('❌ QUERY FAILED');
+              console.error(`Error message: ${error.message}`);
+              if (error.response && error.response.data) {
+                console.error('HTTP status:', error.response.status);
+                console.error('Error body:', JSON.stringify(error.response.data, null, 2));
+              }
+              if (error.message.includes('403')) {
+                console.error('→ 403 Forbidden: Check permissionLevel from Step 2 and API scope.');
+              }
+            } finally {
+              fs.unlinkSync(credsPath);
+            }
+          }
+
+          query();
+          EOFJS
+          node step5.js
+
+      - name: Cleanup
+        if: always()
+        run: rm -f step1.js step2.js step3.js step5.js /tmp/gsc-credentials.json
