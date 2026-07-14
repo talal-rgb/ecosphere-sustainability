@@ -20,6 +20,7 @@
 <link rel="canonical" href="https://terrnix.com/"/>
 <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
 <script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-pb6hrQvo4s23cEUFtj0CZkzGE3jyK3pj26RIupXXxhSrrcUA/Cn0lZgcCrGH0t6L" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha384-9MhbyIRcBVQiiC7FSd7T38oJNj2Zh+EfxS7/vjhBi4OOT78NlHSnzM31EZRWR1LZ" crossorigin="anonymous"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous"/>
@@ -4596,8 +4597,8 @@ input[type="range"].slider::-moz-range-thumb {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('exportPDF').addEventListener('click', () => {
-    window.print();
+  document.getElementById('exportPDF').addEventListener('click', async () => {
+    await downloadPDFReport();
   });
 
   // ============================================================
@@ -4894,6 +4895,20 @@ input[type="range"].slider::-moz-range-thumb {
 <span id="quizLeadErrorText">Something went wrong. Please try again.</span>
 </div>
 </div>
+</div>
+</div>
+
+<!-- ====== QUIZ CERTIFICATE DOWNLOAD ====== -->
+<div class="hidden max-w-lg mx-auto mb-8" id="quiz-certificate-section">
+<div class="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 p-6 text-center">
+<div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mx-auto mb-4">
+<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-white mb-2">Download Your Certificate</h3>
+<p class="text-slate-400 text-sm mb-4">Get a personalized PDF certificate recognizing your sustainability knowledge achievement.</p>
+<button class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-semibold transition-all shadow-lg shadow-amber-500/20" onclick="downloadQuizCertificate()">
+<i class="fas fa-download mr-2"></i>Download Certificate
+                </button>
 </div>
 </div>
 
@@ -6010,6 +6025,15 @@ function startQuiz() {
     document.getElementById('quiz-result').classList.add('hidden');
     document.getElementById('quiz-question').classList.remove('hidden');
 
+    // Track quiz start event
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'quiz_start', {
+            event_category: 'engagement',
+            event_label: 'sustainability_quiz',
+            value: 1
+        });
+    }
+
     loadQuestion();
 }
 
@@ -6139,6 +6163,7 @@ function showResults() {
     // Reset lead capture form state
     document.getElementById('quiz-lead-capture').classList.remove('hidden');
     document.getElementById('quiz-recommendations').classList.add('hidden');
+    document.getElementById('quiz-certificate-section').classList.add('hidden');
     document.getElementById('quizLeadSuccess').classList.add('hidden');
     document.getElementById('quizLeadError').classList.add('hidden');
     document.getElementById('quizLeadForm').reset();
@@ -6199,9 +6224,18 @@ The user requested their detailed quiz results via email.`;
         if (data.success) {
             document.getElementById('quizLeadSuccess').classList.remove('hidden');
             document.getElementById('quizLeadError').classList.add('hidden');
-            // Show recommendations after successful submission
+            // Track quiz complete event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'quiz_complete', {
+                    event_category: 'conversion',
+                    event_label: 'sustainability_quiz',
+                    value: pct
+                });
+            }
+            // Show certificate and recommendations after successful submission
             setTimeout(() => {
                 document.getElementById('quiz-lead-capture').classList.add('hidden');
+                document.getElementById('quiz-certificate-section').classList.remove('hidden');
                 document.getElementById('quiz-recommendations').classList.remove('hidden');
             }, 2000);
         } else {
@@ -6214,6 +6248,76 @@ The user requested their detailed quiz results via email.`;
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
+    }
+}
+
+// ============================================
+// QUIZ CERTIFICATE DOWNLOAD
+// ============================================
+function downloadQuizCertificate() {
+    const pct = Math.round((quizScore / quizQuestions.length) * 100);
+    const today = new Date().toISOString().split('T')[0];
+    const participantName = document.getElementById('quizLeadName')?.value || 'Quiz Participant';
+
+    const certificateHTML = `
+    <div style="font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 60px; text-align: center; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 8px solid #059669; border-radius: 20px;">
+        <div style="margin-bottom: 30px;">
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #4ade80, #22d3ee); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 40px;">🌱</span>
+            </div>
+        </div>
+        <h1 style="color: #059669; font-size: 36px; margin-bottom: 10px; font-weight: bold;">Certificate of Completion</h1>
+        <p style="color: #666; font-size: 18px; margin-bottom: 40px;">Terrnix Sustainability Intelligence Platform</p>
+        <p style="color: #333; font-size: 20px; margin-bottom: 20px;">This certifies that</p>
+        <h2 style="color: #059669; font-size: 32px; margin-bottom: 20px; font-weight: bold;">${participantName}</h2>
+        <p style="color: #333; font-size: 18px; margin-bottom: 30px;">has successfully completed the Terrnix Sustainability Knowledge Challenge</p>
+        <div style="background: white; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <p style="color: #666; font-size: 16px; margin-bottom: 10px;">Final Score</p>
+            <p style="color: #059669; font-size: 48px; font-weight: bold; margin: 0;">${pct}%</p>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">${quizScore} out of ${quizQuestions.length} questions correct</p>
+        </div>
+        <div style="margin: 30px 0; padding: 20px; background: white; border-radius: 8px;">
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">Performance Breakdown</p>
+            <p style="color: #333; font-size: 16px;">Beginner: ${quizScoresByDifficulty.Beginner.correct}/${quizScoresByDifficulty.Beginner.total}</p>
+            <p style="color: #333; font-size: 16px;">Intermediate: ${quizScoresByDifficulty.Intermediate.correct}/${quizScoresByDifficulty.Intermediate.total}</p>
+            <p style="color: #333; font-size: 16px;">Advanced: ${quizScoresByDifficulty.Advanced.correct}/${quizScoresByDifficulty.Advanced.total}</p>
+        </div>
+        <p style="color: #666; font-size: 14px; margin-top: 40px;">Issued on ${today}</p>
+        <p style="color: #666; font-size: 12px; margin-top: 20px;">Verify at terrnix.com | Intelligence for a greener tomorrow</p>
+    </div>`;
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = certificateHTML;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    if (typeof html2pdf !== 'undefined') {
+        const opt = {
+            margin: 0,
+            filename: `terrnix-sustainability-certificate-${today}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(tempDiv).save().then(() => {
+            document.body.removeChild(tempDiv);
+            // Track certificate download
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'quiz_certificate_download', {
+                    event_category: 'engagement',
+                    event_label: 'sustainability_quiz',
+                    value: pct
+                });
+            }
+        }).catch(err => {
+            console.error('Certificate generation failed:', err);
+            document.body.removeChild(tempDiv);
+            alert('Certificate generation failed. Please try again.');
+        });
+    } else {
+        document.body.removeChild(tempDiv);
+        alert('PDF generation not available. Please try again later.');
     }
 }
 
@@ -7496,9 +7600,145 @@ function exportResults(format) {
             </body></html>`
         );
         printWindow.document.close();
-        printWindow.print();
+        // Use html2pdf for actual PDF download instead of print dialog
+        if (typeof html2pdf !== 'undefined') {
+            const element = printWindow.document.body;
+            const opt = {
+                margin: 10,
+                filename: `terrnix-sustainability-report-${today}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save().then(() => {
+                printWindow.close();
+                // Track PDF download event
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'pdf_download', {
+                        event_category: 'engagement',
+                        event_label: 'sustainability_report',
+                        value: 1
+                    });
+                }
+            }).catch(err => {
+                console.error('PDF generation failed:', err);
+                // Fallback to print dialog if html2pdf fails
+                printWindow.print();
+            });
+        } else {
+            // Fallback if html2pdf library not loaded
+            printWindow.print();
+        }
     }
 }
+
+// ============================================
+// PDF REPORT DOWNLOAD FUNCTION
+// ============================================
+async function downloadPDFReport() {
+    // Show loading state
+    const btn = document.getElementById('exportPDF');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+    btn.disabled = true;
+
+    try {
+        // Collect calculator data
+        const s1 = document.getElementById('scope1Result')?.textContent || '0';
+        const s2 = document.getElementById('scope2Result')?.textContent || '0';
+        const s3 = document.getElementById('scope3Result')?.textContent || '0';
+        const total = document.getElementById('totalResult')?.textContent || '0';
+        const insight = document.getElementById('aiInsightText')?.textContent || '';
+        const today = new Date().toISOString().split('T')[0];
+        const timestamp = new Date().toISOString();
+
+        // Create PDF content
+        const pdfContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; color: #333;">
+            <div style="background: #ecfdf5; padding: 30px; border-radius: 12px; margin-bottom: 30px; border-left: 5px solid #059669;">
+                <h1 style="color: #059669; margin: 0 0 10px 0; font-size: 28px;">Terrnix Sustainability Intelligence Report</h1>
+                <p style="color: #666; margin: 0; font-size: 14px;">
+                    <strong>Generated:</strong> ${timestamp}<br>
+                    <strong>Platform:</strong> Terrnix AI Sustainability Intelligence v3.0<br>
+                    <strong>Methodology:</strong> GHG Protocol Corporate Standard, IPCC AR6, IEA 2024
+                </p>
+            </div>
+
+            <h2 style="color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px;">Carbon Footprint Results</h2>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr style="background: #f0fdf4;">
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #059669;">Scope</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #059669;">Emissions (tCO2e)</th>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;"><strong>Scope 1 (Direct)</strong></td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">${s1}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;"><strong>Scope 2 (Energy)</strong></td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">${s2}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;"><strong>Scope 3 (Value Chain)</strong></td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">${s3}</td>
+                </tr>
+                <tr style="background: #f0fdf4;">
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;"><strong>Total Carbon Footprint</strong></td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;"><strong>${total}</strong></td>
+                </tr>
+            </table>
+
+            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                <strong>Terrnix AI Insight:</strong> ${insight || 'Enter calculator data to generate AI insight.'}
+            </div>
+
+            <p style="color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                This report was generated by Terrnix (terrnix.com) using IPCC AR6 emission factors, IEA 2024 grid data, and EPA AP-42 combustion factors.
+                For audit and verification purposes, retain all input data and assumption documentation.
+            </p>
+        </div>`;
+
+        // Create temporary container
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = pdfContent;
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        document.body.appendChild(tempDiv);
+
+        // Generate PDF using html2pdf
+        if (typeof html2pdf !== 'undefined') {
+            const opt = {
+                margin: 10,
+                filename: `terrnix-sustainability-report-${today}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            await html2pdf().set(opt).from(tempDiv).save();
+            document.body.removeChild(tempDiv);
+
+            // Track PDF download event
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pdf_download', {
+                    event_category: 'engagement',
+                    event_label: 'sustainability_report',
+                    value: 1
+                });
+            }
+        } else {
+            // Fallback: use browser print if html2pdf not available
+            document.body.removeChild(tempDiv);
+            window.print();
+        }
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        alert('PDF generation failed. Please try again or use Export CSV instead.');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
 function renderNews() {
     const container = document.getElementById('news-container');
     if (!container) return;
