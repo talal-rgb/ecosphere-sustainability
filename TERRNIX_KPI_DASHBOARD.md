@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-06-18  
-**Next Update:** 2026-06-23
+**Last Updated:** 2026-07-14
+**Next Update:** 2026-07-20
 
 ---
 
@@ -10,16 +10,16 @@
 
 | Category | Metric | This Week | Last Week | Change | Trend |
 |----------|--------|-----------|-----------|--------|-------|
-| **Traffic** | Organic Sessions | - | - | - | ➡️ |
-| | Total Users | - | - | - | ➡️ |
-| | Returning Users | - | - | - | ➡️ |
-| **SEO** | Impressions | - | - | - | ➡️ |
-| | Clicks | - | - | - | ➡️ |
-| | CTR | - | - | - | ➡️ |
-| **Product** | Calculator Runs | - | - | - | ➡️ |
-| | PDF Downloads | - | - | - | ➡️ |
-| | Quiz Completions | - | - | - | ➡️ |
-| **Business** | Contact Forms | - | - | - | ➡️ |
+ | **Traffic** | - | - | - | - | ➡️ | 
+ |  | 4 | - | - | - | ➡️ | 
+ |  | - | - | - | - | ➡️ | 
+ | **SEO** | 52 | - | - | - | ➡️ | 
+ |  | - | - | - | - | ➡️ | 
+ |  | 0.00% | - | - | - | ➡️ | 
+ | **Product** | - | - | - | - | ➡️ | 
+ |  | - | - | - | - | ➡️ | 
+ |  | - | - | - | - | ➡️ | 
+ | **Business** | - | - | - | - | ➡️ | 
 | | Qualified Leads | - | - | - | ➡️ |
 | | Conversion Rate | - | - | - | ➡️ |
 | **Content** | Articles Published | - | - | - | ➡️ |
@@ -55,28 +55,25 @@
 **Goal:** 30%+ returning user rate
 
 ### Traffic Sources
+
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Organic Search | - | - |
-| Direct | - | - |
-| Referral | - | - |
-| Social | - | - |
-| Email | - | - |
-
----
+| Direct | 3 | 75.0% |
+| Organic Social | 1 | 25.0% |
 
 ## 🔍 SEO
 
 ### Search Console Overview
+
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | - | - | - |
-| Clicks | - | - | - |
-| CTR | - | - | - |
-| Avg Position | - | - | - |
+| Impressions | 52 | - | - |
+| Clicks | 0 | - | - |
+| CTR | 0.00% | - | - |
+| Avg Position | 7.3 | - | - |
 
 ### Top 20 Keywords
-| Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
+ | Rank | 0.00% | Impressions | Clicks | CTR | Position | Change | 
 |------|---------|-------------|--------|-----|----------|--------|
 | 1 | - | - | - | - | - | - |
 | 2 | - | - | - | - | - | - |
@@ -109,12 +106,11 @@
 ## 🛠️ Product
 
 ### Calculator Performance
+
 | Calculator | Runs | Completions | Completion Rate | Avg Time |
 |------------|------|-------------|-----------------|----------|
-| Carbon Footprint | - | - | - | - |
-| Total | - | - | - | - |
-
-**Goal:** 50+ calculator runs/week, 60%+ completion rate
+| Carbon Footprint | 0 | 0 | - | - |
+| **Total** | 0 | 0 | - | - |
 
 ### PDF Downloads
 | PDF | Downloads | Source Page | Conversion Rate |
@@ -241,13 +237,13 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
-| Organic Sessions | - | - | - | - |
-| Total Users | - | - | - | - |
-| Impressions | - | - | - | - |
-| Clicks | - | - | - | - |
-| Calculator Runs | - | - | - | - |
-| PDF Downloads | - | - | - | - |
-| Contact Forms | - | - | - | - |
+ | Organic Sessions | - | - | - | - | 
+ | Total Users | 4 | - | - | - | 
+ | Impressions | 52 | - | - | - | 
+ | Clicks | - | - | - | - | 
+ | Calculator Runs | - | - | - | - | 
+ | PDF Downloads | - | - | - | - | 
+ | Contact Forms | - | - | - | - | 
 | Qualified Leads | - | - | - | - |
 
 ---
@@ -271,6 +267,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-07-14 | Automated | Weekly KPI update |
 | 2026-06-18 | Terrnix AI | Dashboard created, baseline to be established |
 
 ---
