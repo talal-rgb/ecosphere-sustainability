@@ -36,7 +36,7 @@ async function fetchGSCData() {
       scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
     });
 
-    const searchconsole = google.searchconsole({
+    const webmasters = google.webmasters({
       version: 'v3',
       auth
     });
@@ -51,30 +51,26 @@ async function fetchGSCData() {
     console.log(`🔍 Fetching GSC data: ${formatDate(startDate)} to ${formatDate(endDate)}`);
 
     // Fetch site overview
-    const [overviewResponse] = await Promise.all([
-      searchconsole.searchanalytics.query({
-        siteUrl: SITE_URL,
-        requestBody: {
-          startDate: formatDate(startDate),
-          endDate: formatDate(endDate),
-          dimensions: ['date']
-        }
-      })
-    ]);
+    const overviewResponse = await webmasters.searchanalytics.query({
+      siteUrl: SITE_URL,
+      requestBody: {
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
+        dimensions: ['date']
+      }
+    });
 
     // Fetch top keywords
-    const [keywordsResponse] = await Promise.all([
-      searchconsole.searchanalytics.query({
-        siteUrl: SITE_URL,
-        requestBody: {
-          startDate: formatDate(startDate),
-          endDate: formatDate(endDate),
-          dimensions: ['query'],
-          rowLimit: 20,
-          startRow: 0
-        }
-      })
-    ]);
+    const keywordsResponse = await webmasters.searchanalytics.query({
+      siteUrl: SITE_URL,
+      requestBody: {
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
+        dimensions: ['query'],
+        rowLimit: 20,
+        startRow: 0
+      }
+    });
 
     // Calculate totals from overview
     let totalClicks = 0;

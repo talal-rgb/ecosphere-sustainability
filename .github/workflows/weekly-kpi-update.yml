@@ -9,6 +9,10 @@ on:
         description: 'Week ending date (YYYY-MM-DD, optional)'
         required: false
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   kpi-update:
     # ENABLED: GSC API diagnostic verified 2026-07-14
