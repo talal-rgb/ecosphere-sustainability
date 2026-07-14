@@ -4598,12 +4598,15 @@ input[type="range"].slider::-moz-range-thumb {
   });
 
   // Direct onclick handler for PDF export button
-  document.getElementById('exportPDF').onclick = async function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    await downloadPDFReport();
-    return false;
-  };
+  const exportPDFBtn = document.getElementById('exportPDF');
+  if (exportPDFBtn) {
+    exportPDFBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      downloadPDFReport();
+      return false;
+    });
+  }
 
   // ============================================================
   // SMOOTH SCROLL FOR ANCHOR LINKS
