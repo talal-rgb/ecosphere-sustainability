@@ -4597,7 +4597,9 @@ input[type="range"].slider::-moz-range-thumb {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('exportPDF').addEventListener('click', async () => {
+  document.getElementById('exportPDF').addEventListener('click', async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
     await downloadPDFReport();
   });
 
