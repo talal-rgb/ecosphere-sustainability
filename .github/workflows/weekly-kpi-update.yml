@@ -11,7 +11,8 @@ on:
 
 jobs:
   kpi-update:
-    if: false  # DISABLED until manually verified
+    # ENABLED: GSC API diagnostic verified 2026-07-14
+    # Property: sc-domain:terrnix.com | Permission: siteOwner
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,9 +37,7 @@ jobs:
           echo "✅ GA secrets configured"
 
       - name: Install dependencies
-        run: |
-          npm install @google-analytics/data
-          npm install googleapis
+        run: npm install --no-save @google-analytics/data googleapis
 
       - name: Fetch GA Data
         env:
