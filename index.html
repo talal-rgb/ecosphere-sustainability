@@ -7718,20 +7718,30 @@ async function downloadPDFReport() {
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            await html2pdf().set(opt).from(tempDiv).save();
-            document.body.removeChild(tempDiv);
-
-            // Track PDF download event
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'pdf_download', {
-                    event_category: 'engagement',
-                    event_label: 'sustainability_report',
-                    value: 1
-                });
-            }
+            html2pdf().set(opt).from(tempDiv).save().then(() => {
+                if (document.body.contains(tempDiv)) {
+                    document.body.removeChild(tempDiv);
+                }
+                // Track PDF download event
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'pdf_download', {
+                        event_category: 'engagement',
+                        event_label: 'sustainability_report',
+                        value: 1
+                    });
+                }
+            }).catch(err => {
+                console.error('PDF generation error:', err);
+                if (document.body.contains(tempDiv)) {
+                    document.body.removeChild(tempDiv);
+                }
+                alert('PDF generation failed. Please try again or use Export CSV instead.');
+            });
         } else {
             // Fallback: use browser print if html2pdf not available
-            document.body.removeChild(tempDiv);
+            if (document.body.contains(tempDiv)) {
+                document.body.removeChild(tempDiv);
+            }
             window.print();
         }
     } catch (error) {
