@@ -4597,11 +4597,13 @@ input[type="range"].slider::-moz-range-thumb {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('exportPDF').addEventListener('click', async function(e) {
+  // Direct onclick handler for PDF export button
+  document.getElementById('exportPDF').onclick = async function(e) {
     e.preventDefault();
     e.stopPropagation();
     await downloadPDFReport();
-  });
+    return false;
+  };
 
   // ============================================================
   // SMOOTH SCROLL FOR ANCHOR LINKS
