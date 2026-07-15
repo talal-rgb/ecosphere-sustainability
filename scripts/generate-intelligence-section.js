@@ -5,7 +5,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 
 const ARTICLES = [
   {
@@ -14,7 +13,7 @@ const ARTICLES = [
     date: "2026-07-14",
     category: "Policy",
     excerpt: "The EU ESG Rating Regulation entered force July 2, 2026. African companies with EU investors, listings, or export contracts must verify their ESG rating providers are ESMA-authorized. Complete compliance checklist and Morocco-specific guidance.",
-    image: "/assets/images/eu-esg-rating-regulation-og.jpg",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=450&fit=crop",
     imageAlt: "European Union flag with ESG rating chart and African continent map",
     readingTime: "12 min"
   },
@@ -24,7 +23,7 @@ const ARTICLES = [
     date: "2026-07-14",
     category: "Corporate",
     excerpt: "Morocco's national carbon tax and EU CBAM create a dual compliance challenge. Learn how Moroccan steel, cement, and fertilizer exporters can leverage renewable energy to capture EU market share and access €1 billion in green financing.",
-    image: "/assets/images/morocco-cbam-opportunity-og.jpg",
+    image: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800&h=450&fit=crop",
     imageAlt: "Morocco industrial port with renewable energy and EU trade symbols",
     readingTime: "10 min"
   },
@@ -34,7 +33,7 @@ const ARTICLES = [
     date: "2026-06-29",
     category: "Strategy",
     excerpt: "SBTi relaxed its near-term target rules in April 2026. Scope 1 and 2 targets for 2030 dropped from 42% to 21%. The change brings more companies into the system, but critics warn it widens the gap between science-based targets and actual climate science.",
-    image: "/sustainability-intelligence/images/sbti-targets-2026.jpg",
+    image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=450&fit=crop",
     imageAlt: "SBTi target reduction chart showing 42% to 21% change",
     readingTime: "11 min"
   },
@@ -44,7 +43,7 @@ const ARTICLES = [
     date: "2026-06-29",
     category: "Policy",
     excerpt: "The GHG Protocol published its Phase 1 Progress Update, the first revision since 2011. Six proposed changes will fundamentally alter how companies measure, report, and verify Scope 3 emissions. CSRD, ISSB, CDP, and SBTi will all be affected.",
-    image: "/sustainability-intelligence/images/ghg-protocol-scope3-2026.jpg",
+    image: "https://images.unsplash.com/photo-1500829243541-74b677fecc30?w=800&h=450&fit=crop",
     imageAlt: "Supply chain carbon footprint diagram",
     readingTime: "12 min"
   },
@@ -54,7 +53,7 @@ const ARTICLES = [
     date: "2026-06-29",
     category: "Policy",
     excerpt: "The EU Carbon Border Adjustment Mechanism entered its definitive phase on January 1, 2026. Authorization required by March 31, 2026. This article covers certificate mechanics, annual reporting, and verification requirements for importers.",
-    image: "/sustainability-intelligence/images/cbam-compliance-2026.jpg",
+    image: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&h=450&fit=crop",
     imageAlt: "EU border with carbon inspection checkpoint",
     readingTime: "10 min"
   },
@@ -64,7 +63,7 @@ const ARTICLES = [
     date: "2026-06-29",
     category: "Policy",
     excerpt: "The European Commission adopted simplified ESRS standards in June 2026. Listed SMEs and non-EU companies with EU subsidiaries face reduced disclosure requirements. This guide covers what changed, who is affected, and the compliance timeline.",
-    image: "/sustainability-intelligence/images/esrs-simplified-2026.jpg",
+    image: "https://images.unsplash.com/photo-1551244072-5d12893278ab?w=800&h=450&fit=crop",
     imageAlt: "European Commission building with simplified reporting documents",
     readingTime: "9 min"
   }
@@ -86,11 +85,10 @@ function generateCard(article, index) {
             alt="${article.imageAlt}" 
             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
             decoding="async"
-            height="675"
+            height="450"
             loading="${loading}"
             src="${article.image}"
-            width="1200"
-            onerror="this.src='/images/placeholder-intelligence.jpg'"
+            width="800"
           />
           <span class="absolute top-3 left-3 px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${article.category}</span>
         </div>
