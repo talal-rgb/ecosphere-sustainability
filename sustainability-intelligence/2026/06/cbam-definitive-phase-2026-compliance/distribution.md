@@ -9,7 +9,7 @@
 
 ## 1. LinkedIn Post
 
-**Version A (Urgency-focused — recommended)**
+**Version A (Urgency-focused: recommended)**
 
 ```
 CBAM is no longer a future risk. It's a present obligation.
@@ -40,7 +40,7 @@ The difference can be 20–40% of your total CBAM cost.
 
 Supplier engagement isn't just compliance. It's cost reduction.
 
-I've written the complete compliance roadmap — authorization, data collection, certificate costs, and industry-specific actions:
+I've written the complete compliance roadmap: authorization, data collection, certificate costs, and industry-specific actions:
 
 [LINK]
 
@@ -57,9 +57,9 @@ The EU's carbon border tax is now live.
 CBAM definitive phase started January 1, 2026. EU importers of steel, aluminium, cement, fertilisers, electricity, and hydrogen now face binding carbon costs on imports.
 
 Key deadlines:
-• March 31, 2026 — Authorized CBAM Declarant application
-• February 2027 — CBAM certificates on sale
-• September 30, 2027 — First certificate surrender
+• March 31, 2026: Authorized CBAM Declarant application
+• February 2027: CBAM certificates on sale
+• September 30, 2027: First certificate surrender
 
 Key insight: Companies using actual supplier emissions data will pay significantly less than those relying on default values. The gap is 20–40%.
 
@@ -74,7 +74,7 @@ Full compliance roadmap with cost examples, industry impact, and recommended act
 
 ## 2. Newsletter Snippet
 
-**Subject:** CBAM is now live — here's your compliance roadmap
+**Subject:** CBAM is now live: here's your compliance roadmap
 
 **Body:**
 
@@ -88,7 +88,7 @@ This is not a drill. EU importers now face binding financial obligations based o
 What you need to know:
 
 → 6 goods categories covered (steel, aluminium, cement, fertilisers, electricity, hydrogen)
-→ 50-tonne annual threshold — below this, you're exempt
+→ 50-tonne annual threshold: below this, you're exempt
 → Authorized CBAM Declarant status required by March 31, 2026
 → CBAM certificates go on sale February 2027
 → Cost = embedded emissions × EU carbon price (currently €60–80/tonne)
@@ -127,10 +127,10 @@ The Terrnix Team
 
 **Infographic concept:** "CBAM Compliance Timeline 2026–2027"
 - Horizontal timeline with key milestones:
-  - Jan 1, 2026 — Definitive phase starts
-  - Mar 31, 2026 — Authorization deadline
-  - Feb 2027 — Certificates on sale
-  - Sep 30, 2027 — First surrender deadline
+  - Jan 1, 2026: Definitive phase starts
+  - Mar 31, 2026: Authorization deadline
+  - Feb 2027: Certificates on sale
+  - Sep 30, 2027: First surrender deadline
 - Cost example callout box: "1,000t steel = €126,000 at €70/t"
 - Visual distinction: actual data vs default values cost comparison
 - Color scheme: Terrnix emerald + amber (urgency) + dark background

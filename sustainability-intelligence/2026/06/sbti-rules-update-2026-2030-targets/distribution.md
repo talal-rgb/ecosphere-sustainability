@@ -9,7 +9,7 @@
 
 ## 1. LinkedIn Post
 
-**Version A (Controversy-focused — recommended)**
+**Version A (Controversy-focused: recommended)**
 
 ```
 SBTi just made 2030 targets significantly easier.
@@ -24,8 +24,8 @@ Companies starting in 2025 had only 5 years to hit 42%. Many dropped out or neve
 
 Why critics are worried:
 1. IPCC still says 1.5°C needs 43% cut by 2030
-2. Cumulative emissions — delayed early cuts consume carbon budget
-3. Two-tier system — early adopters locked into 42%, new entrants get 21%
+2. Cumulative emissions: delayed early cuts consume carbon budget
+3. Two-tier system: early adopters locked into 42%, new entrants get 21%
 
 The hidden big change:
 Scope 1 and 2 are now separated. Industrial companies can no longer use renewable electricity purchases to mask slow Scope 1 decarbonisation.
@@ -40,7 +40,7 @@ Full analysis with industry-specific recommendations:
 
 [LINK]
 
-What's your take — did SBTi make the right call?
+What's your take: did SBTi make the right call?
 
 #SBTi #sciencebasedtargets #netzero #carbonreduction #climatestrategy #sustainability
 ```
@@ -73,7 +73,7 @@ Full analysis:
 
 ## 2. Newsletter Snippet
 
-**Subject:** SBTi just relaxed 2030 targets — what it means for your strategy
+**Subject:** SBTi just relaxed 2030 targets: what it means for your strategy
 
 **Body:**
 
@@ -95,7 +95,7 @@ Scope 1 and 2 targets are now separated. Industrial companies can no longer use 
 What should you do?
 
 → If planning new SBTi submission: Model both pathways, assess stakeholder expectations
-→ If you have existing targets: Stay the course — reputational risk likely outweighs relief
+→ If you have existing targets: Stay the course: reputational risk likely outweighs relief
 → Everyone: Monitor V2 standard expected late 2026
 
 → Read the full analysis
@@ -121,8 +121,8 @@ The Terrnix Team
 
 **Infographic concept:** "SBTi 2030 Target Change: 42% → 21%"
 - Before/After comparison card:
-  - Left: "Before April 2026" — 42% Scope 1+2, 20% Scope 3
-  - Right: "After April 2026" — 21% Scope 1+2, 15% Scope 3
+  - Left: "Before April 2026": 42% Scope 1+2, 20% Scope 3
+  - Right: "After April 2026": 21% Scope 1+2, 15% Scope 3
 - Timeline showing decarbonisation curve: flatter early, steeper later
 - Callout: "2050 net-zero unchanged"
 - Second visual: Scope 1/2 separation diagram

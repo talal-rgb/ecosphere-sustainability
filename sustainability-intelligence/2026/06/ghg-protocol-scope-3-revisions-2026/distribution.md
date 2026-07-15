@@ -9,7 +9,7 @@
 
 ## 1. LinkedIn Post
 
-**Version A (Professional — recommended)**
+**Version A (Professional: recommended)**
 
 ```
 The GHG Protocol just published the biggest Scope 3 update since 2011.
@@ -18,12 +18,12 @@ Six proposed changes. Every sustainability framework built on top will shift.
 
 Here's what matters:
 
-→ 95% coverage floor — no more qualitative exclusions
-→ Data-type disaggregation — your estimation methods become visible
+→ 95% coverage floor: no more qualitative exclusions
+→ Data-type disaggregation: your estimation methods become visible
 → New Category 16 for circularity
 → Enhanced supplier engagement requirements
 → Clearer avoided emissions guidance
-→ ISO partnership — procurement impact incoming
+→ ISO partnership: procurement impact incoming
 
 The standard underpins CSRD, ISSB, CDP, and SBTi.
 
@@ -46,8 +46,8 @@ Your Scope 3 reporting is about to get a lot more transparent.
 
 The GHG Protocol's Phase 1 update (March 2026) proposes:
 
-1. Data-type disaggregation — spend-based estimates will be visible
-2. 95% coverage floor — quantify everything or justify exclusions
+1. Data-type disaggregation: spend-based estimates will be visible
+2. 95% coverage floor: quantify everything or justify exclusions
 3. New circularity category
 4. Stronger supplier engagement rules
 5. Clearer avoided emissions guidance
@@ -86,18 +86,18 @@ What's your biggest concern about the Scope 3 revisions?
 ```
 Hi [Name],
 
-The GHG Protocol published its Phase 1 Scope 3 Standard revision in March 2026 — the first update since 2011.
+The GHG Protocol published its Phase 1 Scope 3 Standard revision in March 2026: the first update since 2011.
 
 This matters because the Scope 3 Standard underpins CSRD, ISSB, CDP, and SBTi. When it changes, everything built on top changes too.
 
 Here are the six proposed changes:
 
-1. Data-type disaggregation — your estimation methods become visible
-2. 95% coverage floor — no more qualitative exclusions
+1. Data-type disaggregation: your estimation methods become visible
+2. 95% coverage floor: no more qualitative exclusions
 3. New Category 16 for circularity
 4. Enhanced supplier engagement requirements
 5. Improved avoided emissions guidance
-6. ISO partnership — procurement impact
+6. ISO partnership: procurement impact
 
 The bottom line: companies that prepare now will have a compliance advantage. Those that wait until 2027 will be scrambling.
 
