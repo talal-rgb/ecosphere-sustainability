@@ -99,7 +99,7 @@ Here are the six proposed changes:
 5. Improved avoided emissions guidance
 6. ISO partnership: procurement impact
 
-The bottom line: companies that prepare now will have a compliance advantage. Those that wait until 2027 will be scrambling.
+The practical implication: companies that prepare now will have a compliance advantage. Those that wait until 2027 will be scrambling.
 
 → Read the full analysis with industry-specific recommendations
 
