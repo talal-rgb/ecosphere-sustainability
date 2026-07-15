@@ -1,0 +1,782 @@
+{
+  "id": "carbon-accounting-readiness",
+  "slug": "carbon-accounting-readiness",
+  "version": "1.0.0",
+  "status": "published",
+  "metadata": {
+    "title": "Carbon Accounting Readiness Assessment",
+    "subtitle": "Evaluate your organisation's maturity in greenhouse gas emissions measurement, reporting, and management.",
+    "description": "A comprehensive 25-question assessment covering governance, organisational boundaries, emissions data quality, Scope 3 engagement, and reporting maturity. Receive a detailed maturity score, priority recommendations, and a personalised improvement roadmap.",
+    "estimatedDuration": "8-10 minutes",
+    "difficulty": "intermediate",
+    "language": "en",
+    "author": "Terrnix",
+    "lastUpdated": "2026-07-15",
+    "tags": ["carbon accounting", "GHG protocol", "emissions", "sustainability", "assessment"]
+  },
+  "ui": {
+    "intro": {
+      "headline": "Carbon Accounting Readiness Assessment",
+      "subheadline": "Discover how your organisation measures up against best practice in greenhouse gas emissions management. Get actionable insights in under 10 minutes.",
+      "benefits": [
+        "Receive a detailed maturity score across 5 critical dimensions",
+        "Identify your highest-priority improvement areas",
+        "Get a personalised 30-day and 90-day action roadmap",
+        "Compare your approach against established frameworks (GHG Protocol, ESRS, SBTi)"
+      ],
+      "ctaText": "Start Assessment"
+    }
+  },
+  "categories": [
+    {
+      "id": "governance",
+      "name": "Governance and Accountability",
+      "description": "Leadership commitment, roles, responsibilities, and oversight structures for carbon accounting.",
+      "weight": 0.20,
+      "colour": "#10b981"
+    },
+    {
+      "id": "boundaries",
+      "name": "Organisational Boundaries and Methodology",
+      "description": "How your organisation defines its reporting boundary and selects calculation methodologies.",
+      "weight": 0.20,
+      "colour": "#3b82f6"
+    },
+    {
+      "id": "data",
+      "name": "Emissions Data and Calculation Quality",
+      "description": "Data collection processes, quality controls, and calculation accuracy.",
+      "weight": 0.25,
+      "colour": "#f59e0b"
+    },
+    {
+      "id": "scope3",
+      "name": "Scope 3 and Supplier Engagement",
+      "description": "Management of value chain emissions and supplier data collection.",
+      "weight": 0.20,
+      "colour": "#8b5cf6"
+    },
+    {
+      "id": "reporting",
+      "name": "Reporting, Targets and Improvement",
+      "description": "Disclosure practices, target-setting, and continuous improvement mechanisms.",
+      "weight": 0.15,
+      "colour": "#ef4444"
+    }
+  ],
+  "questions": [
+    {
+      "id": "gov-1",
+      "category": "governance",
+      "text": "How clearly defined are the roles and responsibilities for carbon accounting within your organisation?",
+      "helpText": "Consider whether specific individuals or teams are accountable for data collection, calculation, verification, and reporting.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No assigned responsibilities; carbon accounting is ad hoc", "value": 0, "score": 0 },
+        { "label": "Informal responsibilities assigned to one or two individuals without formal mandate", "value": 1, "score": 25 },
+        { "label": "Documented responsibilities exist but are limited to specific departments", "value": 2, "score": 50 },
+        { "label": "Clear roles defined organisation-wide with executive sponsorship", "value": 3, "score": 75 },
+        { "label": "Integrated governance with board-level oversight and cross-functional accountability", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "gov-2",
+      "category": "governance",
+      "text": "How regularly does senior leadership review carbon accounting performance and progress?",
+      "helpText": "Think about board reports, management meetings, or dedicated sustainability committees.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Never reviewed at senior level", "value": 0, "score": 0 },
+        { "label": "Reviewed occasionally when required by external stakeholders", "value": 1, "score": 25 },
+        { "label": "Reviewed annually as part of broader sustainability reporting", "value": 2, "score": 50 },
+        { "label": "Reviewed quarterly with dedicated agenda items", "value": 3, "score": 75 },
+        { "label": "Continuous monitoring with real-time dashboards and monthly executive briefings", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "gov-3",
+      "category": "governance",
+      "text": "To what extent is carbon accounting integrated with financial planning and risk management?",
+      "helpText": "Consider whether carbon costs, carbon pricing, or climate risks are factored into business decisions.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No integration with financial or risk processes", "value": 0, "score": 0 },
+        { "label": "Carbon costs tracked separately but not used in planning", "value": 1, "score": 25 },
+        { "label": "Carbon considered in some investment or procurement decisions", "value": 2, "score": 50 },
+        { "label": "Carbon integrated into core financial planning and risk registers", "value": 3, "score": 75 },
+        { "label": "Carbon fully embedded in strategic planning, budgeting, and enterprise risk management", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "gov-4",
+      "category": "governance",
+      "text": "How mature is your process for ensuring data quality and internal consistency in carbon accounting?",
+      "helpText": "Consider internal audits, data validation checks, and reconciliation procedures.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No formal quality control processes", "value": 0, "score": 0 },
+        { "label": "Basic checks performed by individuals preparing the data", "value": 1, "score": 25 },
+        { "label": "Documented quality control procedures applied to some data sources", "value": 2, "score": 50 },
+        { "label": "Systematic quality assurance with documented sign-off and exception tracking", "value": 3, "score": 75 },
+        { "label": "Automated validation, regular internal audits, and continuous improvement of data quality", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "gov-5",
+      "category": "governance",
+      "text": "How does your organisation manage carbon accounting knowledge and capability building?",
+      "helpText": "Consider training programmes, documentation, and knowledge retention when staff change.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No structured knowledge management; reliant on individual expertise", "value": 0, "score": 0 },
+        { "label": "Informal knowledge sharing within small teams", "value": 1, "score": 25 },
+        { "label": "Documented procedures exist but training is inconsistent", "value": 2, "score": 50 },
+        { "label": "Structured training programmes with regular updates and competency tracking", "value": 3, "score": 75 },
+        { "label": "Comprehensive knowledge management with training, certification, and succession planning", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "bnd-1",
+      "category": "boundaries",
+      "text": "How consistently does your organisation document and approve its emissions calculation methodology?",
+      "helpText": "Consider whether you have a written methodology document that is reviewed and approved.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No documented methodology", "value": 0, "score": 0 },
+        { "label": "Informal notes or spreadsheets without formal approval", "value": 1, "score": 25 },
+        { "label": "Documented methodology exists but is not regularly reviewed", "value": 2, "score": 50 },
+        { "label": "Approved methodology with annual review and version control", "value": 3, "score": 75 },
+        { "label": "Comprehensive methodology with stakeholder input, external review, and continuous updates", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "bnd-2",
+      "category": "boundaries",
+      "text": "How does your organisation define its organisational boundary for emissions reporting?",
+      "helpText": "Consider whether you use equity share, operational control, or financial control approaches.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No defined boundary; emissions estimated for selected facilities only", "value": 0, "score": 0 },
+        { "label": "Boundary defined informally without reference to established approaches", "value": 1, "score": 25 },
+        { "label": "Boundary defined using equity share or operational control but not consistently applied", "value": 2, "score": 50 },
+        { "label": "Clear boundary definition using established approach with documented rationale", "value": 3, "score": 75 },
+        { "label": "Boundary definition aligned with GHG Protocol, regularly reviewed, and clearly communicated", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "bnd-3",
+      "category": "boundaries",
+      "text": "How comprehensively does your organisation track emissions across all relevant scopes?",
+      "helpText": "Consider Scope 1 (direct), Scope 2 (indirect energy), and Scope 3 (value chain) emissions.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Only Scope 1 or 2 tracked partially", "value": 0, "score": 0 },
+        { "label": "Scope 1 and 2 tracked; Scope 3 not assessed", "value": 1, "score": 25 },
+        { "label": "Scope 1 and 2 complete; some Scope 3 categories estimated", "value": 2, "score": 50 },
+        { "label": "All three scopes assessed with most material categories quantified", "value": 3, "score": 75 },
+        { "label": "Comprehensive Scope 1, 2, and 3 inventory with all material categories and regular updates", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "bnd-4",
+      "category": "boundaries",
+      "text": "How does your organisation select and manage emission factors for calculations?",
+      "helpText": "Consider whether you use national databases, supplier-specific factors, or international standards.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Emission factors selected ad hoc without documented rationale", "value": 0, "score": 0 },
+        { "label": "Generic factors used without consideration of relevance or vintage", "value": 1, "score": 25 },
+        { "label": "Factors selected from recognised sources but not regularly updated", "value": 2, "score": 50 },
+        { "label": "Systematic factor selection with documented hierarchy and annual review", "value": 3, "score": 75 },
+        { "label": "Hierarchical factor management with supplier-specific data, uncertainty analysis, and continuous improvement", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "bnd-5",
+      "category": "boundaries",
+      "text": "How does your organisation handle changes in boundary, methodology, or baseline year?",
+      "helpText": "Consider recalculation procedures, restatement policies, and documentation of changes.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Changes made without documentation or recalculation", "value": 0, "score": 0 },
+        { "label": "Significant changes noted but not systematically recalculated", "value": 1, "score": 25 },
+        { "label": "Recalculation performed for major changes with basic documentation", "value": 2, "score": 50 },
+        { "label": "Structured change management with recalculation, documentation, and stakeholder communication", "value": 3, "score": 75 },
+        { "label": "Comprehensive change protocol with automatic recalculation, audit trail, and transparent disclosure", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "dat-1",
+      "category": "data",
+      "text": "How systematically does your organisation collect activity data for emissions calculations?",
+      "helpText": "Consider fuel receipts, utility bills, travel records, and production data.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Data collected manually on an ad hoc basis", "value": 0, "score": 0 },
+        { "label": "Data collected annually from key sources with manual compilation", "value": 1, "score": 25 },
+        { "label": "Structured data collection with defined sources and responsibilities", "value": 2, "score": 50 },
+        { "label": "Automated data feeds from major sources with validation checks", "value": 3, "score": 75 },
+        { "label": "Fully integrated data collection with real-time feeds, automated validation, and exception management", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "dat-2",
+      "category": "data",
+      "text": "How does your organisation assess and manage uncertainty in emissions data?",
+      "helpText": "Consider whether you quantify uncertainty ranges, use conservative estimates, or perform sensitivity analysis.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Uncertainty not assessed or acknowledged", "value": 0, "score": 0 },
+        { "label": "Uncertainty noted qualitatively without quantification", "value": 1, "score": 25 },
+        { "label": "Some categories assessed for uncertainty using simple approaches", "value": 2, "score": 50 },
+        { "label": "Systematic uncertainty assessment for material categories with documented ranges", "value": 3, "score": 75 },
+        { "label": "Comprehensive uncertainty quantification with Monte Carlo or equivalent methods and sensitivity analysis", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "dat-3",
+      "category": "data",
+      "text": "How complete and accurate is your organisation's Scope 1 emissions data?",
+      "helpText": "Consider stationary combustion, mobile combustion, process emissions, and fugitive emissions.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Scope 1 not assessed or only partially estimated", "value": 0, "score": 0 },
+        { "label": "Major sources identified but data gaps exist", "value": 1, "score": 25 },
+        { "label": "All material sources tracked with some estimation for minor sources", "value": 2, "score": 50 },
+        { "label": "Comprehensive Scope 1 data with documented assumptions and minimal estimation", "value": 3, "score": 75 },
+        { "label": "Complete Scope 1 inventory with measured data, verified calculations, and continuous monitoring", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "dat-4",
+      "category": "data",
+      "text": "How does your organisation track and report Scope 2 emissions?",
+      "helpText": "Consider location-based and market-based methods, renewable energy certificates, and contractual instruments.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Scope 2 not tracked or only estimated", "value": 0, "score": 0 },
+        { "label": "Location-based method used without market-based assessment", "value": 1, "score": 25 },
+        { "label": "Both location-based and market-based methods calculated but not reconciled", "value": 2, "score": 50 },
+        { "label": "Both methods reported with clear documentation of contractual instruments", "value": 3, "score": 75 },
+        { "label": "Dual reporting with verified instruments, quality criteria, and strategic procurement alignment", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "dat-5",
+      "category": "data",
+      "text": "How does your organisation verify the accuracy of its emissions calculations?",
+      "helpText": "Consider internal audits, third-party verification, or assurance statements.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No verification performed", "value": 0, "score": 0 },
+        { "label": "Informal review by colleagues without structured process", "value": 1, "score": 25 },
+        { "label": "Internal audit or review with documented findings", "value": 2, "score": 50 },
+        { "label": "Independent third-party verification or limited assurance", "value": 3, "score": 75 },
+        { "label": "Annual external assurance with detailed findings and continuous improvement tracking", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "sc3-1",
+      "category": "scope3",
+      "text": "How comprehensively has your organisation screened its Scope 3 emissions?",
+      "helpText": "Consider whether you have assessed all 15 GHG Protocol Scope 3 categories.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Scope 3 not assessed", "value": 0, "score": 0 },
+        { "label": "High-level screening of a few categories only", "value": 1, "score": 25 },
+        { "label": "Most categories screened with identification of material sources", "value": 2, "score": 50 },
+        { "label": "All 15 categories assessed with quantification of material categories", "value": 3, "score": 75 },
+        { "label": "Comprehensive Scope 3 assessment with all categories quantified, prioritised, and regularly updated", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "sc3-2",
+      "category": "scope3",
+      "text": "How does your organisation engage suppliers to collect emissions data?",
+      "helpText": "Consider supplier surveys, contractual requirements, or collaborative programmes.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No supplier engagement on emissions", "value": 0, "score": 0 },
+        { "label": "Ad hoc requests to key suppliers without systematic follow-up", "value": 1, "score": 25 },
+        { "label": "Structured supplier surveys for major suppliers with defined timelines", "value": 2, "score": 50 },
+        { "label": "Systematic supplier engagement programme with data quality requirements and support", "value": 3, "score": 75 },
+        { "label": "Integrated supplier platform with automated data collection, validation, and performance tracking", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "sc3-3",
+      "category": "scope3",
+      "text": "How does your organisation use spend-based versus activity-based methods for Scope 3?",
+      "helpText": "Consider whether you use EEIO models, supplier-specific data, or hybrid approaches.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Only spend-based methods used without validation", "value": 0, "score": 0 },
+        { "label": "Spend-based methods with some activity data for key categories", "value": 1, "score": 25 },
+        { "label": "Hybrid approach with activity data for material categories and spend-based for others", "value": 2, "score": 50 },
+        { "label": "Activity-based preferred with documented hierarchy and improvement plans", "value": 3, "score": 75 },
+        { "label": "Activity-based as standard with supplier-specific data, continuous improvement, and uncertainty quantification", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "sc3-4",
+      "category": "scope3",
+      "text": "How does your organisation manage data quality for Scope 3 emissions?",
+      "helpText": "Consider data collection protocols, quality ratings, and gap-filling procedures.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No data quality management for Scope 3", "value": 0, "score": 0 },
+        { "label": "Basic quality checks applied inconsistently", "value": 1, "score": 25 },
+        { "label": "Documented quality criteria applied to major categories", "value": 2, "score": 50 },
+        { "label": "Systematic quality management with ratings, gap-filling protocols, and improvement tracking", "value": 3, "score": 75 },
+        { "label": "Comprehensive quality framework with automated validation, supplier scoring, and continuous data improvement", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "sc3-5",
+      "category": "scope3",
+      "text": "How does your organisation set and track Scope 3 reduction targets?",
+      "helpText": "Consider whether targets are science-based, time-bound, and linked to supplier engagement.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No Scope 3 targets set", "value": 0, "score": 0 },
+        { "label": "Informal targets without formal commitment or timeline", "value": 1, "score": 25 },
+        { "label": "Formal targets set but not yet integrated with supplier programmes", "value": 2, "score": 50 },
+        { "label": "Science-based targets with supplier engagement and regular progress reporting", "value": 3, "score": 75 },
+        { "label": "Ambitious science-based targets with supplier mandates, incentives, and transparent progress disclosure", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "rep-1",
+      "category": "reporting",
+      "text": "How does your organisation disclose its greenhouse gas emissions?",
+      "helpText": "Consider annual reports, sustainability reports, CDP submissions, or regulatory filings.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No formal disclosure of emissions data", "value": 0, "score": 0 },
+        { "label": "Limited disclosure in internal documents only", "value": 1, "score": 25 },
+        { "label": "Disclosed in sustainability report or website with basic metrics", "value": 2, "score": 50 },
+        { "label": "Comprehensive disclosure aligned with recognised frameworks (GHG Protocol, GRI, CDP)", "value": 3, "score": 75 },
+        { "label": "Full disclosure with third-party assurance, ESRS alignment, and transparent methodology", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "rep-2",
+      "category": "reporting",
+      "text": "How does your organisation set and manage emissions reduction targets?",
+      "helpText": "Consider whether targets are science-based, time-bound, and cover relevant scopes.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No emissions reduction targets", "value": 0, "score": 0 },
+        { "label": "Informal or aspirational targets without baseline or timeline", "value": 1, "score": 25 },
+        { "label": "Formal targets with baseline and timeline but not science-based", "value": 2, "score": 50 },
+        { "label": "Science-based targets covering relevant scopes with regular progress tracking", "value": 3, "score": 75 },
+        { "label": "Ambitious science-based targets with net-zero commitment, interim milestones, and transparent reporting", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "rep-3",
+      "category": "reporting",
+      "text": "How does your organisation track progress against emissions targets?",
+      "helpText": "Consider KPI dashboards, regular reporting cycles, and variance analysis.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Progress not tracked systematically", "value": 0, "score": 0 },
+        { "label": "Progress reviewed annually with basic variance analysis", "value": 1, "score": 25 },
+        { "label": "Quarterly progress tracking with identified gaps and corrective actions", "value": 2, "score": 50 },
+        { "label": "Monthly tracking with dashboards, trend analysis, and management reporting", "value": 3, "score": 75 },
+        { "label": "Real-time tracking with predictive analytics, scenario modelling, and automated alerts", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "rep-4",
+      "category": "reporting",
+      "text": "How does your organisation integrate carbon performance into broader sustainability or ESG reporting?",
+      "helpText": "Consider whether carbon data is reported alongside other ESG metrics.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "Carbon reported separately without ESG integration", "value": 0, "score": 0 },
+        { "label": "Carbon included in sustainability report but not linked to other metrics", "value": 1, "score": 25 },
+        { "label": "Carbon integrated with some ESG metrics in a unified report", "value": 2, "score": 50 },
+        { "label": "Comprehensive ESG reporting with carbon as a core metric and clear linkages", "value": 3, "score": 75 },
+        { "label": "Fully integrated ESG reporting with carbon linked to strategy, risk, and financial performance", "value": 4, "score": 100 }
+      ]
+    },
+    {
+      "id": "rep-5",
+      "category": "reporting",
+      "text": "How does your organisation drive continuous improvement in carbon accounting and reporting?",
+      "helpText": "Consider feedback mechanisms, benchmarking, technology upgrades, and process refinement.",
+      "required": true,
+      "weight": 1.0,
+      "options": [
+        { "label": "No systematic improvement process", "value": 0, "score": 0 },
+        { "label": "Improvements made reactively when issues are identified", "value": 1, "score": 25 },
+        { "label": "Annual review of processes with planned improvements", "value": 2, "score": 50 },
+        { "label": "Structured improvement programme with benchmarking, technology roadmap, and regular updates", "value": 3, "score": 75 },
+        { "label": "Continuous improvement culture with innovation, automation, and leading practice adoption", "value": 4, "score": 100 }
+      ]
+    }
+  ],
+  "scoring": {
+    "method": "weighted-average",
+    "categoryWeights": {
+      "governance": 0.20,
+      "boundaries": 0.20,
+      "data": 0.25,
+      "scope3": 0.20,
+      "reporting": 0.15
+    },
+    "overall": {
+      "min": 0,
+      "max": 100
+    }
+  },
+  "maturityLevels": [
+    {
+      "id": "initial",
+      "label": "Initial",
+      "min": 0,
+      "max": 29,
+      "description": "Carbon accounting is informal, ad hoc, or not yet established. Significant foundational work is needed.",
+      "executiveSummary": "Your organisation is at the beginning of its carbon accounting journey. Processes are informal or non-existent, and emissions data is likely incomplete or unreliable. Focus on establishing basic governance, defining boundaries, and implementing systematic data collection.",
+      "typicalStrengths": [
+        "Awareness of carbon accounting as a business priority",
+        "Some individual expertise or interest exists"
+      ],
+      "commonRisks": [
+        "Regulatory non-compliance in jurisdictions with mandatory reporting",
+        "Inability to respond to customer or investor data requests",
+        "Missed cost-saving opportunities from efficiency improvements"
+      ],
+      "immediateActions": [
+        "Assign clear ownership for carbon accounting to a specific individual or team",
+        "Document your organisational boundary and reporting scope",
+        "Implement a basic data collection process for Scope 1 and 2 emissions"
+      ],
+      "roadmap30": [
+        "Establish governance structure with executive sponsor",
+        "Complete Scope 1 and 2 inventory using recognised emission factors",
+        "Document calculation methodology and data sources"
+      ],
+      "roadmap90": [
+        "Screen Scope 3 categories to identify material sources",
+        "Set initial emissions baseline and reduction target",
+        "Begin supplier engagement for priority Scope 3 categories"
+      ]
+    },
+    {
+      "id": "developing",
+      "label": "Developing",
+      "min": 30,
+      "max": 49,
+      "description": "Basic carbon accounting processes exist but are inconsistent or incomplete. Improvement is underway but not yet systematic.",
+      "executiveSummary": "Your organisation has established basic carbon accounting processes but they remain inconsistent or limited in scope. You likely have a partial emissions inventory and some governance structures. The priority now is to standardise processes, expand data coverage, and strengthen quality controls.",
+      "typicalStrengths": [
+        "Basic emissions data collected for key sources",
+        "Some governance or accountability exists",
+        "Initial disclosure or reporting attempted"
+      ],
+      "commonRisks": [
+        "Data gaps may lead to material underestimation of emissions",
+        "Inconsistent methodology makes year-on-year comparison difficult",
+        "Limited Scope 3 coverage may understate total footprint"
+      ],
+      "immediateActions": [
+        "Standardise data collection procedures across all relevant departments",
+        "Complete Scope 1 and 2 inventory with documented assumptions",
+        "Screen all 15 Scope 3 categories to identify material sources"
+      ],
+      "roadmap30": [
+        "Implement quality control procedures for data collection and calculation",
+        "Quantify material Scope 3 categories using available data",
+        "Document and approve formal calculation methodology"
+      ],
+      "roadmap90": [
+        "Set science-based reduction targets with clear timelines",
+        "Begin structured supplier engagement for priority categories",
+        "Prepare for external verification or assurance"
+      ]
+    },
+    {
+      "id": "established",
+      "label": "Established",
+      "min": 50,
+      "max": 69,
+      "description": "Carbon accounting processes are documented and applied consistently. Most material emissions are quantified and reported.",
+      "executiveSummary": "Your organisation has established carbon accounting as a core business process. You have documented methodologies, consistent data collection, and regular reporting. The focus now should be on expanding Scope 3 coverage, improving data quality, and aligning with advanced frameworks.",
+      "typicalStrengths": [
+        "Documented methodology with defined boundaries and emission factors",
+        "Regular reporting with reasonable data completeness",
+        "Some Scope 3 categories quantified"
+      ],
+      "commonRisks": [
+        "Scope 3 data quality may limit accuracy of total footprint",
+        "Supplier engagement may be insufficient for ambitious targets",
+        "Integration with financial planning may be limited"
+      ],
+      "immediateActions": [
+        "Improve Scope 3 data quality through supplier-specific data collection",
+        "Align reporting with ESRS or other recognised frameworks",
+        "Integrate carbon performance into management dashboards"
+      ],
+      "roadmap30": [
+        "Implement systematic supplier engagement programme",
+        "Obtain external verification or limited assurance",
+        "Set science-based targets with clear reduction pathways"
+      ],
+      "roadmap90": [
+        "Achieve comprehensive Scope 3 quantification for material categories",
+        "Integrate carbon accounting with enterprise risk management",
+        "Explore advanced data collection technologies and automation"
+      ]
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "min": 70,
+      "max": 84,
+      "description": "Carbon accounting is mature, comprehensive, and well-integrated. External verification is likely in place.",
+      "executiveSummary": "Your organisation demonstrates advanced carbon accounting maturity. You have comprehensive inventories, strong governance, external verification, and integration with strategic planning. The priority is to maintain excellence, drive supplier transformation, and prepare for emerging regulatory requirements.",
+      "typicalStrengths": [
+        "Comprehensive Scope 1, 2, and 3 inventory with good data quality",
+        "External verification or assurance obtained",
+        "Science-based targets with clear progress tracking"
+      ],
+      "commonRisks": [
+        "Maintaining data quality as operations expand or change",
+        "Keeping pace with evolving regulatory requirements",
+        "Ensuring supplier data keeps up with target ambitions"
+      ],
+      "immediateActions": [
+        "Enhance supplier data collection through platform integration",
+        "Align with emerging ESRS and CSRD requirements",
+        "Develop scenario analysis and climate risk assessment capabilities"
+      ],
+      "roadmap30": [
+        "Implement automated data collection and validation systems",
+        "Expand supplier engagement to secondary and tertiary tiers",
+        "Develop internal carbon pricing for investment decisions"
+      ],
+      "roadmap90": [
+        "Achieve net-zero aligned reduction trajectory",
+        "Lead industry collaboration on Scope 3 data standards",
+        "Integrate climate scenario analysis into strategic planning"
+      ]
+    },
+    {
+      "id": "leading",
+      "label": "Leading",
+      "min": 85,
+      "max": 100,
+      "description": "Carbon accounting is a strategic capability with continuous innovation, full integration, and industry leadership.",
+      "executiveSummary": "Your organisation is a leader in carbon accounting. You have comprehensive, verified inventories, ambitious science-based targets, deep supplier engagement, and full integration with business strategy. Focus on maintaining leadership, innovating in data and methodology, and supporting industry transformation.",
+      "typicalStrengths": [
+        "Comprehensive, verified emissions inventory across all scopes",
+        "Ambitious science-based targets with clear pathways",
+        "Deep supplier engagement and value chain transformation"
+      ],
+      "commonRisks": [
+        "Complacency or failure to adapt to new regulatory requirements",
+        "Difficulty maintaining data quality at scale",
+        "Balancing ambition with practical implementation challenges"
+      ],
+      "immediateActions": [
+        "Share best practices and support industry-wide data standards",
+        "Invest in next-generation data collection and AI-powered analytics",
+        "Develop thought leadership on carbon accounting innovation"
+      ],
+      "roadmap30": [
+        "Pilot advanced technologies for real-time emissions monitoring",
+        "Expand collaboration with peers and industry bodies",
+        "Develop proprietary tools or methodologies for competitive advantage"
+      ],
+      "roadmap90": [
+        "Achieve recognised industry leadership in carbon accounting",
+        "Contribute to standard-setting bodies and regulatory consultations",
+        "Build sustainable competitive advantage through carbon excellence"
+      ]
+    }
+  ],
+  "recommendations": {
+    "articles": [
+      {
+        "id": "ghg-protocol-guide",
+        "title": "GHG Protocol: A Practical Guide for Businesses",
+        "url": "https://terrnix.com/sustainability-intelligence/2026/06/ghg-protocol-scope-3-revisions-2026/",
+        "description": "Understand the latest GHG Protocol revisions and how they affect your emissions reporting.",
+        "categories": ["boundaries", "data"],
+        "minScore": 0,
+        "maxScore": 100
+      },
+      {
+        "id": "scope-3-supplier-engagement",
+        "title": "Scope 3 Supplier Engagement: Strategies for 2026",
+        "url": "https://terrnix.com/sustainability-intelligence/2026/06/scope-3-supplier-engagement-2026/",
+        "description": "Practical approaches to collecting supplier emissions data and driving value chain decarbonisation.",
+        "categories": ["scope3"],
+        "minScore": 0,
+        "maxScore": 100
+      },
+      {
+        "id": "sbti-targets",
+        "title": "SBTi Rules Update: What Changed for 2026-2030 Targets",
+        "url": "https://terrnix.com/sustainability-intelligence/2026/06/sbti-rules-update-2026-2030-targets/",
+        "description": "Navigate the latest SBTi requirements and ensure your targets remain valid and ambitious.",
+        "categories": ["reporting"],
+        "minScore": 0,
+        "maxScore": 100
+      },
+      {
+        "id": "esrs-simplified",
+        "title": "ESRS Simplified Standards: What Businesses Need to Know",
+        "url": "https://terrnix.com/sustainability-intelligence/2026/06/esrs-simplified-standards-2026/",
+        "description": "A clear explanation of the simplified ESRS standards and their implications for carbon reporting.",
+        "categories": ["reporting", "governance"],
+        "minScore": 0,
+        "maxScore": 100
+      },
+      {
+        "id": "cbam-definitive",
+        "title": "CBAM Definitive Phase: July 2026 Compliance Guide",
+        "url": "https://terrnix.com/sustainability-intelligence/2026/06/cbam-definitive-phase-july-2026/",
+        "description": "Prepare for CBAM definitive phase requirements with practical compliance guidance.",
+        "categories": ["reporting", "data"],
+        "minScore": 0,
+        "maxScore": 100
+      },
+      {
+        "id": "eu-esg-rating",
+        "title": "EU ESG Rating Regulation: Impact on African Businesses",
+        "url": "https://terrnix.com/sustainability-intelligence/2026/07/eu-esg-rating-regulation-african-businesses/",
+        "description": "Understand how the EU ESG Rating Regulation affects African businesses and their reporting obligations.",
+        "categories": ["governance", "reporting"],
+        "minScore": 0,
+        "maxScore": 100
+      }
+    ],
+    "calculators": [
+      {
+        "id": "carbon-footprint",
+        "title": "Carbon Footprint Calculator",
+        "url": "https://terrnix.com/carbon-footprint-calculator/",
+        "description": "Calculate your organisation's carbon footprint across Scope 1, 2, and 3 emissions.",
+        "categories": ["data", "boundaries"],
+        "minScore": 0,
+        "maxScore": 100
+      },
+      {
+        "id": "scope-3-estimator",
+        "title": "Scope 3 Emissions Estimator",
+        "url": "https://terrnix.com/carbon-footprint-calculator/",
+        "description": "Estimate your Scope 3 emissions using spend-based and activity-based methods.",
+        "categories": ["scope3"],
+        "minScore": 0,
+        "maxScore": 100
+      }
+    ],
+    "services": [
+      {
+        "id": "carbon-accounting-consulting",
+        "title": "Carbon Accounting Consulting",
+        "description": "Expert support to establish or improve your carbon accounting processes, from inventory development to verification preparation.",
+        "cta": "Book a Consultation",
+        "url": "https://terrnix.com/contact/",
+        "categories": ["governance", "boundaries", "data"],
+        "trigger": "score < 50"
+      },
+      {
+        "id": "scope-3-strategy",
+        "title": "Scope 3 Strategy Development",
+        "description": "Develop a comprehensive Scope 3 engagement strategy, from supplier screening to data collection and target-setting.",
+        "cta": "Discuss Scope 3 Strategy",
+        "url": "https://terrnix.com/contact/",
+        "categories": ["scope3"],
+        "trigger": "category.scope3.score < 60"
+      },
+      {
+        "id": "esrs-readiness",
+        "title": "ESRS Readiness Assessment",
+        "description": "Prepare for ESRS reporting requirements with gap analysis, data readiness review, and implementation roadmap.",
+        "cta": "Assess ESRS Readiness",
+        "url": "https://terrnix.com/contact/",
+        "categories": ["reporting"],
+        "trigger": "category.reporting.score < 60"
+      }
+    ]
+  },
+  "certificate": {
+    "enabled": true,
+    "levels": [
+      { "id": "participation", "label": "Participation", "minScore": 0, "maxScore": 29, "badge": "bronze" },
+      { "id": "foundation", "label": "Foundation", "minScore": 30, "maxScore": 49, "badge": "silver" },
+      { "id": "practitioner", "label": "Practitioner", "minScore": 50, "maxScore": 69, "badge": "gold" },
+      { "id": "advanced", "label": "Advanced", "minScore": 70, "maxScore": 84, "badge": "platinum" },
+      { "id": "expert", "label": "Expert", "minScore": 85, "maxScore": 100, "badge": "diamond" }
+    ],
+    "template": "standard",
+    "expiryMonths": 12
+  },
+  "report": {
+    "enabled": true,
+    "sections": [
+      "executive-summary",
+      "category-breakdown",
+      "strengths-and-gaps",
+      "recommendations",
+      "roadmap-30-day",
+      "roadmap-90-day",
+      "methodology",
+      "appendix"
+    ]
+  },
+  "consultation": {
+    "enabled": true,
+    "title": "Book a Carbon Accounting Consultation",
+    "description": "Speak with a Terrnix sustainability consultant to discuss your assessment results and develop a tailored improvement plan.",
+    "cta": "Schedule Consultation",
+    "url": "https://terrnix.com/contact/"
+  },
+  "newsletter": {
+    "enabled": true,
+    "title": "Terrnix Sustainability Intelligence",
+    "description": "Receive weekly insights on carbon accounting, ESG reporting, and sustainability strategy.",
+    "cta": "Subscribe"
+  },
+  "analytics": {
+    "enabled": true,
+    "events": [
+      "assessment_view",
+      "assessment_start",
+      "assessment_progress",
+      "assessment_complete",
+      "assessment_review",
+      "participant_details",
+      "consultation_click",
+      "newsletter_consent"
+    ]
+  }
+}

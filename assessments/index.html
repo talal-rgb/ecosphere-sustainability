@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carbon Accounting Readiness Assessment | Terrnix</title>
+  <meta name="description" content="Evaluate your organisation's maturity in greenhouse gas emissions measurement, reporting, and management. Receive a detailed maturity score and personalised improvement roadmap.">
+  <link rel="canonical" href="https://terrnix.com/assessments/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Carbon Accounting Readiness Assessment | Terrnix">
+  <meta property="og:description" content="Evaluate your organisation's carbon accounting maturity across 5 critical dimensions. Get actionable insights in under 10 minutes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://terrnix.com/assessments/">
+  <meta property="og:image" content="https://terrnix.com/assets/images/assessment-og.jpg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Carbon Accounting Readiness Assessment | Terrnix">
+  <meta name="twitter:description" content="Evaluate your organisation's carbon accounting maturity. Get actionable insights in under 10 minutes.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' },
+            teal: { 400: '#2dd4bf', 500: '#14b8a6' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Assessment Styles -->
+  <link rel="stylesheet" href="/assets/css/assessment.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Carbon Accounting Readiness Assessment",
+    "description": "Evaluate your organisation's maturity in greenhouse gas emissions measurement, reporting, and management.",
+    "url": "https://terrnix.com/assessments/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Terrnix",
+      "url": "https://terrnix.com"
+    }
+  }
+  </script>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+</head>
+<body class="bg-slate-900 min-h-screen">
+  <!-- Header -->
+  <header class="border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold text-white">Terrnix</a>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">Home</a>
+        <a href="/sustainability-intelligence/" class="text-slate-400 hover:text-white transition-colors">Intelligence</a>
+        <a href="/carbon-footprint-calculator/" class="text-slate-400 hover:text-white transition-colors">Calculator</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Assessment Container -->
+  <main class="assessment-container">
+    <div id="assessment-root" data-assessment="carbon-accounting-readiness" class="max-w-4xl mx-auto">
+      <!-- Assessment renders here -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 mt-20">
+    <div class="max-w-7xl mx-auto px-6 py-8 text-center text-slate-500 text-sm">
+      <p> Terrnix. All rights reserved.</p>
+      <div class="mt-2 space-x-4">
+        <a href="/privacy-policy/" class="hover:text-slate-300">Privacy Policy</a>
+        <a href="/terms/" class="hover:text-slate-300">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Assessment Engine Scripts -->
+  <script src="/assets/js/assessment/utils.js"></script>
+  <script src="/assets/js/assessment/state.js"></script>
+  <script src="/assets/js/assessment/scoring.js"></script>
+  <script src="/assets/js/assessment/analytics.js"></script>
+  <script src="/assets/js/assessment/ui.js"></script>
+  <script src="/assets/js/assessment/core.js"></script>
+  <script src="/assets/js/assessment/index.js"></script>
+
+  <script>
+    // Initialise assessment when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('assessment-root');
+      if (!container) {
+        console.error('Assessment container not found');
+        return;
+      }
+
+      const engine = initAssessment('assessment-root', {
+        assessmentSlug: 'carbon-accounting-readiness'
+      });
+
+      if (engine) {
+        engine.load('carbon-accounting-readiness')
+          .then(() => {
+            engine.start();
+          })
+          .catch(error => {
+            console.error('Failed to load assessment:', error);
+            container.innerHTML = `
+              <div class="max-w-lg mx-auto py-12 px-6 text-center">
+                <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">Unable to Load Assessment</h2>
+                <p class="text-slate-400 mb-6">Please refresh the page or try again later.</p>
+                <button onclick="location.reload()" class="px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-medium transition-colors">Refresh Page</button>
+              </div>
+            `;
+          });
+      }
+    });
+  </script>
+</body>
+</html>
