@@ -1,0 +1,39 @@
+name: Validate Intelligence Content
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sustainability-intelligence/**'
+      - 'scripts/validate-intelligence-content.js'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sustainability-intelligence/**'
+      - 'scripts/validate-intelligence-content.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run intelligence content validator
+        run: node scripts/validate-intelligence-content.js
+
+      - name: Report status
+        if: failure()
+        run: |
+          echo "::error::Intelligence content validation failed."
+          echo "::error::Fix em dashes, AI phrases, or broken category links before merging."
+          exit 1
