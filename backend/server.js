@@ -46,6 +46,10 @@ import { sendBrevoEmailWithTimeout } from './services/brevoEmail.js';
 import { addContact } from './services/brevo.js';
 import { saveLead, getHealthStatus, getStats, isWritableSync } from './services/leadStore.js';
 
+// Assessment services
+import { saveCertificate, findCertificate, generateCertificateId, getHealthStatus as getCertHealthStatus } from './services/certificateStore.js';
+import { sendAssessmentResultsEmail } from './services/assessmentEmail.js';
+
 // Make getHealthStatus backward-compatible (sync wrapper)
 const getHealthStatusSync = () => getHealthStatus();
 
@@ -776,6 +780,297 @@ app.post('/api/debug-savelead', async (req, res) => {
   res.json({ ok: true, saveLead: result });
 });
 
+// ============================================
+// ASSESSMENT ENDPOINTS
+// ============================================
+
+// POST /api/assessment/lead — Store assessment participant
+app.post('/api/assessment/lead', [
+  body('fullName')
+    .trim()
+    .isLength({ min: 1, max: 100 }).withMessage('Name must be 1-100 characters')
+    .matches(/^[a-zA-Z0-9\s\-\.''']+$/).withMessage('Name contains invalid characters')
+    .customSanitizer(sanitizeString),
+  body('email')
+    .isEmail().withMessage('Invalid email address')
+    .normalizeEmail()
+    .isLength({ max: 254 }).withMessage('Email too long')
+    .customSanitizer(sanitizeEmail),
+  body('assessmentId')
+    .trim()
+    .isLength({ min: 1, max: 100 }).withMessage('Assessment ID too long')
+    .matches(/^[a-zA-Z0-9\-_]+$/).withMessage('Assessment ID contains invalid characters'),
+  body('assessmentName')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('Assessment name too long')
+    .customSanitizer(sanitizeString),
+  body('score')
+    .isInt({ min: 0, max: 100 }).withMessage('Score must be between 0 and 100'),
+  body('maturityLevel')
+    .trim()
+    .isLength({ min: 1, max: 50 }).withMessage('Maturity level too long')
+    .matches(/^[a-zA-Z0-9\s\-]+$/).withMessage('Maturity level contains invalid characters'),
+  body('categoryScores')
+    .optional()
+    .isObject().withMessage('Category scores must be an object'),
+  body('certificateId')
+    .optional()
+    .trim()
+    .matches(/^TRX-CAA-\d{8}-[A-F0-9]{8}$/).withMessage('Invalid certificate ID format'),
+  body('assessmentConsent')
+    .isBoolean({ strict: true }).withMessage('Assessment consent must be a boolean')
+    .custom((value) => {
+      if (value !== true) {
+        throw new Error('Assessment consent is required');
+      }
+      return true;
+    }),
+  body('consentTimestamp')
+    .optional()
+    .isISO8601().withMessage('Invalid consent timestamp format'),
+  body('submissionTimestamp')
+    .optional()
+    .isISO8601().withMessage('Invalid submission timestamp format'),
+  body('company')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('Company name too long')
+    .matches(/^[a-zA-Z0-9\s\-\.'',&]+$/).withMessage('Company contains invalid characters')
+    .customSanitizer(sanitizeString),
+  body('industry')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('Industry too long')
+    .customSanitizer(sanitizeString),
+  body('country')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('Country too long')
+    .customSanitizer(sanitizeString),
+  body('jobTitle')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('Job title too long')
+    .customSanitizer(sanitizeString),
+  body('newsletterConsent')
+    .optional()
+    .isBoolean({ strict: true }).withMessage('Newsletter consent must be a boolean'),
+  body('sourceUrl')
+    .optional()
+    .trim()
+    .isURL({ require_protocol: true, protocols: ['http','https'] }).withMessage('Invalid source URL')
+    .isLength({ max: 2048 }).withMessage('Source URL too long'),
+  body('referrer')
+    .optional()
+    .trim()
+    .isLength({ max: 2048 }).withMessage('Referrer too long'),
+  body('utmSource')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('UTM source too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM source contains invalid characters'),
+  body('utmMedium')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }).withMessage('UTM medium too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM medium contains invalid characters'),
+  body('utmCampaign')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('UTM campaign too long')
+    .matches(/^[a-zA-Z0-9_\-\.\s]+$/).withMessage('UTM campaign contains invalid characters'),
+  body('reportDownloaded')
+    .optional()
+    .isBoolean({ strict: true }).withMessage('reportDownloaded must be a boolean'),
+  body('certificateDownloaded')
+    .optional()
+    .isBoolean({ strict: true }).withMessage('certificateDownloaded must be a boolean'),
+  body('hp_field')
+    .optional()
+    .custom((value) => {
+      if (value && value.length > 0) {
+        throw new Error('Bot detected');
+      }
+      return true;
+    })
+], async (req, res) => {
+  const reqId = `ast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  console.log(`[${reqId}] handler_started /api/assessment/lead`);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const fieldErrors = {};
+    for (const e of errors.array()) {
+      const field = e.path || e.param || 'general';
+      if (!fieldErrors[field]) fieldErrors[field] = [];
+      fieldErrors[field].push(e.msg);
+    }
+    console.log(`[${reqId}] validation_failed`);
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      fieldErrors,
+      errors: errors.array().map(e => e.msg)
+    });
+  }
+
+  const {
+    fullName, email, assessmentId, assessmentName, score, maturityLevel,
+    categoryScores, certificateId, assessmentConsent, consentTimestamp,
+    submissionTimestamp, company, industry, country, jobTitle,
+    newsletterConsent, sourceUrl, referrer, utmSource, utmMedium, utmCampaign,
+    reportDownloaded, certificateDownloaded
+  } = req.body;
+
+  console.log(`[${reqId}] request_received name=${fullName} email=${email} assessment=${assessmentId}`);
+
+  // Generate certificate ID if not provided
+  let finalCertId = certificateId;
+  if (!finalCertId) {
+    finalCertId = generateCertificateId();
+    console.log(`[${reqId}] generated_certificate_id=${finalCertId}`);
+  }
+
+  // Determine achievement label from score
+  let achievementLabel = 'Certificate of Completion';
+  if (score >= 85) achievementLabel = 'Advanced Achievement';
+  else if (score >= 70) achievementLabel = 'Practitioner Achievement';
+  else if (score >= 50) achievementLabel = 'Foundation Achievement';
+
+  // 1. Save certificate record
+  const certResult = await saveCertificate({
+    certificateId: finalCertId,
+    participantName: fullName,
+    assessmentId,
+    assessmentName: assessmentName || 'Carbon Accounting Readiness Assessment',
+    issueDate: new Date().toISOString(),
+    score,
+    maturityLevel,
+    achievementLabel,
+    status: 'active'
+  });
+  console.log(`[${reqId}] certificate_saved success=${certResult.success} id=${certResult.certificateId}`);
+
+  if (!certResult.success) {
+    console.error(`[${reqId}] CRITICAL: Certificate storage failed:`, certResult.error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to store certificate. Please try again.',
+      error: 'certificate_storage_failed'
+    });
+  }
+
+  // 2. Save assessment lead
+  const leadResult = await saveLead({
+    type: 'assessment',
+    name: fullName,
+    email,
+    company: company || null,
+    message: `Assessment: ${assessmentName || assessmentId}\nScore: ${score}/100\nMaturity: ${maturityLevel}\nCertificate: ${certResult.certificateId}\nNewsletter: ${newsletterConsent === true ? 'yes' : 'no'}`,
+    source: 'assessment-form',
+    discipline: 'Assessment Participant',
+    sourceUrl: sourceUrl || null,
+    submissionTimestamp: submissionTimestamp || new Date().toISOString(),
+    utmSource: utmSource || null,
+    utmMedium: utmMedium || null,
+    utmCampaign: utmCampaign || null,
+    referrer: referrer || null,
+    leadScore: score
+  });
+  console.log(`[${reqId}] lead_saved success=${leadResult.success}`);
+
+  if (!leadResult.success) {
+    console.error(`[${reqId}] CRITICAL: Lead persistence failed:`, leadResult.error);
+  }
+
+  // 3. Return success immediately with certificate ID
+  res.status(201).json({
+    success: true,
+    message: 'Assessment results saved successfully',
+    certificateId: certResult.certificateId,
+    verificationUrl: `https://terrnix.com/certificate/verify/?id=${certResult.certificateId}`
+  });
+  console.log(`[${reqId}] response_sent certificateId=${certResult.certificateId}`);
+
+  // 4. Fire-and-forget: Send participant email
+  const verificationUrl = `https://terrnix.com/certificate/verify/?id=${certResult.certificateId}`;
+  fireAndForget(
+    sendAssessmentResultsEmail({
+      to: email,
+      participantName: fullName,
+      assessmentName: assessmentName || 'Carbon Accounting Readiness Assessment',
+      score,
+      maturityLevel,
+      certificateId: certResult.certificateId,
+      verificationUrl
+    }).then(result => {
+      if (result.success) {
+        console.log(`[${reqId}] participant_email_sent messageId=${result.messageId}`);
+      } else {
+        console.error(`[${reqId}] participant_email_failed error="${result.error}"`);
+      }
+    }).catch(err => {
+      console.error(`[${reqId}] participant_email_exception error="${err.message}"`);
+    }),
+    'Assessment participant email'
+  );
+});
+
+// GET /api/certificate/verify — Verify certificate authenticity
+app.get('/api/certificate/verify', (req, res) => {
+  const reqId = `cert-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const { id } = req.query;
+
+  console.log(`[${reqId}] certificate_verify id=${id}`);
+
+  if (!id || typeof id !== 'string') {
+    return res.status(400).json({
+      valid: false,
+      message: 'Certificate ID is required'
+    });
+  }
+
+  // Validate certificate ID format
+  if (!/^TRX-CAA-\d{8}-[A-F0-9]{8}$/.test(id)) {
+    console.log(`[${reqId}] invalid_format id=${id}`);
+    return res.status(400).json({
+      valid: false,
+      message: 'Invalid certificate ID format'
+    });
+  }
+
+  const certificate = findCertificate(id);
+
+  if (!certificate) {
+    console.log(`[${reqId}] certificate_not_found id=${id}`);
+    return res.status(404).json({
+      valid: false,
+      message: 'Certificate not found'
+    });
+  }
+
+  if (certificate.status !== 'active') {
+    console.log(`[${reqId}] certificate_revoked id=${id} status=${certificate.status}`);
+    return res.status(404).json({
+      valid: false,
+      message: 'Certificate has been revoked'
+    });
+  }
+
+  console.log(`[${reqId}] certificate_valid id=${id} name=${certificate.participantName}`);
+  res.json({
+    valid: true,
+    certificateId: certificate.certificateId,
+    participantName: certificate.participantName,
+    assessmentName: certificate.assessmentName,
+    issueDate: certificate.issueDate,
+    score: certificate.score,
+    maturityLevel: certificate.maturityLevel,
+    achievementLabel: certificate.achievementLabel
+  });
+});
+
 // Debug SMTP — test email configuration and send a diagnostic email
 app.post('/api/debug-smtp', async (req, res) => {
   const reqId = `smtp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
@@ -893,6 +1188,8 @@ app.listen(PORT, () => {
   console.log(`  - POST /api/reports/pdf`);
   console.log(`  - POST /api/contact`);
   console.log(`  - POST /api/subscribe`);
+  console.log(`  - POST /api/assessment/lead`);
+  console.log(`  - GET  /api/certificate/verify`);
   console.log(`  - POST /api/debug-smtp`);
   console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
   console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
