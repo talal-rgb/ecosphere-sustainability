@@ -180,6 +180,12 @@ class AssessmentEngine {
     }
 
     this.state.setAnswer(questionId, value);
+    this.analytics.trackQuestionAnswered(
+      questionId,
+      this.state.state.progress.current,
+      question.category,
+      value
+    );
     this.analytics.trackProgress(
       questionId,
       this.state.state.progress.current,
