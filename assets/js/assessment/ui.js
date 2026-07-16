@@ -368,7 +368,6 @@ class AssessmentUI {
    * Render professional results screen (Milestone 3)
    */
   renderResults(results) {
-    console.log('[Assessment] renderResults called with score:', results?.overall?.score);
     this.clear();
     const participant = this.state.state.participant || {};
     const config = this.config;
@@ -734,18 +733,29 @@ class AssessmentUI {
    * Get recommendations from config based on results
    */
   getRecommendations(results) {
-    const configRecs = this.config.recommendations || [];
+    const configRecs = this.config.recommendations || {};
     const score = results.overall.score;
     const categoryScores = results.categories;
 
-    return configRecs.filter(rec => {
-      // Score range check
-      if (score < rec.minScore || score > rec.maxScore) return false;
+    // Flatten all recommendation types into a single array
+    const allRecs = [];
+    ['articles', 'calculators', 'guides', 'glossary', 'faq', 'services'].forEach(type => {
+      const items = configRecs[type] || [];
+      items.forEach(item => {
+        allRecs.push({ ...item, type: type === 'articles' ? 'Article' : type === 'calculators' ? 'Calculator' : type === 'guides' ? 'Guide' : type === 'glossary' ? 'Glossary' : type === 'faq' ? 'FAQ' : 'Service' });
+      });
+    });
 
+    // Sort categories by score (lowest first)
+    const sortedCats = Object.values(categoryScores).sort((a, b) => a.score - b.score);
+    const lowestCats = sortedCats.slice(0, 2).map(c => c.id);
+
+    return allRecs.filter(rec => {
       // Category match: recommend if any of the rec's categories are in the lowest 2
-      const sortedCats = Object.values(categoryScores).sort((a, b) => a.score - b.score);
-      const lowestCats = sortedCats.slice(0, 2).map(c => c.id);
-      return rec.categories.some(cat => lowestCats.includes(cat));
+      if (rec.categories && rec.categories.some(cat => lowestCats.includes(cat))) return true;
+      // Or if no categories specified, include it
+      if (!rec.categories || rec.categories.length === 0) return true;
+      return false;
     }).slice(0, 4);
   }
 
