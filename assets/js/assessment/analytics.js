@@ -187,6 +187,56 @@ class AssessmentAnalytics {
     this.track('assessment_lead_form_view', {});
   }
 
+  trackParticipantDetails(newsletterConsent, timeSpent, source) {
+    this.track('assessment_details_submitted', {
+      newsletter_consent: newsletterConsent,
+      time_spent_seconds: timeSpent,
+      source: source
+    });
+  }
+
+  trackResultViewed(score, maturityLevel) {
+    this.track('assessment_result_viewed', {
+      score: score,
+      maturity_level: maturityLevel
+    });
+  }
+
+  trackReportDownload(type, score, maturityLevel) {
+    this.track('assessment_report_download', {
+      report_type: type,
+      score: score,
+      maturity_level: maturityLevel
+    });
+  }
+
+  trackCertificateDownload(score, maturityLevel) {
+    this.track('assessment_certificate_download', {
+      score: score,
+      maturity_level: maturityLevel
+    });
+  }
+
+  trackConsultationClick(source) {
+    this.track('assessment_consultation_click', {
+      cta_source: source
+    });
+  }
+
+  trackRecommendationClick(resourceId, resourceType, resourceUrl) {
+    this.track('assessment_article_click', {
+      resource_id: resourceId,
+      resource_type: resourceType,
+      resource_url: resourceUrl
+    });
+  }
+
+  trackNewsletterConsent(consent) {
+    this.track('assessment_newsletter_consent', {
+      consent: consent
+    });
+  }
+
   /**
    * Get all tracked events (for debugging)
    */
