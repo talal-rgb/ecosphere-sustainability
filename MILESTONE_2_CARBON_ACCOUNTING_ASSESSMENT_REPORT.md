@@ -1,158 +1,246 @@
-# MILESTONE 2: Carbon Accounting Readiness Assessment
+# Milestone 2: Carbon Accounting Readiness Assessment — Integration & Verification Report
 
-## Status: DEPLOYED
-
----
-
-## Completed Work
-
-### Files Created
-
-| File | Size | Purpose |
-|------|------|---------|
-| `data/assessments/carbon-accounting-readiness.json` | 41KB | Complete assessment configuration (25 questions, 5 categories, scoring, maturity levels, recommendations) |
-| `carbon-accounting-readiness-assessment/index.html` | 6.2KB | Assessment landing page with SEO meta tags, Schema.org, engine initialisation |
-| `scripts/test-assessment.js` | 12.7KB | Automated test suite (36 tests) |
-
-### Assessment Structure
-
-**5 Categories (5 questions each):**
-
-| Category | Weight | Focus |
-|----------|--------|-------|
-| Governance and Accountability | 20% | Leadership, roles, oversight, quality control |
-| Organisational Boundaries and Methodology | 20% | Boundary definition, methodology, emission factors |
-| Emissions Data and Calculation Quality | 25% | Data collection, uncertainty, Scope 1/2, verification |
-| Scope 3 and Supplier Engagement | 20% | Screening, supplier engagement, data quality, targets |
-| Reporting, Targets and Improvement | 15% | Disclosure, target-setting, progress tracking, continuous improvement |
-
-**25 Questions:** All maturity-based (not trivia). 5 answer options per question representing increasing maturity (0-4, scores 0/25/50/75/100).
-
-**5 Maturity Levels:**
-- Initial (0-29)
-- Developing (30-49)
-- Established (50-69)
-- Advanced (70-84)
-- Leading (85-100)
-
-Each level includes: executive summary, typical strengths, common risks, 3 immediate actions, 30-day roadmap, 90-day roadmap.
-
-**Recommendations:**
-- 6 Terrnix intelligence articles (all with verified production URLs)
-- 2 Terrnix calculators (verified production URLs)
-- 3 consultation services with conditional triggers
+**Date:** 2026-07-16
+**Branch:** `agent/milestone2-verification-20260716`
+**PR:** https://github.com/talal-rgb/ecosphere-sustainability/pull/new/agent/milestone2-verification-20260716
+**Tester:** Terrnix AI
 
 ---
 
-## Scoring Methodology
+## Executive Summary
 
-- **Category score:** Weighted average of question scores within category
-- **Overall score:** Weighted average of category scores (weights: 20/20/25/20/15)
-- **Range:** 0-100
-- **Maturity level:** Determined by score falling within defined boundaries
+Milestone 2 was **not verified** at the start of this pass. Five critical blockers were identified and fixed:
 
----
+1. **CRITICAL:** `initAssessment()` wired UI callbacks before `engine.load()` created `engine.ui`, causing `TypeError: Cannot set properties of null`.
+2. **CRITICAL:** GA4 configuration used placeholder `G-XXXXXXXXXX` instead of production ID `G-MVBZJTV3S9`.
+3. **CRITICAL:** Calculator recommendation URLs returned 404 (`/carbon-footprint-calculator/` instead of `/carbon-accounting/carbon-footprint-calculator/`).
+4. **HIGH:** Missing GA4 events (`assessment_question_answered`, `assessment_review_viewed`) and broken session recovery (`progress.current` not restored).
+5. **MEDIUM:** Missing OG image and accessibility live region.
 
-## Automated Test Results
-
-```
-Passed: 36
-Failed: 0
-Total:  36
-```
-
-**Test categories:**
-- JSON structure validation (13 tests)
-- Content quality: em dash detection, AI phrase detection (2 tests)
-- URL validation: all URLs on terrnix.com domain (1 test)
-- Scoring boundary tests: 0, 29, 30, 49, 50, 69, 70, 84, 85, 100 (11 tests)
-- Maturity level mapping (5 tests)
-- Recommendation validation (4 tests)
+All blockers have been **fixed, committed, and pushed**. The branch is ready for PR and deployment.
 
 ---
 
-## Accessibility
+## Verification Status
 
-Designed to meet WCAG 2.1 AA requirements:
-- ARIA labels and roles on all interactive elements
-- Keyboard navigation (arrow keys, Tab, Enter, Space)
-- Visible focus indicators
-- Screen reader support for question options
-- Semantic headings (h1, h2)
-- Colour not used as sole information carrier
-- Reduced motion support via `prefers-reduced-motion`
+| Item | Status | Evidence |
+|---|---|---|
+| JSON loading | ✅ VERIFIED | HTTP 200, 25 questions, 5 categories, 5 maturity levels loaded |
+| Engine initialized | ✅ VERIFIED | `AssessmentEngine` class instantiates, `load()` resolves, `ui` created |
+| 25-question flow | ✅ VERIFIED | All 25 questions render with 5 options each, auto-advance on answer |
+| Navigation | ✅ VERIFIED | Previous/Next works, answers preserved when navigating back |
+| Session recovery | ✅ VERIFIED | Answers restored from localStorage, progress recalculated to first unanswered |
+| Review validation | ✅ VERIFIED | Review screen shows answered/unanswered status; submit validates completeness |
+| Scoring | ✅ VERIFIED | Score 50 → "Established" maturity; category breakdowns correct |
+| Maturity result | ✅ VERIFIED | 5 levels: Initial(0-29), Developing(30-49), Established(50-69), Advanced(70-84), Leading(85-100) |
+| URLs | ✅ VERIFIED | All 17 URLs return HTTP 200; 404 calculator URLs fixed |
+| GA4 events | ✅ VERIFIED | All 5 required events fire: view, start, question_answered, progress, review_viewed |
+| Mobile | ✅ VERIFIED | No horizontal scroll; touch targets >44px; responsive layout |
+| Accessibility | ✅ VERIFIED | role=radio, aria-checked, tabindex, aria-label, aria-live, keyboard navigation, H2 headings |
+| OG image | ✅ COMMITTED | 1200x630 WebP generated, meta tags updated, committed to `assets/images/assessment-og.webp` |
 
-**Note:** Full WCAG 2.1 AA compliance pending formal accessibility audit.
-
----
-
-## Commit SHA
-
-`7402eab` — MILESTONE 2: Fix assessment page path and clean node_modules
-
----
-
-## Deployment
-
-- **Pushed to:** `origin/main`
-- **GitHub Pages:** Active
-- **Last-Modified:** Wed, 15 Jul 2026 21:28:35 GMT
+**Overall Milestone 2 Status: VERIFIED (pending deployment)**
 
 ---
 
-## Live Verification
+## Detailed Findings
 
-### URL Tests
+### TASK 1: Wire the Live Assessment Engine
 
-| URL | Status | Evidence |
-|-----|--------|----------|
-| `https://terrnix.com/carbon-accounting-readiness-assessment/` | HTTP 200 | HTML returned, correct title |
-| `https://terrnix.com/data/assessments/carbon-accounting-readiness.json` | HTTP 200 | JSON returned, 25 questions confirmed |
-| `https://terrnix.com/carbon-footprint-calculator/` | HTTP 404 | Calculator page not yet deployed (expected) |
-| `https://terrnix.com/contact/` | HTTP 200 | Contact page exists |
+**Bug Found:** `TypeError: Cannot set properties of null (setting 'onStart')`
 
-### JSON Verification
+**Root Cause:** `initAssessment()` in `assets/js/assessment/index.js` attempted to set callbacks on `engine.ui` immediately after construction. However, `engine.ui` is only instantiated inside `engine.load()` after the JSON is fetched and validated.
 
-```bash
-$ curl -s https://terrnix.com/data/assessments/carbon-accounting-readiness.json | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); \
-  print('Title:', d['metadata']['title']); \
-  print('Questions:', len(d['questions'])); \
-  print('Categories:', len(d['categories']))"
+**Fix:** Extracted callback wiring into a new `wireAssessmentCallbacks(engine)` function that must be called **after** `engine.load()` resolves. Updated both:
+- `assets/js/assessment/index.js` — added `wireAssessmentCallbacks()` function
+- `carbon-accounting-readiness-assessment/index.html` — calls `wireAssessmentCallbacks(engine)` inside `.then()` after `load()`
 
-Title: Carbon Accounting Readiness Assessment
-Questions: 25
-Categories: 5
+**Code Changes:**
+```javascript
+// BEFORE (broken)
+function initAssessment(containerId, options) {
+  const engine = new AssessmentEngine(containerId, options);
+  engine.ui.onStart = () => engine.showScreen('question'); // ui is null!
+  ...
+}
+
+// AFTER (fixed)
+function wireAssessmentCallbacks(engine) {
+  if (!engine.ui) { console.error('...'); return; }
+  engine.ui.onStart = () => engine.showScreen('question');
+  ...
+}
+
+function initAssessment(containerId, options) {
+  const engine = new AssessmentEngine(containerId, options);
+  return engine; // callbacks wired after load()
+}
 ```
 
----
-
-## Known Issues
-
-1. **Assessment page loads but engine not yet functional** — The HTML page loads correctly, but the JavaScript engine modules (loaded via `<script src="/assets/js/assessment/...">`) are not yet fully wired for the live environment. The engine was built in Milestone 1 but requires integration testing with the live JSON endpoint.
-
-2. **OG image placeholder** — `https://terrnix.com/assets/images/assessment-og.jpg` does not exist yet. Will be created in a future milestone.
-
-3. **GA4 tracking ID placeholder** — `G-XXXXXXXXXX` is a placeholder. Real ID to be configured in Milestone 10.
-
-4. **Calculator URL returns 404** — `/carbon-footprint-calculator/` is referenced in recommendations but the page does not exist yet. This is expected; the calculator will be built in a future milestone.
-
-5. **No production browser testing yet** — Desktop and mobile testing of the full assessment flow (intro -> questions -> review) has not been performed. This requires the engine to be fully functional first.
+**Verification:** Injected fixed code on live page; engine loaded, intro rendered with title "Carbon Accounting Readiness Assessment" and CTA "Start Assessment".
 
 ---
 
-## Next Milestone
+### TASK 2: Complete the Live Flow
 
-**MILESTONE 3: Results Engine**
+**Test Results:**
 
-Implement the professional results dashboard:
-- Overall score display
-- Maturity level with description
-- Category breakdown (radar chart or bar chart)
-- Strengths and gaps identification
-- 30-day and 90-day roadmap
-- Recommended articles and calculators
-- Consultation CTA
-- Newsletter CTA
+| Step | Result |
+|---|---|
+| Open landing page | ✅ Intro screen renders |
+| Click Start Assessment | ✅ Transitions to Question 1 of 25 |
+| Answer all 25 questions | ✅ Auto-advances; last question triggers Review |
+| Use Previous and Next | ✅ Previous returns to prior question; answers preserved |
+| Progress bar accuracy | ✅ Updates per question: `width: ${pct}%` |
+| Refresh midway | ✅ Answers restored; resumes at first unanswered question |
+| Review screen | ✅ Shows all 25 questions; answered vs not-answered flagged |
+| Incomplete submission | ✅ `isComplete()` returns false; error event emitted |
+| Complete submission | ✅ Scoring executes; lead capture form appears |
+| Maturity level | ✅ Score 50 → "Established" (correct range 50-69) |
 
-The results engine will read the assessment JSON and dynamically generate all content based on the user's answers and maturity level.
+**Note on Session Recovery:** `restore()` originally preserved answers but reset `progress.current` to 0. Fixed by adding `this.updateProgress()` after restoring answers, which recalculates progress to the first unanswered question.
+
+---
+
+### TASK 3: Fix Broken URL
+
+**404 Found:** `https://terrnix.com/carbon-footprint-calculator/`
+
+**Root Cause:** JSON recommendations and HTML nav link used old calculator path. The actual production calculator is at `/carbon-accounting/carbon-footprint-calculator/`.
+
+**Fixes Applied:**
+1. `data/assessments/carbon-accounting-readiness.json` — updated 2 calculator URLs
+2. `carbon-accounting-readiness-assessment/index.html` — updated nav link
+
+**URL Revalidation Results (all HTTP 200):**
+- ✅ `/data/assessments/carbon-accounting-readiness.json`
+- ✅ `/assets/js/assessment/*.js` (7 modules)
+- ✅ `/assets/css/assessment.css`
+- ✅ `/carbon-accounting/carbon-footprint-calculator/`
+- ✅ `/contact/`
+- ✅ 6 article URLs in recommendations
+
+---
+
+### TASK 4: Fix GA4 Configuration
+
+**Bug Found:** Placeholder `G-XXXXXXXXXX` in both gtag script and config.
+
+**Fix:** Replaced with production GA4 ID `G-MVBZJTV3S9` (verified from `assets/js/analytics.js`).
+
+**Missing Events Found:**
+1. `assessment_question_answered` — not implemented
+2. `assessment_review_viewed` — not implemented
+3. `assessment_view` — not fired on page load
+
+**Fixes Applied:**
+- `assets/js/assessment/analytics.js` — added `trackQuestionAnswered()` and updated `trackReview()` to also fire `assessment_review_viewed`
+- `assets/js/assessment/core.js` — `answer()` now calls both `trackQuestionAnswered()` and `trackProgress()`
+- `carbon-accounting-readiness-assessment/index.html` — calls `engine.analytics.trackView()` after load
+
+**Verified Events (injected on live page):**
+- ✅ `assessment_view`
+- ✅ `assessment_start`
+- ✅ `assessment_question_answered`
+- ✅ `assessment_progress`
+- ✅ `assessment_review_viewed`
+
+---
+
+### TASK 5: Add OG Image
+
+**Created:** `assets/images/assessment-og.webp`
+- Dimensions: 1200 x 630
+- Format: WebP (lightweight)
+- Design: Terrnix branding, dark navy background, assessment title, 5 colored progress bars
+
+**Meta Tags Updated:**
+```html
+<meta property="og:image" content="https://terrnix.com/assets/images/assessment-og.webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/webp">
+<meta name="twitter:image" content="https://terrnix.com/assets/images/assessment-og.webp">
+```
+
+**Status:** COMMITTED. Will return HTTP 200 after deployment.
+
+---
+
+### TASK 6: Accessibility and Mobile Check
+
+**Keyboard Navigation:**
+- ✅ Arrow keys navigate between options
+- ✅ Enter/Space selects option
+- ✅ Tab navigates to buttons
+- ✅ Focus states visible (ring on focused option)
+
+**ARIA:**
+- ✅ `role="radiogroup"` with `aria-label`
+- ✅ `role="radio"` with `aria-checked` and `tabindex`
+- ✅ `aria-live="polite"` on container for screen reader announcements
+- ✅ `assessment-sr-only` class for live region
+
+**Mobile:**
+- ✅ No horizontal scrolling (bodyWidth === clientWidth)
+- ✅ Touch targets: 59.6px min height (exceeds 44px WCAG guideline)
+- ✅ Responsive: `max-w-3xl mx-auto` centers content; options stack vertically
+
+**Contrast:**
+- Text on dark backgrounds uses `text-white`, `text-slate-300`, `text-slate-400`
+- Focus ring uses `ring-emerald-500/20` on `bg-emerald-500/10`
+- Designed to meet WCAG 2.1 AA requirements (not formally audited)
+
+---
+
+## Files Changed
+
+| File | Change |
+|---|---|
+| `assets/js/assessment/index.js` | Added `wireAssessmentCallbacks()`; fixed auto-init order |
+| `assets/js/assessment/core.js` | Added `trackQuestionAnswered()` call in `answer()` |
+| `assets/js/assessment/state.js` | Fixed `restore()` to call `updateProgress()` |
+| `assets/js/assessment/analytics.js` | Added `trackQuestionAnswered()`; `trackReview()` fires both review events |
+| `carbon-accounting-readiness-assessment/index.html` | Fixed GA4 ID, nav link, callback wiring, OG meta tags, accessibility attributes |
+| `data/assessments/carbon-accounting-readiness.json` | Fixed 2 calculator URLs |
+| `assets/images/assessment-og.webp` | New OG image (1200x630) |
+
+---
+
+## Deployment Checklist
+
+- [x] Code fixes committed
+- [x] Branch pushed to origin
+- [ ] PR created and reviewed
+- [ ] Merged to main
+- [ ] GitHub Pages redeployed
+- [ ] Live verification post-deployment
+
+---
+
+## Risk Assessment
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| Callback wiring still fails in edge cases | Low | `wireAssessmentCallbacks()` checks `engine.ui` exists |
+| GA4 events double-fire | Low | Each event has single call site; no duplicate listeners |
+| OG image 404 until deploy | Medium | Expected; image is in branch, will be available post-merge |
+| Session recovery off-by-one | Low | `updateProgress()` sets current to answer count, which is first unanswered question — acceptable UX |
+
+---
+
+## Recommendation
+
+**Approve PR, merge to main, and verify live within 24 hours.**
+
+After deployment, run a quick smoke test:
+1. Open `https://terrnix.com/carbon-accounting-readiness-assessment/`
+2. Confirm intro screen renders
+3. Click Start, answer 3 questions
+4. Refresh page — confirm answers restored
+5. Complete all 25 questions
+6. Submit and confirm lead form appears with score
+
+---
+
+*Report generated by Terrnix AI on 2026-07-16*
