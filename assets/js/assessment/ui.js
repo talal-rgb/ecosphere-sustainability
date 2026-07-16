@@ -357,28 +357,402 @@ class AssessmentUI {
   }
 
   /**
-   * Render results screen (placeholder for Milestone 3)
+   * Render professional results screen (Milestone 3)
    */
   renderResults(results) {
     this.clear();
+    const participant = this.state.state.participant || {};
+    const config = this.config;
+    const meta = config.metadata || {};
+    const overall = results.overall;
+    const categories = Object.values(results.categories);
+    const strengths = results.strengths || [];
+    const gaps = results.gaps || [];
+    const recommendations = this.getRecommendations(results);
+    const completionDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    const wrapper = this.createElement('div', 'assessment-results max-w-3xl mx-auto py-8 px-6 text-center');
+    const wrapper = this.createElement('div', 'assessment-results max-w-4xl mx-auto py-8 px-4 md:px-6');
 
-    wrapper.innerHTML = `
-      <div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/20">
-        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    // Hero section
+    const hero = this.createElement('div', 'text-center mb-10');
+    hero.innerHTML = `
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       </div>
-      <h2 class="text-3xl font-bold text-white mb-2">Assessment Complete</h2>
-      <p class="text-slate-400 mb-8">Your results are being prepared.</p>
-      <div class="text-6xl font-bold text-emerald-400 mb-2">${results.overall.score}</div>
-      <div class="text-slate-400 mb-8">out of 100</div>
-      <div class="inline-block px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold">
-        ${results.overall.maturityLevel.label}
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">Your Assessment Results</h2>
+      ${participant.name ? `<p class="text-slate-400 text-lg">Prepared for ${AssessmentUtils.escapeHtml(participant.name)}</p>` : ''}
+      <p class="text-slate-500 text-sm mt-1">${meta.title || 'Carbon Accounting Readiness Assessment'} &middot; ${completionDate}</p>
+    `;
+    wrapper.appendChild(hero);
+
+    // Score card
+    const scoreCard = this.createElement('div', 'bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 mb-8 shadow-xl');
+    scoreCard.innerHTML = `
+      <div class="flex flex-col md:flex-row items-center gap-8">
+        <div class="text-center md:text-left flex-1">
+          <div class="text-7xl font-bold text-emerald-400 mb-2">${overall.score}</div>
+          <div class="text-slate-400 text-lg mb-4">out of 100</div>
+          <div class="inline-block px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-lg">
+            ${overall.maturityLevel.label}
+          </div>
+        </div>
+        <div class="flex-1 w-full">
+          <div class="space-y-3">
+            ${categories.map(cat => `
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-300">${AssessmentUtils.escapeHtml(cat.name)}</span>
+                  <span class="text-emerald-400 font-semibold">${cat.score}%</span>
+                </div>
+                <div class="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-1000" style="width: ${cat.score}%; background: ${this.getCategoryColor(cat.score)}"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
       </div>
     `;
+    wrapper.appendChild(scoreCard);
+
+    // Executive summary
+    const summary = this.createElement('div', 'bg-slate-800/40 rounded-2xl border border-slate-700/50 p-6 mb-8');
+    summary.innerHTML = `
+      <h3 class="text-xl font-semibold text-white mb-4">Executive Summary</h3>
+      <p class="text-slate-300 leading-relaxed">${this.getExecutiveSummary(overall.maturityLevel.label, overall.score, categories)}</p>
+    `;
+    wrapper.appendChild(summary);
+
+    // Category analysis
+    const catSection = this.createElement('div', 'mb-8');
+    catSection.innerHTML = `<h3 class="text-xl font-semibold text-white mb-4">Category Analysis</h3>`;
+    const catGrid = this.createElement('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
+    categories.forEach(cat => {
+      const catCard = this.createElement('div', 'bg-slate-800/40 rounded-xl border border-slate-700/50 p-5');
+      const status = this.getCategoryStatus(cat.score);
+      catCard.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-semibold text-white">${AssessmentUtils.escapeHtml(cat.name)}</h4>
+          <span class="px-2 py-1 rounded-full text-xs font-medium" style="background: ${status.bg}; color: ${status.color}; border: 1px solid ${status.border}">${status.label}</span>
+        </div>
+        <div class="text-3xl font-bold mb-2" style="color: ${status.color}">${cat.score}%</div>
+        <p class="text-slate-400 text-sm">${this.getCategoryInterpretation(cat.name, cat.score)}</p>
+      `;
+      catGrid.appendChild(catCard);
+    });
+    catSection.appendChild(catGrid);
+    wrapper.appendChild(catSection);
+
+    // Strengths
+    if (strengths.length > 0) {
+      const strengthsSection = this.createElement('div', 'bg-emerald-500/5 rounded-2xl border border-emerald-500/20 p-6 mb-8');
+      strengthsSection.innerHTML = `
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          Key Strengths
+        </h3>
+        <div class="space-y-3">
+          ${strengths.map(s => `
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-emerald-400 font-bold text-sm">${s.score}%</span>
+              </div>
+              <div>
+                <div class="text-white font-medium">${AssessmentUtils.escapeHtml(s.name)}</div>
+                <div class="text-slate-400 text-sm">${AssessmentUtils.escapeHtml(s.description)}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      wrapper.appendChild(strengthsSection);
+    }
+
+    // Priority gaps
+    if (gaps.length > 0) {
+      const gapsSection = this.createElement('div', 'bg-amber-500/5 rounded-2xl border border-amber-500/20 p-6 mb-8');
+      gapsSection.innerHTML = `
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          Priority Improvement Areas
+        </h3>
+        <div class="space-y-3">
+          ${gaps.map(g => `
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-amber-400 font-bold text-sm">${g.score}%</span>
+              </div>
+              <div>
+                <div class="text-white font-medium">${AssessmentUtils.escapeHtml(g.name)}</div>
+                <div class="text-slate-400 text-sm">${AssessmentUtils.escapeHtml(g.description)}</div>
+                <div class="text-amber-400 text-xs mt-1 font-medium">Risk level: ${g.risk}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      wrapper.appendChild(gapsSection);
+    }
+
+    // Action roadmaps
+    const roadmap = this.createElement('div', 'mb-8');
+    roadmap.innerHTML = `<h3 class="text-xl font-semibold text-white mb-4">Your Action Roadmap</h3>`;
+    const roadmapGrid = this.createElement('div', 'grid grid-cols-1 md:grid-cols-3 gap-4');
+    const phases = [
+      { days: '30 days', label: 'Immediate Actions', actions: this.getRoadmapActions(gaps, 30) },
+      { days: '60 days', label: 'Build Momentum', actions: this.getRoadmapActions(gaps, 60) },
+      { days: '90 days', label: 'Embed Practice', actions: this.getRoadmapActions(gaps, 90) }
+    ];
+    phases.forEach(phase => {
+      const phaseCard = this.createElement('div', 'bg-slate-800/40 rounded-xl border border-slate-700/50 p-5');
+      phaseCard.innerHTML = `
+        <div class="text-emerald-400 font-semibold text-sm mb-1">${phase.days}</div>
+        <h4 class="text-white font-semibold mb-3">${phase.label}</h4>
+        <ul class="space-y-2">
+          ${phase.actions.map(a => `<li class="text-slate-400 text-sm flex items-start gap-2"><span class="text-emerald-500 mt-1">&bull;</span>${AssessmentUtils.escapeHtml(a)}</li>`).join('')}
+        </ul>
+      `;
+      roadmapGrid.appendChild(phaseCard);
+    });
+    roadmap.appendChild(roadmapGrid);
+    wrapper.appendChild(roadmap);
+
+    // Recommendations
+    if (recommendations.length > 0) {
+      const recSection = this.createElement('div', 'mb-8');
+      recSection.innerHTML = `<h3 class="text-xl font-semibold text-white mb-4">Recommended Resources</h3>`;
+      const recGrid = this.createElement('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
+      recommendations.forEach(rec => {
+        const recCard = this.createElement('a', 'block bg-slate-800/40 rounded-xl border border-slate-700/50 p-5 hover:border-emerald-500/30 hover:bg-slate-700/40 transition-all', { href: rec.url, target: '_blank' });
+        recCard.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <div>
+              <div class="text-white font-medium">${AssessmentUtils.escapeHtml(rec.title)}</div>
+              <div class="text-slate-400 text-sm mt-1">${AssessmentUtils.escapeHtml(rec.description)}</div>
+              <div class="text-emerald-400 text-xs mt-2 font-medium">${rec.type} &rarr;</div>
+            </div>
+          </div>
+        `;
+        recCard.addEventListener('click', () => this.onRecommendationClick?.(rec));
+        recGrid.appendChild(recCard);
+      });
+      recSection.appendChild(recGrid);
+      wrapper.appendChild(recSection);
+    }
+
+    // Download buttons
+    const downloadSection = this.createElement('div', 'bg-slate-800/40 rounded-2xl border border-slate-700/50 p-6 mb-8');
+    downloadSection.innerHTML = `
+      <h3 class="text-xl font-semibold text-white mb-4">Download Your Documents</h3>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button id="btnDownloadReport" class="flex-1 py-4 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Download Full Report (PDF)
+        </button>
+        <button id="btnDownloadCertificate" class="flex-1 py-4 px-6 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.587 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.587 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.587 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.587 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+          Download Certificate (PDF)
+        </button>
+      </div>
+    `;
+    wrapper.appendChild(downloadSection);
+
+    // Consultation CTA
+    const cta = this.createElement('div', 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl border border-emerald-500/20 p-6 text-center');
+    cta.innerHTML = `
+      <h3 class="text-xl font-semibold text-white mb-2">Need Expert Guidance?</h3>
+      <p class="text-slate-400 mb-4">Speak with a Terrnix carbon accounting specialist about your results and next steps.</p>
+      <a href="/contact/?source=assessment-results" class="inline-block px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/20">
+        Book a Free Consultation
+      </a>
+    `;
+    wrapper.appendChild(cta);
+
+    // Disclaimer
+    const disclaimer = this.createElement('div', 'mt-8 text-center');
+    disclaimer.innerHTML = `
+      <p class="text-slate-500 text-xs">This assessment provides a diagnostic view of your carbon accounting readiness based on your responses. It is not a professional audit, regulatory certification, or substitute for independent assurance.</p>
+    `;
+    wrapper.appendChild(disclaimer);
 
     this.container.appendChild(wrapper);
+
+    // Attach download handlers
+    const reportBtn = document.getElementById('btnDownloadReport');
+    const certBtn = document.getElementById('btnDownloadCertificate');
+    if (reportBtn) reportBtn.addEventListener('click', () => this.onDownloadReport?.());
+    if (certBtn) certBtn.addEventListener('click', () => this.onDownloadCertificate?.());
   }
+
+  /**
+   * Get category color based on score
+   */
+  getCategoryColor(score) {
+    if (score >= 70) return '#34d399';
+    if (score >= 50) return '#2dd4bf';
+    if (score >= 30) return '#fbbf24';
+    return '#f87171';
+  }
+
+  /**
+   * Get category status label and colors
+   */
+  getCategoryStatus(score) {
+    if (score >= 70) return { label: 'Strong', color: '#34d399', bg: 'rgba(52,211,153,0.1)', border: 'rgba(52,211,153,0.3)' };
+    if (score >= 50) return { label: 'Good', color: '#2dd4bf', bg: 'rgba(45,212,191,0.1)', border: 'rgba(45,212,191,0.3)' };
+    if (score >= 30) return { label: 'Developing', color: '#fbbf24', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)' };
+    return { label: 'Priority', color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)' };
+  }
+
+  /**
+   * Generate executive summary text
+   */
+  getExecutiveSummary(maturityLabel, score, categories) {
+    const lowest = categories.sort((a, b) => a.score - b.score)[0];
+    const highest = categories.sort((a, b) => b.score - a.score)[0];
+
+    const summaries = {
+      'Initial': `Your organisation is at an early stage of carbon accounting maturity, with a score of ${score}%. While some foundational awareness exists, significant gaps remain across most dimensions. Your highest area is ${highest.name} at ${highest.score}%, while ${lowest.name} at ${lowest.score}% represents the most urgent priority for improvement.`,
+      'Developing': `Your organisation shows emerging carbon accounting capability, scoring ${score}%. Some processes are in place but consistency and coverage remain limited. ${highest.name} (${highest.score}%) is your strongest area. Focus on building systematic approaches in ${lowest.name} (${lowest.score}%) to accelerate progress.`,
+      'Established': `Your organisation has achieved a solid foundation in carbon accounting with a score of ${score}%. Core processes are documented and operational across most areas. ${highest.name} (${highest.score}%) demonstrates mature practice. The next phase involves deepening integration and moving toward external assurance in areas such as ${lowest.name} (${lowest.score}%).`,
+      'Advanced': `Your organisation demonstrates advanced carbon accounting maturity at ${score}%. Processes are well-integrated, data quality is strong, and reporting is consistent. ${highest.name} (${highest.score}%) is a clear strength. Minor refinements in ${lowest.name} (${lowest.score}%) will position you for leadership.`,
+      'Leading': `Your organisation operates at leading practice level with a score of ${score}%. Carbon accounting is deeply embedded in governance, operations, and strategy. ${highest.name} (${highest.score}%) exemplifies best practice. Maintain this standard while supporting supplier and industry-wide improvement.`
+    };
+
+    return summaries[maturityLabel] || summaries['Established'];
+  }
+
+  /**
+   * Generate category interpretation
+   */
+  getCategoryInterpretation(categoryName, score) {
+    const interpretations = {
+      'Governance and Accountability': {
+        low: 'Leadership engagement and accountability structures need significant development.',
+        mid: 'Some governance exists but lacks consistency and board-level integration.',
+        high: 'Strong governance with clear accountability and executive oversight.'
+      },
+      'Organisational Boundaries and Methodology': {
+        low: 'Boundaries and methodology are undefined or inconsistently applied.',
+        mid: 'Basic methodology exists but needs regular review and broader scope coverage.',
+        high: 'Well-defined boundaries with robust, regularly reviewed methodology.'
+      },
+      'Emissions Data and Calculation Quality': {
+        low: 'Data collection is ad hoc with significant quality gaps.',
+        mid: 'Structured data collection exists but uncertainty management needs work.',
+        high: 'High-quality data with strong verification and uncertainty management.'
+      },
+      'Scope 3 and Supplier Engagement': {
+        low: 'Limited Scope 3 screening and minimal supplier engagement.',
+        mid: 'Most categories screened but supplier data collection remains challenging.',
+        high: 'Comprehensive Scope 3 tracking with structured supplier programmes.'
+      },
+      'Reporting, Targets and Improvement': {
+        low: 'Limited disclosure and no formal targets or improvement processes.',
+        mid: 'Basic reporting and targets exist but lack integration and ambition.',
+        high: 'Integrated reporting with science-based targets and continuous improvement.'
+      }
+    };
+
+    const catInterp = interpretations[categoryName] || interpretations['Governance and Accountability'];
+    if (score < 40) return catInterp.low;
+    if (score < 70) return catInterp.mid;
+    return catInterp.high;
+  }
+
+  /**
+   * Generate roadmap actions based on gaps
+   */
+  getRoadmapActions(gaps, phase) {
+    const allActions = {
+      'Governance and Accountability': [
+        'Assign a dedicated carbon accounting lead with clear mandate',
+        'Establish a cross-functional sustainability committee',
+        'Integrate carbon performance into board reporting',
+        'Develop carbon accounting policy and procedures',
+        'Create executive dashboard for carbon metrics'
+      ],
+      'Organisational Boundaries and Methodology': [
+        'Document organisational boundary approach',
+        'Approve emissions calculation methodology',
+        'Expand scope coverage to all material categories',
+        'Establish emission factor review schedule',
+        'Implement baseline year and recalculation policy'
+      ],
+      'Emissions Data and Calculation Quality': [
+        'Map all data sources and assign owners',
+        'Implement data quality checks and validation',
+        'Assess uncertainty for key categories',
+        'Complete Scope 1 and 2 data collection',
+        'Arrange internal or external verification'
+      ],
+      'Scope 3 and Supplier Engagement': [
+        'Screen all Scope 3 categories',
+        'Identify material categories for prioritisation',
+        'Launch supplier data collection programme',
+        'Implement hybrid calculation methods',
+        'Set Scope 3 reduction targets'
+      ],
+      'Reporting, Targets and Improvement': [
+        'Publish first emissions disclosure',
+        'Set formal reduction targets with timeline',
+        'Integrate carbon into ESG reporting',
+        'Align targets with SBTi or science-based criteria',
+        'Establish quarterly review and improvement cycle'
+      ]
+    };
+
+    const actions = [];
+    const gapNames = gaps.map(g => g.name);
+
+    // Add actions from lowest-scoring categories first
+    gapNames.forEach(name => {
+      const catActions = allActions[name] || [];
+      if (phase === 30) actions.push(...catActions.slice(0, 2));
+      else if (phase === 60) actions.push(...catActions.slice(2, 4));
+      else actions.push(...catActions.slice(4));
+    });
+
+    // Deduplicate and limit
+    const unique = [...new Set(actions)];
+    return unique.slice(0, phase === 30 ? 4 : phase === 60 ? 3 : 2);
+  }
+
+  /**
+   * Get recommendations from config based on results
+   */
+  getRecommendations(results) {
+    const configRecs = this.config.recommendations || [];
+    const score = results.overall.score;
+    const categoryScores = results.categories;
+
+    return configRecs.filter(rec => {
+      // Score range check
+      if (score < rec.minScore || score > rec.maxScore) return false;
+
+      // Category match: recommend if any of the rec's categories are in the lowest 2
+      const sortedCats = Object.values(categoryScores).sort((a, b) => a.score - b.score);
+      const lowestCats = sortedCats.slice(0, 2).map(c => c.id);
+      return rec.categories.some(cat => lowestCats.includes(cat));
+    }).slice(0, 4);
+  }
+
+  /**
+   * Event callbacks (to be set by AssessmentEngine)
+   */
+  onStart() {}
+  onPrevious() {}
+  onNext() {}
+  onAnswer(questionId, value) {}
+  onEditQuestion(index) {}
+  onSubmit() {}
+  onLeadSubmit(e) {}
+  onDownloadReport() {}
+  onDownloadCertificate() {}
+  onRecommendationClick(rec) {}
 
   /**
    * Render loading state

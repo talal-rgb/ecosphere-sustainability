@@ -279,6 +279,9 @@ class AssessmentEngine {
       this.emit('completed', results);
       this.showScreen('lead');
 
+      // Track that results are available
+      this.analytics.trackResultViewed(results.overall.score, results.overall.maturityLevel.label);
+
     } catch (error) {
       this.state.setError(error.message);
       this.emit('error', { type: 'scoring', message: error.message });

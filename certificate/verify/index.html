@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Certificate | Terrnix</title>
+  <meta name="description" content="Verify the authenticity of a Terrnix Carbon Accounting Readiness Assessment certificate.">
+
+  <meta property="og:title" content="Verify Certificate | Terrnix">
+  <meta property="og:description" content="Verify the authenticity of a Terrnix assessment certificate.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://terrnix.com/certificate/verify/">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: { 850: '#151f32', 900: '#0f172a', 800: '#1e293b' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>body{font-family:'Inter',sans-serif;}</style>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MVBZJTV3S9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MVBZJTV3S9');
+  </script>
+</head>
+<body class="bg-slate-900 min-h-screen">
+  <!-- Header -->
+  <header class="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700/50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold text-white">Terrnix</a>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">Home</a>
+        <a href="/sustainability-intelligence/" class="text-slate-400 hover:text-white transition-colors">Intelligence</a>
+        <a href="/carbon-accounting/carbon-footprint-calculator/" class="text-slate-400 hover:text-white transition-colors">Calculator</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-2xl mx-auto px-6 py-16">
+    <div class="text-center mb-10">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+      </div>
+      <h1 class="text-3xl font-bold text-white mb-2">Certificate Verification</h1>
+      <p class="text-slate-400">Verify the authenticity of a Terrnix assessment certificate.</p>
+    </div>
+
+    <!-- Verification Form -->
+    <div id="verify-form" class="bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 shadow-xl mb-8">
+      <label for="certId" class="block text-sm font-medium text-slate-300 mb-2">Certificate ID</label>
+      <div class="flex gap-3">
+        <input type="text" id="certId" placeholder="TX-XXXXXXXXXXXXXXXX" class="flex-1 bg-slate-800/60 border border-slate-600/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all uppercase">
+        <button id="verifyBtn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/20">
+          Verify
+        </button>
+      </div>
+      <p class="text-slate-500 text-xs mt-2">Enter the certificate ID found on the certificate or scan the QR code.</p>
+    </div>
+
+    <!-- Result -->
+    <div id="verify-result" class="hidden">
+      <!-- Valid certificate -->
+      <div id="valid-cert" class="hidden bg-emerald-500/5 rounded-2xl border border-emerald-500/20 p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-2">Valid Certificate</h2>
+        <p class="text-emerald-400 font-medium mb-6">This certificate is authentic and was issued by Terrnix.</p>
+
+        <div class="bg-slate-800/40 rounded-xl border border-slate-700/50 p-6 text-left max-w-md mx-auto">
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Certificate ID</span>
+              <span id="result-cert-id" class="text-white font-mono text-sm"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Recipient</span>
+              <span id="result-name" class="text-white"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Assessment</span>
+              <span id="result-assessment" class="text-white"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Issue Date</span>
+              <span id="result-date" class="text-white"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Score</span>
+              <span id="result-score" class="text-emerald-400 font-semibold"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Achievement</span>
+              <span id="result-achievement" class="text-white"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invalid certificate -->
+      <div id="invalid-cert" class="hidden bg-red-500/5 rounded-2xl border border-red-500/20 p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-2">Certificate Not Found</h2>
+        <p class="text-slate-400">We could not verify this certificate ID. Please check the ID and try again.</p>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="bg-slate-800/40 rounded-2xl border border-slate-700/50 p-6">
+      <h3 class="text-white font-semibold mb-2">About Terrnix Certificates</h3>
+      <p class="text-slate-400 text-sm leading-relaxed">Terrnix certificates recognise completion and performance in our educational assessments. They are not professional licences, regulatory qualifications, or third-party accreditations. Each certificate has a unique ID for verification purposes.</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 mt-16">
+    <div class="max-w-6xl mx-auto px-6 py-8 text-center">
+      <p class="text-slate-500 text-sm">Terrnix. All rights reserved.</p>
+      <div class="flex justify-center gap-4 mt-2">
+        <a href="/privacy-policy/" class="text-slate-500 hover:text-slate-400 text-sm">Privacy Policy</a>
+        <a href="/terms/" class="text-slate-500 hover:text-slate-400 text-sm">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Certificate verification logic
+    // In production, this would query a backend API
+    // For now, we show a demo verification for demo IDs
+
+    document.getElementById('verifyBtn').addEventListener('click', verifyCertificate);
+    document.getElementById('certId').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyCertificate();
+    });
+
+    function verifyCertificate() {
+      const input = document.getElementById('certId');
+      const certId = input.value.trim().toUpperCase();
+      const resultDiv = document.getElementById('verify-result');
+      const validDiv = document.getElementById('valid-cert');
+      const invalidDiv = document.getElementById('invalid-cert');
+
+      if (!certId || certId.length < 10) {
+        input.classList.add('border-red-500');
+        return;
+      }
+      input.classList.remove('border-red-500');
+
+      resultDiv.classList.remove('hidden');
+      validDiv.classList.add('hidden');
+      invalidDiv.classList.add('hidden');
+
+      // Demo: TX-DEMO123 shows as valid
+      if (certId === 'TX-DEMO123') {
+        showValidCert({
+          id: 'TX-DEMO123',
+          name: 'Demo User',
+          assessment: 'Carbon Accounting Readiness Assessment',
+          date: '16 July 2026',
+          score: '58',
+          achievement: 'Foundation Achievement'
+        });
+        return;
+      }
+
+      // In production, make API call here
+      // For now, show invalid for most IDs
+      invalidDiv.classList.remove('hidden');
+    }
+
+    function showValidCert(data) {
+      document.getElementById('valid-cert').classList.remove('hidden');
+      document.getElementById('result-cert-id').textContent = data.id;
+      document.getElementById('result-name').textContent = data.name;
+      document.getElementById('result-assessment').textContent = data.assessment;
+      document.getElementById('result-date').textContent = data.date;
+      document.getElementById('result-score').textContent = data.score + '/100';
+      document.getElementById('result-achievement').textContent = data.achievement;
+    }
+
+    // Auto-verify from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlId = urlParams.get('id');
+    if (urlId) {
+      document.getElementById('certId').value = urlId;
+      verifyCertificate();
+    }
+  </script>
+</body>
+</html>
