@@ -14,18 +14,15 @@ const AssessmentModules = {
 };
 
 /**
- * Initialise an assessment on a container element
+ * Wire UI callbacks to engine methods.
+ * Must be called AFTER engine.load() has initialised engine.ui.
  */
-function initAssessment(containerId, options = {}) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Assessment container not found: ${containerId}`);
-    return null;
+function wireAssessmentCallbacks(engine) {
+  if (!engine.ui) {
+    console.error('[Assessment] Cannot wire callbacks: engine.ui is null. Call load() first.');
+    return;
   }
 
-  const engine = new AssessmentEngine(containerId, options);
-
-  // Wire UI callbacks to engine methods
   engine.ui.onStart = () => engine.showScreen('question');
   engine.ui.onPrevious = () => engine.previous();
   engine.ui.onNext = () => engine.next();
@@ -39,7 +36,21 @@ function initAssessment(containerId, options = {}) {
     e.preventDefault();
     handleLeadSubmit(engine, e.target);
   };
+}
 
+/**
+ * Initialise an assessment on a container element.
+ * Returns an engine instance. Call engine.load(slug).then(() => wireAssessmentCallbacks(engine))
+ * before starting.
+ */
+function initAssessment(containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Assessment container not found: ${containerId}`);
+    return null;
+  }
+
+  const engine = new AssessmentEngine(containerId, options);
   return engine;
 }
 
@@ -141,7 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (slug) {
       const engine = initAssessment(container.id, { assessmentSlug: slug });
       if (engine) {
-        engine.load(slug).then(() => engine.start());
+        engine.load(slug).then(() => {
+          wireAssessmentCallbacks(engine);
+          engine.start();
+        });
       }
     }
   });
