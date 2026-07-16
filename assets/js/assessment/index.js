@@ -113,8 +113,10 @@ async function handleLeadSubmit(engine, form) {
   engine.analytics.trackNewsletterConsent(newsletterConsent);
 
   // Show results
+  console.log('[Assessment] Showing results. Has results?', !!engine.state.state.results);
   try {
     engine.showScreen('results');
+    console.log('[Assessment] Results screen shown successfully');
   } catch (err) {
     console.error('[Assessment] Failed to show results:', err);
     engine.ui.renderError('Unable to display results. Please refresh and try again.');

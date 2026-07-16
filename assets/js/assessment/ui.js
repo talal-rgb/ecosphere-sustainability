@@ -368,6 +368,7 @@ class AssessmentUI {
    * Render professional results screen (Milestone 3)
    */
   renderResults(results) {
+    console.log('[Assessment] renderResults called with score:', results?.overall?.score);
     this.clear();
     const participant = this.state.state.participant || {};
     const config = this.config;

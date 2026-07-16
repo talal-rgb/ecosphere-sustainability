@@ -296,6 +296,7 @@ class AssessmentEngine {
    * Show results screen
    */
   showResults() {
+    console.log('[Assessment] showResults called. Has results?', !!this.state.state.results);
     if (!this.state.state.results) {
       throw new Error('No results available. Complete the assessment first.');
     }
