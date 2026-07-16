@@ -12,12 +12,16 @@
   <meta property="og:description" content="Evaluate your organisation's carbon accounting maturity across 5 critical dimensions. Get actionable insights in under 10 minutes.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://terrnix.com/carbon-accounting-readiness-assessment/">
-  <meta property="og:image" content="https://terrnix.com/assets/images/assessment-og.jpg">
+  <meta property="og:image" content="https://terrnix.com/assets/images/assessment-og.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/webp">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Carbon Accounting Readiness Assessment | Terrnix">
   <meta name="twitter:description" content="Evaluate your organisation's carbon accounting maturity. Get actionable insights in under 10 minutes.">
+  <meta name="twitter:image" content="https://terrnix.com/assets/images/assessment-og.webp">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -59,12 +63,12 @@
   </script>
 
   <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MVBZJTV3S9"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
+    gtag('config', 'G-MVBZJTV3S9');
   </script>
 </head>
 <body class="bg-slate-900 min-h-screen">
@@ -75,16 +79,17 @@
       <nav class="hidden md:flex items-center gap-6">
         <a href="/" class="text-slate-400 hover:text-white transition-colors">Home</a>
         <a href="/sustainability-intelligence/" class="text-slate-400 hover:text-white transition-colors">Intelligence</a>
-        <a href="/carbon-footprint-calculator/" class="text-slate-400 hover:text-white transition-colors">Calculator</a>
+        <a href="/carbon-accounting/carbon-footprint-calculator/" class="text-slate-400 hover:text-white transition-colors">Calculator</a>
       </nav>
     </div>
   </header>
 
   <!-- Assessment Container -->
-  <main class="assessment-container">
-    <div id="assessment-root" data-assessment="carbon-accounting-readiness" class="max-w-4xl mx-auto">
+  <main class="assessment-container" role="main" aria-label="Carbon Accounting Readiness Assessment">
+    <div id="assessment-root" data-assessment="carbon-accounting-readiness" class="max-w-4xl mx-auto" aria-live="polite" aria-atomic="false">
       <!-- Assessment renders here -->
     </div>
+    <div id="assessment-aria-live" class="assessment-sr-only" aria-live="polite" aria-atomic="true"></div>
   </main>
 
   <!-- Footer -->
@@ -123,6 +128,8 @@
       if (engine) {
         engine.load('carbon-accounting-readiness')
           .then(() => {
+            wireAssessmentCallbacks(engine);
+            engine.analytics.trackView();
             engine.start();
           })
           .catch(error => {

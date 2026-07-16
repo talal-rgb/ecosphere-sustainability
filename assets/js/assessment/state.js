@@ -208,6 +208,8 @@ class AssessmentState {
         // Only restore answers and progress, not results or UI state
         if (parsed.answers) this.set('answers', parsed.answers);
         if (parsed.meta?.startedAt) this.set('meta.startedAt', parsed.meta.startedAt);
+        // Recalculate progress after restoring answers
+        this.updateProgress();
       }
     } catch (e) {
       console.warn('Failed to restore assessment state:', e);

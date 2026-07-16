@@ -75,6 +75,15 @@ class AssessmentAnalytics {
     });
   }
 
+  trackQuestionAnswered(questionId, questionNumber, category, answerValue) {
+    this.track('assessment_question_answered', {
+      question_id: questionId,
+      question_number: questionNumber,
+      category: category,
+      answer_value: answerValue
+    });
+  }
+
   trackProgress(questionId, questionNumber, category, progressPct) {
     this.track('assessment_progress', {
       question_id: questionId,
@@ -167,6 +176,9 @@ class AssessmentAnalytics {
 
   trackReview(questionsReviewed) {
     this.track('assessment_review', {
+      questions_reviewed: questionsReviewed
+    });
+    this.track('assessment_review_viewed', {
       questions_reviewed: questionsReviewed
     });
   }

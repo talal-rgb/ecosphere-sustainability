@@ -682,7 +682,7 @@
       {
         "id": "carbon-footprint",
         "title": "Carbon Footprint Calculator",
-        "url": "https://terrnix.com/carbon-footprint-calculator/",
+        "url": "https://terrnix.com/carbon-accounting/carbon-footprint-calculator/",
         "description": "Calculate your organisation's carbon footprint across Scope 1, 2, and 3 emissions.",
         "categories": ["data", "boundaries"],
         "minScore": 0,
@@ -691,7 +691,7 @@
       {
         "id": "scope-3-estimator",
         "title": "Scope 3 Emissions Estimator",
-        "url": "https://terrnix.com/carbon-footprint-calculator/",
+        "url": "https://terrnix.com/carbon-accounting/carbon-footprint-calculator/",
         "description": "Estimate your Scope 3 emissions using spend-based and activity-based methods.",
         "categories": ["scope3"],
         "minScore": 0,
