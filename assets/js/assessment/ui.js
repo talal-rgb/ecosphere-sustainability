@@ -345,7 +345,15 @@ class AssessmentUI {
       </button>
     `;
 
-    form.addEventListener('submit', (e) => this.onLeadSubmit(e));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (this.onLeadSubmit) {
+        this.onLeadSubmit(e);
+      } else {
+        console.error('[Assessment] onLeadSubmit callback not set');
+      }
+    });
     wrapper.appendChild(form);
 
     // Privacy note
