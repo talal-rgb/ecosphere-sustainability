@@ -85,10 +85,11 @@
   </header>
 
   <!-- Assessment Container -->
-  <main class="assessment-container">
-    <div id="assessment-root" data-assessment="carbon-accounting-readiness" class="max-w-4xl mx-auto">
+  <main class="assessment-container" role="main" aria-label="Carbon Accounting Readiness Assessment">
+    <div id="assessment-root" data-assessment="carbon-accounting-readiness" class="max-w-4xl mx-auto" aria-live="polite" aria-atomic="false">
       <!-- Assessment renders here -->
     </div>
+    <div id="assessment-aria-live" class="assessment-sr-only" aria-live="polite" aria-atomic="true"></div>
   </main>
 
   <!-- Footer -->
