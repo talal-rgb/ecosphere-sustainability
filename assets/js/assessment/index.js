@@ -217,50 +217,95 @@ async function generateAssessmentReport(engine) {
   doc.setFillColor(15, 23, 42); // slate-900
   doc.rect(0, 0, pageWidth, 297, 'F');
 
-  // Title
-  doc.setTextColor(52, 211, 153); // emerald-400
-  doc.setFontSize(28);
+  // Decorative top accent
+  doc.setFillColor(52, 211, 153); // emerald-400
+  doc.rect(0, 0, pageWidth, 4, 'F');
+
+  // Terrnix branding at top
+  doc.setTextColor(52, 211, 153);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  y = 80;
+  doc.text('TERRNIX', margin, 25);
+  doc.setTextColor(100, 116, 139);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Sustainability Intelligence', margin, 30);
+
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(32);
+  doc.setFont('helvetica', 'bold');
+  y = 90;
   y = addText('Carbon Accounting', margin, y, { align: 'center', maxWidth: contentWidth });
-  y = addText('Readiness Assessment', margin, y + 5, { align: 'center', maxWidth: contentWidth });
+  doc.setTextColor(52, 211, 153);
+  y = addText('Readiness Assessment', margin, y + 8, { align: 'center', maxWidth: contentWidth });
 
   // Subtitle
-  doc.setTextColor(148, 163, 184); // slate-400
-  doc.setFontSize(14);
+  doc.setTextColor(148, 163, 184);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'normal');
-  y = addText('Professional Diagnostic Report', margin, y + 15, { align: 'center', maxWidth: contentWidth });
+  y = addText('Professional Diagnostic Report', margin, y + 12, { align: 'center', maxWidth: contentWidth });
+
+  // Horizontal divider
+  y += 20;
+  doc.setDrawColor(52, 211, 153);
+  doc.setLineWidth(0.5);
+  doc.line(margin + 40, y, pageWidth - margin - 40, y);
 
   // Participant info
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(12);
-  y = 140;
+  doc.setFontSize(11);
+  y = 160;
   if (participant.name) {
-    y = addText(`Prepared for: ${participant.name}`, margin, y, { align: 'center', maxWidth: contentWidth });
+    doc.setFont('helvetica', 'bold');
+    y = addText(`Prepared for ${participant.name}`, margin, y, { align: 'center', maxWidth: contentWidth });
+    doc.setFont('helvetica', 'normal');
   }
   if (participant.company) {
-    y = addText(participant.company, margin, y + 5, { align: 'center', maxWidth: contentWidth });
+    y = addText(participant.company, margin, y + 6, { align: 'center', maxWidth: contentWidth });
   }
-  y = addText(`Date: ${new Date().toLocaleDateString('en-GB')}`, margin, y + 10, { align: 'center', maxWidth: contentWidth });
+  if (participant.title) {
+    y = addText(participant.title, margin, y + 6, { align: 'center', maxWidth: contentWidth });
+  }
+  doc.setTextColor(148, 163, 184);
+  y = addText(`Assessment completed on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`, margin, y + 10, { align: 'center', maxWidth: contentWidth });
 
-  // Terrnix branding
+  // Score preview on cover
+  y += 25;
+  doc.setFillColor(30, 41, 59);
+  doc.roundedRect(pageWidth/2 - 35, y - 5, 70, 40, 5, 5, 'F');
   doc.setTextColor(52, 211, 153);
-  doc.setFontSize(10);
-  y = 260;
-  addText('terrnix.com', margin, y, { align: 'center', maxWidth: contentWidth });
+  doc.setFontSize(28);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${results.overall.score}`, pageWidth/2, y + 18, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setTextColor(148, 163, 184);
+  doc.setFont('helvetica', 'normal');
+  doc.text('out of 100', pageWidth/2, y + 28, { align: 'center' });
+
+  // Bottom branding
+  doc.setTextColor(100, 116, 139);
+  doc.setFontSize(8);
+  y = 275;
+  doc.text('terrnix.com | Confidential Assessment Report', margin, y);
+  doc.text(`Report ID: RPT-${Date.now().toString(36).toUpperCase()}`, pageWidth - margin - 60, y);
 
   // === PAGE 2: EXECUTIVE SUMMARY ===
   doc.addPage();
   y = 20;
-  doc.setTextColor(52, 211, 153);
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  y = addText('Executive Summary', margin, y);
-
+  
+  // Section header with accent
+  doc.setFillColor(52, 211, 153);
+  doc.rect(margin, y, 3, 18, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(11);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  y = addText('Executive Summary', margin + 10, y + 13);
+  y += 15;
+
+  doc.setTextColor(226, 232, 240);
+  doc.setFontSize(10.5);
   doc.setFont('helvetica', 'normal');
-  y += 10;
 
   const summaryText = engine.ui.getExecutiveSummary(
     results.overall.maturityLevel.label,
@@ -269,23 +314,44 @@ async function generateAssessmentReport(engine) {
   );
   y = addText(summaryText, margin, y);
 
-  // Score box
-  y += 15;
-  checkPageBreak(40);
-  doc.setFillColor(30, 41, 59); // slate-800
-  doc.roundedRect(margin, y - 10, contentWidth, 35, 3, 3, 'F');
+  // Score and maturity highlight box
+  y += 20;
+  checkPageBreak(50);
+  doc.setFillColor(30, 41, 59);
+  doc.roundedRect(margin, y - 8, contentWidth, 45, 4, 4, 'F');
+  doc.setDrawColor(52, 211, 153);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(margin, y - 8, contentWidth, 45, 4, 4, 'S');
+  
   doc.setTextColor(52, 211, 153);
-  doc.setFontSize(32);
+  doc.setFontSize(36);
   doc.setFont('helvetica', 'bold');
-  doc.text(`${results.overall.score}`, margin + 10, y + 10);
+  doc.text(`${results.overall.score}`, margin + 15, y + 18);
   doc.setFontSize(10);
   doc.setTextColor(148, 163, 184);
-  doc.text('out of 100', margin + 10, y + 18);
+  doc.setFont('helvetica', 'normal');
+  doc.text('out of 100', margin + 15, y + 28);
+  
   doc.setTextColor(52, 211, 153);
-  doc.setFontSize(14);
-  doc.text(results.overall.maturityLevel.label, margin + 60, y + 10);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text(results.overall.maturityLevel.label, margin + 80, y + 18);
+  
+  // Maturity level description
+  const maturityDesc = {
+    'Initial': 'Early stage: foundational awareness with significant gaps',
+    'Developing': 'Emerging capability: some processes in place, consistency needed',
+    'Established': 'Solid foundation: core processes documented and operational',
+    'Advanced': 'Well-integrated: strong data quality and consistent reporting',
+    'Leading': 'Best practice: deeply embedded in governance and strategy'
+  };
+  doc.setTextColor(148, 163, 184);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  const descLines = doc.splitTextToSize(maturityDesc[results.overall.maturityLevel.label] || '', 80);
+  doc.text(descLines, margin + 80, y + 26);
 
-  y += 45;
+  y += 55;
 
   // === CATEGORY SCORES ===
   checkPageBreak(30);
@@ -466,78 +532,122 @@ async function generateAssessmentCertificate(engine) {
   const w = 297;
   const h = 210;
 
-  // Background
+  // Background with subtle gradient effect (simulated with rectangles)
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, w, h, 'F');
+  doc.setFillColor(30, 41, 59);
+  doc.rect(0, 0, w, 60, 'F');
 
-  // Border
+  // Top accent bar
+  doc.setFillColor(52, 211, 153);
+  doc.rect(0, 0, w, 3, 'F');
+
+  // Corner decorations
   doc.setDrawColor(52, 211, 153);
-  doc.setLineWidth(1);
-  doc.rect(10, 10, w - 20, h - 20);
-  doc.setLineWidth(0.5);
-  doc.rect(14, 14, w - 28, h - 28);
+  doc.setLineWidth(1.5);
+  // Top-left corner
+  doc.line(15, 15, 15, 35);
+  doc.line(15, 15, 35, 15);
+  // Top-right corner
+  doc.line(w - 15, 15, w - 15, 35);
+  doc.line(w - 15, 15, w - 35, 15);
+  // Bottom-left corner
+  doc.line(15, h - 15, 15, h - 35);
+  doc.line(15, h - 15, 35, h - 15);
+  // Bottom-right corner
+  doc.line(w - 15, h - 15, w - 15, h - 35);
+  doc.line(w - 15, h - 15, w - 35, h - 15);
 
-  // Terrnix logo area (text-based)
+  // Terrnix branding
   doc.setTextColor(52, 211, 153);
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text('TERRNIX', 25, 30);
+  doc.text('TERRNIX', 25, 25);
+  doc.setTextColor(100, 116, 139);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Sustainability Intelligence', 25, 32);
 
-  // Certificate title
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(28);
+  // Certificate type badge
+  doc.setFillColor(52, 211, 153);
+  const certTypeWidth = doc.getTextWidth(certType.toUpperCase()) + 20;
+  doc.roundedRect(w/2 - certTypeWidth/2, 42, certTypeWidth, 22, 3, 3, 'F');
+  doc.setTextColor(15, 23, 42);
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text(certType.toUpperCase(), w / 2, 55, { align: 'center' });
+  doc.text(certType.toUpperCase(), w / 2, 56, { align: 'center' });
 
   // Achievement label
   if (achievementLabel) {
     doc.setTextColor(52, 211, 153);
-    doc.setFontSize(16);
-    doc.text(achievementLabel.toUpperCase(), w / 2, 68, { align: 'center' });
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(achievementLabel, w / 2, 78, { align: 'center' });
   }
+
+  // Decorative line
+  doc.setDrawColor(52, 211, 153);
+  doc.setLineWidth(0.5);
+  doc.line(w/2 - 60, 85, w/2 + 60, 85);
 
   // Participant name
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
+  doc.setFontSize(26);
   doc.setFont('helvetica', 'bold');
-  doc.text(participant.name || 'Participant', w / 2, 95, { align: 'center' });
+  doc.text(participant.name || 'Participant', w / 2, 105, { align: 'center' });
 
   // Description
   doc.setTextColor(148, 163, 184);
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  const desc = `has successfully completed the ${config.metadata?.title || 'Carbon Accounting Readiness Assessment'} on ${new Date().toLocaleDateString('en-GB')} with a score of ${score}/100, achieving the maturity level of ${results.overall.maturityLevel.label}.`;
-  const descLines = doc.splitTextToSize(desc, 220);
-  doc.text(descLines, w / 2, 110, { align: 'center' });
+  const desc = `has successfully completed the ${config.metadata?.title || 'Carbon Accounting Readiness Assessment'} on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} with a score of ${score} out of 100, achieving the maturity level of ${results.overall.maturityLevel.label}.`;
+  const descLines = doc.splitTextToSize(desc, 200);
+  doc.text(descLines, w / 2, 118, { align: 'center' });
 
-  // Score circle
+  // Score display with background
+  const scoreY = 150;
+  doc.setFillColor(30, 41, 59);
+  doc.roundedRect(w/2 - 30, scoreY - 15, 60, 45, 5, 5, 'F');
   doc.setDrawColor(52, 211, 153);
-  doc.setLineWidth(2);
-  doc.circle(w / 2, 140, 18);
+  doc.setLineWidth(1);
+  doc.roundedRect(w/2 - 30, scoreY - 15, 60, 45, 5, 5, 'S');
+  
   doc.setTextColor(52, 211, 153);
-  doc.setFontSize(20);
+  doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
-  doc.text(`${score}`, w / 2, 143, { align: 'center' });
-  doc.setFontSize(8);
-  doc.setTextColor(148, 163, 184);
-  doc.text('/100', w / 2, 150, { align: 'center' });
-
-  // Certificate ID and verification
-  doc.setTextColor(100, 116, 139);
+  doc.text(`${score}`, w / 2, scoreY + 8, { align: 'center' });
   doc.setFontSize(9);
+  doc.setTextColor(148, 163, 184);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Certificate ID: ${certId}`, 25, 180);
-  doc.text(`Verify at: terrnix.com/certificate/verify/?id=${certId}`, 25, 188);
+  doc.text('out of 100', w / 2, scoreY + 20, { align: 'center' });
+
+  // Bottom section with details
+  doc.setTextColor(100, 116, 139);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Certificate ID: ${certId}`, 25, h - 30);
+  doc.text(`Verify: terrnix.com/certificate/verify/?id=${certId}`, 25, h - 22);
+  
+  // QR code placeholder
+  doc.setDrawColor(52, 211, 153);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(w - 55, h - 55, 35, 35, 2, 2, 'S');
+  doc.setTextColor(52, 211, 153);
+  doc.setFontSize(6);
+  doc.text('QR CODE', w - 37.5, h - 37.5, { align: 'center' });
+  doc.setTextColor(100, 116, 139);
+  doc.setFontSize(7);
+  doc.text('Scan to verify', w - 37.5, h - 18, { align: 'center' });
 
   // Date
-  doc.text(`Issued: ${new Date().toLocaleDateString('en-GB')}`, w - 80, 180);
+  doc.text(`Issued: ${new Date().toLocaleDateString('en-GB')}`, w - 80, h - 30);
 
   // Disclaimer
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(7);
   const disclaimer = 'This certificate recognises completion and performance in a Terrnix educational assessment. It is not a professional licence, regulatory qualification or third-party accreditation.';
-  const discLines = doc.splitTextToSize(disclaimer, 250);
-  doc.text(discLines, w / 2, 200, { align: 'center' });
+  const discLines = doc.splitTextToSize(disclaimer, 180);
+  doc.text(discLines, w / 2, h - 12, { align: 'center' });
 
   // Download
   const filename = `terrnix-certificate-carbon-accounting-${(participant.name || 'anonymous').toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
