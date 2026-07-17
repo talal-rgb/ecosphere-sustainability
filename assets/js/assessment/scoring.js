@@ -166,13 +166,35 @@ class AssessmentScoring {
   }
 
   /**
-   * Generate strength description
+   * Generate strength description with category-specific insight
    */
   generateStrengthDescription(categoryScore) {
-    if (categoryScore.score >= 75) {
-      return `${categoryScore.name} is a significant strength. Your score of ${categoryScore.score}% indicates mature processes that can serve as a foundation for broader sustainability initiatives.`;
-    }
-    return `${categoryScore.name} shows solid progress. At ${categoryScore.score}%, you have established processes with room for optimisation.`;
+    const specificInsights = {
+      'Governance and Accountability': {
+        high: 'Governance is a clear strength. Executive ownership and accountability structures are well-established, providing a foundation for ambitious climate commitments.',
+        mid: 'Governance structures exist and are functional. Consider elevating carbon accountability to board level to unlock further progress.'
+      },
+      'Organisational Boundaries and Methodology': {
+        high: 'Your boundary definitions and methodology are robust. This discipline ensures data comparability and positions you well for external assurance.',
+        mid: 'Methodology is documented and applied. Regular review and broader scope coverage will strengthen this foundation.'
+      },
+      'Emissions Data and Calculation Quality': {
+        high: 'Data quality is excellent. Strong verification processes and uncertainty management give confidence in your reported figures.',
+        mid: 'Data collection is structured. Focus on completeness across all sources and formal uncertainty assessment.'
+      },
+      'Scope 3 and Supplier Engagement': {
+        high: 'Scope 3 management is advanced. Your supplier engagement programme and category-specific approaches are best practice.',
+        mid: 'Scope 3 screening is underway. Prioritise activity-based methods for material categories and expand supplier data collection.'
+      },
+      'Reporting, Targets and Improvement': {
+        high: 'Reporting and target-setting are mature. Transparent disclosure and science-based targets demonstrate leadership.',
+        mid: 'Reporting processes exist. Integrate carbon into broader ESG reporting and consider science-based target validation.'
+      }
+    };
+
+    const catInsight = specificInsights[categoryScore.name] || specificInsights['Governance and Accountability'];
+    const level = categoryScore.score >= 75 ? 'high' : 'mid';
+    return catInsight[level];
   }
 
   /**
@@ -186,10 +208,43 @@ class AssessmentScoring {
   }
 
   /**
-   * Generate gap description
+   * Generate gap description with category-specific, actionable insight
    */
   generateGapDescription(categoryScore) {
-    return `${categoryScore.name} scored ${categoryScore.score}%, indicating significant room for improvement. Without addressing this gap, your organisation may face compliance risks and miss opportunities for operational efficiency and stakeholder confidence.`;
+    const specificGaps = {
+      'Governance and Accountability': {
+        critical: 'Carbon accountability is not clearly assigned. Without governance, data quality, target-setting, and reporting will lack credibility and consistency.',
+        high: 'Governance exists but is fragmented. Carbon may be treated as a compliance exercise rather than a strategic priority.',
+        medium: 'Governance is functional but not fully integrated. Board oversight and cross-functional coordination would accelerate progress.'
+      },
+      'Organisational Boundaries and Methodology': {
+        critical: 'No documented boundary or methodology. This makes data incomparable year-to-year and unsuitable for external disclosure.',
+        high: 'Methodology is informal or inconsistently applied. Changes in operations may not trigger necessary recalculations.',
+        medium: 'Methodology exists but needs regular review. Consider formalising the emission factor update process and baseline year policy.'
+      },
+      'Emissions Data and Calculation Quality': {
+        critical: 'Data collection is unstructured. Significant sources may be missed and emission factors may be outdated or inappropriate.',
+        high: 'Data exists but quality controls are weak. Uncertainty is unquantified, limiting the usefulness of reported figures.',
+        medium: 'Data quality is reasonable. Focus on completeness across all material sources and formal verification processes.'
+      },
+      'Scope 3 and Supplier Engagement': {
+        critical: 'Scope 3 is largely unaddressed. For many organisations, Scope 3 represents the majority of emissions.',
+        high: 'Scope 3 screening is partial. Supplier data collection is ad hoc and spend-based estimates may dominate.',
+        medium: 'Most categories are screened. Shift from spend-based to activity-based methods for material categories.'
+      },
+      'Reporting, Targets and Improvement': {
+        critical: 'No formal reporting or targets. Carbon performance is invisible to stakeholders and unmanaged internally.',
+        high: 'Reporting is basic and targets are informal. Without science-based targets, decarbonisation claims lack credibility.',
+        medium: 'Reporting and targets exist but are not fully integrated. Link carbon performance to executive incentives and financial planning.'
+      }
+    };
+
+    const catGap = specificGaps[categoryScore.name] || specificGaps['Governance and Accountability'];
+    let level = 'medium';
+    if (categoryScore.score < 40) level = 'critical';
+    else if (categoryScore.score < 60) level = 'high';
+    
+    return catGap[level];
   }
 
   /**

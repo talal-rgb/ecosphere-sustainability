@@ -617,51 +617,67 @@ class AssessmentUI {
 
   /**
    * Generate executive summary text
+   * Creates personalised, specific summary based on actual category scores
    */
   getExecutiveSummary(maturityLabel, score, categories) {
-    const lowest = categories.sort((a, b) => a.score - b.score)[0];
-    const highest = categories.sort((a, b) => b.score - a.score)[0];
+    const sortedCats = [...categories].sort((a, b) => b.score - a.score);
+    const highest = sortedCats[0];
+    const lowest = sortedCats[sortedCats.length - 1];
+    const scoreGap = highest.score - lowest.score;
+    
+    // Check if all scores are identical (common when testing with same answers)
+    const allEqual = sortedCats.every(c => c.score === sortedCats[0].score);
+    
+    // Build category-specific insight
+    let categoryInsight = '';
+    if (allEqual) {
+      categoryInsight = `All five dimensions scored equally at ${highest.score}%, indicating consistent practice across governance, methodology, data quality, Scope 3, and reporting. This suggests your organisation has taken a balanced approach to carbon accounting implementation.`;
+    } else if (scoreGap <= 15) {
+      categoryInsight = `Your scores are relatively balanced across dimensions (gap of ${scoreGap}%), with ${highest.name} (${highest.score}%) leading and ${lowest.name} (${lowest.score}%) as the focus area. This indicates broad organisational engagement with carbon accounting.`;
+    } else {
+      categoryInsight = `${highest.name} (${highest.score}%) is your clear strength, while ${lowest.name} (${lowest.score}%) represents the largest improvement opportunity. Closing this ${scoreGap}-point gap should be your priority.`;
+    }
 
     const summaries = {
-      'Initial': `Your organisation is at an early stage of carbon accounting maturity, with a score of ${score}%. While some foundational awareness exists, significant gaps remain across most dimensions. Your highest area is ${highest.name} at ${highest.score}%, while ${lowest.name} at ${lowest.score}% represents the most urgent priority for improvement.`,
-      'Developing': `Your organisation shows emerging carbon accounting capability, scoring ${score}%. Some processes are in place but consistency and coverage remain limited. ${highest.name} (${highest.score}%) is your strongest area. Focus on building systematic approaches in ${lowest.name} (${lowest.score}%) to accelerate progress.`,
-      'Established': `Your organisation has achieved a solid foundation in carbon accounting with a score of ${score}%. Core processes are documented and operational across most areas. ${highest.name} (${highest.score}%) demonstrates mature practice. The next phase involves deepening integration and moving toward external assurance in areas such as ${lowest.name} (${lowest.score}%).`,
-      'Advanced': `Your organisation demonstrates advanced carbon accounting maturity at ${score}%. Processes are well-integrated, data quality is strong, and reporting is consistent. ${highest.name} (${highest.score}%) is a clear strength. Minor refinements in ${lowest.name} (${lowest.score}%) will position you for leadership.`,
-      'Leading': `Your organisation operates at leading practice level with a score of ${score}%. Carbon accounting is deeply embedded in governance, operations, and strategy. ${highest.name} (${highest.score}%) exemplifies best practice. Maintain this standard while supporting supplier and industry-wide improvement.`
+      'Initial': `Your organisation is at an early stage of carbon accounting maturity, with a score of ${score}%. ${categoryInsight} Significant gaps remain across most dimensions. Begin with quick wins: assign ownership, document boundaries, and establish basic data collection. Early investment in governance will accelerate all other areas.`,
+      'Developing': `Your organisation shows emerging carbon accounting capability, scoring ${score}%. ${categoryInsight} Some processes are in place but consistency and coverage remain limited. Focus on standardising existing practices, expanding scope coverage, and building internal capability before pursuing external commitments.`,
+      'Established': `Your organisation has achieved a solid foundation in carbon accounting with a score of ${score}%. ${categoryInsight} Core processes are documented and operational. The next phase involves deepening integration: linking carbon performance to financial planning, expanding supplier engagement programmes, and preparing for external assurance or science-based target validation.`,
+      'Advanced': `Your organisation demonstrates advanced carbon accounting maturity at ${score}%. ${categoryInsight} Processes are well-integrated, data quality is strong, and reporting is consistent. Focus on leadership activities: supplier development programmes, sector collaboration, and preparing for evolving regulatory requirements such as CSRD or CBAM.`,
+      'Leading': `Your organisation operates at leading practice level with a score of ${score}%. ${categoryInsight} Carbon accounting is deeply embedded in governance, operations, and strategy. Maintain this standard while extending influence: support supplier decarbonisation, contribute to industry methodology development, and prepare for emerging regulatory frameworks.`
     };
 
     return summaries[maturityLabel] || summaries['Established'];
   }
 
   /**
-   * Generate category interpretation
+   * Generate category interpretation with specific, actionable insights
    */
   getCategoryInterpretation(categoryName, score) {
     const interpretations = {
       'Governance and Accountability': {
-        low: 'Leadership engagement and accountability structures need significant development.',
-        mid: 'Some governance exists but lacks consistency and board-level integration.',
-        high: 'Strong governance with clear accountability and executive oversight.'
+        low: 'Leadership engagement and accountability structures need significant development. Carbon responsibility is likely fragmented or absent from executive oversight.',
+        mid: 'Governance exists but lacks consistency and board-level integration. Carbon performance may be reported annually without driving decisions.',
+        high: 'Strong governance with clear accountability and executive oversight. Carbon is embedded in risk management and strategic planning.'
       },
       'Organisational Boundaries and Methodology': {
-        low: 'Boundaries and methodology are undefined or inconsistently applied.',
-        mid: 'Basic methodology exists but needs regular review and broader scope coverage.',
-        high: 'Well-defined boundaries with robust, regularly reviewed methodology.'
+        low: 'Boundaries and methodology are undefined or inconsistently applied. This undermines data comparability and audit readiness.',
+        mid: 'Basic methodology exists but needs regular review and broader scope coverage. Changes in operations may not trigger recalculation.',
+        high: 'Well-defined boundaries with robust, regularly reviewed methodology. Changes are documented and baseline years are maintained.'
       },
       'Emissions Data and Calculation Quality': {
-        low: 'Data collection is ad hoc with significant quality gaps.',
-        mid: 'Structured data collection exists but uncertainty management needs work.',
-        high: 'High-quality data with strong verification and uncertainty management.'
+        low: 'Data collection is ad hoc with significant quality gaps. Sources may be incomplete and emission factors outdated.',
+        mid: 'Structured data collection exists but uncertainty management needs work. Some categories may rely on estimates rather than measured data.',
+        high: 'High-quality data with strong verification and uncertainty management. Activity data is complete and factors are current.'
       },
       'Scope 3 and Supplier Engagement': {
-        low: 'Limited Scope 3 screening and minimal supplier engagement.',
-        mid: 'Most categories screened but supplier data collection remains challenging.',
-        high: 'Comprehensive Scope 3 tracking with structured supplier programmes.'
+        low: 'Limited Scope 3 screening and minimal supplier engagement. Upstream and downstream emissions are largely unquantified.',
+        mid: 'Most categories screened but supplier data collection remains challenging. Spend-based estimates may dominate over activity data.',
+        high: 'Comprehensive Scope 3 tracking with structured supplier programmes. Category-specific approaches are tailored to data availability.'
       },
       'Reporting, Targets and Improvement': {
-        low: 'Limited disclosure and no formal targets or improvement processes.',
-        mid: 'Basic reporting and targets exist but lack integration and ambition.',
-        high: 'Integrated reporting with science-based targets and continuous improvement.'
+        low: 'Limited disclosure and no formal targets or improvement processes. Carbon information may not reach external stakeholders.',
+        mid: 'Basic reporting and targets exist but lack integration and ambition. Targets may not be science-based or regularly reviewed.',
+        high: 'Integrated reporting with science-based targets and continuous improvement. Progress is tracked quarterly and reported transparently.'
       }
     };
 
