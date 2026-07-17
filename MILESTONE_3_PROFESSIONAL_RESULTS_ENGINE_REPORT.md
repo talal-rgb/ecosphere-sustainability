@@ -193,12 +193,108 @@ Milestone 3 transforms the assessment output from a basic score into a comprehen
 
 ---
 
-## Status: VERIFIED
+## UX Improvements Round (2026-07-17)
 
-Milestone 3 critical functionality is deployed and verified on production. The results page, PDF report, certificate, and verification page are all working correctly.
+### Changes Made
+
+#### 1. Results Page - Executive Summary
+**Before:** Generic repetitive language when all scores equal: "Governance and Accountability (50%) demonstrates mature practice. The next phase involves deepening integration and moving toward external assurance in areas such as Governance and Accountability (50%)."
+
+**After:** Context-aware balanced profile detection: "All five dimensions scored equally at 50%, indicating consistent practice across governance, methodology, data quality, Scope 3, and reporting. This suggests your organisation has taken a balanced approach to carbon accounting implementation."
+
+- Added score gap analysis (detects balanced vs skewed profiles)
+- Added specific next-phase guidance per maturity level
+- Eliminated repetitive category references
+
+#### 2. Results Page - Category Insights
+**Before:** Generic interpretations like "Some governance exists but lacks consistency and board-level integration."
+
+**After:** Specific actionable insights per category and score level:
+- Governance: "Carbon performance may be reported annually without driving decisions" (50%)
+- Methodology: "Changes in operations may not trigger recalculation" (50%)
+- Data Quality: "Some categories may rely on estimates rather than measured data" (50%)
+- Scope 3: "Spend-based estimates may dominate over activity data" (50%)
+- Reporting: "Targets may not be science-based or regularly reviewed" (50%)
+
+#### 3. Results Page - Strengths and Gaps
+**Before:** Generic descriptions: "Governance and Accountability shows solid progress. At 50%, you have established processes with room for optimisation."
+
+**After:** Category-specific insights with business implications:
+- Strengths: Specific positive attributes (e.g., "Governance structures exist and are functional. Consider elevating carbon accountability to board level")
+- Gaps: Specific risk language (e.g., "Governance exists but is fragmented. Carbon may be treated as a compliance exercise rather than a strategic priority")
+
+#### 4. PDF Report
+**Before:** Basic cover page with title and date only
+
+**After:**
+- Score preview on cover page
+- Decorative accent bar
+- Report ID generation
+- Improved typography hierarchy
+- Executive summary page with score highlight box
+- Maturity description with visual hierarchy
+
+#### 5. Certificate
+**Before:** Simple centered layout with basic text
+
+**After:**
+- Corner decorations (top-left and bottom-right accent bars)
+- Badge layout with certificate type
+- Score box with border
+- QR code placeholder area (ready for future implementation)
+- Improved visual hierarchy
+
+### Production Verification
+
+| Step | Description | Status |
+|------|-------------|--------|
+| 1 | Open assessment | VERIFIED |
+| 2 | Start assessment | VERIFIED |
+| 3 | Answer 25 questions | VERIFIED |
+| 4 | Review answers | VERIFIED |
+| 5 | Submit participant name and email | VERIFIED |
+| 6 | Leave newsletter consent unchecked | VERIFIED |
+| 7 | Confirm results appear | VERIFIED |
+| 8 | Confirm scoring and category analysis correct | VERIFIED |
+| 9 | Download assessment report | VERIFIED |
+| 10 | Open PDF and inspect pages | MANUAL VERIFICATION REQUIRED |
+| 11 | Download certificate | VERIFIED |
+| 12 | Confirm participant name and date | VERIFIED |
+| 13 | QR code placeholder | IMPLEMENTED (generation pending) |
+| 14 | Confirm certificate verification page | VERIFIED |
+| 15 | Lead storage | BACKEND NOT AVAILABLE |
+| 16 | Confirmation email | BACKEND NOT AVAILABLE |
+| 17 | Newsletter consent tracking | VERIFIED |
+| 18 | Analytics events | VERIFIED |
+| 19 | Mobile layout | VERIFIED |
+| 20 | Browser console | VERIFIED (no errors) |
+| 21 | No print dialog | VERIFIED |
+| 22 | Lighthouse audit | VERIFIED (see scores below) |
+
+### Lighthouse Results (Desktop)
+
+| Category | Score |
+|----------|-------|
+| Performance | 75 |
+| Accessibility | 95 |
+| Best Practices | 96 |
+| SEO | 100 |
+
+### Production URLs
+
+- Assessment: https://terrnix.com/carbon-accounting-readiness-assessment/
+- Certificate Verification: https://terrnix.com/certificate/verify/
+
+## Status: DEPLOYED
+
+Milestone 3 frontend functionality is deployed and verified on production. All user-facing improvements are live.
+
+**Known Limitations:**
+1. Backend API not available (lead storage, confirmation emails) - requires infrastructure decision
+2. QR code generation not implemented - placeholder ready
+3. PDF manual inspection recommended for consulting-deliverable quality confirmation
 
 **Next Steps:**
-1. Backend API implementation for lead storage
+1. Backend API deployment (when infrastructure ready)
 2. QR code generation in certificates
-3. Lighthouse audit
-4. Begin FAQ/Glossary/Guides audit (Priority 7) - awaiting approval
+3. Begin FAQ/Glossary/Guides audit (Priority 7) - awaiting approval
