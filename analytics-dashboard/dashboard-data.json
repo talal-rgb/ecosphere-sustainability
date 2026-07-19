@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-07-14T12:55:44Z",
+  "nextUpdate": "2026-07-20",
+  "workflowRun": "2026-07-14 12:55 UTC (Run #29334369975)",
+  "ga4": {
+    "connected": true,
+    "propertyId": "543732911",
+    "measurementId": "G-MVBZJTV3S9"
+  },
+  "gsc": {
+    "connected": true,
+    "siteUrl": "sc-domain:terrnix.com"
+  },
+  "clarity": {
+    "connected": true,
+    "projectId": "xf95a67vp9"
+  },
+  "gtm": {
+    "connected": false,
+    "reason": "Placeholder ID (GTM-XXXXXXX) — not yet configured"
+  },
+  "traffic": {
+    "organicSessions": 0,
+    "totalUsers": 4,
+    "returningUsers": 0,
+    "newUsers": 4,
+    "sources": {
+      "Direct": {
+        "sessions": 3,
+        "users": 3
+      },
+      "Organic Social": {
+        "sessions": 1,
+        "users": 1
+      }
+    }
+  },
+  "seo": {
+    "impressions": 52,
+    "clicks": 0,
+    "ctr": "0.00",
+    "avgPosition": "7.3"
+  },
+  "events": {
+    "calculatorRuns": 0,
+    "calculatorCompletions": 0,
+    "pdfDownloads": 0,
+    "quizCompletions": 0,
+    "contactForms": 0,
+    "newsletterSignups": 0
+  },
+  "keywords": []
+}

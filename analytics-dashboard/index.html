@@ -18,9 +18,28 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 .metric-change.up { color: #34d399; }
 .metric-change.down { color: #f87171; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-.status-dot.active { background: #34d399; }
+.status-dot.active { background: #34d399; box-shadow: 0 0 8px #34d399; }
 .status-dot.inactive { background: #f87171; }
 .status-dot.pending { background: #fbbf24; }
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.status-badge.connected { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+.status-badge.waiting { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+.status-badge.error { background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+.status-badge.unknown { background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 12px 16px; color: #94a3b8; font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #2d3d35; }
+.data-table td { padding: 12px 16px; border-bottom: 1px solid rgba(45, 61, 53, 0.5); }
+.skeleton { background: linear-gradient(90deg, #1a2a22 25%, #243830 50%, #1a2a22 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.error-banner { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 8px; padding: 16px; }
+.info-banner { background: rgba(52, 211, 153, 0.05); border: 1px solid rgba(52, 211, 153, 0.2); border-radius: 8px; padding: 16px; }
 </style>
 </head>
 <body>
@@ -28,41 +47,55 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
     <div>
       <h1 class="text-3xl font-bold text-white">Terrnix Growth Dashboard</h1>
-      <p class="text-gray-500 mt-1">Analytics Foundation v1.0 — Data sources: GA4, GSC, Clarity</p>
+      <p class="text-gray-500 mt-1">Live KPIs from GA4, GSC & Clarity</p>
     </div>
     <div class="text-right">
-      <p class="text-sm text-gray-500">Last updated</p>
-      <p class="text-emerald-400 font-semibold" id="lastUpdated">—</p>
+      <p class="text-sm text-gray-500">Data as of</p>
+      <p class="text-emerald-400 font-semibold" id="dataTimestamp">Loading...</p>
+      <p class="text-xs text-gray-600 mt-1" id="nextUpdate">Next update: —</p>
     </div>
   </div>
 
-  <!-- Analytics Status -->
+  <!-- Connection Status -->
   <div class="metric-card mb-8">
-    <h2 class="text-lg font-semibold text-white mb-4">Analytics Status</h2>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-white">Connection Status</h2>
+      <span class="status-badge unknown" id="overallStatus">Checking...</span>
+    </div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="flex items-center">
-        <span class="status-dot inactive" id="ga4Status"></span>
-        <span class="text-sm text-gray-400">GA4</span>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-[#0a0f0d]">
+        <div class="flex items-center">
+          <span class="status-dot pending" id="ga4Dot"></span>
+          <span class="text-sm text-gray-300">GA4</span>
+        </div>
+        <span class="text-xs text-gray-500" id="ga4Detail">—</span>
       </div>
-      <div class="flex items-center">
-        <span class="status-dot inactive" id="gscStatus"></span>
-        <span class="text-sm text-gray-400">Search Console</span>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-[#0a0f0d]">
+        <div class="flex items-center">
+          <span class="status-dot pending" id="gscDot"></span>
+          <span class="text-sm text-gray-300">Search Console</span>
+        </div>
+        <span class="text-xs text-gray-500" id="gscDetail">—</span>
       </div>
-      <div class="flex items-center">
-        <span class="status-dot inactive" id="clarityStatus"></span>
-        <span class="text-sm text-gray-400">Clarity</span>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-[#0a0f0d]">
+        <div class="flex items-center">
+          <span class="status-dot pending" id="clarityDot"></span>
+          <span class="text-sm text-gray-300">Clarity</span>
+        </div>
+        <span class="text-xs text-gray-500" id="clarityDetail">—</span>
       </div>
-      <div class="flex items-center">
-        <span class="status-dot inactive" id="gtmStatus"></span>
-        <span class="text-sm text-gray-400">Tag Manager</span>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-[#0a0f0d]">
+        <div class="flex items-center">
+          <span class="status-dot pending" id="gtmDot"></span>
+          <span class="text-sm text-gray-300">Tag Manager</span>
+        </div>
+        <span class="text-xs text-gray-500" id="gtmDetail">—</span>
       </div>
     </div>
-    <p class="text-sm text-amber-400 mt-4">
-      ⚠️ Analytics is currently DISABLED. Replace placeholder IDs in <code>assets/js/analytics.js</code> and set <code>enabled: true</code> to activate.
-    </p>
+    <div id="statusMessage" class="mt-4"></div>
   </div>
 
   <!-- Traffic Overview -->
@@ -79,14 +112,39 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
       <div class="metric-change" id="usersChange">—</div>
     </div>
     <div class="metric-card">
-      <div class="metric-value" id="indexedPages">—</div>
-      <div class="metric-label">Indexed Pages</div>
-      <div class="metric-change up" id="pagesChange">+3 new articles</div>
+      <div class="metric-value" id="impressions">—</div>
+      <div class="metric-label">Impressions (7d)</div>
+      <div class="metric-change" id="impressionsChange">—</div>
     </div>
     <div class="metric-card">
       <div class="metric-value" id="avgPosition">—</div>
       <div class="metric-label">Avg. Position</div>
       <div class="metric-change" id="positionChange">—</div>
+    </div>
+  </div>
+
+  <!-- SEO Metrics -->
+  <h2 class="text-xl font-semibold text-white mb-4">Search Performance</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="metric-card">
+      <div class="metric-value" id="clicks">—</div>
+      <div class="metric-label">Clicks (7d)</div>
+      <div class="metric-change" id="clicksChange">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value" id="ctr">—</div>
+      <div class="metric-label">CTR</div>
+      <div class="metric-change" id="ctrChange">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value" id="returningUsers">—</div>
+      <div class="metric-label">Returning Users</div>
+      <div class="metric-change" id="returningChange">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value" id="newUsers">—</div>
+      <div class="metric-label">New Users</div>
+      <div class="metric-change" id="newUsersChange">—</div>
     </div>
   </div>
 
@@ -111,151 +169,273 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
     </div>
   </div>
 
-  <!-- Top Content -->
-  <div class="grid md:grid-cols-2 gap-6 mb-8">
-
-    <!-- Top Articles -->
-    <div class="metric-card">
-      <h3 class="text-lg font-semibold text-white mb-4">Top Intelligence Articles</h3>
-      <div class="space-y-3" id="topArticles">
-        <div class="flex justify-between items-center py-2 border-b border-[#2d3d35]">
-          <span class="text-sm text-gray-400">Analytics not yet active</span>
-          <span class="text-sm text-gray-600">—</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Top Queries -->
-    <div class="metric-card">
-      <h3 class="text-lg font-semibold text-white mb-4">Top Search Queries</h3>
-      <div class="space-y-3" id="topQueries">
-        <div class="flex justify-between items-center py-2 border-b border-[#2d3d35]">
-          <span class="text-sm text-gray-400">Analytics not yet active</span>
-          <span class="text-sm text-gray-600">—</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Traffic Sources & Devices -->
-  <div class="grid md:grid-cols-2 gap-6 mb-8">
-
-    <!-- Traffic Sources -->
-    <div class="metric-card">
-      <h3 class="text-lg font-semibold text-white mb-4">Traffic Sources</h3>
-      <div class="space-y-3" id="trafficSources">
-        <div class="flex justify-between items-center py-2 border-b border-[#2d3d35]">
-          <span class="text-sm text-gray-400">Analytics not yet active</span>
-          <span class="text-sm text-gray-600">—</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Countries -->
-    <div class="metric-card">
-      <h3 class="text-lg font-semibold text-white mb-4">Top Countries</h3>
-      <div class="space-y-3" id="topCountries">
-        <div class="flex justify-between items-center py-2 border-b border-[#2d3d35]">
-          <span class="text-sm text-gray-400">Analytics not yet active</span>
-          <span class="text-sm text-gray-600">—</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Content Performance -->
+  <!-- Traffic Sources -->
   <div class="metric-card mb-8">
-    <h3 class="text-lg font-semibold text-white mb-4">Content Performance (Week 1 Articles)</h3>
-    <table class="w-full text-sm">
-      <thead>
-        <tr class="border-b border-[#2d3d35]">
-          <th class="text-left py-3 text-gray-400 font-medium">Article</th>
-          <th class="text-right py-3 text-gray-400 font-medium">Score</th>
-          <th class="text-right py-3 text-gray-400 font-medium">Views</th>
-          <th class="text-right py-3 text-gray-400 font-medium">Scroll 50%</th>
-          <th class="text-right py-3 text-gray-400 font-medium">Scroll 90%</th>
-          <th class="text-right py-3 text-gray-400 font-medium">CTA Clicks</th>
-        </tr>
-      </thead>
-      <tbody class="text-gray-300" id="contentPerformance">
-        <tr class="border-b border-[#2d3d35]/50">
-          <td class="py-3">GHG Protocol Scope 3 Revisions</td>
-          <td class="py-3 text-right text-emerald-400">9.9</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-        </tr>
-        <tr class="border-b border-[#2d3d35]/50">
-          <td class="py-3">CBAM Definitive Phase</td>
-          <td class="py-3 text-right text-emerald-400">7.8</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-        </tr>
-        <tr>
-          <td class="py-3">SBTi Rules Update</td>
-          <td class="py-3 text-right text-emerald-400">8.1</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-          <td class="py-3 text-right">—</td>
-        </tr>
-      </tbody>
-    </table>
+    <h3 class="text-lg font-semibold text-white mb-4">Traffic Sources</h3>
+    <div id="trafficSourcesContainer">
+      <div class="text-sm text-gray-400 py-4">Loading traffic sources...</div>
+    </div>
   </div>
 
-  <!-- Actions -->
-  <div class="metric-card">
-    <h3 class="text-lg font-semibold text-white mb-4">Required Actions</h3>
-    <div class="space-y-2">
-      <div class="flex items-center gap-3">
-        <span class="text-amber-400">⚠️</span>
-        <span class="text-sm text-gray-400">Replace placeholder IDs in <code>assets/js/analytics.js</code></span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-amber-400">⚠️</span>
-        <span class="text-sm text-gray-400">Set <code>enabled: true</code> in analytics config</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-amber-400">⚠️</span>
-        <span class="text-sm text-gray-400">Deploy and verify all services</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-amber-400">⚠️</span>
-        <span class="text-sm text-gray-400">Submit sitemap to Google Search Console</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-amber-400">⚠️</span>
-        <span class="text-sm text-gray-400">Request indexing for 3 new intelligence articles</span>
-      </div>
+  <!-- Top Keywords -->
+  <div class="metric-card mb-8">
+    <h3 class="text-lg font-semibold text-white mb-4">Top Search Queries</h3>
+    <div class="overflow-x-auto">
+      <table class="data-table" id="keywordsTable">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th class="text-right">Impressions</th>
+            <th class="text-right">Clicks</th>
+            <th class="text-right">CTR</th>
+            <th class="text-right">Position</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" class="text-sm text-gray-400">Loading keywords...</td></tr>
+        </tbody>
+      </table>
     </div>
-    <div class="mt-4 p-4 bg-[#0a0f0d] rounded-lg">
-      <p class="text-sm text-gray-500">
-        Follow <a href="/ANALYTICS_SETUP_GUIDE.md" class="text-emerald-400">ANALYTICS_SETUP_GUIDE.md</a> to obtain IDs and
-        <a href="/DEPLOYMENT_CHECKLIST_ANALYTICS.md" class="text-emerald-400">DEPLOYMENT_CHECKLIST_ANALYTICS.md</a> to deploy.
-      </p>
+  </div>
+
+  <!-- Update Log -->
+  <div class="metric-card">
+    <h3 class="text-lg font-semibold text-white mb-4">Dashboard Status</h3>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span class="text-gray-400">Data Source</span>
+        <span class="text-gray-300">GA4 + Google Search Console</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Update Schedule</span>
+        <span class="text-gray-300">Every Monday 08:00 UTC</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Last Workflow Run</span>
+        <span class="text-gray-300" id="lastWorkflowRun">—</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Property ID</span>
+        <span class="text-gray-300">543732911</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">GSC Property</span>
+        <span class="text-gray-300">sc-domain:terrnix.com</span>
+      </div>
     </div>
   </div>
 
 </div>
 
 <script>
-// Update last updated timestamp
-document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-GB', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit'
-});
+// Dashboard Data Loader
+// Fetches the latest KPI data from the committed dashboard-data.json
+// Falls back to static data from the last known workflow run if fetch fails
 
-// Check if analytics is enabled (for status display)
-// This is a placeholder — real dashboard would fetch from GA4/GSC APIs
-console.log('[Terrnix Dashboard] This is a static template. Real data will populate after analytics deployment.');
+const DASHBOARD_DATA_URL = './dashboard-data.json';
+const FALLBACK_DATA = {
+  timestamp: '2026-07-14T12:55:44Z',
+  nextUpdate: '2026-07-20',
+  workflowRun: '2026-07-14 12:55 UTC (Run #29334369975)',
+  ga4: { connected: true, propertyId: '543732911', measurementId: 'G-MVBZJTV3S9' },
+  gsc: { connected: true, siteUrl: 'sc-domain:terrnix.com' },
+  clarity: { connected: true, projectId: 'xf95a67vp9' },
+  gtm: { connected: false, reason: 'Placeholder ID (GTM-XXXXXXX)' },
+  traffic: {
+    organicSessions: 0,
+    totalUsers: 4,
+    returningUsers: 0,
+    newUsers: 4,
+    sources: {
+      'Direct': { sessions: 3, users: 3 },
+      'Organic Social': { sessions: 1, users: 1 }
+    }
+  },
+  seo: {
+    impressions: 52,
+    clicks: 0,
+    ctr: '0.00',
+    avgPosition: '7.3'
+  },
+  events: {
+    calculatorRuns: 0,
+    calculatorCompletions: 0,
+    pdfDownloads: 0,
+    quizCompletions: 0,
+    contactForms: 0,
+    newsletterSignups: 0
+  },
+  keywords: []
+};
+
+let dashboardData = null;
+
+async function loadDashboardData() {
+  try {
+    const response = await fetch(DASHBOARD_DATA_URL + '?t=' + Date.now());
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    dashboardData = await response.json();
+    console.log('[Dashboard] Loaded live data:', dashboardData.timestamp);
+  } catch (error) {
+    console.warn('[Dashboard] Could not fetch live data:', error.message);
+    console.log('[Dashboard] Using fallback data from last known workflow run');
+    dashboardData = FALLBACK_DATA;
+  }
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const data = dashboardData;
+  
+  // Timestamp
+  const timestamp = new Date(data.timestamp);
+  document.getElementById('dataTimestamp').textContent = timestamp.toLocaleDateString('en-GB', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('nextUpdate').textContent = 'Next update: ' + data.nextUpdate;
+  document.getElementById('lastWorkflowRun').textContent = data.workflowRun || '—';
+
+  // Connection Status
+  updateConnectionStatus('ga4', data.ga4);
+  updateConnectionStatus('gsc', data.gsc);
+  updateConnectionStatus('clarity', data.clarity);
+  updateConnectionStatus('gtm', data.gtm);
+
+  // Overall status
+  const overallStatus = document.getElementById('overallStatus');
+  const statusMessage = document.getElementById('statusMessage');
+  
+  const connected = [data.ga4, data.gsc].filter(s => s && s.connected).length;
+  const total = 2; // GA4 and GSC are the critical ones
+  
+  if (connected === total) {
+    overallStatus.className = 'status-badge connected';
+    overallStatus.textContent = 'All Systems Connected';
+    statusMessage.innerHTML = `
+      <div class="info-banner">
+        <p class="text-sm text-emerald-400">✓ Data pipeline operational. Last successful workflow run: ${data.workflowRun || 'Unknown'}</p>
+      </div>
+    `;
+  } else if (connected > 0) {
+    overallStatus.className = 'status-badge waiting';
+    overallStatus.textContent = 'Partial Connection';
+    statusMessage.innerHTML = `
+      <div class="error-banner">
+        <p class="text-sm text-amber-400">⚠ Some data sources are unavailable. Check configuration details above.</p>
+      </div>
+    `;
+  } else {
+    overallStatus.className = 'status-badge error';
+    overallStatus.textContent = 'Connection Error';
+    statusMessage.innerHTML = `
+      <div class="error-banner">
+        <p class="text-sm text-red-400">✗ No data sources connected. Verify GitHub secrets and workflow configuration.</p>
+      </div>
+    `;
+  }
+
+  // Traffic metrics
+  setMetric('organicSessions', data.traffic?.organicSessions ?? '—');
+  setMetric('totalUsers', data.traffic?.totalUsers ?? '—');
+  setMetric('impressions', data.seo?.impressions ?? '—');
+  setMetric('avgPosition', data.seo?.avgPosition ?? '—');
+  setMetric('clicks', data.seo?.clicks ?? '—');
+  setMetric('ctr', data.seo?.ctr ? data.seo.ctr + '%' : '—');
+  setMetric('returningUsers', data.traffic?.returningUsers ?? '—');
+  setMetric('newUsers', data.traffic?.newUsers ?? '—');
+
+  // Conversions
+  setMetric('calculatorCompletions', data.events?.calculatorCompletions ?? '—');
+  setMetric('quizCompletions', data.events?.quizCompletions ?? '—');
+  setMetric('pdfDownloads', data.events?.pdfDownloads ?? '—');
+  setMetric('contactForms', data.events?.contactForms ?? '—');
+
+  // Traffic Sources
+  renderTrafficSources(data.traffic?.sources);
+
+  // Keywords
+  renderKeywords(data.keywords);
+}
+
+function updateConnectionStatus(service, status) {
+  const dot = document.getElementById(service + 'Dot');
+  const detail = document.getElementById(service + 'Detail');
+  
+  if (!status) {
+    dot.className = 'status-dot inactive';
+    detail.textContent = 'Not configured';
+    return;
+  }
+  
+  if (status.connected) {
+    dot.className = 'status-dot active';
+    if (service === 'ga4') detail.textContent = status.measurementId || 'Connected';
+    else if (service === 'gsc') detail.textContent = 'Connected';
+    else if (service === 'clarity') detail.textContent = status.projectId || 'Connected';
+    else detail.textContent = 'Connected';
+  } else {
+    dot.className = 'status-dot inactive';
+    detail.textContent = status.reason || 'Disconnected';
+  }
+}
+
+function setMetric(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function renderTrafficSources(sources) {
+  const container = document.getElementById('trafficSourcesContainer');
+  if (!sources || Object.keys(sources).length === 0) {
+    container.innerHTML = '<div class="text-sm text-gray-400 py-4">No traffic source data available</div>';
+    return;
+  }
+  
+  const totalUsers = Object.values(sources).reduce((sum, s) => sum + (s.users || 0), 0);
+  
+  let html = '<div class="space-y-3">';
+  Object.entries(sources).forEach(([source, data]) => {
+    const pct = totalUsers > 0 ? ((data.users / totalUsers) * 100).toFixed(1) : 0;
+    html += `
+      <div class="flex justify-between items-center py-2 border-b border-[#2d3d35]">
+        <span class="text-sm text-gray-300">${source}</span>
+        <div class="text-right">
+          <span class="text-sm text-white font-medium">${data.sessions}</span>
+          <span class="text-xs text-gray-500 ml-2">${pct}%</span>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderKeywords(keywords) {
+  const tbody = document.querySelector('#keywordsTable tbody');
+  if (!keywords || keywords.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-sm text-gray-400 py-4">No keyword data available yet</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = keywords.map(kw => `
+    <tr>
+      <td class="text-sm text-gray-300">${kw.keyword}</td>
+      <td class="text-sm text-gray-300 text-right">${kw.impressions}</td>
+      <td class="text-sm text-gray-300 text-right">${kw.clicks}</td>
+      <td class="text-sm text-gray-300 text-right">${kw.ctr}%</td>
+      <td class="text-sm text-gray-300 text-right">${kw.position}</td>
+    </tr>
+  `).join('');
+}
+
+// Load data on page load
+loadDashboardData();
+
+// Refresh every 5 minutes
+setInterval(loadDashboardData, 300000);
 </script>
 
 </body>
