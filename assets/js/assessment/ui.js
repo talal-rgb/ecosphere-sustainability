@@ -38,55 +38,111 @@ class AssessmentUI {
     const ui = this.config.ui || {};
     const intro = ui.intro || {};
     const meta = this.config.metadata || {};
+    const preview = intro.preview || {};
 
-    const wrapper = this.createElement('div', 'assessment-intro max-w-3xl mx-auto text-center py-12 px-6');
+    const wrapper = this.createElement('div', 'assessment-intro max-w-6xl mx-auto py-12 px-6');
 
-    // Icon
-    const iconWrapper = this.createElement('div', 'w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-500/20');
-    iconWrapper.innerHTML = '<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-    wrapper.appendChild(iconWrapper);
+    // Two-column layout: copy left, preview right
+    const grid = this.createElement('div', 'grid lg:grid-cols-2 gap-12 items-center');
+
+    // LEFT COLUMN: Copy
+    const leftCol = this.createElement('div', 'text-center lg:text-left');
+
+    // Trust badge
+    const trustBadge = this.createElement('div', 'inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-sm font-medium mb-6');
+    trustBadge.innerHTML = '<span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>Free Assessment · Instant Report';
+    leftCol.appendChild(trustBadge);
 
     // Title
-    const title = this.createElement('h1', 'text-4xl md:text-5xl font-bold text-white mb-4');
+    const title = this.createElement('h1', 'text-4xl md:text-5xl font-bold text-white mb-4 leading-tight');
     title.textContent = intro.headline || meta.title || 'Assessment';
-    wrapper.appendChild(title);
+    leftCol.appendChild(title);
 
     // Subtitle
-    const subtitle = this.createElement('p', 'text-slate-400 text-lg mb-8 max-w-2xl mx-auto');
+    const subtitle = this.createElement('p', 'text-slate-400 text-lg mb-6 max-w-xl');
     subtitle.textContent = intro.subheadline || meta.subtitle || '';
-    wrapper.appendChild(subtitle);
+    leftCol.appendChild(subtitle);
 
-    // Meta info
-    const metaRow = this.createElement('div', 'flex justify-center gap-6 mb-10 text-slate-500');
-    metaRow.innerHTML = `
-      <div class="flex items-center gap-2"><span class="text-emerald-400 font-semibold">${this.config.questions?.length || 0}</span> questions</div>
-      <div class="flex items-center gap-2"><span class="text-emerald-400 font-semibold">${meta.estimatedDuration || '10 min'}</span></div>
-      <div class="flex items-center gap-2"><span class="text-emerald-400 font-semibold">${this.config.categories?.length || 0}</span> categories</div>
-    `;
-    wrapper.appendChild(metaRow);
+    // Trust indicators
+    if (intro.trustIndicators && intro.trustIndicators.length > 0) {
+      const trustList = this.createElement('div', 'flex flex-wrap justify-center lg:justify-start gap-3 mb-8');
+      intro.trustIndicators.forEach(indicator => {
+        const item = this.createElement('span', 'inline-flex items-center gap-1.5 text-xs text-slate-500 bg-slate-800/60 border border-slate-700/40 px-3 py-1.5 rounded-lg');
+        item.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>${AssessmentUtils.escapeHtml(indicator)}`;
+        trustList.appendChild(item);
+      });
+      leftCol.appendChild(trustList);
+    }
 
     // Benefits
     if (intro.benefits && intro.benefits.length > 0) {
-      const benefitsList = this.createElement('div', 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 text-left max-w-xl mx-auto');
+      const benefitsList = this.createElement('div', 'space-y-3 mb-8 text-left max-w-lg mx-auto lg:mx-0');
       intro.benefits.forEach(benefit => {
-        const item = this.createElement('div', 'flex items-start gap-3 p-3 rounded-lg bg-slate-800/40 border border-slate-700/30');
+        const item = this.createElement('div', 'flex items-start gap-3');
         item.innerHTML = `<svg class="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-slate-300 text-sm">${AssessmentUtils.escapeHtml(benefit)}</span>`;
         benefitsList.appendChild(item);
       });
-      wrapper.appendChild(benefitsList);
+      leftCol.appendChild(benefitsList);
     }
 
     // CTA
-    const cta = this.createElement('button', 'px-10 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-lg font-semibold transition-all shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5');
+    const ctaWrapper = this.createElement('div', 'flex flex-col sm:flex-row gap-4 justify-center lg:justify-start');
+    const cta = this.createElement('button', 'px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-lg font-semibold transition-all shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5');
     cta.textContent = intro.ctaText || 'Start Assessment';
     cta.addEventListener('click', () => this.onStart());
-    wrapper.appendChild(cta);
+    ctaWrapper.appendChild(cta);
+    leftCol.appendChild(ctaWrapper);
 
     // Privacy note
-    const privacy = this.createElement('p', 'text-slate-500 text-sm mt-6');
-    privacy.innerHTML = 'Your responses are confidential and used only to generate your personalised results.';
-    wrapper.appendChild(privacy);
+    const privacy = this.createElement('p', 'text-slate-500 text-sm mt-4');
+    privacy.innerHTML = '<span class="text-emerald-400">✓</span> No email required to view results · <span class="text-emerald-400">✓</span> Confidential and secure';
+    leftCol.appendChild(privacy);
 
+    grid.appendChild(leftCol);
+
+    // RIGHT COLUMN: Results Preview
+    if (preview.enabled && preview.deliverables) {
+      const rightCol = this.createElement('div', 'flex justify-center lg:justify-end');
+      const previewCard = this.createElement('div', 'relative w-full max-w-md bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-6 shadow-2xl');
+
+      // Preview header
+      const previewHeader = this.createElement('div', 'text-center mb-6');
+      previewHeader.innerHTML = `<div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">Sample Results Preview</div><div class="text-slate-300 text-sm">This is what you will receive</div>`;
+      previewCard.appendChild(previewHeader);
+
+      // Score ring
+      const scoreContainer = this.createElement('div', 'flex justify-center mb-6');
+      const sampleScore = preview.sampleScore || 68;
+      const sampleLevel = preview.sampleMaturityLevel || 'Developing';
+      scoreContainer.innerHTML = `
+        <div class="relative w-40 h-40">
+          <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="70" fill="none" stroke="#1e293b" stroke-width="10"/>
+            <circle cx="80" cy="80" r="70" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="440" stroke-dashoffset="${440 - (440 * sampleScore / 100)}" class="transition-all duration-1000"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-4xl font-bold text-white">${sampleScore}</div>
+            <div class="text-xs text-slate-400 mt-1">Readiness Score</div>
+            <div class="text-xs text-emerald-400 font-medium mt-1">${sampleLevel}</div>
+          </div>
+        </div>
+      `;
+      previewCard.appendChild(scoreContainer);
+
+      // Deliverables list
+      const deliverablesList = this.createElement('div', 'space-y-2');
+      preview.deliverables.forEach(item => {
+        const row = this.createElement('div', 'flex items-center gap-3 p-2.5 rounded-lg bg-slate-700/30 border border-slate-600/20');
+        row.innerHTML = `<span class="text-lg">${item.icon}</span><div class="flex-1 min-w-0"><div class="text-sm font-medium text-white">${AssessmentUtils.escapeHtml(item.label)}</div><div class="text-xs text-slate-400 truncate">${AssessmentUtils.escapeHtml(item.description)}</div></div>`;
+        deliverablesList.appendChild(row);
+      });
+      previewCard.appendChild(deliverablesList);
+
+      rightCol.appendChild(previewCard);
+      grid.appendChild(rightCol);
+    }
+
+    wrapper.appendChild(grid);
     this.container.appendChild(wrapper);
     this.attachKeyboardNavigation();
   }
