@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Carbon Accounting & ESG FAQ | Terrnix</title>
+<meta name="description" content="Answers to the most common questions about carbon accounting, Scope 1/2/3 emissions, GHG Protocol, CSRD, ESRS, CBAM, SBTi, and product carbon footprint."/>
+<link rel="canonical" href="https://www.terrnix.com/resources/faq/"/>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is carbon accounting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Carbon accounting is the process of measuring, quantifying, and tracking greenhouse gas (GHG) emissions produced by an organisation, product, or activity. It provides the data foundation for climate strategy, regulatory compliance, and emissions reduction targets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are Scope 1, 2, and 3 emissions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Scope 1 covers direct emissions from owned or controlled sources (e.g., company vehicles, on-site fuel combustion). Scope 2 covers indirect emissions from purchased electricity, heat, or steam. Scope 3 includes all other indirect emissions across the value chain, such as purchased goods, business travel, waste, and product use."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the GHG Protocol?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The GHG Protocol is the world's most widely used standard for greenhouse gas accounting. Developed by the World Resources Institute and WBCSD, it provides frameworks for corporate accounting (Corporate Standard), value chain accounting (Scope 3 Standard), and product-level accounting (Product Standard)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is CSRD and who does it apply to?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Corporate Sustainability Reporting Directive (CSRD) is an EU regulation requiring large companies and listed SMEs to report detailed sustainability information under European Sustainability Reporting Standards (ESRS). It applies to approximately 50,000 companies, including EU subsidiaries of non-EU parent companies meeting certain thresholds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is CBAM?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Carbon Border Adjustment Mechanism (CBAM) is an EU policy that places a carbon price on imports of certain goods (cement, iron, steel, aluminium, fertilisers, electricity, hydrogen) from non-EU countries. It aims to prevent carbon leakage and ensure imported goods face equivalent carbon costs to EU-produced goods."
+      }
+    }
+  ]
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.faq-item { border-bottom: 1px solid #2d3d35; }
+.faq-item:last-child { border-bottom: none; }
+.faq-question { cursor: pointer; }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+.faq-answer.open { max-height: 500px; padding-top: 1rem; }
+</style>
+</head>
+<body>
+
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
+        <a href="/resources/" class="text-emerald-400 text-sm font-medium">Resources</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+    <a href="/" class="hover:text-emerald-400">Home</a>
+    <span class="mx-2">/</span>
+    <a href="/resources/" class="hover:text-emerald-400">Resources</a>
+    <span class="mx-2">/</span>
+    <span class="text-emerald-400">FAQ</span>
+  </nav>
+</div>
+
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <header class="mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h1>
+    <p class="text-xl text-gray-400">Clear answers to the most common questions about carbon accounting, ESG reporting, and sustainability compliance.</p>
+  </header>
+
+  <div class="mb-8">
+    <input type="text" id="faqSearch" placeholder="Search FAQs..." class="w-full px-4 py-3 bg-[#111a16] border border-[#2d3d35] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50"/>
+  </div>
+
+  <div id="faqContainer">
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is carbon accounting?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Carbon accounting is the process of measuring, quantifying, and tracking greenhouse gas (GHG) emissions produced by an organisation, product, or activity. It provides the data foundation for climate strategy, regulatory compliance, and emissions reduction targets. Most organisations follow the <a href="/carbon-accounting/ghg-protocol-guide/" class="text-emerald-400 hover:underline">GHG Protocol</a> to ensure consistency and comparability.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What are Scope 1, 2, and 3 emissions?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        <strong class="text-white">Scope 1</strong> covers direct emissions from owned or controlled sources — company vehicles, on-site fuel combustion, and industrial processes.<br><br>
+        <strong class="text-white">Scope 2</strong> covers indirect emissions from purchased electricity, heat, steam, or cooling.<br><br>
+        <strong class="text-white">Scope 3</strong> includes all other indirect emissions across your value chain: purchased goods and services, business travel, employee commuting, waste, and product use by customers. For many companies, Scope 3 represents 70-90% of total emissions. Learn more in our <a href="/carbon-accounting/scope-1-emissions/" class="text-emerald-400 hover:underline">Scope 1</a>, <a href="/carbon-accounting/scope-2-emissions/" class="text-emerald-400 hover:underline">Scope 2</a>, and <a href="/carbon-accounting/scope-3-emissions/" class="text-emerald-400 hover:underline">Scope 3</a> guides.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is the GHG Protocol?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        The <a href="/carbon-accounting/ghg-protocol-guide/" class="text-emerald-400 hover:underline">GHG Protocol</a> is the world's most widely used standard for greenhouse gas accounting. Developed by the World Resources Institute (WRI) and the World Business Council for Sustainable Development (WBCSD), it provides frameworks for corporate accounting (Corporate Standard), value chain accounting (Scope 3 Standard), and product-level accounting (Product Standard). It is the foundation for most corporate carbon reporting, including CDP, SBTi, and CSRD.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is CSRD and who does it apply to?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        The Corporate Sustainability Reporting Directive (CSRD) is an EU regulation requiring large companies and listed SMEs to report detailed sustainability information under <a href="/resources/glossary/" class="text-emerald-400 hover:underline">European Sustainability Reporting Standards (ESRS)</a>. It applies to approximately 50,000 companies, including EU subsidiaries of non-EU parent companies meeting certain thresholds. CSRD requires double materiality assessment, climate transition plans, and third-party assurance. Read our <a href="/esg-reporting/csrd-omnibus-guide/" class="text-emerald-400 hover:underline">CSRD Omnibus Guide</a> for full details.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is CBAM?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        The Carbon Border Adjustment Mechanism (CBAM) is an EU policy that places a carbon price on imports of certain goods from non-EU countries. Covered goods include cement, iron, steel, aluminium, fertilisers, electricity, and hydrogen. CBAM aims to prevent carbon leakage — where production shifts to countries with weaker climate policies — and ensure imported goods face equivalent carbon costs to EU-produced goods. Importers must report embedded emissions and purchase CBAM certificates.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What are ESRS standards?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        European Sustainability Reporting Standards (ESRS) are the detailed reporting rules under CSRD. They cover 12 standards across four categories: cross-cutting (general requirements and disclosures), environment (climate, pollution, water, biodiversity, resource use), social (workforce, workers in the value chain, affected communities, consumers), and governance (business conduct). ESRS E1 (Climate Change) requires Scope 1, 2, and 3 emissions disclosure, climate risk assessment, and transition planning.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is SBTi and how do I set a science-based target?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        The Science Based Targets initiative (SBTi) is a partnership between CDP, UN Global Compact, WRI, and WWF that helps companies set emissions reduction targets aligned with climate science. To set a target: (1) commit publicly, (2) develop your target within 24 months using SBTi criteria, (3) submit for validation, and (4) disclose progress annually. SBTi requires Scope 1 and 2 targets, and most companies must also set Scope 3 targets if Scope 3 exceeds 40% of total emissions.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is a Product Carbon Footprint (PCF)?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        A Product Carbon Footprint measures the total GHG emissions generated across a product's entire lifecycle — from raw material extraction through manufacturing, distribution, use, and end-of-life disposal. PCFs are typically calculated using ISO 14067 or the GHG Protocol Product Standard. They are increasingly required by B2B customers, regulatory schemes like the EU Green Claims Directive, and voluntary sustainability programmes.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        How do I calculate Scope 1 emissions?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Scope 1 emissions are calculated by multiplying activity data by emission factors. For stationary combustion (boilers, furnaces), collect fuel consumption data (litres, kWh, tonnes) and multiply by the relevant DEFRA, EPA, or national emission factor. For mobile combustion (fleet vehicles), use fuel receipts or mileage data with vehicle-specific emission factors. For fugitive emissions (refrigerants), track refrigerant purchases and leaks using GWP values from the IPCC. Use our <a href="/carbon-accounting/carbon-footprint-calculator/" class="text-emerald-400 hover:underline">Carbon Footprint Calculator</a> to get started.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        How do I calculate Scope 2 emissions?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Scope 2 emissions come from purchased electricity, heat, steam, and cooling. The GHG Protocol offers two methods: <strong class="text-white">Location-based</strong> uses average grid emission factors for your geographic region, while <strong class="text-white">Market-based</strong> uses emission factors from specific energy contracts or instruments like Renewable Energy Certificates (RECs). Most major reporting frameworks now require both. Collect utility bills for kWh consumption, then apply the appropriate emission factor from your national grid or energy supplier.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        Why are Scope 3 emissions so difficult to measure?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Scope 3 covers 15 categories across your entire value chain — upstream (purchased goods, capital goods, transport, waste) and downstream (product use, end-of-life, investments). The challenges include: limited supplier data availability, complex supply chains with multiple tiers, varying data quality, lack of standardised supplier reporting, and the need to balance spend-based estimates with activity-based calculations. Start with a screening assessment using spend data, then prioritise high-impact categories for deeper analysis.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What emission factors should I use?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        The best emission factors depend on your location and data availability. Common sources include: <strong class="text-white">DEFRA/DESNZ</strong> (UK), <strong class="text-white">EPA</strong> (US), <strong class="text-white">IEA</strong> (international energy), <strong class="text-white">IPCC</strong> (global warming potentials), <strong class="text-white">Exiobase</strong> (spend-based), and <strong class="text-white">Ecoinvent</strong> (lifecycle). For electricity, use your national grid factor or supplier-specific factors. For purchased goods, supplier-specific data is ideal; otherwise use industry-average factors. Always document your factor sources and vintages.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is the difference between carbon neutral and net zero?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        <strong class="text-white">Carbon neutral</strong> means balancing emissions by offsetting them — typically through purchasing carbon credits — without necessarily reducing underlying emissions. <strong class="text-white">Net zero</strong> means reducing emissions as close to zero as possible (usually 90-95% reduction) and only using high-quality removals for residual emissions. SBTi's Net-Zero Standard requires deep decarbonisation across all scopes, with neutralisation of residual emissions through permanent carbon removal, not avoidance offsets.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        Do small companies need to report emissions?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        It depends on jurisdiction and customer requirements. Under CSRD, listed SMEs must report from 2027. In the UK, SECR applies to quoted companies, large unquoted companies, and LLPs. Even if not legally required, small companies increasingly face emissions reporting requests from large customers (Scope 3 upstream), banks (green lending), and investors. Starting with Scope 1 and 2 is practical and demonstrates climate commitment.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is double materiality?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        <strong class="text-white">Double materiality</strong> is the CSRD requirement to assess sustainability matters from two perspectives: <em>financial materiality</em> (how sustainability issues affect the company's financial performance) and <em>impact materiality</em> (how the company's activities affect people and the environment). A topic is material if it is significant from either perspective. This differs from single materiality (financial only) used in many voluntary frameworks.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        How often should I calculate my carbon footprint?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Best practice is annually, aligned with your financial reporting year. This enables year-on-year comparison and tracks progress against reduction targets. For CSRD and CDP, annual reporting is mandatory. Some organisations calculate quarterly for operational management, particularly for energy-intensive operations. The key is consistency — use the same boundaries, methodologies, and factors each year, document any changes, and restate prior years if methodologies change significantly.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is a climate transition plan?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        A climate transition plan is a time-bound action plan that outlines how an organisation will adapt its strategy and operations to align with a 1.5°C warming pathway. Under CSRD and the UK Transition Plan Taskforce, it must include: governance arrangements, emissions reduction targets, decarbonisation levers and actions, climate risk and opportunity assessment, financing and capital allocation, and engagement with value chain partners. The plan should be updated regularly as technology, policy, and science evolve.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        How do I choose a carbon accounting software?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Key criteria include: GHG Protocol compliance, Scope 3 coverage depth, emission factor libraries (DEFRA, EPA, IEA, Exiobase), supplier engagement tools, audit trails, reporting outputs (CSRD, CDP, GRI), integrations (ERP, utility data), and cost. For SMEs, spreadsheet-based tools may suffice initially. For larger organisations or complex supply chains, dedicated platforms like Terrnix provide automated data collection, calculation engines, and regulatory-ready reporting. Assess your current data maturity before selecting a tool.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        What is the EU Taxonomy and how does it relate to carbon accounting?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        The EU Taxonomy is a classification system defining which economic activities are environmentally sustainable. It sets technical screening criteria for six environmental objectives, including climate change mitigation. Companies subject to CSRD must disclose the proportion of their turnover, CapEx, and OpEx aligned with the Taxonomy. Carbon accounting supports this by quantifying emissions intensity of activities, demonstrating substantial contribution to climate mitigation, and proving do-no-significant-harm compliance for other objectives.
+      </div>
+    </div>
+
+    <div class="faq-item py-6">
+      <h3 class="faq-question text-lg font-semibold text-white flex justify-between items-center" onclick="toggleFaq(this)">
+        Can I use carbon offsets to achieve net zero?
+        <span class="text-emerald-400 text-xl transition-transform duration-300">+</span>
+      </h3>
+      <div class="faq-answer text-gray-400 leading-relaxed">
+        Offsets alone do not constitute net zero. SBTi's Net-Zero Standard requires reducing Scope 1, 2, and 3 emissions by 90-95% by 2050 (or sooner) before neutralising residual emissions. For the small residual (5-10%), only permanent carbon removals (e.g., direct air capture with geological storage, enhanced mineralisation) are acceptable — not avoidance offsets like renewable energy credits or forest conservation. Offsets can play a role in compensating for emissions during transition, but they must not replace decarbonisation efforts.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8 text-center">
+    <h2 class="text-2xl font-bold text-white mb-3">Still have questions?</h2>
+    <p class="text-gray-400 mb-6">Our sustainability experts can help with carbon accounting, CSRD compliance, and emissions reduction strategy.</p>
+    <a href="/contact/" class="inline-block px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors">Contact Us</a>
+  </div>
+</section>
+
+<footer class="border-t border-[#2d3d35] mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid md:grid-cols-4 gap-8 text-sm">
+      <div>
+        <h4 class="text-white font-semibold mb-4">Terrnix</h4>
+        <p class="text-gray-500">Sustainability intelligence and carbon accounting for the modern enterprise.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Solutions</h4>
+        <ul class="space-y-2 text-gray-500">
+          <li><a href="/carbon-accounting/" class="hover:text-emerald-400">Carbon Accounting</a></li>
+          <li><a href="/esg-reporting/" class="hover:text-emerald-400">ESG Reporting</a></li>
+          <li><a href="/sustainability-intelligence/" class="hover:text-emerald-400">Intelligence</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Resources</h4>
+        <ul class="space-y-2 text-gray-500">
+          <li><a href="/resources/glossary/" class="hover:text-emerald-400">Glossary</a></li>
+          <li><a href="/resources/faq/" class="hover:text-emerald-400">FAQ</a></li>
+          <li><a href="/resources/guides/" class="hover:text-emerald-400">Guides</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Company</h4>
+        <ul class="space-y-2 text-gray-500">
+          <li><a href="/contact/" class="hover:text-emerald-400">Contact</a></li>
+          <li><a href="/privacy/" class="hover:text-emerald-400">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-8 pt-8 border-t border-[#2d3d35] text-center text-gray-500 text-sm">
+      <p> Terrnix. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const answer = el.nextElementSibling;
+  const icon = el.querySelector('span');
+  const isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-question span').forEach(s => s.textContent = '+');
+  if (!isOpen) {
+    answer.classList.add('open');
+    icon.textContent = '−';
+  }
+}
+
+document.getElementById('faqSearch').addEventListener('input', function(e) {
+  const term = e.target.value.toLowerCase();
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = text.includes(term) ? 'block' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>
