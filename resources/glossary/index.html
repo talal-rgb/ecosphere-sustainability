@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sustainability Glossary | Carbon Accounting & ESG Terms | Terrnix</title>
+<meta name="description" content="Comprehensive glossary of sustainability, carbon accounting, and ESG terms. Definitions for Scope 1/2/3, GHG Protocol, CSRD, ESRS, CBAM, SBTi, net zero, and more."/>
+<link rel="canonical" href="https://www.terrnix.com/resources/glossary/"/>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "DefinedTermSet",
+  "name": "Sustainability Glossary",
+  "description": "Definitions for carbon accounting, ESG, and sustainability terms",
+  "definedTerm": [
+    {"@type": "DefinedTerm", "name": "Carbon Accounting", "description": "The process of measuring and tracking greenhouse gas emissions."},
+    {"@type": "DefinedTerm", "name": "Scope 1 Emissions", "description": "Direct GHG emissions from owned or controlled sources."},
+    {"@type": "DefinedTerm", "name": "Scope 2 Emissions", "description": "Indirect emissions from purchased electricity, heat, or steam."},
+    {"@type": "DefinedTerm", "name": "Scope 3 Emissions", "description": "All other indirect emissions across the value chain."},
+    {"@type": "DefinedTerm", "name": "Net Zero", "description": "Reducing emissions close to zero and neutralising residuals."}
+  ]
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.glossary-item { border-bottom: 1px solid #2d3d35; }
+.glossary-item:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
+        <a href="/resources/" class="text-emerald-400 text-sm font-medium">Resources</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+    <a href="/" class="hover:text-emerald-400">Home</a>
+    <span class="mx-2">/</span>
+    <a href="/resources/" class="hover:text-emerald-400">Resources</a>
+    <span class="mx-2">/</span>
+    <span class="text-emerald-400">Glossary</span>
+  </nav>
+</div>
+
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <header class="mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Sustainability Glossary</h1>
+    <p class="text-xl text-gray-400">Clear definitions for carbon accounting, ESG reporting, and sustainability compliance terms.</p>
+  </header>
+
+  <div class="mb-8">
+    <input type="text" id="glossarySearch" placeholder="Search terms..." class="w-full px-4 py-3 bg-[#111a16] border border-[#2d3d35] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50"/>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mb-8">
+    <button onclick="filterCategory('all')" class="cat-btn px-4 py-2 bg-emerald-500 text-white text-sm rounded-lg transition-colors" data-cat="all">All</button>
+    <button onclick="filterCategory('carbon')" class="cat-btn px-4 py-2 bg-[#111a16] border border-[#2d3d35] text-gray-400 text-sm rounded-lg hover:border-emerald-500/50 transition-colors" data-cat="carbon">Carbon Accounting</button>
+    <button onclick="filterCategory('regulatory')" class="cat-btn px-4 py-2 bg-[#111a16] border border-[#2d3d35] text-gray-400 text-sm rounded-lg hover:border-emerald-500/50 transition-colors" data-cat="regulatory">Regulatory</button>
+    <button onclick="filterCategory('esg')" class="cat-btn px-4 py-2 bg-[#111a16] border border-[#2d3d35] text-gray-400 text-sm rounded-lg hover:border-emerald-500/50 transition-colors" data-cat="esg">ESG</button>
+    <button onclick="filterCategory('strategy')" class="cat-btn px-4 py-2 bg-[#111a16] border border-[#2d3d35] text-gray-400 text-sm rounded-lg hover:border-emerald-500/50 transition-colors" data-cat="strategy">Strategy</button>
+  </div>
+
+  <div id="glossaryContainer">
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Carbon Accounting</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The process of measuring, quantifying, and tracking greenhouse gas emissions produced by an organisation, product, or activity. It is the foundation of corporate climate strategy and regulatory compliance.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Required for CSRD, CDP, SBTi, and investor reporting. Enables identification of reduction opportunities.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/carbon-accounting/" class="text-emerald-400 hover:underline">Carbon Accounting Hub</a>, <a href="/resources/faq/" class="text-emerald-400 hover:underline">FAQ</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Scope 1 Emissions</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">Direct greenhouse gas emissions from sources owned or controlled by the organisation. Includes stationary combustion (boilers, furnaces), mobile combustion (company vehicles), and fugitive emissions (refrigerant leaks).</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Mandatory under all major reporting frameworks. Often the easiest scope to measure and control.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/carbon-accounting/scope-1-emissions/" class="text-emerald-400 hover:underline">Scope 1 Guide</a>, <a href="/carbon-accounting/carbon-footprint-calculator/" class="text-emerald-400 hover:underline">Calculator</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Scope 2 Emissions</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">Indirect emissions from the generation of purchased electricity, heat, steam, or cooling consumed by the organisation. Reported using either location-based (grid average) or market-based (contract-specific) methods.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Directly influenced by energy procurement decisions. Renewable energy contracts can significantly reduce Scope 2.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/carbon-accounting/scope-2-emissions/" class="text-emerald-400 hover:underline">Scope 2 Guide</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Scope 3 Emissions</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">All other indirect emissions occurring across an organisation's value chain. Covers 15 categories including purchased goods, capital goods, fuel and energy-related activities, upstream transport, waste, business travel, employee commuting, downstream transport, product use, and end-of-life treatment.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Typically 70-90% of total emissions. Increasingly required by regulators and customers. Complex but high-impact reduction potential.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/carbon-accounting/scope-3-emissions/" class="text-emerald-400 hover:underline">Scope 3 Guide</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">GHG Protocol</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The world's most widely used greenhouse gas accounting standard, developed by WRI and WBCSD. Comprises the Corporate Standard, Scope 3 Standard, Product Standard, and sector-specific guidance.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Foundation for CDP, SBTi, CSRD, and virtually all corporate carbon reporting. Compliance with GHG Protocol ensures credibility and comparability.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/carbon-accounting/ghg-protocol-guide/" class="text-emerald-400 hover:underline">GHG Protocol Guide</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Emission Factor</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A coefficient that converts activity data into greenhouse gas emissions. For example, kg CO₂e per kWh of electricity, or kg CO₂e per litre of diesel. Factors vary by geography, technology, and data source.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Critical input for all carbon calculations. Factor selection affects reported emissions and must be documented for audit.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/resources/faq/" class="text-emerald-400 hover:underline">FAQ: What emission factors should I use?</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Global Warming Potential (GWP)</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A measure of how much heat a greenhouse gas traps in the atmosphere over a specific time horizon, relative to carbon dioxide. The IPCC publishes GWP values for different time horizons (typically 100 years). Methane has a GWP of ~28-36; nitrous oxide ~265-298.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Used to convert emissions of different gases into CO₂ equivalent (CO₂e) for reporting and comparison.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">CO₂ Equivalent (CO₂e)</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The standard unit for measuring carbon footprints. It expresses the climate impact of all greenhouse gases in terms of the equivalent amount of carbon dioxide, using GWP values.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Enables comparison across different gases, sources, and organisations. All major frameworks require reporting in tonnes CO₂e.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Product Carbon Footprint (PCF)</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The total GHG emissions generated across a product's lifecycle — from raw material extraction (cradle) through manufacturing, distribution, use phase, and end-of-life (grave). Calculated using ISO 14067 or GHG Protocol Product Standard.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Required by B2B customers, EU Green Claims Directive, and voluntary programmes. Enables product-level decarbonisation.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Carbon Offset</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A reduction or removal of greenhouse gas emissions used to compensate for emissions elsewhere. Types include avoidance offsets (preventing emissions, e.g., forest conservation) and removal offsets (extracting CO₂ from the atmosphere, e.g., direct air capture).</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Can supplement but not replace decarbonisation. Quality varies significantly. SBTi net-zero requires permanent removals only for residual emissions.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="regulatory">
+      <h3 class="text-lg font-semibold text-white mb-2">CSRD — Corporate Sustainability Reporting Directive</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">An EU directive requiring large companies and listed SMEs to report detailed sustainability information under European Sustainability Reporting Standards (ESRS). Replaces NFRD and expands coverage from ~11,000 to ~50,000 companies.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Mandatory for EU large undertakings and non-EU companies with significant EU turnover. Requires double materiality, climate transition plans, and third-party assurance.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/esg-reporting/csrd-omnibus-guide/" class="text-emerald-400 hover:underline">CSRD Omnibus Guide</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="regulatory">
+      <h3 class="text-lg font-semibold text-white mb-2">ESRS — European Sustainability Reporting Standards</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The detailed reporting standards underpinning CSRD. Comprise 12 standards across four categories: cross-cutting (general requirements, general disclosures), environment (climate, pollution, water, biodiversity, resource use), social (workforce, workers in value chain, affected communities, consumers), and governance (business conduct).</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Defines exactly what must be reported under CSRD. ESRS E1 (Climate Change) requires Scope 1/2/3 disclosure and transition planning.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="regulatory">
+      <h3 class="text-lg font-semibold text-white mb-2">CBAM — Carbon Border Adjustment Mechanism</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">An EU policy placing a carbon price on imports of cement, iron, steel, aluminium, fertilisers, electricity, and hydrogen from non-EU countries. Importers must report embedded emissions and purchase CBAM certificates equivalent to the EU ETS carbon price.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Affects EU importers and non-EU exporters to the EU. Requires product-level emissions data and may reshape global trade patterns.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="regulatory">
+      <h3 class="text-lg font-semibold text-white mb-2">EU Taxonomy</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A classification system defining which economic activities are environmentally sustainable. Sets technical screening criteria for six environmental objectives, including climate change mitigation and adaptation.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> CSRD-reporting companies must disclose Taxonomy alignment (turnover, CapEx, OpEx). Influences green finance and investor decisions.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="regulatory">
+      <h3 class="text-lg font-semibold text-white mb-2">SECR — Streamlined Energy and Carbon Reporting</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">UK legislation requiring quoted companies, large unquoted companies, and large LLPs to report energy use, GHG emissions, and intensity metrics in their annual reports.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Mandatory for UK large undertakings. Simpler than CSRD but still requires Scope 1 and 2 reporting and energy efficiency action.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="regulatory">
+      <h3 class="text-lg font-semibold text-white mb-2">Double Materiality</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The CSRD requirement to assess sustainability topics from two perspectives: financial materiality (how sustainability affects the company) and impact materiality (how the company affects people and environment). A topic is material if significant from either perspective.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Determines which ESRS standards and disclosures apply. Requires stakeholder engagement and robust assessment processes.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="esg">
+      <h3 class="text-lg font-semibold text-white mb-2">ESG — Environmental, Social, Governance</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A framework for evaluating organisational practices and performance on environmental stewardship, social responsibility, and governance quality. ESG data is used by investors, lenders, regulators, and customers to assess risk and opportunity.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Central to investment decisions, loan pricing, supplier selection, and regulatory compliance. Poor ESG performance increases cost of capital.</p>
+      <p class="text-sm text-gray-500 mt-1">Related: <a href="/esg-reporting/" class="text-emerald-400 hover:underline">ESG Reporting Hub</a></p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="esg">
+      <h3 class="text-lg font-semibold text-white mb-2">CDP — Carbon Disclosure Project</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A global non-profit running the world's largest environmental disclosure system. Companies complete detailed questionnaires on climate, water, and forests, scored from A to D-. Used by 680+ institutional investors with $130 trillion in assets.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Responding to CDP is often mandatory for large companies (investor or customer request). Scores influence capital access and reputation.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="esg">
+      <h3 class="text-lg font-semibold text-white mb-2">GRI — Global Reporting Initiative</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The world's most widely used sustainability reporting standard, focusing on impact materiality — how an organisation affects the economy, environment, and people. GRI Standards cover topics from emissions to human rights.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Used by 75% of the world's largest 250 companies. Compatible with CSRD and ESRS for social and governance disclosures.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="esg">
+      <h3 class="text-lg font-semibold text-white mb-2">TCFD — Task Force on Climate-related Financial Disclosures</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A framework for disclosing climate-related risks and opportunities across four pillars: governance, strategy, risk management, and metrics/targets. Now integrated into ISSB standards and CSRD.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Required or expected by regulators in UK, EU, US, and many other jurisdictions. Underpins climate risk assessment and scenario analysis.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="esg">
+      <h3 class="text-lg font-semibold text-white mb-2">ISSB — International Sustainability Standards Board</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A standard-setting body under the IFRS Foundation, developing global baseline sustainability disclosure standards. ISSB S1 covers general sustainability disclosures; S2 covers climate-specific disclosures.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Aims to create global consistency in sustainability reporting. Adopted by jurisdictions including UK, Australia, Singapore, and Nigeria.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">Net Zero</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A state where anthropogenic emissions are reduced as close to zero as possible (typically 90-95%), with residual emissions permanently neutralised through carbon removal. Not achieved through offsets alone.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> SBTi Net-Zero Standard provides the most rigorous corporate definition. Net-zero commitments are expected by investors, customers, and regulators.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">SBTi — Science Based Targets initiative</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A partnership between CDP, UN Global Compact, WRI, and WWF that validates corporate emissions reduction targets against climate science. Requires Scope 1 and 2 targets; Scope 3 if >40% of total emissions.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Gold standard for credible climate targets. Over 4,000 companies committed. Increasingly required by investors and customers.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">Climate Transition Plan</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A time-bound action plan showing how an organisation will adapt its strategy, operations, and financing to align with a 1.5°C pathway. Includes governance, targets, decarbonisation actions, risk assessment, and capital allocation.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Required under CSRD, UK TPT, and expected by investors. Demonstrates credible commitment and reduces regulatory and reputational risk.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">Carbon Neutral</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A state where an organisation's emissions are balanced by carbon offsets or removals, without necessarily reducing underlying emissions. Distinct from net zero, which requires deep decarbonisation before neutralising residuals.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Less credible than net zero due to reliance on offsets. The EU Green Claims Directive will restrict "carbon neutral" product claims.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">Carbon Leakage</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">The risk that stringent climate policies in one jurisdiction cause production and emissions to shift to jurisdictions with weaker policies, resulting in no global emissions reduction.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> CBAM is designed to prevent carbon leakage. Companies in carbon-intensive sectors may face competitive pressure from imports.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">Circular Economy</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">An economic model that eliminates waste and keeps materials in use through design, reuse, repair, remanufacturing, and recycling. Contrasts with the linear "take-make-dispose" model.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Reduces Scope 3 emissions from purchased goods and waste. Increasingly required by EU regulations (Ecodesign, Right to Repair, PPWR).</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="strategy">
+      <h3 class="text-lg font-semibold text-white mb-2">Greenwashing</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">Making misleading or unsubstantiated claims about the environmental benefits of a product, service, or organisation. Includes vague terms ("eco-friendly"), irrelevant claims, and hidden trade-offs.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> The EU Green Claims Directive and national regulators are cracking down. Penalties include fines and reputational damage. Claims must be substantiated with evidence.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Spend-Based Method</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A Scope 3 calculation approach using financial spend data multiplied by environmentally extended input-output (EEIO) emission factors. Useful for screening assessments where activity data is unavailable.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Quick to implement but less accurate than activity-based methods. Best used for initial Scope 3 screening, then replaced with primary data for priority categories.</p>
+    </div>
+
+    <div class="glossary-item py-6" data-category="carbon">
+      <h3 class="text-lg font-semibold text-white mb-2">Activity-Based Method</h3>
+      <p class="text-gray-400 leading-relaxed mb-2">A Scope 3 calculation approach using physical activity data (tonnes purchased, km travelled, kWh consumed) multiplied by specific emission factors. More accurate than spend-based but requires better data collection.</p>
+      <p class="text-sm text-emerald-400"><strong>Business relevance:</strong> Preferred by SBTi and CSRD for priority categories. Enables targeted reduction actions and supplier engagement.</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8 text-center">
+    <h2 class="text-2xl font-bold text-white mb-3">Need help with sustainability terminology?</h2>
+    <p class="text-gray-400 mb-6">Our team can guide you through carbon accounting, CSRD compliance, and ESG reporting requirements.</p>
+    <a href="/contact/" class="inline-block px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors">Get Expert Support</a>
+  </div>
+</section>
+
+<footer class="border-t border-[#2d3d35] mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid md:grid-cols-4 gap-8 text-sm">
+      <div>
+        <h4 class="text-white font-semibold mb-4">Terrnix</h4>
+        <p class="text-gray-500">Sustainability intelligence and carbon accounting for the modern enterprise.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Solutions</h4>
+        <ul class="space-y-2 text-gray-500">
+          <li><a href="/carbon-accounting/" class="hover:text-emerald-400">Carbon Accounting</a></li>
+          <li><a href="/esg-reporting/" class="hover:text-emerald-400">ESG Reporting</a></li>
+          <li><a href="/sustainability-intelligence/" class="hover:text-emerald-400">Intelligence</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Resources</h4>
+        <ul class="space-y-2 text-gray-500">
+          <li><a href="/resources/glossary/" class="hover:text-emerald-400">Glossary</a></li>
+          <li><a href="/resources/faq/" class="hover:text-emerald-400">FAQ</a></li>
+          <li><a href="/resources/guides/" class="hover:text-emerald-400">Guides</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Company</h4>
+        <ul class="space-y-2 text-gray-500">
+          <li><a href="/contact/" class="hover:text-emerald-400">Contact</a></li>
+          <li><a href="/privacy/" class="hover:text-emerald-400">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-8 pt-8 border-t border-[#2d3d35] text-center text-gray-500 text-sm">
+      <p> Terrnix. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('glossarySearch').addEventListener('input', function(e) {
+  const term = e.target.value.toLowerCase();
+  document.querySelectorAll('.glossary-item').forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = text.includes(term) ? 'block' : 'none';
+  });
+});
+
+function filterCategory(cat) {
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    if (btn.dataset.cat === cat) {
+      btn.classList.remove('bg-[#111a16]', 'text-gray-400', 'border', 'border-[#2d3d35]');
+      btn.classList.add('bg-emerald-500', 'text-white');
+    } else {
+      btn.classList.remove('bg-emerald-500', 'text-white');
+      btn.classList.add('bg-[#111a16]', 'text-gray-400', 'border', 'border-[#2d3d35]');
+    }
+  });
+  document.querySelectorAll('.glossary-item').forEach(item => {
+    if (cat === 'all' || item.dataset.category === cat) {
+      item.style.display = 'block';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>
