@@ -1,7 +1,7 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-07-14
+**Last Updated:** 2026-07-20
 **Next Update:** 2026-07-20
 
 ---
@@ -58,8 +58,10 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Direct | 3 | 75.0% |
-| Organic Social | 1 | 25.0% |
+| Organic Social | 4 | 28.6% |
+| Direct | 3 | 42.9% |
+| Referral | 2 | 14.3% |
+| Organic Search | 1 | 14.3% |
 
 ## 🔍 SEO
 
@@ -67,34 +69,17 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 52 | - | - |
+| Impressions | 49 | - | - |
 | Clicks | 0 | - | - |
 | CTR | 0.00% | - | - |
-| Avg Position | 7.3 | - | - |
+| Avg Position | 10.6 | - | - |
 
 ### Top 20 Keywords
- | Rank | 0.00% | Impressions | Clicks | CTR | Position | Change | 
+
+| Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | - | - | - | - | - | - |
-| 2 | - | - | - | - | - | - |
-| 3 | - | - | - | - | - | - |
-| 4 | - | - | - | - | - | - |
-| 5 | - | - | - | - | - | - |
-| 6 | - | - | - | - | - | - |
-| 7 | - | - | - | - | - | - |
-| 8 | - | - | - | - | - | - |
-| 9 | - | - | - | - | - | - |
-| 10 | - | - | - | - | - | - |
-| 11 | - | - | - | - | - | - |
-| 12 | - | - | - | - | - | - |
-| 13 | - | - | - | - | - | - |
-| 14 | - | - | - | - | - | - |
-| 15 | - | - | - | - | - | - |
-| 16 | - | - | - | - | - | - |
-| 17 | - | - | - | - | - | - |
-| 18 | - | - | - | - | - | - |
-| 19 | - | - | - | - | - | - |
-| 20 | - | - | - | - | - | - |
+| 1 | csddd csrd eu oil gas reporting 2026 | 4 | 0 | 0.00% | 14.0 | - |
+| 2 | sbti anforderungen 2026 | 1 | 0 | 0.00% | 52.0 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -237,9 +222,9 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | - | - | - | - | 
- | Total Users | 4 | - | - | - | 
- | Impressions | 52 | - | - | - | 
+ | Organic Sessions | 1 | - | - | - | 
+ | Total Users | 7 | - | - | - | 
+ | Impressions | 49 | - | - | - | 
  | Clicks | - | - | - | - | 
  | Calculator Runs | - | - | - | - | 
  | PDF Downloads | - | - | - | - | 
@@ -267,6 +252,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-07-20 | Automated | Weekly KPI update |
 | 2026-07-14 | Automated | Weekly KPI update |
 | 2026-06-18 | Terrnix AI | Dashboard created, baseline to be established |
 
