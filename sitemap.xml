@@ -115,9 +115,30 @@
 
   <url>
     <loc>https://terrnix.com/resources/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/resources/faq/</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/resources/glossary/</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/resources/guides/</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
   </url>
 
   <url>
