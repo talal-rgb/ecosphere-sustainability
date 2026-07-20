@@ -16,33 +16,31 @@
   },
   "ui": {
     "intro": {
-      "headline": "Get Your Carbon Accounting Readiness Report",
-      "subheadline": "Identify your biggest carbon accounting gaps, prioritise your next actions, and receive a practical 90-day roadmap — in under 15 minutes.",
+      "headline": "Assess Your Organisation's Carbon Accounting Readiness",
+      "subheadline": "Most organisations know they need better carbon data but are unsure where to focus first. This assessment identifies your biggest readiness gaps and prioritises the actions that will have the greatest impact — in under 15 minutes.",
       "benefits": [
         "Pinpoint your highest-priority carbon accounting gaps across 5 dimensions",
         "Receive a maturity score with category-by-category breakdown",
-        "Get a prioritised 30-60-90 day action roadmap",
+        "Get prioritised recommendations for your next 90 days",
         "Download a professional PDF report to share with stakeholders",
         "Earn a verifiable achievement certificate with unique ID"
       ],
       "ctaText": "Get Your Readiness Report",
       "trustIndicators": [
-        "25-question assessment informed by GHG Protocol, CSRD and SBTi",
+        "Covers governance, Scope 1–3, data quality and reporting readiness",
         "Approximately 10–15 minutes",
         "Instant executive report with PDF download",
         "No email required to view your results"
       ],
       "preview": {
         "enabled": true,
-        "sampleScore": 68,
-        "sampleMaturityLevel": "Developing",
         "deliverables": [
-          {"icon": "📊", "label": "Maturity Score", "description": "0-100 overall readiness score"},
-          {"icon": "📈", "label": "Category Breakdown", "description": "Per-dimension scoring with visual radar"},
-          {"icon": "🔍", "label": "Gap Analysis", "description": "Prioritised gaps with risk ratings"},
-          {"icon": "🗺️", "label": "Action Roadmap", "description": "30-60-90 day improvement plan"},
-          {"icon": "📄", "label": "PDF Report", "description": "Professional report for stakeholders"},
-          {"icon": "🏆", "label": "Certificate", "description": "Verifiable achievement with unique ID"}
+          {"icon": "📊", "label": "Overall Readiness Score", "description": "0-100 maturity rating with level designation", "size": "large"},
+          {"icon": "📈", "label": "Category Breakdown", "description": "Per-dimension scoring across all five areas", "size": "medium"},
+          {"icon": "🔍", "label": "Priority Gaps", "description": "Identified weaknesses with risk context", "size": "medium"},
+          {"icon": "✅", "label": "Recommended Next Steps", "description": "Prioritised improvement actions", "size": "medium"},
+          {"icon": "📄", "label": "Executive PDF Report", "description": "Professional report for stakeholders", "size": "small"},
+          {"icon": "🏆", "label": "Completion Certificate", "description": "Verifiable achievement with unique ID", "size": "small"}
         ]
       }
     }

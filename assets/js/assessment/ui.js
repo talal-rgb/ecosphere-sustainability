@@ -74,6 +74,17 @@ class AssessmentUI {
       leftCol.appendChild(trustList);
     }
 
+    // Value proposition — why spend 15 minutes?
+    const valueProp = this.createElement('div', 'bg-slate-800/40 rounded-xl border border-slate-700/50 p-4 mb-6 text-left');
+    valueProp.innerHTML = `
+      <p class="text-slate-300 text-sm leading-relaxed">
+        Carbon accounting is becoming a board-level priority — driven by regulation, investor pressure, and customer expectations.
+        Yet most organisations struggle to know where to start or what to improve first.
+        This assessment gives you a clear, prioritised view of your readiness so you can focus resources on what matters most.
+      </p>
+    `;
+    leftCol.appendChild(valueProp);
+
     // Benefits
     if (intro.benefits && intro.benefits.length > 0) {
       const benefitsList = this.createElement('div', 'space-y-3 mb-8 text-left max-w-lg mx-auto lg:mx-0');
@@ -100,44 +111,67 @@ class AssessmentUI {
 
     grid.appendChild(leftCol);
 
-    // RIGHT COLUMN: Results Preview
+    // RIGHT COLUMN: Results Preview — Executive Report Structure
     if (preview.enabled && preview.deliverables) {
       const rightCol = this.createElement('div', 'flex justify-center lg:justify-end');
       const previewCard = this.createElement('div', 'relative w-full max-w-md bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-6 shadow-2xl');
 
       // Preview header
-      const previewHeader = this.createElement('div', 'text-center mb-6');
-      previewHeader.innerHTML = `<div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">Sample Results Preview</div><div class="text-slate-300 text-sm">This is what you will receive</div>`;
+      const previewHeader = this.createElement('div', 'text-center mb-5');
+      previewHeader.innerHTML = `<div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Your Report Will Include</div><div class="text-slate-400 text-sm">Executive consulting-style deliverables</div>`;
       previewCard.appendChild(previewHeader);
 
-      // Score ring
-      const scoreContainer = this.createElement('div', 'flex justify-center mb-6');
-      const sampleScore = preview.sampleScore || 68;
-      const sampleLevel = preview.sampleMaturityLevel || 'Developing';
-      scoreContainer.innerHTML = `
-        <div class="relative w-40 h-40">
-          <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 160 160">
-            <circle cx="80" cy="80" r="70" fill="none" stroke="#1e293b" stroke-width="10"/>
-            <circle cx="80" cy="80" r="70" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="440" stroke-dashoffset="${440 - (440 * sampleScore / 100)}" class="transition-all duration-1000"/>
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <div class="text-4xl font-bold text-white">${sampleScore}</div>
-            <div class="text-xs text-slate-400 mt-1">Readiness Score</div>
-            <div class="text-xs text-emerald-400 font-medium mt-1">${sampleLevel}</div>
-          </div>
-        </div>
-      `;
-      previewCard.appendChild(scoreContainer);
+      // Deliverables rendered with visual hierarchy
+      const deliverablesContainer = this.createElement('div', 'space-y-3');
 
-      // Deliverables list
-      const deliverablesList = this.createElement('div', 'space-y-2');
       preview.deliverables.forEach(item => {
-        const row = this.createElement('div', 'flex items-center gap-3 p-2.5 rounded-lg bg-slate-700/30 border border-slate-600/20');
-        row.innerHTML = `<span class="text-lg">${item.icon}</span><div class="flex-1 min-w-0"><div class="text-sm font-medium text-white">${AssessmentUtils.escapeHtml(item.label)}</div><div class="text-xs text-slate-400 truncate">${AssessmentUtils.escapeHtml(item.description)}</div></div>`;
-        deliverablesList.appendChild(row);
-      });
-      previewCard.appendChild(deliverablesList);
+        const size = item.size || 'medium';
+        let rowClasses = 'flex items-start gap-3 rounded-lg border transition-all';
+        let iconClasses = 'flex-shrink-0 flex items-center justify-center rounded-lg';
+        let content = '';
 
+        if (size === 'large') {
+          rowClasses += ' p-4 bg-slate-700/40 border-slate-600/30';
+          iconClasses += ' w-10 h-10 bg-emerald-500/10 text-xl';
+          content = `
+            <div class="flex-1 min-w-0">
+              <div class="text-base font-semibold text-white">${AssessmentUtils.escapeHtml(item.label)}</div>
+              <div class="text-sm text-slate-400 mt-0.5">${AssessmentUtils.escapeHtml(item.description)}</div>
+              <div class="mt-2 h-2 bg-slate-600/50 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width: 75%"></div>
+              </div>
+              <div class="flex justify-between mt-1">
+                <span class="text-xs text-slate-500">Maturity Level</span>
+                <span class="text-xs text-emerald-400 font-medium">Score / 100</span>
+              </div>
+            </div>
+          `;
+        } else if (size === 'medium') {
+          rowClasses += ' p-3 bg-slate-700/20 border-slate-600/20';
+          iconClasses += ' w-8 h-8 bg-slate-600/30 text-base';
+          content = `
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-white">${AssessmentUtils.escapeHtml(item.label)}</div>
+              <div class="text-xs text-slate-400">${AssessmentUtils.escapeHtml(item.description)}</div>
+            </div>
+          `;
+        } else {
+          rowClasses += ' p-2.5 bg-slate-700/10 border-slate-600/10';
+          iconClasses += ' w-7 h-7 bg-slate-600/20 text-sm';
+          content = `
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-slate-300">${AssessmentUtils.escapeHtml(item.label)}</div>
+              <div class="text-xs text-slate-500">${AssessmentUtils.escapeHtml(item.description)}</div>
+            </div>
+          `;
+        }
+
+        const row = this.createElement('div', rowClasses);
+        row.innerHTML = `<div class="${iconClasses}"><span>${item.icon}</span></div>${content}`;
+        deliverablesContainer.appendChild(row);
+      });
+
+      previewCard.appendChild(deliverablesContainer);
       rightCol.appendChild(previewCard);
       grid.appendChild(rightCol);
     }
