@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.terrnix.com/sitemap.xml
+Sitemap: https://terrnix.com/sitemap.xml
