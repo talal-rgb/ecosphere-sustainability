@@ -144,6 +144,24 @@ Update `DEPLOYMENT_VERIFICATION.md` with results.
 
 ---
 
+## Merge Conflict Rule
+
+**When resolving a content merge conflict, never accept `--ours` or `--theirs` without comparing section headings, CTAs, metadata, schema and file size against both source versions.**
+
+For flagship content pages, run a post-merge content-presence check before deployment:
+
+```bash
+# Example: verify all expected sections are present
+for section in "What Is" "Why It Matters" "How We Help"; do
+  count=$(curl -s https://terrnix.com/page/ | grep -c "$section")
+  if [ "$count" -eq 0 ]; then echo "MISSING: $section"; fi
+done
+```
+
+**If content is missing, STOP. Do not deploy. Fix the merge first.**
+
+---
+
 ## Enforcement
 
 - PRs without a completed DoD checklist will be returned to the author
