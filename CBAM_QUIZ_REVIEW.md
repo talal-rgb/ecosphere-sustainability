@@ -1,0 +1,164 @@
+# CBAM Quiz Review — Terrnix RC1
+
+**Date:** 2026-07-21
+**Auditor:** Terrnix AI
+**Scope:** CBAM-specific quiz functionality
+
+---
+
+## Executive Summary
+
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| Dedicated CBAM quiz page | ❌ MISSING | No standalone CBAM quiz exists |
+| CBAM questions in Sustainability Quiz | ❌ NOT VERIFIED | Main quiz has 30 questions but CBAM coverage unknown |
+| CBAM Quiz CTA on article | ⚠️ MISLEADING | Links to /tools/ which has no CBAM quiz |
+| Certificate support | ❌ NOT AVAILABLE | Certificate system exists but not integrated |
+| Educational value | ❌ NONE | No CBAM-specific assessment exists |
+
+**Verdict:** The CBAM Quiz does not exist. The CTA on the CBAM article is misleading.
+
+---
+
+## Findings
+
+### 1. No Standalone CBAM Quiz Page
+
+**Searched locations:**
+- `/tools/cbam-quiz/` — 404
+- `/quiz/cbam/` — 404
+- `/assessment/cbam/` — 404
+- `/carbon-accounting/cbam-quiz/` — 404
+- `tools/index.html` — No CBAM quiz listed
+- `index.html` — Main Sustainability Quiz only
+
+**Conclusion:** There is no CBAM-specific quiz anywhere on the site.
+
+### 2. Misleading CTA on CBAM Article
+
+**Location:** `sustainability-intelligence/2026/06/cbam-definitive-phase-july-2026/index.html` line 258
+
+```html
+<a href="/tools/" class="cta-box rounded-xl p-6 hover:scale-[1.02] transition-all duration-300">
+    <i class="fas fa-question-circle text-cyan-400 text-2xl mb-3"></i>
+    <h3 class="text-white font-semibold mb-2">CBAM Quiz</h3>
+    <p class="text-gray-400 text-sm">Test your knowledge of CBAM compliance requirements.</p>
+</a>
+```
+
+**Problem:** This links to `/tools/` which contains:
+- Carbon Footprint Calculator
+- LCOE/NPV Calculator (on homepage)
+- Sustainability Quiz (on homepage)
+- ESG Reporting Templates (coming soon)
+- Science-Based Target Tool (coming soon)
+- Grid Carbon Intensity (coming soon)
+
+There is NO CBAM quiz on the tools page.
+
+**Impact:** HIGH — Users clicking "CBAM Quiz" are misled. This damages trust.
+
+### 3. Main Sustainability Quiz — CBAM Coverage Unknown
+
+**Location:** `index.html` lines 5378+
+
+The main quiz has 30 questions across 6 topics:
+- Energy
+- ESG
+- Carbon Accounting
+- GHG Protocol
+- Regulations
+- Carbon Pricing
+
+CBAM falls under "Regulations" or "Carbon Pricing" but:
+- No question-level audit performed
+- No way to verify CBAM-specific coverage without reading all 30 questions
+- Quiz is embedded in homepage, not standalone
+
+### 4. Certificate System Exists But Not Integrated
+
+**Location:** `certificate/verify/index.html`
+
+A certificate verification system exists:
+- Users can enter certificate ID (format: TX-XXXXXXXXXXXXXXXX)
+- Verification checks against stored certificates
+- Professional certificate display with name, date, score, topics
+
+**Status:** Not integrated with any quiz, including CBAM.
+
+### 5. CBAM Readiness Assessment Exists (Different Product)
+
+**Location:** `/carbon-accounting-readiness-assessment/`
+
+A Carbon Accounting Readiness Assessment exists with:
+- 15 questions
+- Score calculation
+- PDF report generation
+- Certificate generation
+- Email delivery
+
+**Note:** This is a general carbon accounting assessment, NOT CBAM-specific.
+
+---
+
+## Recommendations
+
+### Immediate (RC1)
+
+1. **Fix misleading CTA**
+   - Change CBAM article CTA from "CBAM Quiz" to "Carbon Accounting Readiness Assessment"
+   - OR remove the CTA entirely until a CBAM quiz is built
+   - **Effort:** 5 minutes
+
+2. **Audit main quiz for CBAM coverage**
+   - Read all 30 questions
+   - Count CBAM-specific questions
+   - Report findings
+   - **Effort:** 15 minutes
+
+### Short-term (Post-RC1)
+
+3. **Build CBAM-specific quiz**
+   - 15-20 questions on CBAM compliance
+   - Topics: certificate mechanics, reporting, covered products, timeline, penalties
+   - Immediate feedback with explanations
+   - Score + completion message
+   - Link to certificate system
+   - **Effort:** 4-6 hours
+
+4. **Integrate with certificate system**
+   - Generate certificate on passing score (>70%)
+   - Store in certificate database
+   - Enable verification
+   - **Effort:** 2-3 hours
+
+### Medium-term
+
+5. **Build quiz platform architecture**
+   - Standalone quiz pages per topic
+   - Shared scoring/certificate infrastructure
+   - Progress tracking
+   - **Effort:** 8-12 hours
+
+---
+
+## Files to Modify
+
+1. `sustainability-intelligence/2026/06/cbam-definitive-phase-july-2026/index.html` — Fix misleading CTA
+2. `sustainability-intelligence/2026/06/cbam-definitive-phase-2026-compliance/index.html` — Check for similar CTAs
+3. `index.html` — Audit quiz questions for CBAM coverage (informational)
+
+---
+
+## Action for RC1
+
+**Recommended:** Fix the misleading CTA now. Do NOT build CBAM quiz in RC1 — it is a significant feature requiring dedicated design and content work.
+
+**RC1 scope:**
+- [ ] Fix CBAM article CTA
+- [ ] Check compliance article for similar issues
+- [ ] Document CBAM quiz as backlog item
+
+---
+
+*Report generated by Terrnix AI — 2026-07-21*
