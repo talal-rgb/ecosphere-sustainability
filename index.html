@@ -8,7 +8,15 @@
 <meta content="Terrnix combines AI-driven analytics with deep sustainability expertise — carbon accounting, ESG frameworks, climate regulations, green finance, and energy economics." name="description"/>
 <meta content="Terrnix — AI Sustainability Intelligence" property="og:title"/>
 <meta content="AI-powered sustainability platform for carbon accounting, ESG, and climate intelligence." property="og:description"/>
-<meta content="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200" property="og:image"/>
+<meta content="https://terrnix.com/assets/og-image.png" property="og:image"/>
+<meta content="https://terrnix.com/" property="og:url"/>
+<meta content="website" property="og:type"/>
+<meta content="Terrnix" property="og:site_name"/>
+<meta content="en_US" property="og:locale"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Terrnix — AI Sustainability Intelligence" name="twitter:title"/>
+<meta content="AI-powered sustainability platform for carbon accounting, ESG, and climate intelligence." name="twitter:description"/>
+<meta content="https://terrnix.com/assets/og-image.png" name="twitter:image"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
 <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
 <meta http-equiv="X-Frame-Options" content="DENY"/>
@@ -1084,10 +1092,11 @@ input[type="range"].slider::-moz-range-thumb {
 </style>
 </head>
 <body class="gradient-bg">
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <!-- ========== STICKY NAVIGATION ========== -->
 <nav @scroll.window="
     $el.classList.toggle('scrolled', window.scrollY &gt; 50)
-" class="sticky-nav" id="mainNav">
+" class="sticky-nav" id="mainNav" aria-label="Main navigation">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="flex items-center justify-between h-16">
 <!-- Logo -->
