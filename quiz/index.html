@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sustainability Quiz | Test Your Knowledge | Terrnix</title>
+<meta name="description" content="Test your sustainability knowledge with 30 questions across carbon accounting, ESG, energy, GHG Protocol, regulations, and carbon pricing. Get your score and certificate."/>
+<link rel="canonical" href="https://terrnix.com/quiz/"/>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://terrnix.com/quiz/"/>
+<meta property="og:title" content="Sustainability Quiz | Test Your Knowledge | Terrnix"/>
+<meta property="og:description" content="30 questions across 6 sustainability domains. Test your expertise and earn a certificate."/>
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
+<meta property="og:site_name" content="Terrnix"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:url" content="https://terrnix.com/quiz/"/>
+<meta name="twitter:title" content="Sustainability Quiz | Test Your Knowledge | Terrnix"/>
+<meta name="twitter:description" content="30 questions across 6 sustainability domains. Test your expertise and earn a certificate."/>
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.skip-link { position: absolute; top: -40px; left: 0; background: var(--accent); color: #000; padding: 8px 16px; z-index: 100; transition: top 0.3s; font-weight: 600; }
+.skip-link:focus { top: 0; }
+.quiz-option { transition: all 0.2s; cursor: pointer; }
+.quiz-option:hover { border-color: var(--accent); background: rgba(74, 222, 128, 0.05); }
+.quiz-option.selected { border-color: var(--accent); background: rgba(74, 222, 128, 0.1); }
+.quiz-option.correct { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+.quiz-option.incorrect { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Navigation -->
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]" aria-label="Main navigation">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden lg:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
+        <a href="/tools/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Tools</a>
+        <a href="/resources/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Resources</a>
+      </div>
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden md:inline-flex items-center px-4 py-2 bg-emerald-500 text-[#0a0f0d] rounded-lg text-sm font-semibold hover:bg-emerald-400 transition-colors">Calculate Your Carbon Footprint</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<nav aria-label="Breadcrumb" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <ol class="flex items-center space-x-2 text-sm text-gray-500">
+    <li><a href="/" class="hover:text-emerald-400 transition-colors">Home</a></li>
+    <li><span class="text-gray-600">/</span></li>
+    <li><a href="/tools/" class="hover:text-emerald-400 transition-colors">Tools</a></li>
+    <li><span class="text-gray-600">/</span></li>
+    <li class="text-emerald-400" aria-current="page">Sustainability Quiz</li>
+  </ol>
+</nav>
+
+<main id="main-content">
+<!-- Hero / Start Screen -->
+<section class="py-16 px-4 sm:px-6 lg:px-8" id="quiz-start">
+  <div class="max-w-4xl mx-auto text-center">
+    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/20">
+      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+    </div>
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Terrnix Sustainability Quiz</h1>
+    <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">Test your expertise across 6 sustainability domains. From carbon accounting to climate regulations — prove your mastery and earn a certificate.</p>
+
+    <div class="grid grid-cols-3 gap-6 max-w-lg mx-auto mb-10">
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-4">
+        <div class="text-3xl font-bold text-white">30</div>
+        <div class="text-gray-500 text-sm">Questions</div>
+      </div>
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-4">
+        <div class="text-3xl font-bold text-white">6</div>
+        <div class="text-gray-500 text-sm">Topics</div>
+      </div>
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-4">
+        <div class="text-3xl font-bold text-white">3</div>
+        <div class="text-gray-500 text-sm">Levels</div>
+      </div>
+    </div>
+
+    <div class="flex justify-center gap-3 mb-10">
+      <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">Beginner</span>
+      <span class="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium">Intermediate</span>
+      <span class="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium">Advanced</span>
+    </div>
+
+    <button onclick="startQuiz()" class="px-10 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-lg font-semibold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5">Start Challenge</button>
+  </div>
+</section>
+
+<!-- Quiz Interface -->
+<section class="py-12 px-4 sm:px-6 lg:px-8 hidden" id="quiz-interface">
+  <div class="max-w-3xl mx-auto">
+    <!-- Progress -->
+    <div class="mb-6">
+      <div class="flex justify-between text-sm text-gray-400 mb-2">
+        <span id="quiz-counter">Question 1/30</span>
+        <span id="quiz-score-display">Score: 0</span>
+      </div>
+      <div class="w-full bg-[#1a2520] rounded-full h-2">
+        <div id="quiz-progress" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 md:p-8 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span id="quiz-category" class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full">Energy</span>
+        <span id="quiz-difficulty" class="px-3 py-1 bg-gray-500/10 text-gray-400 text-xs font-medium rounded-full">Beginner</span>
+      </div>
+      <h2 id="quiz-question-text" class="text-xl md:text-2xl font-bold text-white mb-6">Question text here</h2>
+      <div id="quiz-options" class="space-y-3">
+        <!-- Options injected by JS -->
+      </div>
+      <div id="quiz-explanation" class="hidden mt-6 p-4 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl">
+        <p class="text-emerald-400 font-semibold mb-2">Explanation</p>
+        <p id="quiz-explanation-text" class="text-gray-400 text-sm leading-relaxed"></p>
+      </div>
+    </div>
+
+    <div class="flex justify-between">
+      <button id="quiz-prev" onclick="prevQuestion()" class="px-6 py-3 border border-[#2d3d35] text-gray-400 rounded-xl hover:border-emerald-500/50 hover:text-emerald-400 transition-all hidden">Previous</button>
+      <button id="quiz-next" onclick="nextQuestion()" class="px-6 py-3 bg-emerald-500 text-[#0a0f0d] rounded-xl font-semibold hover:bg-emerald-400 transition-all ml-auto">Next Question</button>
+    </div>
+  </div>
+</section>
+
+<!-- Results Screen -->
+<section class="py-16 px-4 sm:px-6 lg:px-8 hidden" id="quiz-results">
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/20">
+      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">Quiz Complete!</h2>
+    <p class="text-gray-400 mb-8">Here is how you performed across all 30 questions.</p>
+
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8 mb-8">
+      <div class="text-6xl font-bold text-emerald-400 mb-2" id="result-percentage">0%</div>
+      <p class="text-gray-400 mb-6" id="result-summary">0 out of 30 correct</p>
+
+      <div class="space-y-4 text-left">
+        <div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-gray-400">Beginner</span><span class="text-emerald-400" id="result-beginner">0/0</span></div>
+          <div class="w-full bg-[#1a2520] rounded-full h-2"><div id="bar-beginner" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 0%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-gray-400">Intermediate</span><span class="text-amber-400" id="result-intermediate">0/0</span></div>
+          <div class="w-full bg-[#1a2520] rounded-full h-2"><div id="bar-intermediate" class="bg-amber-500 h-2 rounded-full transition-all" style="width: 0%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-sm mb-1"><span class="text-gray-400">Advanced</span><span class="text-red-400" id="result-advanced">0/0</span></div>
+          <div class="w-full bg-[#1a2520] rounded-full h-2"><div id="bar-advanced" class="bg-red-500 h-2 rounded-full transition-all" style="width: 0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificate Section -->
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8 mb-8">
+      <h3 class="text-xl font-bold text-white mb-4">Earn Your Certificate</h3>
+      <p class="text-gray-400 mb-6">Enter your details to generate a verified certificate of completion.</p>
+      <div class="max-w-md mx-auto space-y-4">
+        <input type="text" id="cert-name" placeholder="Your full name" class="w-full px-4 py-3 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none"/>
+        <input type="email" id="cert-email" placeholder="Your email address" class="w-full px-4 py-3 bg-[#0a0f0d] border border-[#2d3d35] rounded-xl text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none"/>
+        <button onclick="generateCertificate()" class="w-full px-6 py-3 bg-emerald-500 text-[#0a0f0d] rounded-xl font-semibold hover:bg-emerald-400 transition-all">Generate Certificate</button>
+      </div>
+      <p class="text-gray-500 text-xs mt-4">Certificates are for personal recognition only and do not constitute professional accreditation.</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="/certificate/verify/" class="inline-flex items-center justify-center px-6 py-3 border border-emerald-500/30 text-emerald-400 rounded-xl font-semibold hover:bg-emerald-500/10 transition-all">Verify a Certificate</a>
+      <button onclick="restartQuiz()" class="inline-flex items-center justify-center px-6 py-3 bg-[#111a16] border border-[#2d3d35] text-white rounded-xl font-semibold hover:border-emerald-500/50 transition-all">Retake Quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- Certificate Display -->
+<section class="py-16 px-4 sm:px-6 lg:px-8 hidden" id="certificate-display">
+  <div class="max-w-3xl mx-auto">
+    <div id="certificate-card" class="bg-white rounded-2xl p-8 md:p-12 text-center shadow-2xl">
+      <!-- Certificate content injected by JS -->
+    </div>
+    <div class="flex justify-center gap-4 mt-8">
+      <button onclick="downloadCertificate()" class="px-6 py-3 bg-emerald-500 text-[#0a0f0d] rounded-xl font-semibold hover:bg-emerald-400 transition-all">Download PDF</button>
+      <button onclick="shareCertificate()" class="px-6 py-3 border border-emerald-500/30 text-emerald-400 rounded-xl font-semibold hover:bg-emerald-500/10 transition-all">Share</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-[#2d3d35] py-12 px-4 sm:px-6 lg:px-8 mt-16">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <h3 class="text-lg font-bold text-emerald-400 mb-4" style="font-family: 'Space Grotesk'">Terrnix</h3>
+        <p class="text-gray-500 text-sm">Sustainability intelligence, carbon accounting, and ESG analytics for the decisive decade.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Platform</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/carbon-accounting/" class="hover:text-emerald-400 transition-colors">Carbon Accounting</a></li>
+          <li><a href="/esg-reporting/" class="hover:text-emerald-400 transition-colors">ESG Reporting</a></li>
+          <li><a href="/tools/" class="hover:text-emerald-400 transition-colors">Tools</a></li>
+          <li><a href="/resources/" class="hover:text-emerald-400 transition-colors">Resources</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Company</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/about/" class="hover:text-emerald-400 transition-colors">About</a></li>
+          <li><a href="/contact/" class="hover:text-emerald-400 transition-colors">Contact</a></li>
+          <li><a href="/sustainability-intelligence/" class="hover:text-emerald-400 transition-colors">Intelligence</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Legal</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/privacy/" class="hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
+          <li><a href="/terms/" class="hover:text-emerald-400 transition-colors">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[#2d3d35] pt-8 text-center text-gray-600 text-sm">
+      <p>© 2026 Terrnix. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============================================
+// QUIZ DATA — 30 questions across 6 categories
+// ============================================
+const quizQuestions = [
+  // === ENERGY (5 questions) ===
+  {
+    question: "Which renewable energy source has seen the largest decline in LCOE over the past decade?",
+    options: ["Onshore wind", "Solar photovoltaic (PV)", "Offshore wind", "Concentrated solar power"],
+    correct: 1,
+    explanation: "Solar PV has experienced the most dramatic cost decline, dropping over 90% since 2010. Utility-scale solar LCOE now ranges $30-50/MWh in optimal locations.",
+    difficulty: "Beginner", category: "Energy", topic: "Renewable Energy Economics"
+  },
+  {
+    question: "What does a higher 'capacity factor' indicate for a power plant?",
+    options: ["Higher fuel consumption", "More consistent and reliable electricity generation", "Larger physical footprint", "Higher construction cost"],
+    correct: 1,
+    explanation: "Capacity factor measures the ratio of actual electricity generated to maximum possible output. Nuclear plants have the highest capacity factors (~90%).",
+    difficulty: "Beginner", category: "Energy", topic: "Power Generation"
+  },
+  {
+    question: "What is the primary economic challenge of integrating high shares of solar and wind into the electricity grid?",
+    options: ["High fuel costs", "Intermittency and variability requiring flexible backup or storage", "High water consumption", "Land use conflicts with agriculture"],
+    correct: 1,
+    explanation: "Solar and wind are variable renewable sources dependent on weather. Their intermittency creates grid integration challenges including need for storage and flexible generation.",
+    difficulty: "Intermediate", category: "Energy", topic: "Grid Integration"
+  },
+  {
+    question: "What is the typical round-trip efficiency of modern lithium-ion battery storage systems?",
+    options: ["50-60%", "70-80%", "85-95%", "98-99%"],
+    correct: 2,
+    explanation: "Modern lithium-ion battery storage systems achieve round-trip efficiencies of 85-95%, meaning 5-15% of energy is lost during charge and discharge cycles.",
+    difficulty: "Intermediate", category: "Energy", topic: "Energy Storage"
+  },
+  {
+    question: "In a Power Purchase Agreement (PPA), what does the 'strike price' represent?",
+    options: ["The maximum price the buyer will pay", "The fixed price at which electricity is sold over the contract term", "The government subsidy amount", "The wholesale market price"],
+    correct: 1,
+    explanation: "The strike price in a PPA is the fixed price per MWh that the offtaker agrees to pay the generator over the contract term, providing revenue certainty for renewable projects.",
+    difficulty: "Advanced", category: "Energy", topic: "Energy Finance"
+  },
+
+  // === ESG (5 questions) ===
+  {
+    question: "Which of the following is NOT one of the three pillars of ESG?",
+    options: ["Environmental", "Social", "Governance", "Financial"],
+    correct: 3,
+    explanation: "ESG stands for Environmental, Social, and Governance. Financial performance is not one of the three ESG pillars, though ESG factors increasingly influence financial outcomes.",
+    difficulty: "Beginner", category: "ESG", topic: "ESG Fundamentals"
+  },
+  {
+    question: "What is 'double materiality' in sustainability reporting?",
+    options: ["Reporting on both financial and impact materiality", "Reporting twice a year", "Reporting to two different regulators", "Using two different accounting standards"],
+    correct: 0,
+    explanation: "Double materiality requires companies to report both how sustainability issues affect their financial performance (financial materiality) and how their activities impact people and the environment (impact materiality).",
+    difficulty: "Intermediate", category: "ESG", topic: "Materiality"
+  },
+  {
+    question: "Which ESG rating agency is known for its controversy monitoring and risk assessment?",
+    options: ["MSCI", "Sustainalytics", "CDP", "S&P Global"],
+    correct: 1,
+    explanation: "Sustainalytics (part of Morningstar) is particularly known for its controversy monitoring, tracking companies' involvement in ESG-related incidents and assessing their material impact.",
+    difficulty: "Intermediate", category: "ESG", topic: "ESG Ratings"
+  },
+  {
+    question: "What does the 'G' in ESG primarily assess?",
+    options: ["Greenhouse gas emissions", "Corporate governance structures and practices", "Global supply chains", "Government relations"],
+    correct: 1,
+    explanation: "Governance assesses corporate governance structures, board diversity, executive compensation, shareholder rights, anti-corruption policies, and business ethics.",
+    difficulty: "Beginner", category: "ESG", topic: "Governance"
+  },
+  {
+    question: "Under the EU CSRD, how many companies are estimated to be required to report sustainability data?",
+    options: ["~5,000", "~25,000", "~50,000", "~100,000"],
+    correct: 2,
+    explanation: "The CSRD is estimated to apply to approximately 50,000 companies, including all large EU companies, listed SMEs, and non-EU companies with significant EU operations.",
+    difficulty: "Advanced", category: "ESG", topic: "CSRD"
+  },
+
+  // === CARBON ACCOUNTING (5 questions) ===
+  {
+    question: "Which greenhouse gas has the highest global warming potential (GWP) over a 100-year period?",
+    options: ["Carbon dioxide (CO₂)", "Methane (CH₄)", "Nitrous oxide (N₂O)", "Sulfur hexafluoride (SF₆)"],
+    correct: 3,
+    explanation: "SF₆ has a GWP of 23,500 over 100 years — the highest of commonly tracked GHGs. It is used primarily in electrical switchgear and magnesium casting.",
+    difficulty: "Intermediate", category: "Carbon Accounting", topic: "GHG Properties"
+  },
+  {
+    question: "What is the primary purpose of emission factors in carbon accounting?",
+    options: ["To set carbon prices", "To convert activity data into CO₂ equivalent emissions", "To verify carbon offset quality", "To calculate renewable energy certificates"],
+    correct: 1,
+    explanation: "Emission factors are coefficients that convert activity data (e.g., kWh of electricity, litres of fuel) into kilograms or tonnes of CO₂ equivalent.",
+    difficulty: "Beginner", category: "Carbon Accounting", topic: "Emission Factors"
+  },
+  {
+    question: "Which Scope 3 category typically represents the largest share of emissions for a manufacturing company?",
+    options: ["Business travel", "Purchased goods and services", "Employee commuting", "Waste generated in operations"],
+    correct: 1,
+    explanation: "For most manufacturing companies, purchased goods and services (Category 1) and upstream transportation (Category 4) represent the largest Scope 3 categories, often 60-80% of total footprint.",
+    difficulty: "Intermediate", category: "Carbon Accounting", topic: "Scope 3"
+  },
+  {
+    question: "What is the difference between location-based and market-based Scope 2 reporting?",
+    options: ["Location-based uses regional grid averages; market-based accounts for contractual instruments", "Location-based is for Scope 1; market-based is for Scope 2", "They are the same thing with different names", "Location-based is mandatory; market-based is optional"],
+    correct: 0,
+    explanation: "Location-based uses average emission factors for the grids where consumption occurs. Market-based reflects emissions from energy sources companies have purposefully chosen, such as renewable energy certificates and PPAs.",
+    difficulty: "Intermediate", category: "Carbon Accounting", topic: "Scope 2"
+  },
+  {
+    question: "What does 'carbon neutrality' mean under the GHG Protocol?",
+    options: ["Zero emissions across all scopes", "Balancing emissions with removals within the value chain", "Purchasing carbon offsets equal to total emissions", "Using only renewable energy"],
+    correct: 1,
+    explanation: "Under the GHG Protocol, carbon neutrality means balancing emissions with removals within the company's value chain. It does not allow reliance on offset purchases outside the value chain.",
+    difficulty: "Advanced", category: "Carbon Accounting", topic: "Net Zero"
+  },
+
+  // === GHG PROTOCOL (5 questions) ===
+  {
+    question: "Which organisation developed the GHG Protocol Corporate Standard?",
+    options: ["IPCC", "WRI and WBCSD", "ISO", "CDP"],
+    correct: 1,
+    explanation: "The GHG Protocol was developed by the World Resources Institute (WRI) and the World Business Council for Sustainable Development (WBCSD) in 2001.",
+    difficulty: "Beginner", category: "GHG Protocol", topic: "Standards"
+  },
+  {
+    question: "How many Scope 3 categories does the GHG Protocol define?",
+    options: ["8", "12", "15", "20"],
+    correct: 2,
+    explanation: "The GHG Protocol Corporate Value Chain (Scope 3) Standard defines 15 categories of Scope 3 emissions, covering both upstream and downstream activities.",
+    difficulty: "Beginner", category: "GHG Protocol", topic: "Scope 3 Categories"
+  },
+  {
+    question: "What are the five principles of the GHG Protocol?",
+    options: ["Relevance, Completeness, Consistency, Transparency, Accuracy", "Reduce, Reuse, Recycle, Recover, Remanufacture", "Plan, Do, Check, Act, Improve", "Measure, Report, Verify, Disclose, Assure"],
+    correct: 0,
+    explanation: "The five principles are: Relevance, Completeness, Consistency, Transparency, and Accuracy. These ensure GHG inventories are reliable and useful for decision-making.",
+    difficulty: "Beginner", category: "GHG Protocol", topic: "Principles"
+  },
+  {
+    question: "What is a 'base year' in GHG Protocol terminology?",
+    options: ["The year a company was founded", "The reference year against which emission reductions are measured", "The current reporting year", "The year of the Paris Agreement"],
+    correct: 1,
+    explanation: "A base year is the reference point against which emission reductions are measured. Companies must recalculate base year emissions when significant structural changes occur.",
+    difficulty: "Intermediate", category: "GHG Protocol", topic: "Base Year"
+  },
+  {
+    question: "Under the GHG Protocol, which consolidation approach is most commonly used?",
+    options: ["Equity share", "Financial control", "Operational control", "Physical control"],
+    correct: 2,
+    explanation: "Operational control is the most commonly used approach. A company accounts for 100% of emissions from operations where it has the authority to introduce and implement operating policies.",
+    difficulty: "Intermediate", category: "GHG Protocol", topic: "Consolidation"
+  },
+
+  // === REGULATIONS (5 questions) ===
+  {
+    question: "What is the primary goal of the EU Carbon Border Adjustment Mechanism (CBAM)?",
+    options: ["To subsidise EU renewable energy", "To prevent carbon leakage by equalising carbon costs between EU and non-EU producers", "To ban imports from high-emission countries", "To fund climate adaptation in developing countries"],
+    correct: 1,
+    explanation: "CBAM prevents carbon leakage by requiring importers of certain goods to pay a carbon price equivalent to what EU producers pay under the EU ETS, ensuring a level playing field.",
+    difficulty: "Intermediate", category: "Regulations", topic: "CBAM"
+  },
+  {
+    question: "When does the EU CSRD reporting requirement begin for large companies?",
+    options: ["2024", "2025", "2026", "2027"],
+    correct: 2,
+    explanation: "Large EU companies must begin CSRD reporting in 2026 (for FY2025 data). Listed SMEs have a delayed timeline starting in 2027.",
+    difficulty: "Intermediate", category: "Regulations", topic: "CSRD Timeline"
+  },
+  {
+    question: "What does the Science Based Targets initiative (SBTi) require for net-zero targets?",
+    options: ["50% emission reduction by 2030", "90-95% value chain emission reduction before neutralising residual emissions", "100% renewable energy by 2030", "Carbon neutrality by 2040"],
+    correct: 1,
+    explanation: "SBTi Net-Zero Standard requires companies to reduce value chain emissions by 90-95% by 2050 before using permanent removals to neutralise residual emissions.",
+    difficulty: "Advanced", category: "Regulations", topic: "SBTi"
+  },
+  {
+    question: "Which US regulatory body proposed the Climate Disclosure Rule in 2022?",
+    options: ["EPA", "SEC", "CFTC", "FERC"],
+    correct: 1,
+    explanation: "The US Securities and Exchange Commission (SEC) proposed the Climate Disclosure Rule in March 2022, requiring public companies to disclose climate-related risks and emissions.",
+    difficulty: "Intermediate", category: "Regulations", topic: "SEC Climate Rule"
+  },
+  {
+    question: "What is the EU Taxonomy Regulation primarily designed to do?",
+    options: ["Set carbon prices", "Define which economic activities qualify as environmentally sustainable", "Regulate carbon offsets", "Mandate renewable energy targets"],
+    correct: 1,
+    explanation: "The EU Taxonomy is a classification system that defines which economic activities qualify as environmentally sustainable based on technical screening criteria for six environmental objectives.",
+    difficulty: "Intermediate", category: "Regulations", topic: "EU Taxonomy"
+  },
+
+  // === CARBON PRICING (5 questions) ===
+  {
+    question: "What is the difference between a carbon tax and an emissions trading system (ETS)?",
+    options: ["A carbon tax sets a price on emissions; an ETS sets a cap on total emissions", "A carbon tax is voluntary; an ETS is mandatory", "A carbon tax applies to individuals; an ETS applies to companies", "There is no difference"],
+    correct: 0,
+    explanation: "A carbon tax sets a fixed price per tonne of CO₂ emitted. An ETS (cap-and-trade) sets a cap on total emissions and allows companies to trade allowances, letting the market determine the carbon price.",
+    difficulty: "Beginner", category: "Carbon Pricing", topic: "Carbon Pricing Mechanisms"
+  },
+  {
+    question: "Which country was the first to implement a national carbon tax?",
+    options: ["Sweden", "Finland", "Norway", "Denmark"],
+    correct: 1,
+    explanation: "Finland introduced the world's first national carbon tax in 1990. Sweden followed in 1991 and now has one of the highest carbon tax rates globally at over $130 per tonne CO₂.",
+    difficulty: "Advanced", category: "Carbon Pricing", topic: "Carbon Tax History"
+  },
+  {
+    question: "What is the current approximate carbon price in the EU ETS?",
+    options: ["€10-20/tonne", "€30-50/tonne", "€60-90/tonne", "€150-200/tonne"],
+    correct: 2,
+    explanation: "EU ETS carbon prices have ranged from €60-90 per tonne in 2024-2025, driven by the Market Stability Reserve and tightening of the cap. Prices are expected to continue rising.",
+    difficulty: "Intermediate", category: "Carbon Pricing", topic: "EU ETS"
+  },
+  {
+    question: "What is the 'social cost of carbon' (SCC)?",
+    options: ["The cost of carbon offset projects", "The estimated economic damage caused by emitting one tonne of CO₂", "The price of carbon allowances in compliance markets", "The cost of carbon capture technology"],
+    correct: 1,
+    explanation: "The social cost of carbon is an economic estimate of the total damage caused by emitting one additional tonne of CO₂, including impacts on agriculture, health, productivity, and property damage.",
+    difficulty: "Intermediate", category: "Carbon Pricing", topic: "Social Cost of Carbon"
+  },
+  {
+    question: "What is the key difference between compliance and voluntary carbon markets?",
+    options: ["Compliance markets are government-mandated; voluntary markets are optional", "Compliance markets sell cheaper credits", "Voluntary markets only accept nature-based solutions", "There is no difference in credit quality"],
+    correct: 0,
+    explanation: "Compliance markets are created by government regulation (e.g., EU ETS, California Cap-and-Trade). Voluntary markets allow companies and individuals to purchase offsets voluntarily, often for CSR or net-zero commitments.",
+    difficulty: "Beginner", category: "Carbon Pricing", topic: "Carbon Markets"
+  }
+];
+
+// ============================================
+// QUIZ STATE
+// ============================================
+let currentQuestion = 0;
+let quizScore = 0;
+let selectedOption = null;
+let answered = false;
+let userAnswers = [];
+let scoresByDifficulty = { Beginner: { correct: 0, total: 0 }, Intermediate: { correct: 0, total: 0 }, Advanced: { correct: 0, total: 0 } };
+
+function startQuiz() {
+  currentQuestion = 0;
+  quizScore = 0;
+  selectedOption = null;
+  answered = false;
+  userAnswers = [];
+  scoresByDifficulty = { Beginner: { correct: 0, total: 0 }, Intermediate: { correct: 0, total: 0 }, Advanced: { correct: 0, total: 0 } };
+
+  document.getElementById('quiz-start').classList.add('hidden');
+  document.getElementById('quiz-results').classList.add('hidden');
+  document.getElementById('certificate-display').classList.add('hidden');
+  document.getElementById('quiz-interface').classList.remove('hidden');
+
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentQuestion];
+  selectedOption = userAnswers[currentQuestion] !== undefined ? userAnswers[currentQuestion] : null;
+  answered = selectedOption !== null;
+
+  document.getElementById('quiz-counter').textContent = `Question ${currentQuestion + 1}/${quizQuestions.length}`;
+  document.getElementById('quiz-score-display').textContent = `Score: ${quizScore}`;
+  document.getElementById('quiz-progress').style.width = `${((currentQuestion + 1) / quizQuestions.length) * 100}%`;
+  document.getElementById('quiz-category').textContent = q.category;
+  document.getElementById('quiz-difficulty').textContent = q.difficulty;
+  document.getElementById('quiz-question-text').textContent = q.question;
+
+  const optionsDiv = document.getElementById('quiz-options');
+  optionsDiv.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const div = document.createElement('div');
+    div.className = `quiz-option border border-[#2d3d35] rounded-xl p-4 flex items-center gap-3 ${selectedOption === idx ? 'selected' : ''} ${answered && idx === q.correct ? 'correct' : ''} ${answered && selectedOption === idx && idx !== q.correct ? 'incorrect' : ''}`;
+    div.innerHTML = `<span class="w-8 h-8 rounded-lg bg-[#1a2520] flex items-center justify-center text-sm font-semibold text-gray-400 shrink-0">${String.fromCharCode(65 + idx)}</span><span class="text-gray-300">${opt}</span>`;
+    div.onclick = () => selectOption(idx);
+    optionsDiv.appendChild(div);
+  });
+
+  const explanationDiv = document.getElementById('quiz-explanation');
+  if (answered) {
+    explanationDiv.classList.remove('hidden');
+    document.getElementById('quiz-explanation-text').textContent = q.explanation;
+  } else {
+    explanationDiv.classList.add('hidden');
+  }
+
+  document.getElementById('quiz-prev').classList.toggle('hidden', currentQuestion === 0);
+  document.getElementById('quiz-next').textContent = currentQuestion === quizQuestions.length - 1 ? 'See Results' : 'Next Question';
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  selectedOption = idx;
+  answered = true;
+  userAnswers[currentQuestion] = idx;
+
+  const q = quizQuestions[currentQuestion];
+  scoresByDifficulty[q.difficulty].total++;
+  if (idx === q.correct) {
+    quizScore++;
+    scoresByDifficulty[q.difficulty].correct++;
+  }
+
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (!answered && currentQuestion < quizQuestions.length - 1) {
+    // Skip unanswered
+    userAnswers[currentQuestion] = null;
+    scoresByDifficulty[quizQuestions[currentQuestion].difficulty].total++;
+  }
+
+  if (currentQuestion < quizQuestions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    // Recalculate score from previous answers
+    quizScore = 0;
+    scoresByDifficulty = { Beginner: { correct: 0, total: 0 }, Intermediate: { correct: 0, total: 0 }, Advanced: { correct: 0, total: 0 } };
+    userAnswers.forEach((ans, i) => {
+      if (ans !== null && ans !== undefined) {
+        const q = quizQuestions[i];
+        scoresByDifficulty[q.difficulty].total++;
+        if (ans === q.correct) {
+          quizScore++;
+          scoresByDifficulty[q.difficulty].correct++;
+        }
+      }
+    });
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-interface').classList.add('hidden');
+  document.getElementById('quiz-results').classList.remove('hidden');
+
+  const pct = Math.round((quizScore / quizQuestions.length) * 100);
+  document.getElementById('result-percentage').textContent = `${pct}%`;
+  document.getElementById('result-summary').textContent = `${quizScore} out of ${quizQuestions.length} questions correct`;
+
+  document.getElementById('result-beginner').textContent = `${scoresByDifficulty.Beginner.correct}/${scoresByDifficulty.Beginner.total}`;
+  document.getElementById('result-intermediate').textContent = `${scoresByDifficulty.Intermediate.correct}/${scoresByDifficulty.Intermediate.total}`;
+  document.getElementById('result-advanced').textContent = `${scoresByDifficulty.Advanced.correct}/${scoresByDifficulty.Advanced.total}`;
+
+  const bTotal = scoresByDifficulty.Beginner.total || 1;
+  const iTotal = scoresByDifficulty.Intermediate.total || 1;
+  const aTotal = scoresByDifficulty.Advanced.total || 1;
+
+  document.getElementById('bar-beginner').style.width = `${(scoresByDifficulty.Beginner.correct / bTotal) * 100}%`;
+  document.getElementById('bar-intermediate').style.width = `${(scoresByDifficulty.Intermediate.correct / iTotal) * 100}%`;
+  document.getElementById('bar-advanced').style.width = `${(scoresByDifficulty.Advanced.correct / aTotal) * 100}%`;
+}
+
+function restartQuiz() {
+  startQuiz();
+}
+
+// ============================================
+// CERTIFICATE GENERATION
+// ============================================
+function generateCertificate() {
+  const name = document.getElementById('cert-name').value.trim();
+  const email = document.getElementById('cert-email').value.trim();
+
+  if (!name || !email) {
+    alert('Please enter your name and email to generate a certificate.');
+    return;
+  }
+
+  const pct = Math.round((quizScore / quizQuestions.length) * 100);
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const certId = 'TX-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+  const certHTML = `
+    <div style="font-family: 'Georgia', serif; padding: 60px; text-align: center; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 8px solid #059669; border-radius: 20px;">
+      <div style="margin-bottom: 30px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #4ade80, #22d3ee); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+          <span style="font-size: 40px;">🌱</span>
+        </div>
+      </div>
+      <h1 style="color: #059669; font-size: 36px; margin-bottom: 10px; font-weight: bold;">Certificate of Completion</h1>
+      <p style="color: #666; font-size: 18px; margin-bottom: 40px;">Terrnix Sustainability Intelligence Platform</p>
+      <p style="color: #333; font-size: 20px; margin-bottom: 20px;">This certifies that</p>
+      <h2 style="color: #059669; font-size: 32px; margin-bottom: 20px; font-weight: bold;">${name}</h2>
+      <p style="color: #333; font-size: 18px; margin-bottom: 30px;">has successfully completed the Terrnix Sustainability Knowledge Challenge</p>
+      <div style="background: white; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <p style="color: #666; font-size: 16px; margin-bottom: 10px;">Final Score</p>
+        <p style="color: #059669; font-size: 48px; font-weight: bold; margin: 0;">${pct}%</p>
+        <p style="color: #666; font-size: 14px; margin-top: 10px;">${quizScore} out of ${quizQuestions.length} questions correct</p>
+      </div>
+      <div style="margin: 30px 0; padding: 20px; background: white; border-radius: 8px;">
+        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">Performance Breakdown</p>
+        <p style="color: #333; font-size: 16px;">Beginner: ${scoresByDifficulty.Beginner.correct}/${scoresByDifficulty.Beginner.total}</p>
+        <p style="color: #333; font-size: 16px;">Intermediate: ${scoresByDifficulty.Intermediate.correct}/${scoresByDifficulty.Intermediate.total}</p>
+        <p style="color: #333; font-size: 16px;">Advanced: ${scoresByDifficulty.Advanced.correct}/${scoresByDifficulty.Advanced.total}</p>
+      </div>
+      <p style="color: #666; font-size: 14px; margin-top: 40px;">Certificate ID: ${certId}</p>
+      <p style="color: #666; font-size: 14px;">Issued on ${today}</p>
+      <p style="color: #666; font-size: 12px; margin-top: 20px;">Verify at terrnix.com/certificate/verify/ | Intelligence for a greener tomorrow</p>
+    </div>
+  `;
+
+  document.getElementById('certificate-card').innerHTML = certHTML;
+  document.getElementById('quiz-results').classList.add('hidden');
+  document.getElementById('certificate-display').classList.remove('hidden');
+
+  // Store certificate data in localStorage for verification
+  const certData = { id: certId, name, email, score: quizScore, total: quizQuestions.length, percentage: pct, date: today, breakdown: scoresByDifficulty };
+  const existing = JSON.parse(localStorage.getItem('terrnix_certificates') || '[]');
+  existing.push(certData);
+  localStorage.setItem('terrnix_certificates', JSON.stringify(existing));
+}
+
+function downloadCertificate() {
+  window.print();
+}
+
+function shareCertificate() {
+  const text = `I scored ${Math.round((quizScore / quizQuestions.length) * 100)}% on the Terrnix Sustainability Quiz! Test your knowledge at terrnix.com/quiz/`;
+  if (navigator.share) {
+    navigator.share({ title: 'My Terrnix Quiz Result', text, url: 'https://terrnix.com/quiz/' });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Result copied to clipboard!'));
+  }
+}
+</script>
+
+</body>
+</html>
