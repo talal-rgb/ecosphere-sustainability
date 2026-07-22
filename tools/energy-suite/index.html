@@ -2,413 +2,367 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Energy & Project Finance Calculators | Terrnix</title>
-<meta content="Free energy calculators for solar PV ROI, energy efficiency, heat pumps, LED lighting, and EV fleet transition. Calculate savings, CO2 reduction, NPV, IRR, and payback periods." name="description"/>
-<meta content="solar calculator, energy efficiency calculator, heat pump calculator, LED lighting calculator, EV fleet calculator, ROI, NPV, IRR, payback, CO2 reduction" name="keywords"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Energy Economics Suite | NPV, IRR, LCOE & Renewable Sizing | Terrnix</title>
+<meta name="description" content="Professional energy economics toolkit: NPV, IRR, LCOE, renewable sizing, battery optimisation, and demand forecasting. Plan and evaluate sustainable energy projects with confidence."/>
 <link rel="canonical" href="https://terrnix.com/tools/energy-suite/"/>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
+<meta property="og:type" content="product"/>
+<meta property="og:url" content="https://terrnix.com/tools/energy-suite/"/>
+<meta property="og:title" content="Energy Economics Suite | NPV, IRR, LCOE & Renewable Sizing | Terrnix"/>
+<meta property="og:description" content="Professional energy economics toolkit for sustainable project planning. NPV, IRR, LCOE, renewable sizing, battery optimisation, and demand forecasting."/>
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
+<meta property="og:site_name" content="Terrnix"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:url" content="https://terrnix.com/tools/energy-suite/"/>
+<meta name="twitter:title" content="Energy Economics Suite | NPV, IRR, LCOE & Renewable Sizing | Terrnix"/>
+<meta name="twitter:description" content="Professional energy economics toolkit for sustainable project planning."/>
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Terrnix Energy Economics Suite",
+  "description": "Professional energy economics toolkit including NPV, IRR, LCOE, renewable sizing, battery optimisation, and demand forecasting calculators.",
+  "url": "https://terrnix.com/tools/energy-suite/",
+  "brand": {"@type": "Brand", "name": "Terrnix"},
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
-:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent2: #22d3ee; --accent3: #a3e635; --text: #e2e8f0; --muted: #94a3b8; }
-body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); }
-.font-display { font-family: 'Space Grotesk', sans-serif; }
-.gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.glass { background: rgba(17, 26, 22, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(45, 61, 53, 0.5); }
-.tool-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s ease; }
-.tool-card:hover { border-color: var(--accent); transform: translateY(-4px); }
-.input-field { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--text); width: 100%; }
-.input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1); }
-.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--bg-dark); font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; }
-.result-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent-2: #22d3ee; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.skip-link { position: absolute; top: -40px; left: 0; background: var(--accent); color: #000; padding: 8px 16px; z-index: 100; transition: top 0.3s; font-weight: 600; }
+.skip-link:focus { top: 0; }
+.gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.tool-card { transition: all 0.3s; }
+.tool-card:hover { transform: translateY(-4px); border-color: rgba(74, 222, 128, 0.3); }
+.coming-soon-badge { background: linear-gradient(135deg, rgba(74,222,128,0.1), rgba(34,211,238,0.1)); border: 1px solid rgba(74,222,128,0.2); }
 </style>
 </head>
 <body class="min-h-screen">
-<nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-[#2d3d35]">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex items-center justify-between h-16">
-<a class="flex items-center gap-2.5" href="/">
-<div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), var(--accent2));">
-<i class="fas fa-leaf text-sm" style="color: var(--bg-dark);"></i>
-</div>
-<span class="font-display font-bold text-lg">Terrnix</span>
-</a>
-<div class="hidden lg:flex items-center gap-6">
-<a class="text-sm text-gray-400 hover:text-emerald-400 transition" href="/carbon-accounting/">Carbon Accounting</a>
-<a class="text-sm text-gray-400 hover:text-emerald-400 transition" href="/esg-reporting/">ESG Reporting</a>
-<a class="text-sm text-gray-400 hover:text-emerald-400 transition" href="/sustainability-intelligence/">Intelligence</a>
-<a class="text-sm text-emerald-400 font-medium" href="/tools/">Tools</a>
-</div>
-</div>
-</div>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- Navigation -->
+<nav class="border-b border-[#2d3d35] bg-[#0a0f0d]/95 backdrop-blur-sm sticky top-0 z-50" role="navigation" aria-label="Main navigation">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="flex items-center space-x-2" aria-label="Terrnix home">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="nav-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#nav-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/><path d="M16 10 L16 22" stroke="#0a0f0d" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="text-xl font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
+      </a>
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="/carbon-accounting/" class="text-gray-300 hover:text-white transition">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-300 hover:text-white transition">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-300 hover:text-white transition">Intelligence</a>
+        <a href="/tools/" class="text-gray-300 hover:text-white transition">Tools</a>
+      </div>
+    </div>
+  </div>
 </nav>
 
-<main class="pt-24 pb-12 px-4 max-w-7xl mx-auto">
-<div class="text-center mb-12">
-<h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Energy & Project Finance <span class="gradient-text">Calculators</span></h1>
-<p class="text-gray-400 max-w-2xl mx-auto">Calculate ROI, NPV, IRR, payback periods, and CO2 reduction for solar, efficiency, heat pumps, LED lighting, and EV fleet transitions.</p>
-</div>
+<!-- Breadcrumb -->
+<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Breadcrumb">
+  <ol class="flex items-center space-x-2 text-sm text-gray-400">
+    <li><a href="/" class="hover:text-white transition">Home</a></li>
+    <li aria-hidden="true">/</li>
+    <li><a href="/tools/" class="hover:text-white transition">Tools</a></li>
+    <li aria-hidden="true">/</li>
+    <li class="text-white" aria-current="page">Energy Economics Suite</li>
+  </ol>
+</nav>
 
-<!-- Calculator Navigation -->
-<div class="flex flex-wrap justify-center gap-3 mb-12">
-<button class="calc-tab btn-primary" data-calc="solar">Solar PV ROI</button>
-<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="efficiency">Energy Efficiency</button>
-<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="heatpump">Heat Pump</button>
-<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="led">LED Lighting</button>
-<button class="calc-tab bg-[#1a2520] border border-[#2d3d35] text-gray-300 px-4 py-2 rounded-lg hover:border-emerald-500 transition" data-calc="ev">EV Fleet</button>
-</div>
+<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 
-<!-- Solar PV Calculator -->
-<div class="calc-section" id="calc-solar">
-<div class="grid lg:grid-cols-2 gap-8">
-<div class="glass rounded-xl p-6">
-<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">Solar PV ROI Calculator</h2>
-<div class="space-y-4">
-<div><label class="block text-sm text-gray-400 mb-1">System Size (kW)</label><input class="input-field" id="solar-size" type="number" value="100"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Installation Cost ($/kW)</label><input class="input-field" id="solar-cost" type="number" value="1200"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Annual Solar Irradiance (kWh/m2/year)</label><input class="input-field" id="solar-irradiance" type="number" value="1800"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Electricity Price ($/kWh)</label><input class="input-field" id="solar-price" type="number" value="0.15" step="0.01"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Grid Emission Factor (kg CO2/kWh)</label><input class="input-field" id="solar-grid-factor" type="number" value="0.5" step="0.01"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Discount Rate (%)</label><input class="input-field" id="solar-discount" type="number" value="6"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Project Lifetime (years)</label><input class="input-field" id="solar-lifetime" type="number" value="25"/></div>
-<button class="btn-primary w-full mt-4" onclick="calculateSolar()">Calculate</button>
-</div>
-</div>
-<div class="space-y-4" id="solar-results">
-<div class="result-card"><div class="text-sm text-gray-400">Annual Energy Production</div><div class="text-2xl font-bold text-emerald-400" id="solar-annual-kwh">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Annual Savings</div><div class="text-2xl font-bold text-emerald-400" id="solar-annual-savings">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="solar-co2">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">NPV</div><div class="text-2xl font-bold text-emerald-400" id="solar-npv">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">IRR</div><div class="text-2xl font-bold text-emerald-400" id="solar-irr">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Payback Period</div><div class="text-2xl font-bold text-emerald-400" id="solar-payback">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">LCOE ($/kWh)</div><div class="text-2xl font-bold text-emerald-400" id="solar-lcoe">-</div></div>
-</div>
-</div>
-<div class="mt-8 glass rounded-xl p-6">
-<h3 class="font-display text-xl font-bold mb-4">20-Year Cash Flow Projection</h3>
-<canvas height="300" id="solar-chart"></canvas>
-</div>
-</div>
+  <!-- Hero -->
+  <section class="py-16 md:py-24 text-center" aria-labelledby="hero-title">
+    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6">
+      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/></svg>
+      Coming Soon — Roadmap Revealed
+    </div>
+    <h1 id="hero-title" class="text-4xl md:text-6xl font-bold mb-6">
+      <span class="gradient-text">Energy Economics Suite</span>
+    </h1>
+    <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+      Professional-grade financial modelling for sustainable energy projects. From NPV and IRR to LCOE and battery optimisation — plan, evaluate, and justify renewable investments with confidence.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <button onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+        View Roadmap
+      </button>
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="px-8 py-4 border border-[#2d3d35] text-white font-medium rounded-lg hover:bg-[#1a2520] transition">
+        Try Carbon Calculator
+      </a>
+    </div>
+  </section>
 
-<!-- Energy Efficiency Calculator -->
-<div class="calc-section hidden" id="calc-efficiency">
-<div class="grid lg:grid-cols-2 gap-8">
-<div class="glass rounded-xl p-6">
-<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">Energy Efficiency Calculator</h2>
-<div class="space-y-4">
-<div><label class="block text-sm text-gray-400 mb-1">Current Annual Energy Use (MWh)</label><input class="input-field" id="eff-current" type="number" value="500"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Expected Reduction (%)</label><input class="input-field" id="eff-reduction" type="number" value="20"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Investment Cost ($)</label><input class="input-field" id="eff-investment" type="number" value="50000"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Energy Price ($/MWh)</label><input class="input-field" id="eff-price" type="number" value="120"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Grid Emission Factor (kg CO2/kWh)</label><input class="input-field" id="eff-grid-factor" type="number" value="0.5" step="0.01"/></div>
-<button class="btn-primary w-full mt-4" onclick="calculateEfficiency()">Calculate</button>
-</div>
-</div>
-<div class="space-y-4" id="eff-results">
-<div class="result-card"><div class="text-sm text-gray-400">Annual Energy Savings (MWh)</div><div class="text-2xl font-bold text-emerald-400" id="eff-savings-mwh">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Annual Financial Savings</div><div class="text-2xl font-bold text-emerald-400" id="eff-savings-cost">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="eff-co2">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">ROI (%)</div><div class="text-2xl font-bold text-emerald-400" id="eff-roi">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="eff-payback">-</div></div>
-</div>
-</div>
-</div>
+  <!-- Tools Grid -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="tools-title">
+    <h2 id="tools-title" class="text-3xl font-bold text-center mb-4">Planned Tools</h2>
+    <p class="text-gray-400 text-center mb-12 max-w-2xl mx-auto">Six calculators designed for energy professionals, sustainability teams, and project developers.</p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-<!-- Heat Pump Calculator -->
-<div class="calc-section hidden" id="calc-heatpump">
-<div class="grid lg:grid-cols-2 gap-8">
-<div class="glass rounded-xl p-6">
-<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">Heat Pump Calculator</h2>
-<div class="space-y-4">
-<div><label class="block text-sm text-gray-400 mb-1">Building Area (m2)</label><input class="input-field" id="hp-area" type="number" value="1000"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Current Heating System</label><select class="input-field" id="hp-current"><option value="gas">Natural Gas</option><option value="oil">Heating Oil</option><option value="electric">Electric Resistance</option><option value="coal">Coal</option></select></div>
-<div><label class="block text-sm text-gray-400 mb-1">Heat Pump COP</label><input class="input-field" id="hp-cop" type="number" value="3.5" step="0.1"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Heat Pump Cost ($)</label><input class="input-field" id="hp-cost" type="number" value="25000"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Annual Heating Degree Days</label><input class="input-field" id="hp-hdd" type="number" value="2500"/></div>
-<button class="btn-primary w-full mt-4" onclick="calculateHeatPump()">Calculate</button>
-</div>
-</div>
-<div class="space-y-4" id="hp-results">
-<div class="result-card"><div class="text-sm text-gray-400">Annual Fuel Savings</div><div class="text-2xl font-bold text-emerald-400" id="hp-fuel-savings">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Annual Operating Cost</div><div class="text-2xl font-bold text-emerald-400" id="hp-operating-cost">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="hp-co2">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="hp-payback">-</div></div>
-</div>
-</div>
-</div>
+      <!-- NPV Calculator -->
+      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
+        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
+        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">NPV Calculator</h3>
+        <p class="text-gray-400 text-sm mb-4">Net Present Value analysis for renewable energy investments. Compare projects with different cash flow profiles and discount rates.</p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• Custom discount rates</li>
+          <li>• Sensitivity analysis</li>
+          <li>• Multi-project comparison</li>
+        </ul>
+      </div>
 
-<!-- LED Lighting Calculator -->
-<div class="calc-section hidden" id="calc-led">
-<div class="grid lg:grid-cols-2 gap-8">
-<div class="glass rounded-xl p-6">
-<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">LED Lighting Calculator</h2>
-<div class="space-y-4">
-<div><label class="block text-sm text-gray-400 mb-1">Number of Fixtures</label><input class="input-field" id="led-fixtures" type="number" value="100"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Current Wattage per Fixture (W)</label><input class="input-field" id="led-current-watt" type="number" value="60"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">LED Wattage per Fixture (W)</label><input class="input-field" id="led-new-watt" type="number" value="15"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Daily Operating Hours</label><input class="input-field" id="led-hours" type="number" value="10"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">LED Upgrade Cost ($)</label><input class="input-field" id="led-cost" type="number" value="3000"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Electricity Price ($/kWh)</label><input class="input-field" id="led-price" type="number" value="0.15" step="0.01"/></div>
-<button class="btn-primary w-full mt-4" onclick="calculateLED()">Calculate</button>
-</div>
-</div>
-<div class="space-y-4" id="led-results">
-<div class="result-card"><div class="text-sm text-gray-400">Annual Energy Savings (kWh)</div><div class="text-2xl font-bold text-emerald-400" id="led-savings-kwh">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Annual Financial Savings</div><div class="text-2xl font-bold text-emerald-400" id="led-savings-cost">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="led-co2">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">ROI (%)</div><div class="text-2xl font-bold text-emerald-400" id="led-roi">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="led-payback">-</div></div>
-</div>
-</div>
-</div>
+      <!-- IRR Calculator -->
+      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
+        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
+        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">IRR Calculator</h3>
+        <p class="text-gray-400 text-sm mb-4">Internal Rate of Return for energy projects. Find the break-even discount rate and compare against hurdle rates.</p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• Multiple IRR detection</li>
+          <li>• Modified IRR (MIRR)</li>
+          <li>• Reinvestment rate options</li>
+        </ul>
+      </div>
 
-<!-- EV Fleet Calculator -->
-<div class="calc-section hidden" id="calc-ev">
-<div class="grid lg:grid-cols-2 gap-8">
-<div class="glass rounded-xl p-6">
-<h2 class="font-display text-2xl font-bold mb-6 text-emerald-400">EV Fleet Transition Calculator</h2>
-<div class="space-y-4">
-<div><label class="block text-sm text-gray-400 mb-1">Fleet Size (vehicles)</label><input class="input-field" id="ev-fleet-size" type="number" value="20"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Annual km per Vehicle</label><input class="input-field" id="ev-annual-km" type="number" value="30000"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Current Fuel Efficiency (L/100km)</label><input class="input-field" id="ev-fuel-eff" type="number" value="8" step="0.1"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Fuel Price ($/L)</label><input class="input-field" id="ev-fuel-price" type="number" value="1.5" step="0.1"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">EV Efficiency (kWh/100km)</label><input class="input-field" id="ev-kwh-eff" type="number" value="20" step="0.1"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">Electricity Price ($/kWh)</label><input class="input-field" id="ev-elec-price" type="number" value="0.15" step="0.01"/></div>
-<div><label class="block text-sm text-gray-400 mb-1">EV Premium per Vehicle ($)</label><input class="input-field" id="ev-premium" type="number" value="15000"/></div>
-<button class="btn-primary w-full mt-4" onclick="calculateEV()">Calculate</button>
-</div>
-</div>
-<div class="space-y-4" id="ev-results">
-<div class="result-card"><div class="text-sm text-gray-400">Annual Fuel Savings</div><div class="text-2xl font-bold text-emerald-400" id="ev-fuel-savings">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Annual Charging Costs</div><div class="text-2xl font-bold text-emerald-400" id="ev-charging-cost">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Net Annual Savings</div><div class="text-2xl font-bold text-emerald-400" id="ev-net-savings">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">CO2 Reduction (tCO2/year)</div><div class="text-2xl font-bold text-emerald-400" id="ev-co2">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Fleet TCO (10 years)</div><div class="text-2xl font-bold text-emerald-400" id="ev-tco">-</div></div>
-<div class="result-card"><div class="text-sm text-gray-400">Payback Period (years)</div><div class="text-2xl font-bold text-emerald-400" id="ev-payback">-</div></div>
-</div>
-</div>
-</div>
+      <!-- LCOE Calculator -->
+      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
+        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
+        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">LCOE Calculator</h3>
+        <p class="text-gray-400 text-sm mb-4">Levelised Cost of Energy for solar, wind, gas, coal, and nuclear. Compare technologies on a cost-per-MWh basis.</p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• Technology presets</li>
+          <li>• Degradation modelling</li>
+          <li>• Regional cost adjustments</li>
+        </ul>
+      </div>
+
+      <!-- Renewable Sizing -->
+      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
+        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
+        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Renewable Sizing</h3>
+        <p class="text-gray-400 text-sm mb-4">Size solar and wind installations to match your energy demand profile and offset targets.</p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• Load profile matching</li>
+          <li>• Capacity factor by region</li>
+          <li>• Roof/land area constraints</li>
+        </ul>
+      </div>
+
+      <!-- Battery Optimisation -->
+      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
+        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
+        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Battery Optimisation</h3>
+        <p class="text-gray-400 text-sm mb-4">Optimise battery storage size and dispatch strategy for peak shaving, arbitrage, and backup power.</p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• Peak shaving analysis</li>
+          <li>• Arbitrage revenue modelling</li>
+          <li>• Degradation-aware sizing</li>
+        </ul>
+      </div>
+
+      <!-- Demand Forecasting -->
+      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
+        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
+        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Demand Forecasting</h3>
+        <p class="text-gray-400 text-sm mb-4">Forecast energy demand using historical data, weather patterns, and growth projections.</p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• Historical trend analysis</li>
+          <li>• Weather correlation</li>
+          <li>• Growth scenario modelling</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="roadmap" class="py-16 border-t border-[#2d3d35]" aria-labelledby="roadmap-title">
+    <h2 id="roadmap-title" class="text-3xl font-bold text-center mb-12">Development Roadmap</h2>
+    <div class="max-w-3xl mx-auto">
+      <div class="relative">
+        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 to-cyan-500"></div>
+
+        <div class="relative pl-12 pb-10">
+          <div class="absolute left-2 w-5 h-5 rounded-full bg-emerald-500 border-4 border-[#0a0f0d]"></div>
+          <div class="text-sm text-emerald-400 font-medium mb-1">Phase 1 — Q3 2026</div>
+          <h3 class="text-lg font-semibold mb-2">Foundation Tools</h3>
+          <p class="text-gray-400 text-sm">Launch NPV and IRR calculators with basic sensitivity analysis. Essential financial metrics for any energy project evaluation.</p>
+        </div>
+
+        <div class="relative pl-12 pb-10">
+          <div class="absolute left-2 w-5 h-5 rounded-full bg-[#1a2520] border-4 border-emerald-500/50"></div>
+          <div class="text-sm text-gray-500 font-medium mb-1">Phase 2 — Q4 2026</div>
+          <h3 class="text-lg font-semibold mb-2">LCOE & Technology Comparison</h3>
+          <p class="text-gray-400 text-sm">Add LCOE calculator with technology presets (solar PV, onshore wind, offshore wind, gas, coal, nuclear). Regional cost adjustments and degradation curves.</p>
+        </div>
+
+        <div class="relative pl-12 pb-10">
+          <div class="absolute left-2 w-5 h-5 rounded-full bg-[#1a2520] border-4 border-cyan-500/50"></div>
+          <div class="text-sm text-gray-500 font-medium mb-1">Phase 3 — Q1 2027</div>
+          <h3 class="text-lg font-semibold mb-2">Renewable Sizing & Battery</h3>
+          <p class="text-gray-400 text-sm">Launch renewable sizing tool with load profile matching and capacity factor database. Battery optimisation for peak shaving and arbitrage.</p>
+        </div>
+
+        <div class="relative pl-12">
+          <div class="absolute left-2 w-5 h-5 rounded-full bg-[#1a2520] border-4 border-gray-600"></div>
+          <div class="text-sm text-gray-500 font-medium mb-1">Phase 4 — Q2 2027</div>
+          <h3 class="text-lg font-semibold mb-2">Demand Forecasting & Integration</h3>
+          <p class="text-gray-400 text-sm">AI-powered demand forecasting with weather correlation. Full integration between all six tools for end-to-end project planning.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="usecases-title">
+    <h2 id="usecases-title" class="text-3xl font-bold text-center mb-12">Who Is This For?</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Sustainability Teams</h3>
+        <p class="text-gray-400 text-sm">Justify renewable energy investments to leadership with professional financial analysis.</p>
+      </div>
+      <div class="text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Project Developers</h3>
+        <p class="text-gray-400 text-sm">Evaluate project economics, compare technologies, and optimise system sizing before breaking ground.</p>
+      </div>
+      <div class="text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Energy Consultants</h3>
+        <p class="text-gray-400 text-sm">Produce client-ready financial models and sensitivity analyses in minutes, not days.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Waitlist -->
+  <section id="waitlist" class="py-16 border-t border-[#2d3d35]" aria-labelledby="waitlist-title">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 id="waitlist-title" class="text-3xl font-bold mb-4">Get Early Access</h2>
+      <p class="text-gray-400 mb-8">Join the waitlist to be notified when each tool launches. Be the first to test new features.</p>
+      <form class="flex flex-col sm:flex-row gap-4" onsubmit="handleWaitlist(event)">
+        <input type="email" required placeholder="Enter your email" class="flex-1 px-4 py-3 bg-[#1a2520] border border-[#2d3d35] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" aria-label="Email address"/>
+        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+          Join Waitlist
+        </button>
+      </form>
+      <p id="waitlist-message" class="mt-4 text-emerald-400 hidden">Thanks! We'll notify you as tools become available.</p>
+    </div>
+  </section>
+
+  <!-- Related -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="related-title">
+    <h2 id="related-title" class="text-2xl font-bold mb-8">Related Tools</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
+        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">Carbon Calculator</h3>
+        <p class="text-gray-400 text-sm">Scope 1, 2 & 3 emissions calculator with 80+ country grid data.</p>
+      </a>
+      <a href="/esg-reporting/esg-report-analyzer/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
+        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">ESG Report Analyzer</h3>
+        <p class="text-gray-400 text-sm">AI-powered gap analysis for sustainability disclosures.</p>
+      </a>
+      <a href="/tools/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
+        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">All Tools</h3>
+        <p class="text-gray-400 text-sm">Explore the complete Terrnix sustainability toolkit.</p>
+      </a>
+    </div>
+  </section>
 
 </main>
 
+<!-- Footer -->
+<footer class="border-t border-[#2d3d35] py-12" role="contentinfo">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="flex items-center space-x-2 mb-4">
+          <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="foot-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#foot-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/></svg>
+          <span class="font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
+        </div>
+        <p class="text-gray-400 text-sm">Sustainability intelligence for the modern enterprise.</p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Product</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="/carbon-accounting/carbon-footprint-calculator/" class="hover:text-white transition">Carbon Calculator</a></li>
+          <li><a href="/esg-reporting/esg-report-analyzer/" class="hover:text-white transition">ESG Analyzer</a></li>
+          <li><span class="text-gray-500">Academy — Coming Soon</span></li>
+          <li><span class="text-gray-500">Energy Suite — Coming Soon</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Resources</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="/sustainability-intelligence/" class="hover:text-white transition">Intelligence Hub</a></li>
+          <li><a href="/resources/guides/" class="hover:text-white transition">Guides</a></li>
+          <li><a href="/resources/glossary/" class="hover:text-white transition">Glossary</a></li>
+          <li><a href="/quiz/" class="hover:text-white transition">Sustainability Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Company</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="/about/" class="hover:text-white transition">About</a></li>
+          <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
+          <li><a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a></li>
+          <li><a href="/terms-of-use.html" class="hover:text-white transition">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[#2d3d35] pt-8 text-center text-sm text-gray-500">
+      <p> Terrnix. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
 <script>
-// Tab switching
-document.querySelectorAll('.calc-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.calc-tab').forEach(t => {
-            t.classList.remove('btn-primary');
-            t.classList.add('bg-[#1a2520]', 'border', 'border-[#2d3d35]', 'text-gray-300');
-        });
-        tab.classList.remove('bg-[#1a2520]', 'border', 'border-[#2d3d35]', 'text-gray-300');
-        tab.classList.add('btn-primary');
-        document.querySelectorAll('.calc-section').forEach(s => s.classList.add('hidden'));
-        document.getElementById('calc-' + tab.dataset.calc).classList.remove('hidden');
-    });
-});
-
-// Solar PV Calculator
-function calculateSolar() {
-    const size = parseFloat(document.getElementById('solar-size').value) || 0;
-    const costPerKw = parseFloat(document.getElementById('solar-cost').value) || 0;
-    const irradiance = parseFloat(document.getElementById('solar-irradiance').value) || 0;
-    const price = parseFloat(document.getElementById('solar-price').value) || 0;
-    const gridFactor = parseFloat(document.getElementById('solar-grid-factor').value) || 0;
-    const discount = parseFloat(document.getElementById('solar-discount').value) || 0;
-    const lifetime = parseFloat(document.getElementById('solar-lifetime').value) || 0;
-
-    const totalCost = size * costPerKw;
-    const annualKwh = size * irradiance * 0.8; // 80% performance ratio
-    const annualSavings = annualKwh * price;
-    const annualCo2 = annualKwh * gridFactor / 1000;
-
-    // NPV calculation
-    let npv = -totalCost;
-    for (let year = 1; year <= lifetime; year++) {
-        const degradation = Math.pow(0.995, year); // 0.5% annual degradation
-        const cashFlow = annualSavings * degradation;
-        npv += cashFlow / Math.pow(1 + discount / 100, year);
-    }
-
-    // IRR approximation
-    let irr = 0;
-    for (let r = 0; r <= 50; r += 0.1) {
-        let npvTest = -totalCost;
-        for (let year = 1; year <= lifetime; year++) {
-            const degradation = Math.pow(0.995, year);
-            npvTest += (annualSavings * degradation) / Math.pow(1 + r / 100, year);
-        }
-        if (npvTest <= 0) { irr = r; break; }
-    }
-
-    // Payback
-    let cumulative = 0;
-    let payback = lifetime;
-    for (let year = 1; year <= lifetime; year++) {
-        cumulative += annualSavings * Math.pow(0.995, year);
-        if (cumulative >= totalCost) { payback = year; break; }
-    }
-
-    // LCOE
-    let totalKwh = 0;
-    let totalCostLifetime = totalCost;
-    for (let year = 1; year <= lifetime; year++) {
-        totalKwh += annualKwh * Math.pow(0.995, year);
-        totalCostLifetime += size * 20; // $20/kW/year O&M
-    }
-    const lcoe = totalKwh > 0 ? totalCostLifetime / totalKwh : 0;
-
-    document.getElementById('solar-annual-kwh').textContent = annualKwh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kWh';
-    document.getElementById('solar-annual-savings').textContent = '$' + annualSavings.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('solar-co2').textContent = annualCo2.toFixed(1) + ' tCO2';
-    document.getElementById('solar-npv').textContent = '$' + npv.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('solar-irr').textContent = irr.toFixed(1) + '%';
-    document.getElementById('solar-payback').textContent = payback + ' years';
-    document.getElementById('solar-lcoe').textContent = '$' + lcoe.toFixed(3);
-
-    // Chart
-    const ctx = document.getElementById('solar-chart').getContext('2d');
-    const labels = Array.from({length: lifetime}, (_, i) => 'Year ' + (i + 1));
-    const cumulativeCash = labels.map((_, i) => {
-        let cum = -totalCost;
-        for (let y = 1; y <= i + 1; y++) {
-            cum += annualSavings * Math.pow(0.995, y);
-        }
-        return cum;
-    });
-
-    if (window.solarChart) window.solarChart.destroy();
-    window.solarChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Cumulative Cash Flow ($)',
-                data: cumulativeCash,
-                borderColor: '#4ade80',
-                backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: '#94a3b8' } } },
-            scales: {
-                y: { ticks: { color: '#94a3b8' }, grid: { color: '#1f2937' } },
-                x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
-            }
-        }
-    });
+function handleWaitlist(e) {
+  e.preventDefault();
+  const email = e.target.querySelector('input[type="email"]').value;
+  const waitlist = JSON.parse(localStorage.getItem('energyWaitlist') || '[]');
+  waitlist.push({ email, date: new Date().toISOString() });
+  localStorage.setItem('energyWaitlist', JSON.stringify(waitlist));
+  document.getElementById('waitlist-message').classList.remove('hidden');
+  e.target.reset();
 }
-
-// Energy Efficiency Calculator
-function calculateEfficiency() {
-    const current = parseFloat(document.getElementById('eff-current').value) || 0;
-    const reduction = parseFloat(document.getElementById('eff-reduction').value) || 0;
-    const investment = parseFloat(document.getElementById('eff-investment').value) || 0;
-    const price = parseFloat(document.getElementById('eff-price').value) || 0;
-    const gridFactor = parseFloat(document.getElementById('eff-grid-factor').value) || 0;
-
-    const savingsMwh = current * reduction / 100;
-    const savingsCost = savingsMwh * price;
-    const co2 = savingsMwh * 1000 * gridFactor / 1000;
-    const roi = investment > 0 ? (savingsCost / investment * 100) : 0;
-    const payback = savingsCost > 0 ? investment / savingsCost : 0;
-
-    document.getElementById('eff-savings-mwh').textContent = savingsMwh.toFixed(1) + ' MWh';
-    document.getElementById('eff-savings-cost').textContent = '$' + savingsCost.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('eff-co2').textContent = co2.toFixed(1) + ' tCO2';
-    document.getElementById('eff-roi').textContent = roi.toFixed(1) + '%';
-    document.getElementById('eff-payback').textContent = payback.toFixed(1) + ' years';
-}
-
-// Heat Pump Calculator
-function calculateHeatPump() {
-    const area = parseFloat(document.getElementById('hp-area').value) || 0;
-    const current = document.getElementById('hp-current').value;
-    const cop = parseFloat(document.getElementById('hp-cop').value) || 0;
-    const cost = parseFloat(document.getElementById('hp-cost').value) || 0;
-    const hdd = parseFloat(document.getElementById('hp-hdd').value) || 0;
-
-    const heatLoad = area * hdd * 0.024; // kWh/year
-    const currentEff = {gas: 0.9, oil: 0.85, electric: 1.0, coal: 0.7}[current] || 0.9;
-    const fuelPrices = {gas: 0.05, oil: 0.08, electric: 0.15, coal: 0.03};
-    const fuelEmissions = {gas: 0.2, oil: 0.27, electric: 0.5, coal: 0.35};
-
-    const currentConsumption = heatLoad / currentEff;
-    const currentCost = currentConsumption * (fuelPrices[current] || 0.05);
-    const hpConsumption = heatLoad / cop;
-    const hpCost = hpConsumption * 0.15; // electricity at $0.15/kWh
-    const fuelSavings = currentCost - hpCost;
-    const co2Reduction = currentConsumption * (fuelEmissions[current] || 0.2) / 1000 - hpConsumption * 0.5 / 1000;
-    const payback = fuelSavings > 0 ? cost / fuelSavings : 0;
-
-    document.getElementById('hp-fuel-savings').textContent = '$' + fuelSavings.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('hp-operating-cost').textContent = '$' + hpCost.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('hp-co2').textContent = co2Reduction.toFixed(1) + ' tCO2';
-    document.getElementById('hp-payback').textContent = payback.toFixed(1) + ' years';
-}
-
-// LED Lighting Calculator
-function calculateLED() {
-    const fixtures = parseFloat(document.getElementById('led-fixtures').value) || 0;
-    const currentWatt = parseFloat(document.getElementById('led-current-watt').value) || 0;
-    const newWatt = parseFloat(document.getElementById('led-new-watt').value) || 0;
-    const hours = parseFloat(document.getElementById('led-hours').value) || 0;
-    const cost = parseFloat(document.getElementById('led-cost').value) || 0;
-    const price = parseFloat(document.getElementById('led-price').value) || 0;
-
-    const currentKwh = fixtures * currentWatt * hours * 365 / 1000;
-    const newKwh = fixtures * newWatt * hours * 365 / 1000;
-    const savingsKwh = currentKwh - newKwh;
-    const savingsCost = savingsKwh * price;
-    const co2 = savingsKwh * 0.5 / 1000;
-    const roi = cost > 0 ? (savingsCost / cost * 100) : 0;
-    const payback = savingsCost > 0 ? cost / savingsCost : 0;
-
-    document.getElementById('led-savings-kwh').textContent = savingsKwh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' kWh';
-    document.getElementById('led-savings-cost').textContent = '$' + savingsCost.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('led-co2').textContent = co2.toFixed(1) + ' tCO2';
-    document.getElementById('led-roi').textContent = roi.toFixed(1) + '%';
-    document.getElementById('led-payback').textContent = payback.toFixed(1) + ' years';
-}
-
-// EV Fleet Calculator
-function calculateEV() {
-    const fleetSize = parseFloat(document.getElementById('ev-fleet-size').value) || 0;
-    const annualKm = parseFloat(document.getElementById('ev-annual-km').value) || 0;
-    const fuelEff = parseFloat(document.getElementById('ev-fuel-eff').value) || 0;
-    const fuelPrice = parseFloat(document.getElementById('ev-fuel-price').value) || 0;
-    const kwhEff = parseFloat(document.getElementById('ev-kwh-eff').value) || 0;
-    const elecPrice = parseFloat(document.getElementById('ev-elec-price').value) || 0;
-    const premium = parseFloat(document.getElementById('ev-premium').value) || 0;
-
-    const totalKm = fleetSize * annualKm;
-    const fuelConsumption = totalKm * fuelEff / 100;
-    const fuelCost = fuelConsumption * fuelPrice;
-    const elecConsumption = totalKm * kwhEff / 100;
-    const elecCost = elecConsumption * elecPrice;
-    const netSavings = fuelCost - elecCost;
-    const co2Reduction = fuelConsumption * 2.3 / 1000 - elecConsumption * 0.5 / 1000;
-    const totalPremium = fleetSize * premium;
-    const payback = netSavings > 0 ? totalPremium / netSavings : 0;
-
-    // TCO over 10 years
-    const evTco = totalPremium + elecCost * 10 + fleetSize * 5000; // maintenance
-    const iceTco = fuelCost * 10 + fleetSize * 8000; // maintenance + replacement
-
-    document.getElementById('ev-fuel-savings').textContent = '$' + fuelCost.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('ev-charging-cost').textContent = '$' + elecCost.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('ev-net-savings').textContent = '$' + netSavings.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('ev-co2').textContent = co2Reduction.toFixed(1) + ' tCO2';
-    document.getElementById('ev-tco').textContent = '$' + evTco.toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById('ev-payback').textContent = payback.toFixed(1) + ' years';
-}
-
-// Initialize
-window.addEventListener('load', () => calculateSolar());
 </script>
+
 </body>
 </html>
