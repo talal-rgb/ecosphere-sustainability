@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GHG Protocol Guide 2026 | Corporate Standard & Scope 1/2/3 | Terrnix</title>
+<meta name="description" content="Complete guide to the GHG Protocol Corporate Standard. Learn Scope 1, 2 & 3 accounting, calculation principles, reporting boundaries, and practical examples for audit-grade emissions reporting."/>
+<link rel="canonical" href="https://terrnix.com/carbon-accounting/ghg-protocol-guide/"/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://terrnix.com/carbon-accounting/ghg-protocol-guide/"/>
+<meta property="og:title" content="GHG Protocol Guide 2026 | Corporate Standard & Scope 1/2/3 | Terrnix"/>
+<meta property="og:description" content="Complete guide to the GHG Protocol Corporate Standard. Learn Scope 1, 2 & 3 accounting, calculation principles, reporting boundaries, and practical examples."/>
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
+<meta property="og:site_name" content="Terrnix"/>
+<meta property="og:locale" content="en_US"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:url" content="https://terrnix.com/carbon-accounting/ghg-protocol-guide/"/>
+<meta name="twitter:title" content="GHG Protocol Guide 2026 | Corporate Standard & Scope 1/2/3 | Terrnix"/>
+<meta name="twitter:description" content="Complete guide to the GHG Protocol Corporate Standard. Learn Scope 1, 2 & 3 accounting, calculation principles, reporting boundaries, and practical examples."/>
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "GHG Protocol Guide 2026: Corporate Standard & Scope 1/2/3",
+  "description": "Complete guide to the GHG Protocol Corporate Standard covering Scope 1, 2, and 3 emissions, calculation principles, reporting boundaries, and practical examples.",
+  "url": "https://terrnix.com/carbon-accounting/ghg-protocol-guide/",
+  "author": {"@type": "Organization", "name": "Terrnix", "url": "https://terrnix.com/"},
+  "publisher": {"@type": "Organization", "name": "Terrnix", "logo": {"@type": "ImageObject", "url": "https://terrnix.com/assets/logo.png"}},
+  "mainEntityOfPage": {"@type": "WebPage", "@id": "https://terrnix.com/carbon-accounting/ghg-protocol-guide/"}
+}
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.skip-link { position: absolute; top: -40px; left: 0; background: var(--accent); color: #000; padding: 8px 16px; z-index: 100; transition: top 0.3s; font-weight: 600; }
+.skip-link:focus { top: 0; }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Navigation -->
+<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]" aria-label="Main navigation">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
+      <div class="hidden lg:flex items-center space-x-8">
+        <a href="/carbon-accounting/" class="text-emerald-400 text-sm font-medium">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
+        <a href="/tools/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Tools</a>
+        <a href="/resources/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Resources</a>
+      </div>
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden md:inline-flex items-center px-4 py-2 bg-emerald-500 text-[#0a0f0d] rounded-lg text-sm font-semibold hover:bg-emerald-400 transition-colors">Calculate Your Carbon Footprint</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<nav aria-label="Breadcrumb" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <ol class="flex items-center space-x-2 text-sm text-gray-500">
+    <li><a href="/" class="hover:text-emerald-400 transition-colors">Home</a></li>
+    <li><span class="text-gray-600">/</span></li>
+    <li><a href="/carbon-accounting/" class="hover:text-emerald-400 transition-colors">Carbon Accounting</a></li>
+    <li><span class="text-gray-600">/</span></li>
+    <li class="text-emerald-400" aria-current="page">GHG Protocol Guide</li>
+  </ol>
+</nav>
+
+<main id="main-content">
+<!-- Hero -->
+<section class="py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto text-center">
+    <span class="inline-block px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full mb-4">Carbon Accounting Guide</span>
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">GHG Protocol Corporate Standard</h1>
+    <p class="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">The world's most widely used framework for greenhouse gas accounting. Learn how to measure, report, and manage Scope 1, 2, and 3 emissions with audit-grade accuracy.</p>
+  </div>
+</section>
+
+<!-- Executive Overview -->
+<section class="py-12 px-4 sm:px-6 lg:px-8 bg-[#111a16]">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-white mb-6">What Is the GHG Protocol?</h2>
+    <p class="text-gray-400 leading-relaxed mb-4">The Greenhouse Gas Protocol (GHG Protocol) is the world's most widely used standard for greenhouse gas accounting. Developed by the <strong class="text-emerald-400">World Resources Institute (WRI)</strong> and the <strong class="text-emerald-400">World Business Council for Sustainable Development (WBCSD)</strong>, it provides a comprehensive, global, standardised framework for measuring and managing emissions.</p>
+    <p class="text-gray-400 leading-relaxed mb-4">First published in 2001 and revised in 2015, the Corporate Standard is the foundation for virtually all corporate carbon reporting — including CDP, the Science Based Targets initiative (SBTi), and regulatory frameworks such as the EU Corporate Sustainability Reporting Directive (CSRD).</p>
+    <p class="text-gray-400 leading-relaxed">The Protocol divides emissions into three scopes. This classification ensures organisations account for both direct emissions they control and indirect emissions across their value chain.</p>
+  </div>
+</section>
+
+<!-- Scope 1/2/3 -->
+<section class="py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-white text-center mb-12">The Three Scopes</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+          <span class="text-emerald-400 text-xl font-bold">1</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Scope 1 — Direct Emissions</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">Emissions from sources that your organisation owns or controls directly.</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Stationary combustion (boilers, furnaces, generators)</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Mobile combustion (company vehicles, fleet)</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Process emissions (chemical reactions, manufacturing)</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Fugitive emissions (refrigerant leaks, methane venting)</span></li>
+        </ul>
+        <a href="/carbon-accounting/scope-1-emissions/" class="inline-flex items-center mt-6 text-emerald-400 text-sm font-medium hover:underline">Read the Scope 1 Guide →</a>
+      </div>
+
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+          <span class="text-emerald-400 text-xl font-bold">2</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Scope 2 — Indirect Energy</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">Emissions from the generation of purchased electricity, heat, steam, or cooling consumed by your organisation.</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Purchased electricity for operations and offices</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Purchased heat or steam for industrial processes</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>District heating and cooling systems</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Two reporting methods: location-based and market-based</span></li>
+        </ul>
+        <a href="/carbon-accounting/scope-2-emissions/" class="inline-flex items-center mt-6 text-emerald-400 text-sm font-medium hover:underline">Read the Scope 2 Guide →</a>
+      </div>
+
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+          <span class="text-emerald-400 text-xl font-bold">3</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Scope 3 — Value Chain</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">All other indirect emissions that occur in your value chain, both upstream and downstream.</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Purchased goods and services (Category 1)</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Business travel and employee commuting</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Transportation and distribution</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Use of sold products and end-of-life treatment</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Investments and leased assets</span></li>
+        </ul>
+        <a href="/carbon-accounting/scope-3-emissions/" class="inline-flex items-center mt-6 text-emerald-400 text-sm font-medium hover:underline">Read the Scope 3 Guide →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Calculation Principles -->
+<section class="py-16 px-4 sm:px-6 lg:px-8 bg-[#111a16]">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-white mb-8">Calculation Principles</h2>
+    <p class="text-gray-400 leading-relaxed mb-8">The GHG Protocol establishes five core principles that ensure emissions data is reliable, consistent, and useful for decision-making.</p>
+
+    <div class="space-y-6">
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-2">1. Relevance</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Ensure the GHG inventory appropriately reflects the emissions of the company and serves the decision-making needs of users — both internal and external.</p>
+      </div>
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-2">2. Completeness</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Account for and report on all GHG emission sources and activities within the chosen inventory boundary. Disclose and justify any specific exclusions.</p>
+      </div>
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-2">3. Consistency</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Use consistent methodologies and data to allow meaningful comparisons of emissions over time. Transparently document any changes to the data, inventory boundary, methods, or any other relevant factors.</p>
+      </div>
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-2">4. Transparency</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Address all relevant issues in a factual and coherent manner, based on a clear audit trail. Disclose any relevant assumptions and make appropriate references to the accounting and calculation methodologies and data sources used.</p>
+      </div>
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-2">5. Accuracy</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Ensure that the quantification of GHG emissions is systematically neither over nor under actual emissions, as far as can be judged, and that uncertainties are reduced as far as practicable. Achieve sufficient accuracy to enable users to make decisions with reasonable confidence as to the integrity of the reported information.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reporting Boundaries -->
+<section class="py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-white mb-8">Reporting Boundaries</h2>
+    <p class="text-gray-400 leading-relaxed mb-8">The GHG Protocol requires organisations to define two types of boundaries: organisational boundaries (what you own or control) and operational boundaries (which emissions you include).</p>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-3">Organisational Boundary</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">Determines which operations are included in your inventory based on your consolidation approach.</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span><strong class="text-white">Equity share</strong> — account for emissions according to your ownership percentage</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span><strong class="text-white">Financial control</strong> — account for emissions from operations you financially control</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span><strong class="text-white">Operational control</strong> — account for emissions from operations you control (most common)</span></li>
+        </ul>
+      </div>
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-3">Operational Boundary</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">Determines which emission sources are included, categorised by Scope 1, 2, and 3.</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Identify emission sources within the organisational boundary</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Classify each source as Scope 1, 2, or 3</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Decide which Scope 3 categories are relevant (minimum 15 categories)</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Set a significance threshold for exclusions</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6">
+      <h3 class="text-lg font-semibold text-white mb-3">Setting Your Base Year</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">A base year is the reference point against which you measure emission reductions. The GHG Protocol recommends:</p>
+      <ul class="space-y-2 text-sm text-gray-400 mt-4">
+        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Choose a single year with reliable data</span></li>
+        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Document the base year and justify the choice</span></li>
+        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Recalculate the base year when significant structural changes occur (mergers, acquisitions, divestitures)</span></li>
+        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">•</span><span>Maintain consistency in base year recalculation methodology</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Practical Examples -->
+<section class="py-16 px-4 sm:px-6 lg:px-8 bg-[#111a16]">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-white mb-8">Practical Examples</h2>
+
+    <div class="space-y-8">
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-3">Example 1: Manufacturing Company</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">A mid-sized manufacturer with three facilities, a fleet of 20 vehicles, and global suppliers.</p>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 1</p>
+            <p class="text-gray-400">Natural gas for heating, diesel for fleet, refrigerant leaks from cooling systems</p>
+          </div>
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 2</p>
+            <p class="text-gray-400">Purchased electricity for machinery, lighting, and IT — reported location-based and market-based</p>
+          </div>
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 3</p>
+            <p class="text-gray-400">Purchased raw materials, employee commuting, business travel, downstream distribution</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-3">Example 2: Professional Services Firm</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">A 500-person consulting firm with offices in London, Paris, and Dubai. No manufacturing, heavy travel profile.</p>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 1</p>
+            <p class="text-gray-400">Minimal — emergency generator fuel, small vehicle fleet</p>
+          </div>
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 2</p>
+            <p class="text-gray-400">Electricity for offices — typically 15-25% of total footprint</p>
+          </div>
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 3</p>
+            <p class="text-gray-400">Business travel (often 50%+), employee commuting, purchased services, cloud computing</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[#0a0f0d] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-emerald-400 mb-3">Example 3: Retail Chain</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-4">A national retailer with 50 stores, a distribution centre, and an e-commerce operation.</p>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 1</p>
+            <p class="text-gray-400">Refrigerants (HFCs) in store cooling, heating fuel for stores and warehouse</p>
+          </div>
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 2</p>
+            <p class="text-gray-400">Electricity for lighting, HVAC, refrigeration, and e-commerce data centres</p>
+          </div>
+          <div class="bg-[#111a16] rounded-lg p-4">
+            <p class="text-emerald-400 font-semibold mb-1">Scope 3</p>
+            <p class="text-gray-400">Purchased goods (largest category), upstream transportation, customer travel to stores, product end-of-life</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related Tools -->
+<section class="py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-white text-center mb-12">Related Tools & Resources</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="group block bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 hover:border-emerald-500/50 transition-all">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 class="text-white font-semibold mb-2 group-hover:text-emerald-400 transition-colors">Carbon Calculator</h3>
+        <p class="text-gray-500 text-sm">Calculate emissions across all scopes with 2024 IPCC/EPA factors.</p>
+      </a>
+      <a href="/carbon-accounting/scope-1-emissions/" class="group block bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 hover:border-emerald-500/50 transition-all">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <span class="text-emerald-400 font-bold">1</span>
+        </div>
+        <h3 class="text-white font-semibold mb-2 group-hover:text-emerald-400 transition-colors">Scope 1 Guide</h3>
+        <p class="text-gray-500 text-sm">Direct emissions from owned or controlled sources.</p>
+      </a>
+      <a href="/carbon-accounting/scope-2-emissions/" class="group block bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 hover:border-emerald-500/50 transition-all">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <span class="text-emerald-400 font-bold">2</span>
+        </div>
+        <h3 class="text-white font-semibold mb-2 group-hover:text-emerald-400 transition-colors">Scope 2 Guide</h3>
+        <p class="text-gray-500 text-sm">Indirect emissions from purchased energy.</p>
+      </a>
+      <a href="/carbon-accounting/scope-3-emissions/" class="group block bg-[#111a16] border border-[#2d3d35] rounded-2xl p-6 hover:border-emerald-500/50 transition-all">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+          <span class="text-emerald-400 font-bold">3</span>
+        </div>
+        <h3 class="text-white font-semibold mb-2 group-hover:text-emerald-400 transition-colors">Scope 3 Guide</h3>
+        <p class="text-gray-500 text-sm">Value chain emissions — often 70%+ of total footprint.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Assessment CTA -->
+<section class="py-16 px-4 sm:px-6 lg:px-8 bg-[#111a16]">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-3xl font-bold text-white mb-4">Ready to Apply the GHG Protocol?</h2>
+    <p class="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">Assess your carbon accounting readiness, identify gaps in your GHG Protocol implementation, and build a prioritised action plan.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="/carbon-accounting-readiness-assessment/" class="inline-flex items-center justify-center px-8 py-4 bg-emerald-500 text-[#0a0f0d] rounded-xl text-lg font-semibold hover:bg-emerald-400 transition-colors">Start Readiness Assessment</a>
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="inline-flex items-center justify-center px-8 py-4 border border-emerald-500/30 text-emerald-400 rounded-xl text-lg font-semibold hover:bg-emerald-500/10 transition-colors">Calculate Your Carbon Footprint</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-[#2d3d35] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <h3 class="text-lg font-bold text-emerald-400 mb-4" style="font-family: 'Space Grotesk'">Terrnix</h3>
+        <p class="text-gray-500 text-sm">Sustainability intelligence, carbon accounting, and ESG analytics for the decisive decade.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Platform</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/carbon-accounting/" class="hover:text-emerald-400 transition-colors">Carbon Accounting</a></li>
+          <li><a href="/esg-reporting/" class="hover:text-emerald-400 transition-colors">ESG Reporting</a></li>
+          <li><a href="/tools/" class="hover:text-emerald-400 transition-colors">Tools</a></li>
+          <li><a href="/resources/" class="hover:text-emerald-400 transition-colors">Resources</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Company</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/about/" class="hover:text-emerald-400 transition-colors">About</a></li>
+          <li><a href="/contact/" class="hover:text-emerald-400 transition-colors">Contact</a></li>
+          <li><a href="/sustainability-intelligence/" class="hover:text-emerald-400 transition-colors">Intelligence</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Legal</h4>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li><a href="/privacy/" class="hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
+          <li><a href="/terms/" class="hover:text-emerald-400 transition-colors">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[#2d3d35] pt-8 text-center text-gray-600 text-sm">
+      <p>© 2026 Terrnix. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
