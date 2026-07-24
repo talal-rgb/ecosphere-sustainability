@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix</title>
+<meta name="description" content="Upload your ESG or sustainability report for AI-powered analysis. Identify gaps against CSRD, ISSB, TCFD, and GRI frameworks. Get actionable recommendations."/>
+<link rel="canonical" href="https://terrnix.com/esg-reporting/esg-report-analyzer/"/>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
+<meta property="og:type" content="product"/>
+<meta property="og:url" content="https://terrnix.com/esg-reporting/esg-report-analyzer/"/>
+<meta property="og:title" content="ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix"/>
+<meta property="og:description" content="Upload your ESG report for AI-powered gap analysis against CSRD, ISSB, TCFD, and GRI frameworks."/>
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
+<meta property="og:site_name" content="Terrnix"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:url" content="https://terrnix.com/esg-reporting/esg-report-analyzer/"/>
+<meta name="twitter:title" content="ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix"/>
+<meta name="twitter:description" content="Upload your ESG report for AI-powered gap analysis against CSRD, ISSB, TCFD, and GRI frameworks."/>
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Terrnix ESG Report Analyzer",
+  "description": "AI-powered ESG and sustainability report analysis tool. Identifies disclosure gaps against CSRD, ISSB, TCFD, and GRI frameworks.",
+  "url": "https://terrnix.com/esg-reporting/esg-report-analyzer/",
+  "brand": {"@type": "Brand", "name": "Terrnix"},
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent-2: #22d3ee; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+.skip-link { position: absolute; top: -40px; left: 0; background: var(--accent); color: #000; padding: 8px 16px; z-index: 100; transition: top 0.3s; font-weight: 600; }
+.skip-link:focus { top: 0; }
+.gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.workflow-step { position: relative; }
+.workflow-step::after { content: ''; position: absolute; top: 50%; right: -20px; width: 40px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+.workflow-step:last-child::after { display: none; }
+@media (max-width: 768px) { .workflow-step::after { display: none; } }
+</style>
+</head>
+<body class="min-h-screen">
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- Navigation -->
+<nav class="border-b border-[#2d3d35] bg-[#0a0f0d]/95 backdrop-blur-sm sticky top-0 z-50" role="navigation" aria-label="Main navigation">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="flex items-center space-x-2" aria-label="Terrnix home">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="nav-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#nav-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/><path d="M16 10 L16 22" stroke="#0a0f0d" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="text-xl font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
+      </a>
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="/carbon-accounting/" class="text-gray-300 hover:text-white transition">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="text-gray-300 hover:text-white transition">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="text-gray-300 hover:text-white transition">Intelligence</a>
+        <a href="/tools/" class="text-gray-300 hover:text-white transition">Tools</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Breadcrumb">
+  <ol class="flex items-center space-x-2 text-sm text-gray-400">
+    <li><a href="/" class="hover:text-white transition">Home</a></li>
+    <li aria-hidden="true">/</li>
+    <li><a href="/esg-reporting/" class="hover:text-white transition">ESG Reporting</a></li>
+    <li aria-hidden="true">/</li>
+    <li class="text-white" aria-current="page">ESG Report Analyzer</li>
+  </ol>
+</nav>
+
+<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+
+  <!-- Hero -->
+  <section class="py-16 md:py-24 text-center" aria-labelledby="hero-title">
+    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
+      Coming Soon — Join the Waitlist
+    </div>
+    <h1 id="hero-title" class="text-4xl md:text-6xl font-bold mb-6">
+      <span class="gradient-text">ESG Report Analyzer</span>
+    </h1>
+    <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+      Upload your sustainability or ESG report and receive an AI-powered gap analysis against CSRD, ISSB, TCFD, and GRI frameworks. Identify missing disclosures, benchmark against peers, and get actionable recommendations.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <button onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+        Join the Waitlist
+      </button>
+      <a href="/esg-reporting/csrd-omnibus-guide/" class="px-8 py-4 border border-[#2d3d35] text-white font-medium rounded-lg hover:bg-[#1a2520] transition">
+        Read CSRD Guide
+      </a>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="workflow-title">
+    <h2 id="workflow-title" class="text-3xl font-bold text-center mb-12">How It Works</h2>
+    <div class="grid md:grid-cols-4 gap-8">
+      <div class="workflow-step text-center p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">1. Upload</h3>
+        <p class="text-gray-400 text-sm">Upload your PDF, Word, or HTML sustainability report.</p>
+      </div>
+      <div class="workflow-step text-center p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">2. Select Framework</h3>
+        <p class="text-gray-400 text-sm">Choose CSRD, ISSB, TCFD, GRI, or a custom framework.</p>
+      </div>
+      <div class="workflow-step text-center p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">3. AI Analysis</h3>
+        <p class="text-gray-400 text-sm">Our AI engine scans for gaps, inconsistencies, and missing disclosures.</p>
+      </div>
+      <div class="workflow-step text-center p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">4. Get Report</h3>
+        <p class="text-gray-400 text-sm">Download a detailed gap analysis with actionable recommendations.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Frameworks Supported -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="frameworks-title">
+    <h2 id="frameworks-title" class="text-3xl font-bold text-center mb-12">Frameworks Supported</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition">
+        <div class="text-2xl font-bold text-emerald-400 mb-2">CSRD</div>
+        <p class="text-gray-400 text-sm">Corporate Sustainability Reporting Directive — EU mandatory disclosure requirements.</p>
+      </div>
+      <div class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition">
+        <div class="text-2xl font-bold text-cyan-400 mb-2">ISSB</div>
+        <p class="text-gray-400 text-sm">IFRS S1 & S2 — global baseline for sustainability-related financial disclosures.</p>
+      </div>
+      <div class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition">
+        <div class="text-2xl font-bold text-emerald-400 mb-2">TCFD</div>
+        <p class="text-gray-400 text-sm">Task Force on Climate-related Financial Disclosures — governance, strategy, risk, metrics.</p>
+      </div>
+      <div class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition">
+        <div class="text-2xl font-bold text-cyan-400 mb-2">GRI</div>
+        <p class="text-gray-400 text-sm">Global Reporting Initiative — comprehensive sustainability impact reporting standards.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="features-title">
+    <h2 id="features-title" class="text-3xl font-bold text-center mb-12">Key Features</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Gap Detection</h3>
+          <p class="text-gray-400 text-sm">Automatically identifies missing disclosures and incomplete sections.</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Benchmarking</h3>
+          <p class="text-gray-400 text-sm">Compare your disclosures against industry peers and best practices.</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Actionable Insights</h3>
+          <p class="text-gray-400 text-sm">Get specific recommendations to improve your ESG reporting quality.</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Secure & Private</h3>
+          <p class="text-gray-400 text-sm">Your reports are processed securely and never shared with third parties.</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">PDF Export</h3>
+          <p class="text-gray-400 text-sm">Download your analysis as a branded PDF report for stakeholders.</p>
+        </div>
+      </div>
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Track Progress</h3>
+          <p class="text-gray-400 text-sm">Re-upload revised reports to track improvement over time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Waitlist -->
+  <section id="waitlist" class="py-16 border-t border-[#2d3d35]" aria-labelledby="waitlist-title">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 id="waitlist-title" class="text-3xl font-bold mb-4">Join the Waitlist</h2>
+      <p class="text-gray-400 mb-8">Be the first to access the ESG Report Analyzer when it launches. No spam, unsubscribe anytime.</p>
+      <form class="flex flex-col sm:flex-row gap-4" onsubmit="handleWaitlist(event)">
+        <input type="email" required placeholder="Enter your email" class="flex-1 px-4 py-3 bg-[#1a2520] border border-[#2d3d35] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" aria-label="Email address"/>
+        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+          Notify Me
+        </button>
+      </form>
+      <p id="waitlist-message" class="mt-4 text-emerald-400 hidden">Thanks! We'll notify you when the ESG Report Analyzer is ready.</p>
+    </div>
+  </section>
+
+  <!-- Related -->
+  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="related-title">
+    <h2 id="related-title" class="text-2xl font-bold mb-8">Related Resources</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="/esg-reporting/csrd-omnibus-guide/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
+        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">CSRD Omnibus Guide</h3>
+        <p class="text-gray-400 text-sm">Complete guide to the Corporate Sustainability Reporting Directive.</p>
+      </a>
+      <a href="/carbon-accounting/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
+        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">Carbon Accounting Hub</h3>
+        <p class="text-gray-400 text-sm">Scope 1, 2 & 3 guides, calculators, and emission factors.</p>
+      </a>
+      <a href="/tools/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
+        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">All Tools</h3>
+        <p class="text-gray-400 text-sm">Explore all Terrnix sustainability tools and calculators.</p>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-[#2d3d35] py-12" role="contentinfo">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="flex items-center space-x-2 mb-4">
+          <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="foot-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#foot-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/></svg>
+          <span class="font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
+        </div>
+        <p class="text-gray-400 text-sm">Sustainability intelligence for the modern enterprise.</p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Product</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="/carbon-accounting/carbon-footprint-calculator/" class="hover:text-white transition">Carbon Calculator</a></li>
+          <li><a href="/esg-reporting/esg-report-analyzer/" class="hover:text-white transition">ESG Analyzer</a></li>
+          <li><span class="text-gray-500">Academy — Coming Soon</span></li>
+          <li><span class="text-gray-500">Energy Suite — Coming Soon</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Resources</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="/sustainability-intelligence/" class="hover:text-white transition">Intelligence Hub</a></li>
+          <li><a href="/resources/guides/" class="hover:text-white transition">Guides</a></li>
+          <li><a href="/resources/glossary/" class="hover:text-white transition">Glossary</a></li>
+          <li><a href="/quiz/" class="hover:text-white transition">Sustainability Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Company</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="/about/" class="hover:text-white transition">About</a></li>
+          <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
+          <li><a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a></li>
+          <li><a href="/terms-of-use.html" class="hover:text-white transition">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[#2d3d35] pt-8 text-center text-sm text-gray-500">
+      <p> Terrnix. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+function handleWaitlist(e) {
+  e.preventDefault();
+  const email = e.target.querySelector('input[type="email"]').value;
+  // Store in localStorage for now — backend integration later
+  const waitlist = JSON.parse(localStorage.getItem('esgWaitlist') || '[]');
+  waitlist.push({ email, date: new Date().toISOString() });
+  localStorage.setItem('esgWaitlist', JSON.stringify(waitlist));
+  document.getElementById('waitlist-message').classList.remove('hidden');
+  e.target.reset();
+}
+</script>
+
+</body>
+</html>
