@@ -16,15 +16,33 @@
   },
   "ui": {
     "intro": {
-      "headline": "Carbon Accounting Readiness Assessment",
-      "subheadline": "Discover how your organisation measures up against best practice in greenhouse gas emissions management. Get actionable insights in under 10 minutes.",
+      "headline": "Assess Your Organisation's Carbon Accounting Readiness",
+      "subheadline": "Most organisations know they need better carbon data but are unsure where to focus first. This assessment identifies your biggest readiness gaps and prioritises the actions that will have the greatest impact — in under 15 minutes.",
       "benefits": [
-        "Receive a detailed maturity score across 5 critical dimensions",
-        "Identify your highest-priority improvement areas",
-        "Get a personalised 30-day and 90-day action roadmap",
-        "Compare your approach against established frameworks (GHG Protocol, ESRS, SBTi)"
+        "Pinpoint your highest-priority carbon accounting gaps across 5 dimensions",
+        "Receive a maturity score with category-by-category breakdown",
+        "Get prioritised recommendations for your next 90 days",
+        "Download a professional PDF report to share with stakeholders",
+        "Earn a verifiable achievement certificate with unique ID"
       ],
-      "ctaText": "Start Assessment"
+      "ctaText": "Get Your Readiness Report",
+      "trustIndicators": [
+        "Covers governance, Scope 1–3, data quality and reporting readiness",
+        "Approximately 10–15 minutes",
+        "Instant executive report with PDF download",
+        "No email required to view your results"
+      ],
+      "preview": {
+        "enabled": true,
+        "deliverables": [
+          {"icon": "📊", "label": "Overall Readiness Score", "description": "0-100 maturity rating with level designation", "size": "large"},
+          {"icon": "📈", "label": "Category Breakdown", "description": "Per-dimension scoring across all five areas", "size": "medium"},
+          {"icon": "🔍", "label": "Priority Gaps", "description": "Identified weaknesses with risk context", "size": "medium"},
+          {"icon": "✅", "label": "Recommended Next Steps", "description": "Prioritised improvement actions", "size": "medium"},
+          {"icon": "📄", "label": "Executive PDF Report", "description": "Professional report for stakeholders", "size": "small"},
+          {"icon": "🏆", "label": "Completion Certificate", "description": "Verifiable achievement with unique ID", "size": "small"}
+        ]
+      }
     }
   },
   "categories": [
