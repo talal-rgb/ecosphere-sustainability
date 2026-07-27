@@ -3,40 +3,32 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Energy Economics Suite | NPV, IRR, LCOE & Renewable Sizing | Terrnix</title>
-<meta name="description" content="Professional energy economics toolkit: NPV, IRR, LCOE, renewable sizing, battery optimisation, and demand forecasting. Plan and evaluate sustainable energy projects with confidence."/>
+<title>Energy Economics Suite | NPV, IRR &amp; LCOE Calculators | Terrnix</title>
+<meta name="description" content="Free professional energy economics calculators: NPV, IRR, and LCOE for solar, wind, and fossil fuel projects. Compare technologies and evaluate renewable investments."/>
 <link rel="canonical" href="https://terrnix.com/tools/energy-suite/"/>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
-<meta property="og:type" content="product"/>
+<meta property="og:type" content="website"/>
 <meta property="og:url" content="https://terrnix.com/tools/energy-suite/"/>
-<meta property="og:title" content="Energy Economics Suite | NPV, IRR, LCOE & Renewable Sizing | Terrnix"/>
-<meta property="og:description" content="Professional energy economics toolkit for sustainable project planning. NPV, IRR, LCOE, renewable sizing, battery optimisation, and demand forecasting."/>
+<meta property="og:title" content="Energy Economics Suite | NPV, IRR &amp; LCOE Calculators | Terrnix"/>
+<meta property="og:description" content="Free professional energy economics calculators for sustainable project planning."/>
 <meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
 <meta property="og:site_name" content="Terrnix"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:url" content="https://terrnix.com/tools/energy-suite/"/>
-<meta name="twitter:title" content="Energy Economics Suite | NPV, IRR, LCOE & Renewable Sizing | Terrnix"/>
-<meta name="twitter:description" content="Professional energy economics toolkit for sustainable project planning."/>
-<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Product",
+  "@type": "WebApplication",
   "name": "Terrnix Energy Economics Suite",
-  "description": "Professional energy economics toolkit including NPV, IRR, LCOE, renewable sizing, battery optimisation, and demand forecasting calculators.",
+  "description": "Free NPV, IRR, and LCOE calculators for energy project evaluation.",
   "url": "https://terrnix.com/tools/energy-suite/",
-  "brand": {"@type": "Brand", "name": "Terrnix"},
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock"
-  }
+  "applicationCategory": "FinanceApplication",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
 }
 </script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 <style>
 :root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent-2: #22d3ee; }
 body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
@@ -46,14 +38,16 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .tool-card { transition: all 0.3s; }
 .tool-card:hover { transform: translateY(-4px); border-color: rgba(74, 222, 128, 0.3); }
-.coming-soon-badge { background: linear-gradient(135deg, rgba(74,222,128,0.1), rgba(34,211,238,0.1)); border: 1px solid rgba(74,222,128,0.2); }
+input[type="range"] { accent-color: #4ade80; }
+.tab-btn { transition: all 0.2s; }
+.tab-btn.active { background: linear-gradient(135deg, #4ade80, #22d3ee); color: #000; }
 </style>
 </head>
 <body class="min-h-screen">
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- Navigation -->
-<nav class="border-b border-[#2d3d35] bg-[#0a0f0d]/95 backdrop-blur-sm sticky top-0 z-50" role="navigation" aria-label="Main navigation">
+<nav class="border-b border-[#2d3d35] bg-[#0a0f0d]/95 backdrop-blur-sm sticky top-0 z-50" aria-label="Main navigation">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <a href="/" class="flex items-center space-x-2" aria-label="Terrnix home">
@@ -81,287 +75,392 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
   </ol>
 </nav>
 
-<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+<main id="main">
 
-  <!-- Hero -->
-  <section class="py-16 md:py-24 text-center" aria-labelledby="hero-title">
-    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6">
-      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/></svg>
-      Coming Soon — Roadmap Revealed
-    </div>
-    <h1 id="hero-title" class="text-4xl md:text-6xl font-bold mb-6">
-      <span class="gradient-text">Energy Economics Suite</span>
-    </h1>
-    <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
-      Professional-grade financial modelling for sustainable energy projects. From NPV and IRR to LCOE and battery optimisation — plan, evaluate, and justify renewable investments with confidence.
-    </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <button onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
-        View Roadmap
+<!-- Hero -->
+<section class="py-12 md:py-20 text-center px-4" aria-labelledby="hero-title">
+  <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6">
+    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/></svg>
+    Available Now
+  </div>
+  <h1 id="hero-title" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+    <span class="gradient-text">Energy Economics Suite</span>
+  </h1>
+  <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-8 px-4">
+    Professional-grade financial calculators for sustainable energy projects. Evaluate NPV, IRR, and LCOE to compare technologies and justify renewable investments.
+  </p>
+  <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <button type="button" onclick="document.getElementById('calculators').scrollIntoView({behavior:'smooth'})" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+      Start Calculating
+    </button>
+    <a href="/carbon-accounting/carbon-footprint-calculator/" class="px-8 py-4 border border-[#2d3d35] text-white font-medium rounded-lg hover:bg-[#1a2520] transition text-center">
+      Try Carbon Calculator
+    </a>
+  </div>
+</section>
+
+<!-- Tool Tabs -->
+<section id="calculators" class="py-8 px-4" aria-labelledby="calc-title">
+  <div class="max-w-5xl mx-auto">
+    <h2 id="calc-title" class="text-2xl md:text-3xl font-bold text-center mb-8">Select a Calculator</h2>
+    <div class="flex flex-wrap justify-center gap-3 mb-10">
+      <button type="button" class="tab-btn active px-6 py-3 rounded-lg font-semibold border border-[#2d3d35] bg-[#111a16] text-white" data-tab="npv" onclick="switchTab('npv')" aria-pressed="true">
+        <span class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          NPV &amp; IRR
+        </span>
       </button>
-      <a href="/carbon-accounting/carbon-footprint-calculator/" class="px-8 py-4 border border-[#2d3d35] text-white font-medium rounded-lg hover:bg-[#1a2520] transition">
-        Try Carbon Calculator
-      </a>
+      <button type="button" class="tab-btn px-6 py-3 rounded-lg font-semibold border border-[#2d3d35] bg-[#111a16] text-white" data-tab="lcoe" onclick="switchTab('lcoe')" aria-pressed="false">
+        <span class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          LCOE
+        </span>
+      </button>
     </div>
-  </section>
 
-  <!-- Tools Grid -->
-  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="tools-title">
-    <h2 id="tools-title" class="text-3xl font-bold text-center mb-4">Planned Tools</h2>
-    <p class="text-gray-400 text-center mb-12 max-w-2xl mx-auto">Six calculators designed for energy professionals, sustainability teams, and project developers.</p>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-      <!-- NPV Calculator -->
-      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
-        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
-        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <!-- NPV Calculator -->
+    <div id="tab-npv" class="tab-panel">
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+          <h3 class="text-xl font-semibold mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            NPV &amp; IRR Calculator
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="npv-investment">Initial Investment ($M)</label>
+              <input type="number" id="npv-investment" value="100" min="0" step="1" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 100"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="npv-cashflow">Annual Cash Flow ($M)</label>
+              <input type="number" id="npv-cashflow" value="15" min="0" step="1" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 15"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="npv-wacc">Discount Rate (WACC %)</label>
+              <input type="number" id="npv-wacc" value="8" min="0" max="100" step="0.5" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 8"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="npv-years">Project Lifetime (years)</label>
+              <input type="number" id="npv-years" value="20" min="1" max="50" step="1" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 20"/>
+            </div>
+            <button type="button" onclick="calculateNPV()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+              Calculate NPV &amp; IRR
+            </button>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold mb-2">NPV Calculator</h3>
-        <p class="text-gray-400 text-sm mb-4">Net Present Value analysis for renewable energy investments. Compare projects with different cash flow profiles and discount rates.</p>
-        <ul class="text-xs text-gray-500 space-y-1">
-          <li>• Custom discount rates</li>
-          <li>• Sensitivity analysis</li>
-          <li>• Multi-project comparison</li>
-        </ul>
-      </div>
-
-      <!-- IRR Calculator -->
-      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
-        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
-        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <div class="space-y-6">
+          <div id="npv-result" class="hidden bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+            <h4 class="text-lg font-semibold mb-4">Results</h4>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-center p-4 bg-[#0a0f0d] rounded-lg">
+                <p class="text-xs text-gray-400 mb-1">NPV</p>
+                <p id="res-npv" class="text-2xl font-bold">$0M</p>
+              </div>
+              <div class="text-center p-4 bg-[#0a0f0d] rounded-lg">
+                <p class="text-xs text-gray-400 mb-1">IRR</p>
+                <p id="res-irr" class="text-2xl font-bold text-emerald-400">0%</p>
+              </div>
+              <div class="text-center p-4 bg-[#0a0f0d] rounded-lg">
+                <p class="text-xs text-gray-400 mb-1">Payback</p>
+                <p id="res-payback" class="text-2xl font-bold text-cyan-400">0 yrs</p>
+              </div>
+            </div>
+            <p id="npv-verdict" class="mt-4 text-sm text-gray-400"></p>
+          </div>
+          <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+            <h4 class="text-lg font-semibold mb-4">Cumulative Cash Flow</h4>
+            <div class="h-64">
+              <canvas id="npvChart"></canvas>
+            </div>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold mb-2">IRR Calculator</h3>
-        <p class="text-gray-400 text-sm mb-4">Internal Rate of Return for energy projects. Find the break-even discount rate and compare against hurdle rates.</p>
-        <ul class="text-xs text-gray-500 space-y-1">
-          <li>• Multiple IRR detection</li>
-          <li>• Modified IRR (MIRR)</li>
-          <li>• Reinvestment rate options</li>
-        </ul>
-      </div>
-
-      <!-- LCOE Calculator -->
-      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
-        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
-        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        </div>
-        <h3 class="text-lg font-semibold mb-2">LCOE Calculator</h3>
-        <p class="text-gray-400 text-sm mb-4">Levelised Cost of Energy for solar, wind, gas, coal, and nuclear. Compare technologies on a cost-per-MWh basis.</p>
-        <ul class="text-xs text-gray-500 space-y-1">
-          <li>• Technology presets</li>
-          <li>• Degradation modelling</li>
-          <li>• Regional cost adjustments</li>
-        </ul>
-      </div>
-
-      <!-- Renewable Sizing -->
-      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
-        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
-        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </div>
-        <h3 class="text-lg font-semibold mb-2">Renewable Sizing</h3>
-        <p class="text-gray-400 text-sm mb-4">Size solar and wind installations to match your energy demand profile and offset targets.</p>
-        <ul class="text-xs text-gray-500 space-y-1">
-          <li>• Load profile matching</li>
-          <li>• Capacity factor by region</li>
-          <li>• Roof/land area constraints</li>
-        </ul>
-      </div>
-
-      <!-- Battery Optimisation -->
-      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
-        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
-        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <h3 class="text-lg font-semibold mb-2">Battery Optimisation</h3>
-        <p class="text-gray-400 text-sm mb-4">Optimise battery storage size and dispatch strategy for peak shaving, arbitrage, and backup power.</p>
-        <ul class="text-xs text-gray-500 space-y-1">
-          <li>• Peak shaving analysis</li>
-          <li>• Arbitrage revenue modelling</li>
-          <li>• Degradation-aware sizing</li>
-        </ul>
-      </div>
-
-      <!-- Demand Forecasting -->
-      <div class="tool-card p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] relative overflow-hidden">
-        <div class="coming-soon-badge absolute top-4 right-4 px-2 py-1 rounded text-xs font-medium text-emerald-400">Coming Soon</div>
-        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
-        </div>
-        <h3 class="text-lg font-semibold mb-2">Demand Forecasting</h3>
-        <p class="text-gray-400 text-sm mb-4">Forecast energy demand using historical data, weather patterns, and growth projections.</p>
-        <ul class="text-xs text-gray-500 space-y-1">
-          <li>• Historical trend analysis</li>
-          <li>• Weather correlation</li>
-          <li>• Growth scenario modelling</li>
-        </ul>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Roadmap -->
-  <section id="roadmap" class="py-16 border-t border-[#2d3d35]" aria-labelledby="roadmap-title">
-    <h2 id="roadmap-title" class="text-3xl font-bold text-center mb-12">Development Roadmap</h2>
-    <div class="max-w-3xl mx-auto">
-      <div class="relative">
-        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 to-cyan-500"></div>
-
-        <div class="relative pl-12 pb-10">
-          <div class="absolute left-2 w-5 h-5 rounded-full bg-emerald-500 border-4 border-[#0a0f0d]"></div>
-          <div class="text-sm text-emerald-400 font-medium mb-1">Phase 1 — Q3 2026</div>
-          <h3 class="text-lg font-semibold mb-2">Foundation Tools</h3>
-          <p class="text-gray-400 text-sm">Launch NPV and IRR calculators with basic sensitivity analysis. Essential financial metrics for any energy project evaluation.</p>
-        </div>
-
-        <div class="relative pl-12 pb-10">
-          <div class="absolute left-2 w-5 h-5 rounded-full bg-[#1a2520] border-4 border-emerald-500/50"></div>
-          <div class="text-sm text-gray-500 font-medium mb-1">Phase 2 — Q4 2026</div>
-          <h3 class="text-lg font-semibold mb-2">LCOE & Technology Comparison</h3>
-          <p class="text-gray-400 text-sm">Add LCOE calculator with technology presets (solar PV, onshore wind, offshore wind, gas, coal, nuclear). Regional cost adjustments and degradation curves.</p>
-        </div>
-
-        <div class="relative pl-12 pb-10">
-          <div class="absolute left-2 w-5 h-5 rounded-full bg-[#1a2520] border-4 border-cyan-500/50"></div>
-          <div class="text-sm text-gray-500 font-medium mb-1">Phase 3 — Q1 2027</div>
-          <h3 class="text-lg font-semibold mb-2">Renewable Sizing & Battery</h3>
-          <p class="text-gray-400 text-sm">Launch renewable sizing tool with load profile matching and capacity factor database. Battery optimisation for peak shaving and arbitrage.</p>
-        </div>
-
-        <div class="relative pl-12">
-          <div class="absolute left-2 w-5 h-5 rounded-full bg-[#1a2520] border-4 border-gray-600"></div>
-          <div class="text-sm text-gray-500 font-medium mb-1">Phase 4 — Q2 2027</div>
-          <h3 class="text-lg font-semibold mb-2">Demand Forecasting & Integration</h3>
-          <p class="text-gray-400 text-sm">AI-powered demand forecasting with weather correlation. Full integration between all six tools for end-to-end project planning.</p>
-        </div>
-
       </div>
     </div>
-  </section>
 
-  <!-- Use Cases -->
-  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="usecases-title">
-    <h2 id="usecases-title" class="text-3xl font-bold text-center mb-12">Who Is This For?</h2>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="text-center p-6">
-        <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+    <!-- LCOE Calculator -->
+    <div id="tab-lcoe" class="tab-panel hidden">
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+          <h3 class="text-xl font-semibold mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            LCOE Calculator
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="lcoe-capex">CAPEX ($/kW installed)</label>
+              <input type="number" id="lcoe-capex" value="1200" min="0" step="50" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 1200"/>
+              <p class="text-xs text-gray-500 mt-1">Solar PV: $800-1500 | Onshore Wind: $1200-1800 | Gas: $600-1000</p>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="lcoe-opex">OPEX ($/kW/year)</label>
+              <input type="number" id="lcoe-opex" value="25" min="0" step="5" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 25"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="lcoe-cf">Capacity Factor: <span id="cf-display">35</span>%</label>
+              <input type="range" id="lcoe-cf" value="35" min="5" max="90" step="1" class="w-full h-2 bg-[#2d3d35] rounded-lg appearance-none cursor-pointer" oninput="document.getElementById('cf-display').textContent=this.value" aria-label="Capacity factor percentage"/>
+              <p class="text-xs text-gray-500 mt-1">Solar: 15-30% | Wind: 25-50% | Gas: 40-80% | Nuclear: 80-95%</p>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="lcoe-lifetime">Project Lifetime (years)</label>
+              <input type="number" id="lcoe-lifetime" value="25" min="1" max="60" step="1" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 25"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="lcoe-discount">Discount Rate: <span id="discount-display">6</span>%</label>
+              <input type="range" id="lcoe-discount" value="6" min="1" max="20" step="0.5" class="w-full h-2 bg-[#2d3d35] rounded-lg appearance-none cursor-pointer" oninput="document.getElementById('discount-display').textContent=this.value" aria-label="Discount rate percentage"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1" for="lcoe-fuel">Fuel Cost ($/MWh) — optional</label>
+              <input type="number" id="lcoe-fuel" value="0" min="0" step="5" class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" placeholder="e.g. 0 for renewables, 30 for gas"/>
+            </div>
+            <button type="button" onclick="calculateLCOE()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
+              Calculate LCOE
+            </button>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold mb-2">Sustainability Teams</h3>
-        <p class="text-gray-400 text-sm">Justify renewable energy investments to leadership with professional financial analysis.</p>
-      </div>
-      <div class="text-center p-6">
-        <div class="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <div class="space-y-6">
+          <div id="lcoe-result" class="hidden bg-[#111a16] border border-[#2d3d35] rounded-xl p-6 text-center">
+            <p class="text-sm text-gray-400 mb-2">Levelised Cost of Energy</p>
+            <p id="lcoe-value" class="text-5xl font-bold text-emerald-400">$0</p>
+            <p class="text-sm text-gray-400 mt-1">per MWh</p>
+            <p id="lcoe-verdict" class="mt-4 text-sm text-gray-400"></p>
+          </div>
+          <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+            <h4 class="text-lg font-semibold mb-4">Technology Comparison</h4>
+            <div class="h-64">
+              <canvas id="lcoeChart"></canvas>
+            </div>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold mb-2">Project Developers</h3>
-        <p class="text-gray-400 text-sm">Evaluate project economics, compare technologies, and optimise system sizing before breaking ground.</p>
-      </div>
-      <div class="text-center p-6">
-        <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        </div>
-        <h3 class="text-lg font-semibold mb-2">Energy Consultants</h3>
-        <p class="text-gray-400 text-sm">Produce client-ready financial models and sensitivity analyses in minutes, not days.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Waitlist -->
-  <section id="waitlist" class="py-16 border-t border-[#2d3d35]" aria-labelledby="waitlist-title">
-    <div class="max-w-2xl mx-auto text-center">
-      <h2 id="waitlist-title" class="text-3xl font-bold mb-4">Get Early Access</h2>
-      <p class="text-gray-400 mb-8">Join the waitlist to be notified when each tool launches. Be the first to test new features.</p>
-      <form class="flex flex-col sm:flex-row gap-4" onsubmit="handleWaitlist(event)">
-        <input type="email" required placeholder="Enter your email" class="flex-1 px-4 py-3 bg-[#1a2520] border border-[#2d3d35] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" aria-label="Email address"/>
-        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold rounded-lg hover:opacity-90 transition">
-          Join Waitlist
-        </button>
-      </form>
-      <p id="waitlist-message" class="mt-4 text-emerald-400 hidden">Thanks! We'll notify you as tools become available.</p>
+<!-- Methodology -->
+<section class="py-12 px-4 border-t border-[#2d3d35]" aria-labelledby="method-title">
+  <div class="max-w-4xl mx-auto">
+    <h2 id="method-title" class="text-2xl font-bold text-center mb-8">Methodology &amp; Assumptions</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold mb-3 text-emerald-400">NPV &amp; IRR</h3>
+        <ul class="text-sm text-gray-400 space-y-2">
+          <li>• NPV = -Initial Investment + Σ(Annual Cash Flow / (1 + WACC)ᵗ)</li>
+          <li>• IRR found by bisection search (1% increments)</li>
+          <li>• Assumes constant annual cash flows</li>
+          <li>• Does not account for salvage value or working capital</li>
+          <li>• For variable cash flows, use a spreadsheet model</li>
+        </ul>
+      </div>
+      <div class="bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+        <h3 class="text-lg font-semibold mb-3 text-cyan-400">LCOE</h3>
+        <ul class="text-sm text-gray-400 space-y-2">
+          <li>• LCOE = NPV of all costs / Total lifetime energy output</li>
+          <li>• Costs discounted at user-specified rate</li>
+          <li>• Energy = Capacity Factor × 8760 hours × Lifetime</li>
+          <li>• No degradation or escalation assumed</li>
+          <li>• Currency-neutral: inputs and outputs in same units</li>
+        </ul>
+      </div>
     </div>
-  </section>
+    <div class="mt-6 bg-[#111a16] border border-[#2d3d35] rounded-xl p-6">
+      <h3 class="text-lg font-semibold mb-3">Limitations</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>• These are simplified models for preliminary analysis. Detailed project finance requires Monte Carlo simulation, tax modeling, and debt structuring.</li>
+        <li>• LCOE benchmarks shown for reference only; actual costs vary by region, scale, and contract structure.</li>
+        <li>• IRR calculation uses discrete 1% steps and may not converge for highly irregular cash flows.</li>
+        <li>• All inputs are annual averages. Seasonal or monthly variations are not modeled.</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-  <!-- Related -->
-  <section class="py-16 border-t border-[#2d3d35]" aria-labelledby="related-title">
-    <h2 id="related-title" class="text-2xl font-bold mb-8">Related Tools</h2>
+<!-- Related Tools -->
+<section class="py-12 px-4 border-t border-[#2d3d35]" aria-labelledby="related-title">
+  <div class="max-w-5xl mx-auto">
+    <h2 id="related-title" class="text-2xl font-bold text-center mb-8">Related Terrnix Tools</h2>
     <div class="grid md:grid-cols-3 gap-6">
-      <a href="/carbon-accounting/carbon-footprint-calculator/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
-        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">Carbon Calculator</h3>
-        <p class="text-gray-400 text-sm">Scope 1, 2 & 3 emissions calculator with 80+ country grid data.</p>
+      <a href="/carbon-accounting/carbon-footprint-calculator/" class="tool-card block p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-3">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+        </div>
+        <h3 class="font-semibold mb-1">Carbon Calculator</h3>
+        <p class="text-sm text-gray-400">Calculate Scope 1, 2, and 3 emissions for your organization.</p>
       </a>
-      <a href="/esg-reporting/esg-report-analyzer/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
-        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">ESG Report Analyzer</h3>
-        <p class="text-gray-400 text-sm">AI-powered gap analysis for sustainability disclosures.</p>
+      <a href="/esg-reporting/" class="tool-card block p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-3">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h3 class="font-semibold mb-1">ESG Reporting</h3>
+        <p class="text-sm text-gray-400">CSRD, ISSB, and TCFD-aligned reporting guidance.</p>
       </a>
-      <a href="/tools/" class="p-6 rounded-xl bg-[#111a16] border border-[#2d3d35] hover:border-emerald-500/30 transition group">
-        <h3 class="font-semibold mb-2 group-hover:text-emerald-400 transition">All Tools</h3>
-        <p class="text-gray-400 text-sm">Explore the complete Terrnix sustainability toolkit.</p>
+      <a href="/sustainability-intelligence/" class="tool-card block p-6 rounded-xl bg-[#111a16] border border-[#2d3d35]">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-3">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h3 class="font-semibold mb-1">Sustainability Intelligence</h3>
+        <p class="text-sm text-gray-400">Regulation, policy, and market analysis.</p>
       </a>
     </div>
-  </section>
+  </div>
+</section>
 
 </main>
 
 <!-- Footer -->
-<footer class="border-t border-[#2d3d35] py-12" role="contentinfo">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <div class="flex items-center space-x-2 mb-4">
-          <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="foot-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#foot-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/></svg>
-          <span class="font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
-        </div>
-        <p class="text-gray-400 text-sm">Sustainability intelligence for the modern enterprise.</p>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Product</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="/carbon-accounting/carbon-footprint-calculator/" class="hover:text-white transition">Carbon Calculator</a></li>
-          <li><a href="/esg-reporting/esg-report-analyzer/" class="hover:text-white transition">ESG Analyzer</a></li>
-          <li><span class="text-gray-500">Academy — Coming Soon</span></li>
-          <li><span class="text-gray-500">Energy Suite — Coming Soon</span></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Resources</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="/sustainability-intelligence/" class="hover:text-white transition">Intelligence Hub</a></li>
-          <li><a href="/resources/guides/" class="hover:text-white transition">Guides</a></li>
-          <li><a href="/resources/glossary/" class="hover:text-white transition">Glossary</a></li>
-          <li><a href="/quiz/" class="hover:text-white transition">Sustainability Quiz</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Company</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="/about/" class="hover:text-white transition">About</a></li>
-          <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
-          <li><a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a></li>
-          <li><a href="/terms-of-use.html" class="hover:text-white transition">Terms</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="border-t border-[#2d3d35] pt-8 text-center text-sm text-gray-500">
-      <p> Terrnix. All rights reserved.</p>
+<footer class="border-t border-[#2d3d35] py-8 px-4">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <p class="text-gray-500 text-sm">2026 Terrnix. Intelligence for a greener tomorrow.</p>
+    <div class="flex gap-4">
+      <a href="/privacy-policy.html" class="text-gray-500 hover:text-emerald-400 text-sm transition">Privacy Policy</a>
+      <a href="/terms-of-use.html" class="text-gray-500 hover:text-emerald-400 text-sm transition">Terms of Use</a>
     </div>
   </div>
 </footer>
 
 <script>
-function handleWaitlist(e) {
-  e.preventDefault();
-  const email = e.target.querySelector('input[type="email"]').value;
-  const waitlist = JSON.parse(localStorage.getItem('energyWaitlist') || '[]');
-  waitlist.push({ email, date: new Date().toISOString() });
-  localStorage.setItem('energyWaitlist', JSON.stringify(waitlist));
-  document.getElementById('waitlist-message').classList.remove('hidden');
-  e.target.reset();
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  const activeBtn = document.querySelector('[data-tab="' + tab + '"]');
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-pressed', 'true');
+  }
 }
+
+// NPV &amp; IRR Calculator
+function calculateNPV() {
+  const investment = parseFloat(document.getElementById('npv-investment')?.value) || 0;
+  const wacc = parseFloat(document.getElementById('npv-wacc')?.value) || 8;
+  const cashflow = parseFloat(document.getElementById('npv-cashflow')?.value) || 0;
+  const years = parseInt(document.getElementById('npv-years')?.value) || 20;
+
+  if (investment < 0 || cashflow < 0 || wacc < 0 || years < 1) {
+    alert('Please enter valid positive values for all fields.');
+    return;
+  }
+
+  let npv = -investment;
+  for (let y = 1; y <= years; y++) npv += cashflow / Math.pow(1 + wacc/100, y);
+
+  let irr = 0;
+  for (let r = 1; r <= 50; r++) {
+    let testNpv = -investment;
+    for (let y = 1; y <= years; y++) testNpv += cashflow / Math.pow(1 + r/100, y);
+    if (testNpv <= 0) { irr = r; break; }
+  }
+  if (irr === 0 && investment > 0 && cashflow > 0) {
+    // IRR > 50%, estimate
+    irr = '>50';
+  }
+
+  const payback = cashflow > 0 ? investment / cashflow : Infinity;
+
+  const npvEl = document.getElementById('res-npv');
+  if (npvEl) {
+    npvEl.textContent = '$' + npv.toFixed(1) + 'M';
+    npvEl.className = 'text-2xl font-bold ' + (npv > 0 ? 'text-emerald-400' : 'text-red-400');
+  }
+  const irrEl = document.getElementById('res-irr');
+  if (irrEl) irrEl.textContent = (typeof irr === 'number' ? irr + '%' : irr + '%');
+  const payEl = document.getElementById('res-payback');
+  if (payEl) payEl.textContent = (payback === Infinity ? '∞' : payback.toFixed(1)) + ' yrs';
+
+  const verdictEl = document.getElementById('npv-verdict');
+  if (verdictEl) {
+    if (npv > 0) {
+      verdictEl.textContent = 'Project adds value. NPV > 0 means the return exceeds the discount rate.';
+      verdictEl.className = 'mt-4 text-sm text-emerald-400';
+    } else if (npv < 0) {
+      verdictEl.textContent = 'Project destroys value at this discount rate. Consider reducing costs or extending lifetime.';
+      verdictEl.className = 'mt-4 text-sm text-red-400';
+    } else {
+      verdictEl.textContent = 'Break-even project. Returns exactly equal the discount rate.';
+      verdictEl.className = 'mt-4 text-sm text-gray-400';
+    }
+  }
+
+  const resultEl = document.getElementById('npv-result');
+  if (resultEl) resultEl.classList.remove('hidden');
+
+  // Line chart
+  const ctx = document.getElementById('npvChart');
+  if (ctx) {
+    if (window.npvChartInstance) window.npvChartInstance.destroy();
+    const labels = Array.from({length: years}, (_, i) => 'Y' + (i+1));
+    let cum = -investment;
+    const cumulative = [cum];
+    for (let y = 1; y <= years; y++) { cum += cashflow; cumulative.push(cum); }
+    window.npvChartInstance = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: { labels: ['Start', ...labels], datasets: [{ label: 'Cumulative Cash Flow ($M)', data: cumulative, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.1)', fill: true, tension: 0.4 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#94a3b8' }, grid: { color: '#1f2937' } }, x: { ticks: { color: '#94a3b8', maxTicksLimit: 10 }, grid: { display: false } } } }
+    });
+  }
+}
+
+// LCOE Calculator
+function calculateLCOE() {
+  const capex = parseFloat(document.getElementById('lcoe-capex')?.value) || 0;
+  const opex = parseFloat(document.getElementById('lcoe-opex')?.value) || 0;
+  const cf = parseFloat(document.getElementById('lcoe-cf')?.value) || 35;
+  const lifetime = parseInt(document.getElementById('lcoe-lifetime')?.value) || 25;
+  const discount = parseFloat(document.getElementById('lcoe-discount')?.value) || 7;
+  const fuel = parseFloat(document.getElementById('lcoe-fuel')?.value) || 0;
+
+  if (capex < 0 || opex < 0 || cf <= 0 || lifetime < 1 || discount < 0) {
+    alert('Please enter valid positive values. Capacity factor must be > 0.');
+    return;
+  }
+
+  const hours = cf / 100 * 8760;
+  const generation = hours * lifetime;
+  let npvCost = 0;
+  for (let y = 1; y <= lifetime; y++) npvCost += (opex + fuel) / Math.pow(1 + discount/100, y);
+  npvCost += capex;
+  const lcoe = npvCost / generation * 1000;
+
+  const valEl = document.getElementById('lcoe-value');
+  if (valEl) valEl.textContent = '$' + lcoe.toFixed(0);
+  const resultEl = document.getElementById('lcoe-result');
+  if (resultEl) resultEl.classList.remove('hidden');
+
+  const verdictEl = document.getElementById('lcoe-verdict');
+  if (verdictEl) {
+    if (lcoe < 40) {
+      verdictEl.textContent = 'Competitive with or below current market prices for renewable energy.';
+      verdictEl.className = 'mt-4 text-sm text-emerald-400';
+    } else if (lcoe < 80) {
+      verdictEl.textContent = 'Moderate cost. May be viable with carbon pricing or subsidies.';
+      verdictEl.className = 'mt-4 text-sm text-yellow-400';
+    } else {
+      verdictEl.textContent = 'High cost. Consider technology alternatives or cost reduction strategies.';
+      verdictEl.className = 'mt-4 text-sm text-red-400';
+    }
+  }
+
+  // Bar chart
+  const ctx = document.getElementById('lcoeChart');
+  if (ctx) {
+    if (window.lcoeChartInstance) window.lcoeChartInstance.destroy();
+    window.lcoeChartInstance = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: { labels: ['Your Project','Solar PV','Onshore Wind','Offshore Wind','Gas','Coal','Nuclear'], datasets: [{ label: 'LCOE ($/MWh)', data: [lcoe,35,38,85,65,110,75], backgroundColor: ['#4ade80','#22d3ee','#22d3ee','#a3e635','#f97316','#ef4444','#a855f7'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#94a3b8' }, grid: { color: '#1f2937' } }, x: { ticks: { color: '#94a3b8' }, grid: { display: false } } } }
+    });
+  }
+}
+
+// Calculate on load with defaults
+window.addEventListener('load', function() {
+  calculateNPV();
+  calculateLCOE();
+});
 </script>
 
 </body>
