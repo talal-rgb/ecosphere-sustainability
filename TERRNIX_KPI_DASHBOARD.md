@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-07-20
-**Next Update:** 2026-07-20
+**Last Updated:** 2026-07-27
+**Next Update:** 2026-07-27
 
 ---
 
@@ -58,10 +58,10 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Organic Social | 4 | 28.6% |
-| Direct | 3 | 42.9% |
-| Referral | 2 | 14.3% |
-| Organic Search | 1 | 14.3% |
+| Direct | 27 | 76.5% |
+| Organic Social | 5 | 5.9% |
+| Organic Search | 4 | 11.8% |
+| Unassigned | 3 | 5.9% |
 
 ## 🔍 SEO
 
@@ -69,17 +69,18 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 49 | - | - |
-| Clicks | 0 | - | - |
-| CTR | 0.00% | - | - |
-| Avg Position | 10.6 | - | - |
+| Impressions | 108 | - | - |
+| Clicks | 1 | - | - |
+| CTR | 0.93% | - | - |
+| Avg Position | 13.0 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | csddd csrd eu oil gas reporting 2026 | 4 | 0 | 0.00% | 14.0 | - |
-| 2 | sbti anforderungen 2026 | 1 | 0 | 0.00% | 52.0 | - |
+| 1 | marokko | 1 | 0 | 0.00% | 4.0 | - |
+| 2 | oui | 1 | 0 | 0.00% | 10.0 | - |
+| 3 | sbti anforderungen 2026 | 6 | 0 | 0.00% | 54.2 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -222,10 +223,10 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 1 | - | - | - | 
- | Total Users | 7 | - | - | - | 
- | Impressions | 49 | - | - | - | 
- | Clicks | - | - | - | - | 
+ | Organic Sessions | 4 | - | - | - | 
+ | Total Users | 34 | - | - | - | 
+ | Impressions | 108 | - | - | - | 
+ | Clicks | 1 | - | - | - | 
  | Calculator Runs | - | - | - | - | 
  | PDF Downloads | - | - | - | - | 
  | Contact Forms | - | - | - | - | 
@@ -252,6 +253,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-07-27 | Automated | Weekly KPI update |
 | 2026-07-20 | Automated | Weekly KPI update |
 | 2026-07-14 | Automated | Weekly KPI update |
 | 2026-06-18 | Terrnix AI | Dashboard created, baseline to be established |
