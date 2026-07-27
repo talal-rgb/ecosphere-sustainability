@@ -29,7 +29,7 @@
 <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
-<script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-pb6hrQvo4s23cEUFtj0CZkzGE3jyK3pj26RIupXXxhSrrcUA/Cn0lZgcCrGH0t6L" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-pb6hrQvo4s23cEUFtj0CZkzGE3jyK3pj26RIupXXxhSrrcUA/Cn0lZgcCrGH0t6L" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha384-9MhbyIRcBVQiiC7FSd7T38oJNj2Zh+EfxS7/vjhBi4OOT78NlHSnzM31EZRWR1LZ" crossorigin="anonymous"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
@@ -1313,8 +1313,8 @@ input[type="range"].slider::-moz-range-thumb {
                     Get Started
                     <i class="fas fa-arrow-right text-xs"></i>
 </a>
-<button @click="mobileMenuOpen = true" class="lg:hidden p-2 rounded-lg" style="color: var(--text);">
-<i class="fas fa-bars text-lg"></i>
+<button type="button" @click="mobileMenuOpen = true" class="lg:hidden p-2 rounded-lg" style="color: var(--text);" aria-label="Open menu">
+<i class="fas fa-bars text-lg" aria-hidden="true"></i>
 </button>
 </div>
 </div>
@@ -1322,8 +1322,8 @@ input[type="range"].slider::-moz-range-thumb {
 </nav>
 <!-- ========== MOBILE MENU OVERLAY ========== -->
 <div :class="{ 'open': mobileMenuOpen }" class="mobile-menu">
-<button @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2" style="color: var(--text);">
-<i class="fas fa-times text-2xl"></i>
+<button type="button" @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2" style="color: var(--text);" aria-label="Close menu">
+<i class="fas fa-times text-2xl" aria-hidden="true"></i>
 </button>
 <a href="/carbon-accounting/">Carbon Accounting</a>
 <a href="/esg-reporting/">ESG Reporting</a>
@@ -1863,7 +1863,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">environmental sustainability, net zero nature</p>
 </div>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('environment')">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('environment')">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -1982,7 +1982,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">social sustainability ESG, just transition workforce</p>
 </div>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('social')">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('social')">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2101,7 +2101,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">ESG governance framework, TCFD disclosure</p>
 </div>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('governance')">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('governance')">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2220,7 +2220,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">energy decarbonisation 2025, LCOE renewable energy</p>
 </div>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('energy')">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('energy')">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2339,7 +2339,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">GHG Protocol scope 3, carbon accounting standard</p>
 </div>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('ghg')">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('ghg')">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2458,7 +2458,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">CSRD reporting requirements, ISSB sustainability standards</p>
 </div>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('reporting')">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeOverlay('reporting')">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2577,7 +2577,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Decarbonisation</span>
 <span class="text-xs text-gray-500">Industrial Investment</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(0)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(0)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2614,7 +2614,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">Decarbonisation</span>
 <span class="text-xs text-gray-500">Renewable Energy</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(1)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(1)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2651,7 +2651,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Decarbonisation</span>
 <span class="text-xs text-gray-500">Renewable Energy</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(2)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(2)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2688,7 +2688,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Decarbonisation</span>
 <span class="text-xs text-gray-500">Energy Efficiency</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(3)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(3)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2725,7 +2725,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">Decarbonisation</span>
 <span class="text-xs text-gray-500">Transport</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(4)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(4)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2762,7 +2762,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-red-500/20 text-red-400 border border-red-500/30">Decarbonisation</span>
 <span class="text-xs text-gray-500">Emerging Technology</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(5)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeDecarbInvestment(5)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2802,7 +2802,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Green Finance</span>
 <span class="text-xs text-gray-500">Debt Capital Markets</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(0)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(0)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2838,7 +2838,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Green Finance</span>
 <span class="text-xs text-gray-500">Corporate Banking</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(1)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(1)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2873,7 +2873,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Green Finance</span>
 <span class="text-xs text-gray-500">Carbon Markets</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(2)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(2)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2909,7 +2909,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 text-xs font-semibold uppercase rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Green Finance</span>
 <span class="text-xs text-gray-500">Asset Management</span>
 </div>
-<button class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(3)">
+<button type="button" aria-label="Close" class="w-10 h-10 rounded-full bg-[#1a1f1d] hover:bg-[#2a3a32] flex items-center justify-center transition-colors border border-[#2d3d35]" onclick="closeGreenFinance(3)">
 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
 </div>
@@ -2953,11 +2953,11 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-sm rounded-full border border-emerald-500/30">EPA</span>
 </div>
 <div class="flex justify-center gap-3 mt-6">
-<button class="px-4 py-2 bg-[#1a2520] border border-[#2d3d35] text-emerald-400 rounded-lg hover:bg-[#2d3d35] transition flex items-center gap-2 text-sm" id="exportCSV">
+<button type="button" class="px-4 py-2 bg-[#1a2520] border border-[#2d3d35] text-emerald-400 rounded-lg hover:bg-[#2d3d35] transition flex items-center gap-2 text-sm" id="exportCSV">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Export CSV
         </button>
-<button class="px-4 py-2 bg-[#1a2520] border border-[#2d3d35] text-emerald-400 rounded-lg hover:bg-[#2d3d35] transition flex items-center gap-2 text-sm" id="exportPDF">
+<button type="button" class="px-4 py-2 bg-[#1a2520] border border-[#2d3d35] text-emerald-400 rounded-lg hover:bg-[#2d3d35] transition flex items-center gap-2 text-sm" id="exportPDF">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Export PDF
         </button>
@@ -2966,15 +2966,15 @@ input[type="range"].slider::-moz-range-thumb {
 <!-- Tab Navigation -->
 <div class="flex justify-center mb-8">
 <div class="inline-flex bg-[#111a16] rounded-xl p-1 border border-[#2d3d35]">
-<button class="tab-btn px-6 py-3 rounded-lg text-white font-semibold bg-emerald-600 transition flex items-center gap-2" data-tab="scope1" id="tab-scope1">
+<button type="button" class="tab-btn px-6 py-3 rounded-lg text-white font-semibold bg-emerald-600 transition flex items-center gap-2" data-tab="scope1" id="tab-scope1">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Scope 1
         </button>
-<button class="tab-btn px-6 py-3 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-2" data-tab="scope2" id="tab-scope2">
+<button type="button" class="tab-btn px-6 py-3 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-2" data-tab="scope2" id="tab-scope2">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Scope 2
         </button>
-<button class="tab-btn px-6 py-3 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-2" data-tab="scope3" id="tab-scope3">
+<button type="button" class="tab-btn px-6 py-3 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-2" data-tab="scope3" id="tab-scope3">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Scope 3
         </button>
@@ -3244,15 +3244,15 @@ input[type="range"].slider::-moz-range-thumb {
 <!-- Upstream/Downstream Toggle -->
 <div class="flex justify-center mb-6">
 <div class="inline-flex bg-[#0a0f0d] rounded-lg p-1 border border-[#2d3d35]">
-<button class="scope3-subtab px-5 py-2 rounded-md text-sm font-semibold text-white bg-emerald-600 transition" data-subtab="upstream" id="scope3-upstream-btn">Upstream (1-8)</button>
-<button class="scope3-subtab px-5 py-2 rounded-md text-sm font-semibold text-gray-400 hover:text-white transition" data-subtab="downstream" id="scope3-downstream-btn">Downstream (9-15)</button>
+<button type="button" class="scope3-subtab px-5 py-2 rounded-md text-sm font-semibold text-white bg-emerald-600 transition" data-subtab="upstream" id="scope3-upstream-btn">Upstream (1-8)</button>
+<button type="button" class="scope3-subtab px-5 py-2 rounded-md text-sm font-semibold text-gray-400 hover:text-white transition" data-subtab="downstream" id="scope3-downstream-btn">Downstream (9-15)</button>
 </div>
 </div>
 <!-- Method Toggle -->
 <div class="flex justify-center mb-6">
 <div class="flex items-center gap-3">
 <span class="text-sm text-gray-400">Spend-based</span>
-<button aria-checked="false" class="w-14 h-7 bg-emerald-600 rounded-full relative transition" id="methodToggle" role="switch">
+<button type="button" aria-checked="false" class="w-14 h-7 bg-emerald-600 rounded-full relative transition" id="methodToggle" role="switch" aria-label="Toggle calculation method">
 <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform" id="methodToggleKnob"></span>
 </button>
 <span class="text-sm text-gray-400">Activity-based</span>
@@ -3419,11 +3419,11 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 <!-- Calculate & Reset Buttons -->
 <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8 pt-6 border-t border-[#2d3d35]">
-<button class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-emerald-500/20 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg" id="calculateBtn">
+<button type="button" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-emerald-500/20 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg" id="calculateBtn">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Calculate with Terrnix AI
         </button>
-<button class="px-8 py-4 bg-[#1a2520] border border-[#2d3d35] text-gray-400 rounded-xl hover:text-white hover:bg-[#2d3d35] transition flex items-center justify-center gap-2" id="resetBtn">
+<button type="button" class="px-8 py-4 bg-[#1a2520] border border-[#2d3d35] text-gray-400 rounded-xl hover:text-white hover:bg-[#2d3d35] transition flex items-center justify-center gap-2" id="resetBtn">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Reset Calculator
         </button>
@@ -3543,7 +3543,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-xs text-gray-500">Set to 0 for renewables</p>
 </div>
 </div>
-<button class="w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg transition" id="calcLcoeBtn">Calculate LCOE</button>
+<button type="button" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg transition" id="calcLcoeBtn">Calculate LCOE</button>
 <!-- LCOE Result -->
 <div class="hidden p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-center" id="lcoe-result">
 <p class="text-gray-400 text-sm mb-1">Your Project LCOE</p>
@@ -3607,7 +3607,7 @@ input[type="range"].slider::-moz-range-thumb {
 <input class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" id="npv-lifetime" min="1" placeholder="e.g. 20" type="number" value="20"/>
 </div>
 </div>
-<button class="w-full py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-bold rounded-xl hover:shadow-lg transition" id="calcNpvBtn">Calculate NPV &amp; IRR</button>
+<button type="button" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-bold rounded-xl hover:shadow-lg transition" id="calcNpvBtn">Calculate NPV &amp; IRR</button>
 <!-- Results -->
 <div class="hidden grid sm:grid-cols-3 gap-3" id="npv-results">
 <div class="p-3 bg-[#0a0f0d] rounded-lg text-center border border-[#2d3d35]">
@@ -4585,7 +4585,7 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 </div>
 </div>
-<button class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition-all flex items-center gap-1.5" onclick="clearChat()">
+<button type="button" aria-label="Clear chat" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition-all flex items-center gap-1.5" onclick="clearChat()">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -4653,17 +4653,17 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 <!-- Quick Question Buttons -->
 <div class="px-6 py-3 bg-slate-800/30 border-t border-slate-700/30 flex flex-wrap gap-2">
-<button class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What is Scope 3 and why does it matter?')">Scope 3?</button>
-<button class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What is CBAM and how does it work?')">CBAM?</button>
-<button class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What are the differences between GRI and ISSB standards?')">GRI vs ISSB?</button>
-<button class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What are SBTi targets and how do they work?')">SBTi targets?</button>
-<button class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('How do carbon credits work?')">Carbon credits?</button>
+<button type="button" class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What is Scope 3 and why does it matter?')">Scope 3?</button>
+<button type="button" class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What is CBAM and how does it work?')">CBAM?</button>
+<button type="button" class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What are the differences between GRI and ISSB standards?')">GRI vs ISSB?</button>
+<button type="button" class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('What are SBTi targets and how do they work?')">SBTi targets?</button>
+<button type="button" class="px-3 py-1.5 rounded-full bg-slate-700/50 hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-slate-600/30 text-slate-300 hover:text-emerald-300 text-xs transition-all" onclick="quickAsk('How do carbon credits work?')">Carbon credits?</button>
 </div>
 <!-- Input Area -->
 <div class="px-6 py-4 bg-slate-800/50 border-t border-slate-700/50">
 <div class="flex gap-3">
 <input class="flex-1 bg-slate-900/60 border border-slate-600/50 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 text-sm" id="chat-input" onkeydown="if(event.key==='Enter')sendChat()" placeholder="Ask about sustainability, carbon, ESG, regulations..." type="text"/>
-<button class="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20" onclick="sendChat()">
+<button type="button" class="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20" onclick="sendChat()">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -4707,7 +4707,7 @@ input[type="range"].slider::-moz-range-thumb {
 <span class="px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium">Intermediate</span>
 <span class="px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium">Advanced</span>
 </div>
-<button class="px-10 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-lg font-semibold transition-all shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5" onclick="startQuiz()">
+<button type="button" class="px-10 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-lg font-semibold transition-all shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5" onclick="startQuiz()">
                 Start Challenge
             </button>
 </div>
@@ -4753,7 +4753,7 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 <!-- Next Button -->
 <div class="flex justify-end">
-<button class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all flex items-center gap-2" id="quiz-next-btn" onclick="nextQuestion()">
+<button type="button" class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all flex items-center gap-2" id="quiz-next-btn" onclick="nextQuestion()">
                         Next Question
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -4803,13 +4803,13 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-slate-400 text-sm mb-6">Enter your email to receive a personalised breakdown of your sustainability knowledge and recommended next steps.</p>
 <form id="quizLeadForm" onsubmit="event.preventDefault(); submitQuizLead();">
 <div class="mb-4">
-<input class="w-full bg-slate-800/60 border border-slate-600/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all text-sm" id="quizLeadEmail" placeholder="your@email.com" required="" type="email"/>
+<input class="w-full bg-slate-800/60 border border-slate-600/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all text-sm" id="quizLeadEmail" placeholder="your@email.com" required type="email"/>
 </div>
 <div class="mb-4">
 <input class="w-full bg-slate-800/60 border border-slate-600/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all text-sm" id="quizLeadName" placeholder="Your name (optional)" type="text"/>
 </div>
 <div class="flex items-start gap-3 mb-4 text-left">
-<input class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500/20" id="quizLeadConsent" required="" type="checkbox"/>
+<input class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500/20" id="quizLeadConsent" required type="checkbox"/>
 <label class="text-slate-400 text-xs leading-relaxed" for="quizLeadConsent">I agree to receive my quiz results and occasional sustainability insights from Terrnix. You can unsubscribe at any time.</label>
 </div>
 <button class="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/20" type="submit">
@@ -4841,7 +4841,7 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 <h3 class="text-xl font-bold text-white mb-2">Download Your Certificate</h3>
 <p class="text-slate-400 text-sm mb-4">Get a personalized PDF certificate recognizing your sustainability knowledge achievement.</p>
-<button class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-semibold transition-all shadow-lg shadow-amber-500/20" onclick="downloadQuizCertificate()">
+<button type="button" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-semibold transition-all shadow-lg shadow-amber-500/20" onclick="downloadQuizCertificate()">
 <i class="fas fa-download mr-2"></i>Download Certificate
                 </button>
 </div>
@@ -4889,10 +4889,10 @@ input[type="range"].slider::-moz-range-thumb {
 
 <!-- Action Buttons -->
 <div class="flex justify-center gap-4">
-<button class="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all shadow-lg shadow-emerald-500/20" onclick="startQuiz()">
+<button type="button" class="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all shadow-lg shadow-emerald-500/20" onclick="startQuiz()">
                     Try Again
                 </button>
-<button class="px-8 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-medium transition-all border border-slate-600/30" onclick="showQuizStart()">
+<button type="button" class="px-8 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-medium transition-all border border-slate-600/30" onclick="showQuizStart()">
                     Back
                 </button>
 </div>
@@ -4930,7 +4930,7 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 <div class="mb-6">
 <label class="block text-sm text-gray-400 mb-2">Discipline / Area of Interest <span class="text-emerald-500">*</span></label>
-<select class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all text-sm appearance-none" id="expertDiscipline" required style="background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem;">
+<select class="w-full bg-[#0a0f0d] border border-[#2d3d35] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all text-sm appearance-none" id="expertDiscipline" required>
 <option disabled selected value="">Select a discipline...</option>
 <option value="energy">Energy &amp; Renewables</option>
 <option value="esg">ESG Strategy &amp; Reporting</option>
@@ -5018,7 +5018,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-slate-400 text-sm mb-4">Get the latest sustainability insights delivered to your inbox.</p>
 <div class="flex gap-2">
 <input class="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 text-sm" id="footer-email" placeholder="Enter your email" type="email"/>
-<button class="px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-all flex items-center gap-2" onclick="subscribeFooter()">
+<button type="button" class="px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-all flex items-center gap-2" onclick="subscribeFooter()">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -5055,12 +5055,12 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-slate-400 text-sm">Enter password to access the admin panel</p>
 </div>
 <div class="space-y-4">
-<input class="w-full bg-slate-900/60 border border-slate-600/50 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20" id="admin-password" placeholder="Enter password" type="password"/>
-<button class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all shadow-lg shadow-emerald-500/20" onclick="loginAdmin()">
+<input class="w-full bg-slate-900/60 border border-slate-600/50 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20" id="admin-password" placeholder="Enter password" type="password" autocomplete="current-password"/>
+<button type="button" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium transition-all shadow-lg shadow-emerald-500/20" onclick="loginAdmin()">
                     Access Terrnix CMS
                 </button>
 <p class="text-red-400 text-sm text-center hidden" id="admin-login-error">Incorrect password. Please try again.</p>
-<button class="w-full py-2 text-slate-500 hover:text-slate-300 text-sm transition-colors" onclick="closeAdmin()">Cancel</button>
+<button type="button" class="w-full py-2 text-slate-500 hover:text-slate-300 text-sm transition-colors" onclick="closeAdmin()">Cancel</button>
 </div>
 </div>
 <!-- Admin Dashboard -->
@@ -5079,7 +5079,7 @@ input[type="range"].slider::-moz-range-thumb {
 <p class="text-emerald-100 text-xs">Content Management</p>
 </div>
 </div>
-<button class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all" onclick="closeAdmin()">
+<button type="button" aria-label="Close" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all" onclick="closeAdmin()">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -5087,9 +5087,9 @@ input[type="range"].slider::-moz-range-thumb {
 </div>
 <!-- Tab Navigation -->
 <div class="flex border-b border-slate-700/50 px-6">
-<button class="admin-tab active px-4 py-3 text-sm font-medium text-emerald-400 border-b-2 border-emerald-400 transition-all" id="tab-articles" onclick="switchAdminTab('articles')">Articles</button>
-<button class="admin-tab px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-all" id="tab-analytics" onclick="switchAdminTab('analytics')">Analytics</button>
-<button class="admin-tab px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-all" id="tab-settings" onclick="switchAdminTab('settings')">Settings</button>
+<button type="button" class="admin-tab active px-4 py-3 text-sm font-medium text-emerald-400 border-b-2 border-emerald-400 transition-all" id="tab-articles" onclick="switchAdminTab('articles')">Articles</button>
+<button type="button" class="admin-tab px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-all" id="tab-analytics" onclick="switchAdminTab('analytics')">Analytics</button>
+<button type="button" class="admin-tab px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent transition-all" id="tab-settings" onclick="switchAdminTab('settings')">Settings</button>
 </div>
 <!-- Tab Content -->
 <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
@@ -5143,7 +5143,7 @@ input[type="range"].slider::-moz-range-thumb {
 <input class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 text-sm" id="article-seo-desc" placeholder="Meta description" type="text"/>
 </div>
 </div>
-<button class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-sm font-medium transition-all shadow-lg shadow-emerald-500/20" onclick="saveArticle()">
+<button type="button" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-sm font-medium transition-all shadow-lg shadow-emerald-500/20" onclick="saveArticle()">
                             Save Article
                         </button>
 </div>
@@ -5227,7 +5227,7 @@ input[type="range"].slider::-moz-range-thumb {
 <label class="block text-slate-400 text-xs mb-2">Contact Email</label>
 <input class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500/50 text-sm" type="email" value="contact@terrnix.com"/>
 </div>
-<button class="px-6 py-2.5 rounded-lg bg-slate-700/50 text-slate-300 text-sm font-medium transition-all border border-slate-600/30 hover:bg-slate-700">
+<button type="button" class="px-6 py-2.5 rounded-lg bg-slate-700/50 text-slate-300 text-sm font-medium transition-all border border-slate-600/30 hover:bg-slate-700">
                                 Save Settings
                             </button>
 </div>
