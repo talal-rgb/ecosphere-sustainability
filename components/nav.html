@@ -1,40 +1,78 @@
-<!-- Terrnix Navigation Component — Include in all pages -->
-<nav class="nav-main">
+<!-- Terrnix Shared Navigation — Include in all public pages -->
+<nav class="nav-main" role="navigation" aria-label="Main navigation">
   <div class="container px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
-      <a href="/" class="text-2xl font-bold text-emerald-400 font-display">Terrnix</a>
+      <a href="/" class="flex items-center gap-2 text-2xl font-bold text-emerald-400 font-display hover:text-emerald-300 transition-colors">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Terrnix
+      </a>
       
       <!-- Desktop Nav -->
-      <div class="hidden md:flex items-center space-x-8">
+      <div class="hidden lg:flex items-center gap-1">
         <a href="/carbon-accounting/" class="nav-link">Carbon Accounting</a>
         <a href="/esg-reporting/" class="nav-link">ESG Reporting</a>
         <a href="/sustainability-intelligence/" class="nav-link">Intelligence</a>
         <a href="/tools/" class="nav-link">Tools</a>
         <a href="/resources/" class="nav-link">Resources</a>
+        <a href="/about/" class="nav-link">About</a>
+        <a href="/contact/" class="nav-link">Contact</a>
       </div>
       
-      <!-- Mobile Menu Button -->
-      <button id="mobileMenuBtn" class="md:hidden text-gray-400 hover:text-emerald-400">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
+      <!-- CTA + Mobile Menu Button -->
+      <div class="flex items-center gap-4">
+        <a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-all">
+          Get Started
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+        <button id="mobileMenuBtn" class="lg:hidden text-gray-400 hover:text-emerald-400 transition-colors p-2" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
     </div>
     
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden pb-4">
-      <a href="/carbon-accounting/" class="block py-2 text-gray-400 hover:text-emerald-400">Carbon Accounting</a>
-      <a href="/esg-reporting/" class="block py-2 text-gray-400 hover:text-emerald-400">ESG Reporting</a>
-      <a href="/sustainability-intelligence/" class="block py-2 text-gray-400 hover:text-emerald-400">Intelligence</a>
-      <a href="/tools/" class="block py-2 text-gray-400 hover:text-emerald-400">Tools</a>
-      <a href="/resources/" class="block py-2 text-gray-400 hover:text-emerald-400">Resources</a>
+    <div id="mobileMenu" class="hidden lg:hidden pb-4 border-t border-[#2d3d35] mt-2">
+      <div class="flex flex-col gap-1 pt-4">
+        <a href="/carbon-accounting/" class="mobile-nav-link">Carbon Accounting</a>
+        <a href="/esg-reporting/" class="mobile-nav-link">ESG Reporting</a>
+        <a href="/sustainability-intelligence/" class="mobile-nav-link">Intelligence</a>
+        <a href="/tools/" class="mobile-nav-link">Tools</a>
+        <a href="/resources/" class="mobile-nav-link">Resources</a>
+        <a href="/about/" class="mobile-nav-link">About</a>
+        <a href="/contact/" class="mobile-nav-link">Contact</a>
+        <a href="/carbon-accounting/carbon-footprint-calculator/" class="mobile-nav-link mobile-nav-cta">Get Started</a>
+      </div>
     </div>
   </div>
 </nav>
 
 <script>
-  document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-    document.getElementById('mobileMenu').classList.toggle('hidden');
-  });
+  (function() {
+    var btn = document.getElementById('mobileMenuBtn');
+    var menu = document.getElementById('mobileMenu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function() {
+      var isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    });
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+      }
+    });
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+      if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  })();
 </script>
