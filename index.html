@@ -17,7 +17,7 @@
 <meta content="Terrnix — AI Sustainability Intelligence" name="twitter:title"/>
 <meta content="Professional sustainability platform for carbon accounting, ESG, and climate intelligence." name="twitter:description"/>
 <meta content="https://terrnix.com/assets/og-image.png" name="twitter:image"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
 <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
 <meta http-equiv="X-Frame-Options" content="DENY"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
@@ -5214,7 +5214,7 @@ function switchAdminTab(tab) {
     }
 }
 
-function saveArticle() {
+async function saveArticle() {
     const title = document.getElementById('article-title').value.trim();
     const section = document.getElementById('article-section').value;
     const image = document.getElementById('article-image').value.trim();
@@ -5543,7 +5543,12 @@ document.addEventListener('click', (e) => {
     });
 });
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') 
+    if (e.key === 'Escape') {
+        document.querySelectorAll('[id^="overlay-"]:not(.hidden), [id^="gf-overlay-"]:not(.hidden), [id^="decarb-overlay-"]:not(.hidden)').forEach(el => {
+            el.classList.add('hidden');
+        });
+        document.body.style.overflow = '';
+    }
 });
 
 
@@ -5682,15 +5687,6 @@ function terrnixApp() {
             this.adminTab = tab;
         }
     };
-}
-
-// ============================================
-// ============================================
-} else {
-        console.warn('Overlay not found:', 'overlay-' + key);
-    }
-}
-
 }
 
 // ============================================
@@ -5894,25 +5890,6 @@ function closeSection() {
     document.body.style.overflow = '';
 }
 
-// ============================================
-// ============================================
-}
-// ============================================
-// ============================================
-else {
-        // Fallback: show alert with article info
-        const articles = [
-            {title: 'Green Hydrogen Plants', content: 'Industrial-scale electrolysis for ammonia, steel, and shipping fuel decarbonisation. CAPEX: $2-5B. Horizon: 15-25 years. Green hydrogen is produced through electrolysis powered by renewable energy, splitting water into hydrogen and oxygen. The produced hydrogen can replace fossil fuel-derived hydrogen in ammonia production (50% of current hydrogen demand), steelmaking via direct reduction, and as a shipping fuel through ammonia or methanol synthesis. Key projects include the NEOM Helios plant (Saudi Arabia, 650 tons/day), the Port of Rotterdam hydrogen hub, and the European Hydrogen Backbone pipeline network. The IEA estimates that 150 GW of electrolyzer capacity will be needed by 2030 to meet net-zero scenarios.'},
-            {title: 'Utility-Scale Solar', content: '100MW+ PV installations with battery storage. Lowest cost new generation. CAPEX: $0.5-2B. Build: 2-3 years. Utility-scale solar (defined as >100MW) has become the cheapest form of new electricity generation in most of the world. LCOE for solar PV ranges $25-50/MWh in optimal locations. Battery co-location enables firm capacity, with DC-coupled systems achieving 90%+ round-trip efficiency. Key markets include India (NTPC ultra-mega solar parks), the US (Texas and California utility-scale deployments), and Chile (Atacama Desert projects with world-leading capacity factors). Agrivoltaics—co-locating solar with agriculture—is an emerging dual-use model.'},
-            {title: 'Offshore Wind', content: 'Floating and fixed-bottom offshore wind. Massive capacity factors (50-60%). CAPEX: $3-8B. Development: 4-6 years. Offshore wind offers higher capacity factors (45-65%) and more consistent generation than onshore. Floating offshore wind (FOW) unlocks deep-water resources (>60m depth) representing 80% of offshore wind potential. Key markets: UK (Dogger Bank, 3.6GW), China (16GW installed, targeting 60GW by 2030), Taiwan (Changhua projects), and the US (Vineyard Wind, South Fork). Levelized cost of offshore wind has declined to $75-120/MWh, with projected reductions to $50-70/MWh by 2030.'},
-            {title: 'Building Retrofits', content: 'HVAC, insulation, LED, smart controls. 20-40% energy reduction. CAPEX: $10-100M. Payback: Immediate to 5 years. Deep building retrofits combine envelope improvements (insulation, glazing, air sealing), HVAC upgrades (heat pumps, VFDs, smart controls), lighting (LED with controls), and renewable integration (rooftop solar, geothermal). The EU Renovation Wave targets 35 million building retrofits by 2030. ESCO (Energy Service Company) models enable zero-upfront-cost retrofits through guaranteed savings contracts. The IEA estimates building retrofits could reduce global building energy use by 40% and CO2 emissions by 5 Gt annually.'},
-            {title: 'EV Fleet Conversion', content: 'Light-duty and heavy-duty vehicle electrification. TCO parity reached in 2025. CAPEX: $5-50M. Fleet electrification is accelerating as battery costs decline and vehicle availability expands. Light-duty EVs achieved total cost of ownership (TCO) parity with ICE vehicles in 2023-2024 across most markets. Heavy-duty electric trucks are approaching parity for urban and regional routes. Key considerations: depot charging infrastructure (Level 2 and DC fast), route optimization for range management, vehicle-grid integration (V2G) for revenue stacking, and driver training. Amazon has ordered 100,000 Rivian delivery vans; DHL aims for 80% e-mobility by 2030.'},
-            {title: 'Carbon Capture (CCUS)', content: 'Point-source and direct air capture. Emerging technology with massive potential. CAPEX: $500M-2B. CCUS captures CO2 from industrial sources or ambient air for utilization or permanent storage. Point-source capture is most mature for high-concentration streams (ammonia, ethanol, natural gas processing) with costs $15-60/t. Cement and steel capture is more challenging ($60-120/t). Direct Air Capture (DAC) is nascent but scaling, with Climeworks Orca (4,000 t/year) and 1PointFive Stratos (500,000 t/year planned). The IEA projects CCUS must capture 1.3 Gt annually by 2030 for net-zero. Key risks: storage integrity, energy intensity, and cost competitiveness.'}
-        ];
-        const a = articles[index] || articles[0];
-        alert(a.title + '\n\n' + a.content.substring(0, 800) + '...\n\n[Full article overlay coming in next update]');
-    }
-}
 // ============================================
 // NAVIGATION
 // Global scrollTo for non-Alpine contexts
@@ -6559,13 +6536,6 @@ function clearChat() {
     } else {
         localStorage.removeItem(CHAT_STORAGE_KEY);
     }
-
-// Clear chat history on page load for fresh start
-if (typeof encryptedStorage !== 'undefined') {
-    encryptedStorage.removeItem(CHAT_STORAGE_KEY);
-} else {
-    localStorage.removeItem(CHAT_STORAGE_KEY);
-}
     if (typeof renderChatHistory === 'function') renderChatHistory();
 }
 
@@ -6603,7 +6573,12 @@ document.addEventListener('click', (e) => {
     });
 });
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') 
+    if (e.key === 'Escape') {
+        document.querySelectorAll('[id^="overlay-"]:not(.hidden), [id^="gf-overlay-"]:not(.hidden), [id^="decarb-overlay-"]:not(.hidden)').forEach(el => {
+            el.classList.add('hidden');
+        });
+        document.body.style.overflow = '';
+    }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
