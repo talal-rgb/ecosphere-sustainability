@@ -1,72 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assess Your Organisation's Carbon Accounting Readiness | Terrnix</title>
-  <meta name="description" content="Identify your carbon accounting gaps and receive a personalised readiness report with maturity score, gap analysis, and prioritised recommendations. Free. No email required.">
-  <link rel="canonical" href="https://terrnix.com/carbon-accounting-readiness-assessment/">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Assess Your Organisation's Carbon Accounting Readiness | Terrnix">
-  <meta property="og:description" content="Identify your carbon accounting gaps and receive a personalised readiness report with maturity score and prioritised recommendations.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://terrnix.com/carbon-accounting-readiness-assessment/">
-  <meta property="og:image" content="https://terrnix.com/assets/images/assessment-og.webp">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:type" content="image/webp">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Assess Your Organisation's Carbon Accounting Readiness | Terrnix">
-  <meta name="twitter:description" content="Identify your carbon accounting gaps and receive a personalised readiness report with maturity score and prioritised recommendations.">
-  <meta name="twitter:image" content="https://terrnix.com/assets/images/assessment-og.webp">
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' },
-            teal: { 400: '#2dd4bf', 500: '#14b8a6' }
-          }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        terrnix: {
+          bg: '#0a0f0d',
+          'bg-secondary': '#111a16',
+          'bg-tertiary': '#1a2520',
+          border: '#2d3d35',
+          emerald: '#10b981',
+          'emerald-light': '#34d399',
+          cyan: '#06b6d4',
+          'cyan-light': '#22d3ee',
         }
       }
     }
-  </script>
-
-  <!-- Assessment Styles -->
-  <link rel="stylesheet" href="/assets/css/assessment.css">
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Schema.org -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Carbon Accounting Readiness Assessment",
-    "description": "Identify your carbon accounting gaps and receive a personalised readiness report with maturity score, gap analysis, and prioritised recommendations.",
-    "url": "https://terrnix.com/carbon-accounting-readiness-assessment/",
-    "applicationCategory": "BusinessApplication",
-    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "Terrnix",
-      "url": "https://terrnix.com"
-    }
   }
-  </script>
+}
+</script>
+<link rel="stylesheet" href="/components/design-system.css">
+<title>Carbon Accounting Readiness Assessment | Terrnix</title>
+<meta name="description" content="25-question assessment to identify your biggest carbon accounting gaps. Receive prioritised recommendations.">
+<link rel="canonical" href="https://terrnix.com/carbon-accounting-readiness-assessment/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Terrnix">
+<meta property="og:title" content="Carbon Accounting Readiness Assessment">
+<meta property="og:description" content="25-question assessment to identify your biggest carbon accounting gaps.">
+<meta property="og:url" content="https://terrnix.com/carbon-accounting-readiness-assessment/">
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@TerrnixHQ">
+<meta name="twitter:title" content="Carbon Accounting Readiness Assessment">
+<meta name="twitter:description" content="25-question assessment to identify your biggest carbon accounting gaps.">
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0a0f0d">
+<meta name="msapplication-TileColor" content="#0a0f0d">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
 
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MVBZJTV3S9"></script>
-  <script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Terrnix",
+  "url": "https://terrnix.com",
+  "logo": "https://terrnix.com/assets/logo.png",
+  "sameAs": [
+    "https://linkedin.com/company/terrnix",
+    "https://x.com/TerrnixHQ",
+    "https://github.com/talal-rgb/ecosphere-sustainability"
+  ],
+  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
+  "foundingDate": "2024",
+  "areaServed": "Global",
+  "knowsAbout": [
+    "Carbon Accounting",
+    "ESG Reporting",
+    "GHG Protocol",
+    "CSRD",
+    "ISSB",
+    "Climate Compliance",
+    "Sustainability Intelligence"
+  ]
+}
+</script>
+<script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
@@ -74,20 +90,18 @@
   </script>
 </head>
 <body class="bg-slate-900 min-h-screen">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<!--#include virtual="/components/nav.html" -->
+
   <!-- Header -->
   <header class="border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="text-xl font-bold text-white">Terrnix</a>
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="/" class="text-slate-400 hover:text-white transition-colors">Home</a>
-        <a href="/sustainability-intelligence/" class="text-slate-400 hover:text-white transition-colors">Intelligence</a>
-        <a href="/carbon-accounting/carbon-footprint-calculator/" class="text-slate-400 hover:text-white transition-colors">Calculator</a>
-      </nav>
-    </div>
+      </div>
   </header>
 
   <!-- Assessment Container -->
-  <main class="assessment-container" role="main" aria-label="Carbon Accounting Readiness Assessment">
+  <main id="main-content" role="main">
     <div id="assessment-root" data-assessment="carbon-accounting-readiness" class="max-w-4xl mx-auto" aria-live="polite" aria-atomic="false">
       <!-- Assessment renders here -->
     </div>
@@ -95,15 +109,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-800 mt-20">
-    <div class="max-w-7xl mx-auto px-6 py-8 text-center text-slate-500 text-sm">
-      <p> Terrnix. All rights reserved.</p>
-      <div class="mt-2 space-x-4">
-        <a href="/privacy-policy/" class="hover:text-slate-300">Privacy Policy</a>
-        <a href="/terms/" class="hover:text-slate-300">Terms</a>
-      </div>
-    </div>
-  </footer>
+  
 
   <!-- Assessment Engine Scripts -->
   <script src="/assets/js/assessment/utils.js?v=3"></script>
@@ -152,5 +158,7 @@
       }
     });
   </script>
+
+<!--#include virtual="/components/footer.html" -->
 </body>
 </html>

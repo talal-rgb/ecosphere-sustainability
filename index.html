@@ -2,56 +2,85 @@
 
 <html lang="en" x-data="terrnixApp()" x-init="initApp()">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Terrnix — AI Sustainability Intelligence Platform</title>
-<meta content="Terrnix combines AI-driven analytics with deep sustainability expertise — carbon accounting, ESG frameworks, climate regulations, green finance, and energy economics." name="description"/>
-<meta content="Terrnix — AI Sustainability Intelligence" property="og:title"/>
-<meta content="Professional sustainability platform for carbon accounting, ESG, and climate intelligence." property="og:description"/>
-<meta content="https://terrnix.com/assets/og-image.png" property="og:image"/>
-<meta content="https://terrnix.com/" property="og:url"/>
-<meta content="website" property="og:type"/>
-<meta content="Terrnix" property="og:site_name"/>
-<meta content="en_US" property="og:locale"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="Terrnix — AI Sustainability Intelligence" name="twitter:title"/>
-<meta content="Professional sustainability platform for carbon accounting, ESG, and climate intelligence." name="twitter:description"/>
-<meta content="https://terrnix.com/assets/og-image.png" name="twitter:image"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://terrnix-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
-<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload"/>
-<meta http-equiv="X-Frame-Options" content="DENY"/>
-<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
-<meta name="referrer" content="strict-origin-when-cross-origin"/>
-<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"/>
-<meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE"/>
-<script src="/assets/js/analytics.js"></script>
-<link rel="canonical" href="https://terrnix.com/"/>
-<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-pb6hrQvo4s23cEUFtj0CZkzGE3jyK3pj26RIupXXxhSrrcUA/Cn0lZgcCrGH0t6L" crossorigin="anonymous"></script>
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
 <script>
 tailwind.config = {
-    theme: {
-        extend: {
-            fontFamily: {
-                display: ['Space Grotesk', 'sans-serif'],
-                body: ['Inter', 'sans-serif'],
-            },
-            colors: {
-                dark: '#0a0f0d',
-                panel: '#111a16',
-                surface: '#1a2520',
-                border: '#2d3d35',
-                accent: '#4ade80',
-                accent2: '#22d3ee',
-                accent3: '#a3e635',
-            }
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        terrnix: {
+          bg: '#0a0f0d',
+          'bg-secondary': '#111a16',
+          'bg-tertiary': '#1a2520',
+          border: '#2d3d35',
+          emerald: '#10b981',
+          'emerald-light': '#34d399',
+          cyan: '#06b6d4',
+          'cyan-light': '#22d3ee',
         }
+      }
     }
+  }
+}
+</script>
+<link rel="stylesheet" href="/components/design-system.css">
+<title>Terrnix — AI Sustainability Intelligence Platform | Terrnix</title>
+<meta name="description" content="Professional sustainability platform combining AI-driven analytics with deep expertise in carbon accounting, ESG frameworks, climate regulations, and energy economics.">
+<link rel="canonical" href="https://terrnix.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Terrnix">
+<meta property="og:title" content="Terrnix — AI Sustainability Intelligence Platform">
+<meta property="og:description" content="Professional sustainability platform for carbon accounting, ESG, and climate intelligence.">
+<meta property="og:url" content="https://terrnix.com/">
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@TerrnixHQ">
+<meta name="twitter:title" content="Terrnix — AI Sustainability Intelligence Platform">
+<meta name="twitter:description" content="Professional sustainability platform for carbon accounting, ESG, and climate intelligence.">
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0a0f0d">
+<meta name="msapplication-TileColor" content="#0a0f0d">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Terrnix",
+  "url": "https://terrnix.com",
+  "logo": "https://terrnix.com/assets/logo.png",
+  "sameAs": [
+    "https://linkedin.com/company/terrnix",
+    "https://x.com/TerrnixHQ",
+    "https://github.com/talal-rgb/ecosphere-sustainability"
+  ],
+  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
+  "foundingDate": "2024",
+  "areaServed": "Global",
+  "knowsAbout": [
+    "Carbon Accounting",
+    "ESG Reporting",
+    "GHG Protocol",
+    "CSRD",
+    "ISSB",
+    "Climate Compliance",
+    "Sustainability Intelligence"
+  ]
 }
 </script>
 <style>
@@ -1278,52 +1307,19 @@ input[type="range"].slider::-moz-range-thumb {
     background: rgba(74, 222, 128, 0.03);
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous"/>
 </head>
 <body class="gradient-bg">
 <a href="#main-content" class="skip-link">Skip to main content</a>
+<!--#include virtual="/components/nav.html" -->
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <!-- ========== STICKY NAVIGATION ========== -->
 <header>
-<nav @scroll.window="
-    $el.classList.toggle('scrolled', window.scrollY &gt; 50)
-" class="sticky-nav" id="mainNav" aria-label="Main navigation">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex items-center justify-between h-16">
-<!-- Logo -->
-<a class="flex items-center gap-2.5 group" href="/">
-<div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), var(--accent2));">
-<i class="fas fa-leaf text-sm" style="color: var(--bg-dark);"></i>
-</div>
-<div class="flex flex-col">
-<span class="font-display font-bold text-lg tracking-tight" style="color: var(--text);">Terrnix</span>
-<span class="text-[0.6rem] uppercase tracking-[0.15em] font-medium" style="color: var(--muted);">Sustainability Intelligence</span>
-</div>
-</a>
-<!-- Desktop Nav Links -->
-<div class="hidden lg:flex items-center gap-6">
-<a class="nav-link whitespace-nowrap" href="/carbon-accounting/">Carbon Accounting</a>
-<a class="nav-link whitespace-nowrap" href="/esg-reporting/">ESG Reporting</a>
-<a class="nav-link whitespace-nowrap" href="/sustainability-intelligence/">Intelligence</a>
-<a class="nav-link whitespace-nowrap" href="/tools/">Tools</a>
-<a class="nav-link whitespace-nowrap" href="/resources/">Resources</a>
-<a class="nav-link whitespace-nowrap" href="/about/">About</a>
-<a class="nav-link whitespace-nowrap" href="/contact/">Contact</a>
-</div>
-<!-- CTA + Mobile Toggle -->
-<div class="flex items-center gap-4">
-<a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden lg:flex btn-gradient btn-sm">
-                    Get Started
-                    <i class="fas fa-arrow-right text-xs"></i>
-</a>
-<button type="button" @click="mobileMenuOpen = true" class="lg:hidden p-2 rounded-lg" style="color: var(--text);" aria-label="Open menu">
-<i class="fas fa-bars text-lg" aria-hidden="true"></i>
-</button>
-</div>
-</div>
-</div>
-</nav>
 </header>
 <!-- ========== MOBILE MENU OVERLAY ========== -->
-<main id="main-content">
+<main id="main-content" role="main">
 <div :class="{ 'open': mobileMenuOpen }" class="mobile-menu">
 <button type="button" @click="mobileMenuOpen = false" class="absolute top-6 right-6 p-2" style="color: var(--text);" aria-label="Close menu">
 <i class="fas fa-times text-2xl" aria-hidden="true"></i>
@@ -3869,83 +3865,7 @@ Explore all Deep Dive Topics
 </section>
 </main>
 <!-- ====== SECTION 3: FOOTER ====== -->
-<footer class="bg-[#070d18] border-t border-slate-800/50 pt-16 pb-8 px-6">
-<div class="max-w-7xl mx-auto">
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-<!-- Column 1: Brand -->
-<div>
-<div class="flex items-center gap-3 mb-4">
-<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</div>
-<span class="text-xl font-bold text-white">Terrnix</span>
-</div>
-<p class="text-slate-400 text-sm leading-relaxed mb-6">Intelligence for a greener tomorrow. Advanced sustainability analytics powered by AI.</p>
-<div class="flex gap-3">
-<a aria-label="X (Twitter)" class="w-9 h-9 rounded-lg bg-slate-800/50 hover:bg-emerald-500/20 border border-slate-700/50 hover:border-emerald-500/30 flex items-center justify-center text-slate-400 hover:text-emerald-400 transition-all" href="https://x.com/TerrnixHQ" target="_blank" rel="noopener noreferrer" title="Follow us on X">
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
-</a>
-<a aria-label="LinkedIn" class="w-9 h-9 rounded-lg bg-slate-800/50 hover:bg-emerald-500/20 border border-slate-700/50 hover:border-emerald-500/30 flex items-center justify-center text-slate-400 hover:text-emerald-400 transition-all" href="https://linkedin.com/company/terrnix" target="_blank" rel="noopener noreferrer" title="Follow us on LinkedIn">
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>
-</a>
-<a aria-label="GitHub" class="w-9 h-9 rounded-lg bg-slate-800/50 hover:bg-emerald-500/20 border border-slate-700/50 hover:border-emerald-500/30 flex items-center justify-center text-slate-400 hover:text-emerald-400 transition-all" href="#" title="GitHub">
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
-</a>
-</div>
-</div>
-<!-- Column 2: Hubs -->
-<div>
-<h3 class="text-white font-semibold mb-4">Hubs</h3>
-<ul class="space-y-3">
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/carbon-accounting/">Carbon Accounting</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/esg-reporting/">ESG Reporting</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/sustainability-intelligence/">Intelligence</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/tools/">Tools</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/resources/">Resources</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/about/">About Us</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/contact/">Contact</a></li>
-</ul>
-</div>
-<!-- Column 3: Resources -->
-<div>
-<h3 class="text-white font-semibold mb-4">External Resources</h3>
-<ul class="space-y-3">
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="https://ghgprotocol.org/" target="_blank" rel="noopener noreferrer">GHG Protocol</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="https://www.ipcc.ch/" target="_blank" rel="noopener noreferrer">IPCC Reports</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="https://sciencebasedtargets.org/" target="_blank" rel="noopener noreferrer">Science Based Targets</a></li>
-<li><a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="https://www.cdp.net/" target="_blank" rel="noopener noreferrer">CDP Disclosure</a></li>
-</ul>
-</div>
-<!-- Column 4: Newsletter -->
-<div>
-<h3 class="text-white font-semibold mb-4">Stay Updated</h3>
-<p class="text-slate-400 text-sm mb-4">Get the latest sustainability insights delivered to your inbox.</p>
-<div class="flex gap-2">
-<input class="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-400 focus:outline-none focus:border-emerald-500/50 text-sm" id="footer-email" placeholder="Enter your email" type="email"/>
-<button type="button" class="px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-all flex items-center gap-2" onclick="subscribeFooter()" aria-label="Subscribe to newsletter">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
 
-</button>
-</div>
-<p class="text-emerald-400 text-xs mt-2 hidden" id="footer-subscribe-msg"></p>
-</div>
-</div>
-<!-- Bottom Bar -->
-<div class="border-t border-slate-800/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-<p class="text-slate-400 text-sm">2026 Terrnix. Intelligence for a greener tomorrow.</p>
-<div class="flex gap-4">
-<a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="privacy-policy.html">Privacy Policy</a>
-<a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="terms-of-use.html">Terms of Use</a>
-<a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/about/">About Us</a>
-<a class="text-slate-400 hover:text-emerald-400 text-sm transition-colors" href="/contact/">Contact</a>
-</div>
-</div>
-</div>
-</footer>
 <!-- ====== SECTION 4: ADMIN PANEL ====== -->
 <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden" id="admin">
 <div class="min-h-screen flex items-center justify-center p-4">
@@ -6348,7 +6268,9 @@ function exportResults(format) {
             </table>
 
             <p class="note">This report was generated by Terrnix (terrnix.com) using IPCC AR6 emission factors, IEA 2024 grid data, EPA AP-42 combustion factors, and standard financial methodologies (LCOE, NPV, IRR). For audit and verification purposes, retain all input data and assumption documentation.</p>
-            </body></html>`
+            
+<!--#include virtual="/components/footer.html" -->
+</body></html>`
         );
         printWindow.document.close();
         // Use html2pdf for actual PDF download instead of print dialog
@@ -6594,5 +6516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (heroStats) counterObserver.observe(heroStats);
 });
 </script>
+
+<!--#include virtual="/components/footer.html" -->
 </body>
 </html>

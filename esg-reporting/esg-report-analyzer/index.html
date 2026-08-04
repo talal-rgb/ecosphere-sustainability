@@ -1,42 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix</title>
-<meta name="description" content="Upload your ESG or sustainability report for AI-powered analysis. Identify gaps against CSRD, ISSB, TCFD, and GRI frameworks. Get actionable recommendations."/>
-<link rel="canonical" href="https://terrnix.com/esg-reporting/esg-report-analyzer/"/>
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
-<meta property="og:type" content="product"/>
-<meta property="og:url" content="https://terrnix.com/esg-reporting/esg-report-analyzer/"/>
-<meta property="og:title" content="ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix"/>
-<meta property="og:description" content="Upload your ESG report for AI-powered gap analysis against CSRD, ISSB, TCFD, and GRI frameworks."/>
-<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
-<meta property="og:site_name" content="Terrnix"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:url" content="https://terrnix.com/esg-reporting/esg-report-analyzer/"/>
-<meta name="twitter:title" content="ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix"/>
-<meta name="twitter:description" content="Upload your ESG report for AI-powered gap analysis against CSRD, ISSB, TCFD, and GRI frameworks."/>
-<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Product",
-  "name": "Terrnix ESG Report Analyzer",
-  "description": "AI-powered ESG and sustainability report analysis tool. Identifies disclosure gaps against CSRD, ISSB, TCFD, and GRI frameworks.",
-  "url": "https://terrnix.com/esg-reporting/esg-report-analyzer/",
-  "brand": {"@type": "Brand", "name": "Terrnix"},
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock"
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        terrnix: {
+          bg: '#0a0f0d',
+          'bg-secondary': '#111a16',
+          'bg-tertiary': '#1a2520',
+          border: '#2d3d35',
+          emerald: '#10b981',
+          'emerald-light': '#34d399',
+          cyan: '#06b6d4',
+          'cyan-light': '#22d3ee',
+        }
+      }
+    }
   }
 }
 </script>
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/components/design-system.css">
+<title>ESG Report Analyzer | Terrnix</title>
+<meta name="description" content="Analyze and benchmark your ESG reports against CSRD, ISSB, and GRI standards.">
+<link rel="canonical" href="https://terrnix.com/esg-reporting/esg-report-analyzer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Terrnix">
+<meta property="og:title" content="ESG Report Analyzer">
+<meta property="og:description" content="Analyze and benchmark your ESG reports against CSRD, ISSB, and GRI standards.">
+<meta property="og:url" content="https://terrnix.com/esg-reporting/esg-report-analyzer/">
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@TerrnixHQ">
+<meta name="twitter:title" content="ESG Report Analyzer">
+<meta name="twitter:description" content="Analyze and benchmark your ESG reports against CSRD, ISSB, and GRI standards.">
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0a0f0d">
+<meta name="msapplication-TileColor" content="#0a0f0d">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Terrnix",
+  "url": "https://terrnix.com",
+  "logo": "https://terrnix.com/assets/logo.png",
+  "sameAs": [
+    "https://linkedin.com/company/terrnix",
+    "https://x.com/TerrnixHQ",
+    "https://github.com/talal-rgb/ecosphere-sustainability"
+  ],
+  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
+  "foundingDate": "2024",
+  "areaServed": "Global",
+  "knowsAbout": [
+    "Carbon Accounting",
+    "ESG Reporting",
+    "GHG Protocol",
+    "CSRD",
+    "ISSB",
+    "Climate Compliance",
+    "Sustainability Intelligence"
+  ]
+}
+</script>
 <style>
 :root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent-2: #22d3ee; }
 body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
@@ -51,38 +96,14 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 </style>
 </head>
 <body class="min-h-screen">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<!--#include virtual="/components/nav.html" -->
+
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- Navigation -->
-<nav class="border-b border-[#2d3d35] bg-[#0a0f0d]/95 backdrop-blur-sm sticky top-0 z-50" role="navigation" aria-label="Main navigation">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <a href="/" class="flex items-center space-x-2" aria-label="Terrnix home">
-        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="nav-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#nav-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/><path d="M16 10 L16 22" stroke="#0a0f0d" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span class="text-xl font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
-      </a>
-      <div class="hidden md:flex items-center space-x-6">
-        <a href="/carbon-accounting/" class="text-gray-300 hover:text-white transition">Carbon Accounting</a>
-        <a href="/esg-reporting/" class="text-gray-300 hover:text-white transition">ESG Reporting</a>
-        <a href="/sustainability-intelligence/" class="text-gray-300 hover:text-white transition">Intelligence</a>
-        <a href="/tools/" class="text-gray-300 hover:text-white transition">Tools</a>
-      </div>
-    </div>
-  </div>
-</nav>
-
 <!-- Breadcrumb -->
-<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Breadcrumb">
-  <ol class="flex items-center space-x-2 text-sm text-gray-400">
-    <li><a href="/" class="hover:text-white transition">Home</a></li>
-    <li aria-hidden="true">/</li>
-    <li><a href="/esg-reporting/" class="hover:text-white transition">ESG Reporting</a></li>
-    <li aria-hidden="true">/</li>
-    <li class="text-white" aria-current="page">ESG Report Analyzer</li>
-  </ol>
-</nav>
-
-<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+<main id="main" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20" role="main">
 
   <!-- Hero -->
   <section class="py-16 md:py-24 text-center" aria-labelledby="hero-title">
@@ -262,49 +283,7 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 </main>
 
 <!-- Footer -->
-<footer class="border-t border-[#2d3d35] py-12" role="contentinfo">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <div class="flex items-center space-x-2 mb-4">
-          <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="foot-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#foot-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/></svg>
-          <span class="font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
-        </div>
-        <p class="text-gray-400 text-sm">Sustainability intelligence for the modern enterprise.</p>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Product</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="/carbon-accounting/carbon-footprint-calculator/" class="hover:text-white transition">Carbon Calculator</a></li>
-          <li><a href="/esg-reporting/esg-report-analyzer/" class="hover:text-white transition">ESG Analyzer</a></li>
-          <li><span class="text-gray-500">Academy — Coming Soon</span></li>
-          <li><span class="text-gray-500">Energy Suite — Coming Soon</span></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Resources</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="/sustainability-intelligence/" class="hover:text-white transition">Intelligence Hub</a></li>
-          <li><a href="/resources/guides/" class="hover:text-white transition">Guides</a></li>
-          <li><a href="/resources/glossary/" class="hover:text-white transition">Glossary</a></li>
-          <li><a href="/quiz/" class="hover:text-white transition">Sustainability Quiz</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Company</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="/about/" class="hover:text-white transition">About</a></li>
-          <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
-          <li><a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a></li>
-          <li><a href="/terms-of-use.html" class="hover:text-white transition">Terms</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="border-t border-[#2d3d35] pt-8 text-center text-sm text-gray-500">
-      <p> Terrnix. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
+
 
 <script>
 function handleWaitlist(e) {
@@ -319,5 +298,7 @@ function handleWaitlist(e) {
 }
 </script>
 
+
+<!--#include virtual="/components/footer.html" -->
 </body>
 </html>

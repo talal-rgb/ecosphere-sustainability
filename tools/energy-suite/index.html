@@ -1,34 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Energy Economics Suite | NPV, IRR &amp; LCOE Calculators | Terrnix</title>
-<meta name="description" content="Free professional energy economics calculators: NPV, IRR, and LCOE for solar, wind, and fossil fuel projects. Compare technologies and evaluate renewable investments."/>
-<link rel="canonical" href="https://terrnix.com/tools/energy-suite/"/>
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://terrnix.com/tools/energy-suite/"/>
-<meta property="og:title" content="Energy Economics Suite | NPV, IRR &amp; LCOE Calculators | Terrnix"/>
-<meta property="og:description" content="Free professional energy economics calculators for sustainable project planning."/>
-<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
-<meta property="og:site_name" content="Terrnix"/>
-<meta name="twitter:card" content="summary_large_image"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        terrnix: {
+          bg: '#0a0f0d',
+          'bg-secondary': '#111a16',
+          'bg-tertiary': '#1a2520',
+          border: '#2d3d35',
+          emerald: '#10b981',
+          'emerald-light': '#34d399',
+          cyan: '#06b6d4',
+          'cyan-light': '#22d3ee',
+        }
+      }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="/components/design-system.css">
+<title>Energy Economics Suite — LCOE & NPV Calculator | Terrnix</title>
+<meta name="description" content="Professional-grade financial calculators for sustainable energy projects. Evaluate NPV, IRR, and LCOE to compare technologies and justify renewable investments.">
+<link rel="canonical" href="https://terrnix.com/tools/energy-suite/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Terrnix">
+<meta property="og:title" content="Energy Economics Suite — LCOE & NPV Calculator">
+<meta property="og:description" content="Professional-grade financial calculators for sustainable energy projects.">
+<meta property="og:url" content="https://terrnix.com/tools/energy-suite/">
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@TerrnixHQ">
+<meta name="twitter:title" content="Energy Economics Suite — LCOE & NPV Calculator">
+<meta name="twitter:description" content="Professional-grade financial calculators for sustainable energy projects.">
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0a0f0d">
+<meta name="msapplication-TileColor" content="#0a0f0d">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Terrnix Energy Economics Suite",
-  "description": "Free NPV, IRR, and LCOE calculators for energy project evaluation.",
-  "url": "https://terrnix.com/tools/energy-suite/",
-  "applicationCategory": "FinanceApplication",
-  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+  "@type": "Organization",
+  "name": "Terrnix",
+  "url": "https://terrnix.com",
+  "logo": "https://terrnix.com/assets/logo.png",
+  "sameAs": [
+    "https://linkedin.com/company/terrnix",
+    "https://x.com/TerrnixHQ",
+    "https://github.com/talal-rgb/ecosphere-sustainability"
+  ],
+  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
+  "foundingDate": "2024",
+  "areaServed": "Global",
+  "knowsAbout": [
+    "Carbon Accounting",
+    "ESG Reporting",
+    "GHG Protocol",
+    "CSRD",
+    "ISSB",
+    "Climate Compliance",
+    "Sustainability Intelligence"
+  ]
 }
 </script>
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 <style>
 :root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; --accent-2: #22d3ee; }
 body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
@@ -42,40 +95,17 @@ input[type="range"] { accent-color: #4ade80; }
 .tab-btn { transition: all 0.2s; }
 .tab-btn.active { background: linear-gradient(135deg, #4ade80, #22d3ee); color: #000; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="min-h-screen">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<!--#include virtual="/components/nav.html" -->
+
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- Navigation -->
-<nav class="border-b border-[#2d3d35] bg-[#0a0f0d]/95 backdrop-blur-sm sticky top-0 z-50" aria-label="Main navigation">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <a href="/" class="flex items-center space-x-2" aria-label="Terrnix home">
-        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="nav-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4ade80"/><stop offset="100%" style="stop-color:#22d3ee"/></linearGradient></defs><rect width="32" height="32" rx="6" fill="url(#nav-grad)"/><path d="M16 6 C16 6 10 12 10 18 C10 22 13 26 16 26 C19 26 22 22 22 18 C22 12 16 6 16 6Z" fill="#0a0f0d"/><path d="M16 10 L16 22" stroke="#0a0f0d" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span class="text-xl font-bold" style="font-family:'Space Grotesk',sans-serif">Terrnix</span>
-      </a>
-      <div class="hidden md:flex items-center space-x-6">
-        <a href="/carbon-accounting/" class="text-gray-300 hover:text-white transition">Carbon Accounting</a>
-        <a href="/esg-reporting/" class="text-gray-300 hover:text-white transition">ESG Reporting</a>
-        <a href="/sustainability-intelligence/" class="text-gray-300 hover:text-white transition">Intelligence</a>
-        <a href="/tools/" class="text-gray-300 hover:text-white transition">Tools</a>
-      </div>
-    </div>
-  </div>
-</nav>
-
 <!-- Breadcrumb -->
-<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Breadcrumb">
-  <ol class="flex items-center space-x-2 text-sm text-gray-400">
-    <li><a href="/" class="hover:text-white transition">Home</a></li>
-    <li aria-hidden="true">/</li>
-    <li><a href="/tools/" class="hover:text-white transition">Tools</a></li>
-    <li aria-hidden="true">/</li>
-    <li class="text-white" aria-current="page">Energy Economics Suite</li>
-  </ol>
-</nav>
-
-<main id="main">
+<main id="main" role="main">
 
 <!-- Hero -->
 <section class="py-12 md:py-20 text-center px-4" aria-labelledby="hero-title">
@@ -307,15 +337,7 @@ input[type="range"] { accent-color: #4ade80; }
 </main>
 
 <!-- Footer -->
-<footer class="border-t border-[#2d3d35] py-8 px-4">
-  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-    <p class="text-gray-500 text-sm">2026 Terrnix. Intelligence for a greener tomorrow.</p>
-    <div class="flex gap-4">
-      <a href="/privacy-policy.html" class="text-gray-500 hover:text-emerald-400 text-sm transition">Privacy Policy</a>
-      <a href="/terms-of-use.html" class="text-gray-500 hover:text-emerald-400 text-sm transition">Terms of Use</a>
-    </div>
-  </div>
-</footer>
+
 
 <script>
 // Tab switching
@@ -463,5 +485,7 @@ window.addEventListener('load', function() {
 });
 </script>
 
+
+<!--#include virtual="/components/footer.html" -->
 </body>
 </html>
