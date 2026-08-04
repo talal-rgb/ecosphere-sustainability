@@ -1,0 +1,173 @@
+{
+  "auditDate": "2026-08-04",
+  "auditor": "Terrnix AI",
+  "method": "Live HTTP fetch of rendered HTML + browser inspection",
+  "correctionNote": "Previous audit incorrectly claimed 13 of 14 pages were missing title tags. Live verification shows most pages DO have titles. This corrected audit reflects actual rendered HTML.",
+  "pages": [
+    {
+      "url": "/",
+      "title": "Terrnix — AI Sustainability Intelligence Platform",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Present",
+      "favicon": "Missing",
+      "schema": "Missing",
+      "status": "GOOD — needs favicon + schema"
+    },
+    {
+      "url": "/carbon-accounting/",
+      "title": "Carbon Accounting Guide & Software | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Present",
+      "favicon": "Present",
+      "schema": "Article schema present",
+      "status": "GOOD — has Article schema"
+    },
+    {
+      "url": "/esg-reporting/",
+      "title": "ESG Reporting Guide 2025 | CSRD, ESRS & ISSB | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Present",
+      "favicon": "Present",
+      "schema": "FAQPage + WebPage schema present",
+      "status": "GOOD — has FAQPage schema"
+    },
+    {
+      "url": "/tools/",
+      "title": "Free Sustainability Tools | Carbon Calculator, LCOE, Quiz | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing Twitter cards + schema"
+    },
+    {
+      "url": "/tools/energy-suite/",
+      "title": "Energy Economics Suite | NPV, IRR & LCOE Calculators | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "WebApplication schema present",
+      "status": "GOOD — has WebApplication schema"
+    },
+    {
+      "url": "/sustainability-intelligence/",
+      "title": "Sustainability Intelligence & News | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Missing",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing OG title, Twitter, schema"
+    },
+    {
+      "url": "/resources/",
+      "title": "Sustainability Resources & Glossary | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Missing",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing OG title, Twitter, schema"
+    },
+    {
+      "url": "/about/",
+      "title": "About Terrnix — AI Sustainability Intelligence Platform",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Missing",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing OG title, Twitter, schema"
+    },
+    {
+      "url": "/contact/",
+      "title": "Contact Terrnix — Sustainability Experts",
+      "metaDesc": "Present (truncated in fetch)",
+      "canonical": "Present",
+      "ogTitle": "Missing",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing OG title, Twitter, schema"
+    },
+    {
+      "url": "/quiz/",
+      "title": "Sustainability Quiz | Test Your Knowledge | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Present",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "GOOD — needs schema"
+    },
+    {
+      "url": "/carbon-accounting/carbon-footprint-calculator/",
+      "title": "Free Carbon Footprint Calculator | Scope 1, 2, 3 | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing Twitter cards + schema"
+    },
+    {
+      "url": "/carbon-accounting-readiness-assessment/",
+      "title": "Assess Your Organisation's Carbon Accounting Readiness | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Partial (truncated)",
+      "twitterCard": "Missing",
+      "favicon": "Missing",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing favicon, Twitter, schema"
+    },
+    {
+      "url": "/esg-reporting/esg-report-analyzer/",
+      "title": "ESG Report Analyzer | AI-Powered Sustainability Disclosure Review | Terrnix",
+      "metaDesc": "Present",
+      "canonical": "Present",
+      "ogTitle": "Present",
+      "twitterCard": "Missing",
+      "favicon": "Present",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — missing Twitter cards + schema"
+    },
+    {
+      "url": "/analytics-dashboard/",
+      "title": "Terrnix Growth Dashboard",
+      "metaDesc": "Internal-only description",
+      "canonical": "Missing",
+      "ogTitle": "Missing",
+      "twitterCard": "Missing",
+      "favicon": "Missing",
+      "schema": "Missing",
+      "status": "NEEDS_IMPROVEMENT — internal page, needs noindex or proper SEO"
+    }
+  ],
+  "summary": {
+    "totalPages": 14,
+    "pagesWithTitle": 14,
+    "pagesWithMetaDesc": 14,
+    "pagesWithCanonical": 13,
+    "pagesWithOG": 10,
+    "pagesWithTwitter": 5,
+    "pagesWithFavicon": 12,
+    "pagesWithSchema": 3,
+    "pagesNeedingFix": 9
+  }
+}

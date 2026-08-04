@@ -1,13 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Terrnix Growth Dashboard</title>
-<meta name="description" content="Internal analytics dashboard for Terrnix sustainability platform"/>
-<meta name="robots" content="noindex, nofollow"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        terrnix: {
+          bg: '#0a0f0d',
+          'bg-secondary': '#111a16',
+          'bg-tertiary': '#1a2520',
+          border: '#2d3d35',
+          emerald: '#10b981',
+          'emerald-light': '#34d399',
+          cyan: '#06b6d4',
+          'cyan-light': '#22d3ee',
+        }
+      }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="/components/design-system.css">
+<title>Terrnix Growth Dashboard | Terrnix</title>
+<meta name="description" content="Internal analytics dashboard for Terrnix sustainability platform metrics and KPIs.">
+<link rel="canonical" href="https://terrnix.com/analytics-dashboard/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Terrnix">
+<meta property="og:title" content="Terrnix Growth Dashboard">
+<meta property="og:description" content="Internal analytics dashboard for Terrnix sustainability platform.">
+<meta property="og:url" content="https://terrnix.com/analytics-dashboard/">
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@TerrnixHQ">
+<meta name="twitter:title" content="Terrnix Growth Dashboard">
+<meta name="twitter:description" content="Internal analytics dashboard for Terrnix sustainability platform.">
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0f0d">
+<meta name="msapplication-TileColor" content="#0a0f0d">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Terrnix",
+  "url": "https://terrnix.com",
+  "logo": "https://terrnix.com/assets/logo.png",
+  "sameAs": [
+    "https://linkedin.com/company/terrnix",
+    "https://x.com/TerrnixHQ",
+    "https://github.com/talal-rgb/ecosphere-sustainability"
+  ],
+  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
+  "foundingDate": "2024",
+  "areaServed": "Global",
+  "knowsAbout": [
+    "Carbon Accounting",
+    "ESG Reporting",
+    "GHG Protocol",
+    "CSRD",
+    "ISSB",
+    "Climate Compliance",
+    "Sustainability Intelligence"
+  ]
+}
+</script>
 <style>
 body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; }
 h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
@@ -43,6 +117,9 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<!--#include virtual="/components/nav.html" -->
+
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -438,5 +515,7 @@ loadDashboardData();
 setInterval(loadDashboardData, 300000);
 </script>
 
+
+<!--#include virtual="/components/footer.html" -->
 </body>
 </html>

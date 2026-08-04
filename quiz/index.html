@@ -1,26 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sustainability Quiz | Test Your Knowledge | Terrnix</title>
-<meta name="description" content="Test your sustainability knowledge with 30 questions across carbon accounting, ESG, energy, GHG Protocol, regulations, and carbon pricing. Get your score and certificate."/>
-<link rel="canonical" href="https://terrnix.com/quiz/"/>
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg"/>
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://terrnix.com/quiz/"/>
-<meta property="og:title" content="Sustainability Quiz | Test Your Knowledge | Terrnix"/>
-<meta property="og:description" content="30 questions across 6 sustainability domains. Test your expertise and earn a certificate."/>
-<meta property="og:image" content="https://terrnix.com/assets/og-image.png"/>
-<meta property="og:site_name" content="Terrnix"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:url" content="https://terrnix.com/quiz/"/>
-<meta name="twitter:title" content="Sustainability Quiz | Test Your Knowledge | Terrnix"/>
-<meta name="twitter:description" content="30 questions across 6 sustainability domains. Test your expertise and earn a certificate."/>
-<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        terrnix: {
+          bg: '#0a0f0d',
+          'bg-secondary': '#111a16',
+          'bg-tertiary': '#1a2520',
+          border: '#2d3d35',
+          emerald: '#10b981',
+          'emerald-light': '#34d399',
+          cyan: '#06b6d4',
+          'cyan-light': '#22d3ee',
+        }
+      }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="/components/design-system.css">
+<title>Sustainability Quiz — Test Your Knowledge | Terrnix</title>
+<meta name="description" content="30-question knowledge challenge covering carbon accounting, ESG, energy, and climate regulations. Test your expertise and earn a certificate.">
+<link rel="canonical" href="https://terrnix.com/quiz/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Terrnix">
+<meta property="og:title" content="Sustainability Quiz — Test Your Knowledge">
+<meta property="og:description" content="30-question knowledge challenge covering carbon accounting, ESG, energy, and climate regulations.">
+<meta property="og:url" content="https://terrnix.com/quiz/">
+<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@TerrnixHQ">
+<meta name="twitter:title" content="Sustainability Quiz — Test Your Knowledge">
+<meta name="twitter:description" content="30-question knowledge challenge covering carbon accounting, ESG, energy, and climate regulations.">
+<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0a0f0d">
+<meta name="msapplication-TileColor" content="#0a0f0d">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Terrnix",
+  "url": "https://terrnix.com",
+  "logo": "https://terrnix.com/assets/logo.png",
+  "sameAs": [
+    "https://linkedin.com/company/terrnix",
+    "https://x.com/TerrnixHQ",
+    "https://github.com/talal-rgb/ecosphere-sustainability"
+  ],
+  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
+  "foundingDate": "2024",
+  "areaServed": "Global",
+  "knowsAbout": [
+    "Carbon Accounting",
+    "ESG Reporting",
+    "GHG Protocol",
+    "CSRD",
+    "ISSB",
+    "Climate Compliance",
+    "Sustainability Intelligence"
+  ]
+}
+</script>
 <style>
 :root { --bg-dark: #0a0f0d; --bg-panel: #111a16; --bg-surface: #1a2520; --border: #2d3d35; --accent: #4ade80; }
 body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: #e2e8f0; }
@@ -36,36 +97,13 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
+<!--#include virtual="/components/nav.html" -->
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- Navigation -->
-<nav class="sticky top-0 z-50 bg-[#0a0f0d]/95 backdrop-blur-md border-b border-[#2d3d35]" aria-label="Main navigation">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <a href="/" class="text-2xl font-bold text-emerald-400" style="font-family: 'Space Grotesk'">Terrnix</a>
-      <div class="hidden lg:flex items-center space-x-8">
-        <a href="/carbon-accounting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Carbon Accounting</a>
-        <a href="/esg-reporting/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">ESG Reporting</a>
-        <a href="/sustainability-intelligence/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Intelligence</a>
-        <a href="/tools/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Tools</a>
-        <a href="/resources/" class="text-gray-400 hover:text-emerald-400 text-sm transition-colors">Resources</a>
-      </div>
-      <a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden md:inline-flex items-center px-4 py-2 bg-emerald-500 text-[#0a0f0d] rounded-lg text-sm font-semibold hover:bg-emerald-400 transition-colors">Calculate Your Carbon Footprint</a>
-    </div>
-  </div>
-</nav>
-
 <!-- Breadcrumb -->
-<nav aria-label="Breadcrumb" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-  <ol class="flex items-center space-x-2 text-sm text-gray-500">
-    <li><a href="/" class="hover:text-emerald-400 transition-colors">Home</a></li>
-    <li><span class="text-gray-600">/</span></li>
-    <li><a href="/tools/" class="hover:text-emerald-400 transition-colors">Tools</a></li>
-    <li><span class="text-gray-600">/</span></li>
-    <li class="text-emerald-400" aria-current="page">Sustainability Quiz</li>
-  </ol>
-</nav>
-
-<main id="main-content">
+<main id="main-content" role="main">
 <!-- Hero / Start Screen -->
 <section class="py-16 px-4 sm:px-6 lg:px-8" id="quiz-start">
   <div class="max-w-4xl mx-auto text-center">
@@ -200,43 +238,7 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 </main>
 
 <!-- Footer -->
-<footer class="border-t border-[#2d3d35] py-12 px-4 sm:px-6 lg:px-8 mt-16">
-  <div class="max-w-7xl mx-auto">
-    <div class="grid md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <h3 class="text-lg font-bold text-emerald-400 mb-4" style="font-family: 'Space Grotesk'">Terrnix</h3>
-        <p class="text-gray-500 text-sm">Sustainability intelligence, carbon accounting, and ESG analytics for the decisive decade.</p>
-      </div>
-      <div>
-        <h4 class="text-white font-semibold mb-4">Platform</h4>
-        <ul class="space-y-2 text-sm text-gray-500">
-          <li><a href="/carbon-accounting/" class="hover:text-emerald-400 transition-colors">Carbon Accounting</a></li>
-          <li><a href="/esg-reporting/" class="hover:text-emerald-400 transition-colors">ESG Reporting</a></li>
-          <li><a href="/tools/" class="hover:text-emerald-400 transition-colors">Tools</a></li>
-          <li><a href="/resources/" class="hover:text-emerald-400 transition-colors">Resources</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="text-white font-semibold mb-4">Company</h4>
-        <ul class="space-y-2 text-sm text-gray-500">
-          <li><a href="/about/" class="hover:text-emerald-400 transition-colors">About</a></li>
-          <li><a href="/contact/" class="hover:text-emerald-400 transition-colors">Contact</a></li>
-          <li><a href="/sustainability-intelligence/" class="hover:text-emerald-400 transition-colors">Intelligence</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="text-white font-semibold mb-4">Legal</h4>
-        <ul class="space-y-2 text-sm text-gray-500">
-          <li><a href="/privacy/" class="hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
-          <li><a href="/terms/" class="hover:text-emerald-400 transition-colors">Terms of Service</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="border-t border-[#2d3d35] pt-8 text-center text-gray-600 text-sm">
-      <p>© 2026 Terrnix. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
+
 
 <script>
 // ============================================
@@ -672,5 +674,7 @@ function shareCertificate() {
 }
 </script>
 
+
+<!--#include virtual="/components/footer.html" -->
 </body>
 </html>
