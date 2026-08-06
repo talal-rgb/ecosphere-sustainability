@@ -1,0 +1,49 @@
+name: Validate Static Shared Components
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - 'components/**'
+      - 'scripts/render-shared-components.py'
+      - '.github/workflows/validate-static-components.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - 'components/**'
+      - 'scripts/render-shared-components.py'
+      - '.github/workflows/validate-static-components.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify committed static components
+        run: python scripts/render-shared-components.py --check
+
+      - name: Validate static structure and internal links
+        run: python scripts/validate-static-site.py
+
+      - name: Validate inline JavaScript
+        run: node scripts/validate-inline-js.js
+
+      - name: Reject runtime SSI directives
+        run: |
+          if grep -RIn --include='*.html' '<!--[[:space:]]*#include' .; then
+            echo 'Runtime SSI directives are not supported by GitHub Pages.'
+            exit 1
+          fi

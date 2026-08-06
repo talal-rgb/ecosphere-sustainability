@@ -1,91 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        display: ['Space Grotesk', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-      },
-      colors: {
-        terrnix: {
-          bg: '#0a0f0d',
-          'bg-secondary': '#111a16',
-          'bg-tertiary': '#1a2520',
-          border: '#2d3d35',
-          emerald: '#10b981',
-          'emerald-light': '#34d399',
-          cyan: '#06b6d4',
-          'cyan-light': '#22d3ee',
-        }
-      }
-    }
-  }
-}
-</script>
-<link rel="stylesheet" href="/components/design-system.css">
-<title>Sustainability Resources — Glossary, Guides & FAQ | Terrnix</title>
-<meta name="description" content="Glossary, FAQs, guides, and reference materials for sustainability professionals. Carbon accounting, ESG, CSRD, and GHG Protocol.">
-<link rel="canonical" href="https://terrnix.com/resources/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Terrnix">
-<meta property="og:title" content="Sustainability Resources — Glossary, Guides & FAQ">
-<meta property="og:description" content="Glossary, FAQs, guides, and reference materials for sustainability professionals.">
-<meta property="og:url" content="https://terrnix.com/resources/">
-<meta property="og:image" content="https://terrnix.com/assets/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@TerrnixHQ">
-<meta name="twitter:title" content="Sustainability Resources — Glossary, Guides & FAQ">
-<meta name="twitter:description" content="Glossary, FAQs, guides, and reference materials for sustainability professionals.">
-<meta name="twitter:image" content="https://terrnix.com/assets/og-image.png">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#0a0f0d">
-<meta name="msapplication-TileColor" content="#0a0f0d">
-<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Terrnix",
-  "url": "https://terrnix.com",
-  "logo": "https://terrnix.com/assets/logo.png",
-  "sameAs": [
-    "https://linkedin.com/company/terrnix",
-    "https://x.com/TerrnixHQ",
-    "https://github.com/talal-rgb/ecosphere-sustainability"
-  ],
-  "description": "AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance.",
-  "foundingDate": "2024",
-  "areaServed": "Global",
-  "knowsAbout": [
-    "Carbon Accounting",
-    "ESG Reporting",
-    "GHG Protocol",
-    "CSRD",
-    "ISSB",
-    "Climate Compliance",
-    "Sustainability Intelligence"
-  ]
-}
-</script>
-<style>
-body { font-family: 'Inter', sans-serif; background: #0a0f0d; color: #e2e8f0; }
-h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability Training Resources | Terrnix</title>
+  <meta name="description" content="Terrnix sustainability training resources covering carbon accounting, ESG reporting, climate regulation, and practical emissions measurement.">
+  <link rel="canonical" href="https://terrnix.com/training/">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/components/design-system.css">
+  <style>
+    .training-main { min-height: 60vh; padding: 5rem 1rem; }
+    .training-content { width: 100%; max-width: 800px; margin: 0 auto; }
+    .training-content h1 { margin: 0 0 1rem; font: 700 clamp(2.25rem, 7vw, 4rem)/1.1 var(--font-display); }
+    .training-content p { max-width: 680px; color: var(--color-text-secondary); font-size: 1.125rem; line-height: 1.7; }
+    .training-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2.5rem; }
+    .training-link { display: block; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-secondary); color: var(--color-text-primary); text-decoration: none; }
+    .training-link:hover { border-color: var(--color-emerald-500); color: var(--color-emerald-400); }
+  </style>
 </head>
 <body>
 <!-- TERRNIX_SHARED_NAV_START -->
@@ -105,7 +36,7 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
       <a class="nav-link" href="/tools/energy-suite/">Energy Tools</a>
       <a class="nav-link" href="/sustainability-intelligence/">Intelligence</a>
       <a class="nav-link" href="/quiz/">Quiz</a>
-      <a class="nav-link" href="/training/">Training</a>
+      <a class="nav-link" href="/training/" aria-current="page">Training</a>
       <a class="nav-link" href="/about/">About</a>
       <a class="nav-link" href="/contact/">Contact</a>
     </div>
@@ -126,7 +57,7 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
     <a class="mobile-nav-link" href="/tools/energy-suite/">Energy Tools</a>
     <a class="mobile-nav-link" href="/sustainability-intelligence/">Sustainability Intelligence</a>
     <a class="mobile-nav-link" href="/quiz/">Sustainability Quiz</a>
-    <a class="mobile-nav-link" href="/training/">Training</a>
+    <a class="mobile-nav-link" href="/training/" aria-current="page">Training</a>
     <a class="mobile-nav-link" href="/about/">About</a>
     <a class="mobile-nav-link" href="/contact/">Contact</a>
     <a class="mobile-nav-link mobile-nav-cta" href="/tools/">Launch Platform</a>
@@ -171,43 +102,18 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 </script>
 <!-- TERRNIX_SHARED_NAV_END -->
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-  </div>
-
-<section id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-  <header class="mb-12">
-    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Sustainability Resources</h1>
-    <p class="text-xl text-gray-400">Glossary, FAQs, guides, and reference materials for sustainability professionals.</p>
-  </header>
-
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-    
-    <a href="/resources/glossary/" class="group block p-6 bg-[#111a16] border border-[#2d3d35] rounded-2xl hover:border-emerald-500/50 transition-all">
-      <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
-        <span class="text-2xl">📖</span>
+<main class="training-main" id="main-content">
+    <div class="training-content">
+      <p class="badge badge-emerald">Learning resources</p>
+      <h1>Sustainability training, grounded in practical work</h1>
+      <p>Build working knowledge through Terrnix guides on emissions measurement, reporting frameworks, and sustainability decision-making.</p>
+      <div class="training-links">
+        <a class="training-link" href="/resources/guides/">Browse sustainability guides</a>
+        <a class="training-link" href="/carbon-accounting/ghg-protocol-guide/">Study the GHG Protocol guide</a>
+        <a class="training-link" href="/quiz/">Test your sustainability knowledge</a>
       </div>
-      <h3 class="text-xl font-semibold text-white mb-2 group-hover:text-emerald-400 transition-colors">Glossary</h3>
-      <p class="text-gray-400 text-sm">Definitions for carbon accounting, ESG, CSRD, GHG Protocol, and sustainability terms.</p>
-    </a>
-
-    <a href="/resources/faq/" class="group block p-6 bg-[#111a16] border border-[#2d3d35] rounded-2xl hover:border-emerald-500/50 transition-all">
-      <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
-        <span class="text-2xl">❓</span>
-      </div>
-      <h3 class="text-xl font-semibold text-white mb-2 group-hover:text-emerald-400 transition-colors">FAQ</h3>
-      <p class="text-gray-400 text-sm">Frequently asked questions about carbon accounting, ESG reporting, and compliance.</p>
-    </a>
-
-    <a href="/resources/guides/" class="group block p-6 bg-[#111a16] border border-[#2d3d35] rounded-2xl hover:border-emerald-500/50 transition-all">
-      <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
-        <span class="text-2xl">📚</span>
-      </div>
-      <h3 class="text-xl font-semibold text-white mb-2 group-hover:text-emerald-400 transition-colors">Guides</h3>
-      <p class="text-gray-400 text-sm">Downloadable guides and whitepapers on sustainability topics.</p>
-    </a>
-
-  </div>
-</section>
+    </div>
+  </main>
 
 <!-- TERRNIX_SHARED_FOOTER_START -->
 <footer class="footer-main">

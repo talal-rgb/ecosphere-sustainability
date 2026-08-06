@@ -527,6 +527,246 @@ body {
   font-family: monospace;
 }
 
+/* Static shared shell (rendered into every public page) */
+.nav-main a,
+.footer-main a {
+  text-decoration: none;
+}
+
+.nav-shell {
+  width: 100%;
+  max-width: 1440px;
+  min-height: 4rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav-brand,
+.footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--color-emerald-400);
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nav-brand {
+  flex: 0 0 auto;
+  font-size: 1.35rem;
+}
+
+.nav-brand:hover,
+.footer-logo:hover {
+  color: var(--color-emerald-500);
+}
+
+.nav-brand-mark,
+.footer-logo-mark {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+}
+
+.nav-desktop {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.nav-desktop .nav-link {
+  padding: 0.55rem 0.48rem;
+  font-size: 0.78rem;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nav-launch {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0.62rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--color-emerald-600);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nav-launch:hover {
+  background: var(--color-emerald-500);
+  color: #fff;
+}
+
+.nav-menu-button {
+  width: 2.65rem;
+  height: 2.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.nav-menu-button:hover {
+  border-color: var(--color-emerald-500);
+  color: var(--color-emerald-400);
+}
+
+.nav-menu-button svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.nav-mobile {
+  width: 100%;
+  max-width: 1440px;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  margin: 0 auto;
+  padding: 0.65rem 1rem 1rem;
+  border-top: 1px solid var(--color-border);
+  background: rgba(10, 15, 13, 0.99);
+}
+
+.nav-mobile[hidden] {
+  display: none;
+}
+
+.mobile-nav-link[aria-current="page"] {
+  color: var(--color-emerald-400);
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.footer-shell {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 3rem 1rem 2rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 1.5rem;
+}
+
+.footer-brand {
+  grid-column: 1 / -1;
+}
+
+.footer-logo {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.footer-brand > p {
+  max-width: 26rem;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.footer-social {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.social-link svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
+}
+
+.footer-main .footer-heading {
+  margin: 0 0 1rem;
+}
+
+.footer-main .footer-list {
+  margin: 0;
+  padding: 0;
+}
+
+.footer-note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+@media (min-width: 640px) {
+  .nav-shell,
+  .nav-mobile,
+  .footer-shell {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .nav-launch {
+    display: inline-flex;
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .nav-desktop {
+    display: flex;
+  }
+
+  .nav-menu-button,
+  .nav-mobile {
+    display: none !important;
+  }
+
+  .nav-launch {
+    display: none;
+  }
+}
+
+@media (min-width: 1380px) {
+  .nav-launch {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav-shell,
+  .footer-shell {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1.5fr repeat(4, minmax(0, 1fr));
+  }
+
+  .footer-brand {
+    grid-column: auto;
+  }
+}
+
 /* ----------------------------------------------------------
    Typography
    ---------------------------------------------------------- */

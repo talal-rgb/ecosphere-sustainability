@@ -1,78 +1,80 @@
-<!-- Terrnix Shared Navigation — Include in all public pages -->
-<nav class="nav-main" role="navigation" aria-label="Main navigation">
-  <div class="container px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-2 text-2xl font-bold text-emerald-400 font-display hover:text-emerald-300 transition-colors">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        Terrnix
-      </a>
-      
-      <!-- Desktop Nav -->
-      <div class="hidden lg:flex items-center gap-1">
-        <a href="/carbon-accounting/" class="nav-link">Carbon Accounting</a>
-        <a href="/esg-reporting/" class="nav-link">ESG Reporting</a>
-        <a href="/sustainability-intelligence/" class="nav-link">Intelligence</a>
-        <a href="/tools/" class="nav-link">Tools</a>
-        <a href="/resources/" class="nav-link">Resources</a>
-        <a href="/about/" class="nav-link">About</a>
-        <a href="/contact/" class="nav-link">Contact</a>
-      </div>
-      
-      <!-- CTA + Mobile Menu Button -->
-      <div class="flex items-center gap-4">
-        <a href="/carbon-accounting/carbon-footprint-calculator/" class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-all">
-          Get Started
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-        </a>
-        <button id="mobileMenuBtn" class="lg:hidden text-gray-400 hover:text-emerald-400 transition-colors p-2" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-      </div>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<nav class="nav-main" aria-label="Main navigation">
+  <div class="nav-shell">
+    <a class="nav-brand" href="/" aria-label="Terrnix home">
+      <svg class="nav-brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span>Terrnix</span>
+    </a>
+
+    <div class="nav-desktop" role="group" aria-label="Primary links">
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link" href="/tools/">Platform</a>
+      <a class="nav-link" href="/carbon-accounting/">Carbon Accounting</a>
+      <a class="nav-link" href="/esg-reporting/">ESG Reporting</a>
+      <a class="nav-link" href="/tools/energy-suite/">Energy Tools</a>
+      <a class="nav-link" href="/sustainability-intelligence/">Intelligence</a>
+      <a class="nav-link" href="/quiz/">Quiz</a>
+      <a class="nav-link" href="/training/">Training</a>
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/contact/">Contact</a>
     </div>
-    
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden lg:hidden pb-4 border-t border-[#2d3d35] mt-2">
-      <div class="flex flex-col gap-1 pt-4">
-        <a href="/carbon-accounting/" class="mobile-nav-link">Carbon Accounting</a>
-        <a href="/esg-reporting/" class="mobile-nav-link">ESG Reporting</a>
-        <a href="/sustainability-intelligence/" class="mobile-nav-link">Intelligence</a>
-        <a href="/tools/" class="mobile-nav-link">Tools</a>
-        <a href="/resources/" class="mobile-nav-link">Resources</a>
-        <a href="/about/" class="mobile-nav-link">About</a>
-        <a href="/contact/" class="mobile-nav-link">Contact</a>
-        <a href="/carbon-accounting/carbon-footprint-calculator/" class="mobile-nav-link mobile-nav-cta">Get Started</a>
-      </div>
+
+    <div class="nav-actions">
+      <a class="nav-launch" href="/tools/">Launch Platform</a>
+      <button class="nav-menu-button" id="terrnix-menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="terrnix-mobile-menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
     </div>
   </div>
-</nav>
 
+  <div class="nav-mobile" id="terrnix-mobile-menu" hidden>
+    <a class="mobile-nav-link" href="/">Home</a>
+    <a class="mobile-nav-link" href="/tools/">Platform</a>
+    <a class="mobile-nav-link" href="/carbon-accounting/">Carbon Accounting</a>
+    <a class="mobile-nav-link" href="/esg-reporting/">ESG Reporting</a>
+    <a class="mobile-nav-link" href="/tools/energy-suite/">Energy Tools</a>
+    <a class="mobile-nav-link" href="/sustainability-intelligence/">Sustainability Intelligence</a>
+    <a class="mobile-nav-link" href="/quiz/">Sustainability Quiz</a>
+    <a class="mobile-nav-link" href="/training/">Training</a>
+    <a class="mobile-nav-link" href="/about/">About</a>
+    <a class="mobile-nav-link" href="/contact/">Contact</a>
+    <a class="mobile-nav-link mobile-nav-cta" href="/tools/">Launch Platform</a>
+  </div>
+</nav>
 <script>
-  (function() {
-    var btn = document.getElementById('mobileMenuBtn');
-    var menu = document.getElementById('mobileMenu');
-    if (!btn || !menu) return;
-    btn.addEventListener('click', function() {
-      var isHidden = menu.classList.contains('hidden');
-      menu.classList.toggle('hidden');
-      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  (function () {
+    var button = document.getElementById('terrnix-menu-button');
+    var menu = document.getElementById('terrnix-mobile-menu');
+    if (!button || !menu) return;
+
+    function closeMenu(returnFocus) {
+      menu.hidden = true;
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation menu');
+      if (returnFocus) button.focus();
+    }
+
+    button.addEventListener('click', function () {
+      var opening = menu.hidden;
+      menu.hidden = !opening;
+      button.setAttribute('aria-expanded', opening ? 'true' : 'false');
+      button.setAttribute('aria-label', opening ? 'Close navigation menu' : 'Open navigation menu');
     });
-    // Close on Escape
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && !menu.classList.contains('hidden')) {
-        menu.classList.add('hidden');
-        btn.setAttribute('aria-expanded', 'false');
-        btn.focus();
-      }
+
+    menu.addEventListener('click', function (event) {
+      if (event.target.closest('a')) closeMenu(false);
     });
-    // Close on outside click
-    document.addEventListener('click', function(e) {
-      if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
-        menu.classList.add('hidden');
-        btn.setAttribute('aria-expanded', 'false');
-      }
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !menu.hidden) closeMenu(true);
     });
-  })();
+
+    document.addEventListener('click', function (event) {
+      if (!menu.hidden && !menu.contains(event.target) && !button.contains(event.target)) closeMenu(false);
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 1180 && !menu.hidden) closeMenu(false);
+    });
+  }());
 </script>

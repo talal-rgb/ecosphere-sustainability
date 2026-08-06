@@ -39,22 +39,101 @@
     gtag('js', new Date());
     gtag('config', 'G-MVBZJTV3S9');
   </script>
+<link rel="stylesheet" href="/components/design-system.css">
 </head>
 <body class="bg-slate-900 min-h-screen">
-  <!-- Header -->
+<!-- TERRNIX_SHARED_NAV_START -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<nav class="nav-main" aria-label="Main navigation">
+  <div class="nav-shell">
+    <a class="nav-brand" href="/" aria-label="Terrnix home">
+      <svg class="nav-brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span>Terrnix</span>
+    </a>
+
+    <div class="nav-desktop" role="group" aria-label="Primary links">
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link" href="/tools/">Platform</a>
+      <a class="nav-link" href="/carbon-accounting/">Carbon Accounting</a>
+      <a class="nav-link" href="/esg-reporting/">ESG Reporting</a>
+      <a class="nav-link" href="/tools/energy-suite/">Energy Tools</a>
+      <a class="nav-link" href="/sustainability-intelligence/">Intelligence</a>
+      <a class="nav-link" href="/quiz/">Quiz</a>
+      <a class="nav-link" href="/training/">Training</a>
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/contact/">Contact</a>
+    </div>
+
+    <div class="nav-actions">
+      <a class="nav-launch" href="/tools/">Launch Platform</a>
+      <button class="nav-menu-button" id="terrnix-menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="terrnix-mobile-menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-mobile" id="terrnix-mobile-menu" hidden>
+    <a class="mobile-nav-link" href="/">Home</a>
+    <a class="mobile-nav-link" href="/tools/">Platform</a>
+    <a class="mobile-nav-link" href="/carbon-accounting/">Carbon Accounting</a>
+    <a class="mobile-nav-link" href="/esg-reporting/">ESG Reporting</a>
+    <a class="mobile-nav-link" href="/tools/energy-suite/">Energy Tools</a>
+    <a class="mobile-nav-link" href="/sustainability-intelligence/">Sustainability Intelligence</a>
+    <a class="mobile-nav-link" href="/quiz/">Sustainability Quiz</a>
+    <a class="mobile-nav-link" href="/training/">Training</a>
+    <a class="mobile-nav-link" href="/about/">About</a>
+    <a class="mobile-nav-link" href="/contact/">Contact</a>
+    <a class="mobile-nav-link mobile-nav-cta" href="/tools/">Launch Platform</a>
+  </div>
+</nav>
+<script>
+  (function () {
+    var button = document.getElementById('terrnix-menu-button');
+    var menu = document.getElementById('terrnix-mobile-menu');
+    if (!button || !menu) return;
+
+    function closeMenu(returnFocus) {
+      menu.hidden = true;
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation menu');
+      if (returnFocus) button.focus();
+    }
+
+    button.addEventListener('click', function () {
+      var opening = menu.hidden;
+      menu.hidden = !opening;
+      button.setAttribute('aria-expanded', opening ? 'true' : 'false');
+      button.setAttribute('aria-label', opening ? 'Close navigation menu' : 'Open navigation menu');
+    });
+
+    menu.addEventListener('click', function (event) {
+      if (event.target.closest('a')) closeMenu(false);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !menu.hidden) closeMenu(true);
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!menu.hidden && !menu.contains(event.target) && !button.contains(event.target)) closeMenu(false);
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 1180 && !menu.hidden) closeMenu(false);
+    });
+  }());
+</script>
+<!-- TERRNIX_SHARED_NAV_END -->
+
+<!-- Header -->
   <header class="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700/50">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="text-xl font-bold text-white">Terrnix</a>
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="/" class="text-slate-400 hover:text-white transition-colors">Home</a>
-        <a href="/sustainability-intelligence/" class="text-slate-400 hover:text-white transition-colors">Intelligence</a>
-        <a href="/carbon-accounting/carbon-footprint-calculator/" class="text-slate-400 hover:text-white transition-colors">Calculator</a>
-      </nav>
-    </div>
+</div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-2xl mx-auto px-6 py-16">
+  <main id="main-content" class="max-w-2xl mx-auto px-6 py-16">
     <div class="text-center mb-10">
       <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
@@ -133,17 +212,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-800 mt-16">
-    <div class="max-w-6xl mx-auto px-6 py-8 text-center">
-      <p class="text-slate-500 text-sm">Terrnix. All rights reserved.</p>
-      <div class="flex justify-center gap-4 mt-2">
-        <a href="/privacy-policy/" class="text-slate-500 hover:text-slate-400 text-sm">Privacy Policy</a>
-        <a href="/terms/" class="text-slate-500 hover:text-slate-400 text-sm">Terms</a>
-      </div>
-    </div>
-  </footer>
-
-  <script>
+<script>
     // Certificate verification logic
     // In production, this would query a backend API
     // For now, we show a demo verification for demo IDs
@@ -206,5 +275,68 @@
       verifyCertificate();
     }
   </script>
+
+<!-- TERRNIX_SHARED_FOOTER_START -->
+<footer class="footer-main">
+  <div class="footer-shell">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="footer-logo" href="/" aria-label="Terrnix home">
+          <svg class="footer-logo-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span>Terrnix</span>
+        </a>
+        <p>Practical sustainability intelligence for measuring emissions, strengthening reporting, and making better climate decisions.</p>
+        <div class="footer-social">
+          <a class="social-link" href="https://github.com/talal-rgb/ecosphere-sustainability" target="_blank" rel="noopener noreferrer" aria-label="Terrnix on GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7A11.5 11.5 0 0 0 8.4 23c.6.1.8-.3.8-.6v-2.2c-3.4.7-4.1-1.4-4.1-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.3 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .7Z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">Platform</h2>
+        <ul class="footer-list">
+          <li><a class="footer-link" href="/carbon-accounting/">Carbon Accounting</a></li>
+          <li><a class="footer-link" href="/esg-reporting/">ESG Reporting</a></li>
+          <li><a class="footer-link" href="/tools/energy-suite/">Energy Tools</a></li>
+          <li><a class="footer-link" href="/quiz/">Sustainability Quiz</a></li>
+          <li><a class="footer-link" href="/training/">Training</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">Resources</h2>
+        <ul class="footer-list">
+          <li><a class="footer-link" href="/sustainability-intelligence/">Sustainability Intelligence</a></li>
+          <li><a class="footer-link" href="/resources/">Resources</a></li>
+          <li><a class="footer-link" href="/contact/?topic=newsletter">Newsletter</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">Company</h2>
+        <ul class="footer-list">
+          <li><a class="footer-link" href="/about/">About</a></li>
+          <li><a class="footer-link" href="/contact/">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">Legal</h2>
+        <ul class="footer-list">
+          <li><a class="footer-link" href="/privacy/">Privacy Policy</a></li>
+          <li><a class="footer-link" href="/terms/">Terms of Use</a></li>
+          <li><a class="footer-link" href="/privacy/#cookies">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copyright">&copy; 2026 Terrnix. All rights reserved.</p>
+      <p class="footer-note">Sustainability intelligence built for practical action.</p>
+    </div>
+  </div>
+</footer>
+<!-- TERRNIX_SHARED_FOOTER_END -->
 </body>
 </html>
