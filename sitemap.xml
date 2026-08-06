@@ -3,9 +3,16 @@
 
   <url>
     <loc>https://terrnix.com/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://terrnix.com/platform/</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
   </url>
 
   <url>

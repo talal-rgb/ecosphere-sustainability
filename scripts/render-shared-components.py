@@ -32,6 +32,7 @@ EXCLUDED_ROOT_FILES = {
 }
 
 ACTIVE_SECTIONS = (
+    ("/platform/", "/platform/"),
     ("/carbon-accounting/", "/carbon-accounting/"),
     ("/esg-reporting/", "/esg-reporting/"),
     ("/tools/energy-suite/", "/tools/energy-suite/"),
