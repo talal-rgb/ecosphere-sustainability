@@ -12,12 +12,13 @@ This script standardizes all public HTML pages by:
 Usage: python standardize-pages.py
 """
 
-import os
 import re
 import json
+import subprocess
+import sys
 from pathlib import Path
 
-REPO_ROOT = Path('/data/terrnix/repos/ecosphere-sustainability')
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # SEO data for each page
 PAGE_SEO = {
@@ -293,10 +294,9 @@ def standardize_page(filepath, seo_data):
     # Insert shared nav after <body> tag
     body_match = re.search(r'<body[^>]*>', content)
     if body_match:
-        nav_html = '''\n<a href="#main-content" class="skip-link">Skip to main content</a>
-<!--#include virtual="/components/nav.html" -->\n'''
-        content = content.replace(body_match.group(0), body_match.group(0) + nav_html)
-        changes.append('Added shared navigation')
+        # The static renderer invoked below injects the shared navigation.
+        # Runtime includes are intentionally forbidden on GitHub Pages.
+        changes.append('Queued shared navigation for static rendering')
     
     # 3. Replace footer
     # Find and remove existing footer
@@ -307,9 +307,8 @@ def standardize_page(filepath, seo_data):
             content = content[:match.start()] + content[match.end():]
         changes.append('Removed existing footer')
     
-    # Insert shared footer before </body>
-    content = content.replace('</body>', '\n<!--#include virtual="/components/footer.html" -->\n</body>')
-    changes.append('Added shared footer')
+    # The static renderer invoked below injects the shared footer.
+    changes.append('Queued shared footer for static rendering')
     
     # 4. Add main-content id to main or first section
     if 'id="main-content"' not in content and 'id="main"' not in content:
@@ -359,6 +358,11 @@ def main():
     print(f"\n{'='*60}")
     print(f"Standardization complete: {success}/{total} pages processed")
     print(f"{'='*60}")
+
+    # GitHub Pages does not process SSI. Always materialize the component
+    # directives this legacy standardizer emits before its output is committed.
+    renderer = REPO_ROOT / 'scripts' / 'render-shared-components.py'
+    subprocess.run([sys.executable, str(renderer)], cwd=REPO_ROOT, check=True)
 
 
 if __name__ == '__main__':

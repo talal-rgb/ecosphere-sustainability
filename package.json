@@ -1,0 +1,7 @@
+{
+  "name": "terrnix-static-site",
+  "private": true,
+  "scripts": {
+    "check": "python3 scripts/render-shared-components.py --check && python3 scripts/validate-static-site.py && node scripts/validate-inline-js.js && node scripts/validate-intelligence-content.js"
+  }
+}

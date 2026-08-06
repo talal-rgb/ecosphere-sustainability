@@ -138,7 +138,7 @@ When approved, migrate in this order:
 
 ## Immediate Action
 
-Keep the `components/` directory structure and SSI includes (`<!--#include virtual="..." -->`). When Astro migration happens, these become `src/components/` with minimal changes.
+Keep the `components/` directory structure as source templates and run `python scripts/render-shared-components.py` before deployment. GitHub Pages does not process runtime includes; the renderer materializes complete standalone HTML. If an Astro migration happens later, these templates can move to `src/components/` with minimal changes.
 
 ---
 
