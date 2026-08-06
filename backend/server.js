@@ -33,6 +33,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { body, validationResult } from 'express-validator';
 import OpenAI from 'openai';
+import { pathToFileURL } from 'url';
+import { createExpressMiddleware } from './middleware/rateLimiter.js';
 
 // Live backend services
 import { buildChatInput, chatResponseSchema } from './services/terrnixPrompt.js';
@@ -41,7 +43,7 @@ import { getFactorBundle } from './services/factorProvider.js';
 import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
 
 // PR #30 services
-import { sendNotificationEmail, sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
+import { sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
 import { sendBrevoEmailWithTimeout } from './services/brevoEmail.js';
 import { addContact } from './services/brevo.js';
 import { saveLead, getHealthStatus, getStats, isWritableSync } from './services/leadStore.js';
@@ -62,7 +64,7 @@ const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://terrnix.com';
 app.use((req, res, next) => {
   const reqId = `req-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
   req.reqId = reqId;
-  console.log(`[${reqId}] REQUEST ${req.method} ${req.path} from ${req.ip || 'unknown'}`);
+  console.log(`[${reqId}] REQUEST ${req.method} ${req.path}`);
   
   // Log response status when finished
   res.on('finish', () => {
@@ -131,8 +133,21 @@ app.use(cors({
   maxAge: 86400
 }));
 
-// Body parsing with size limits
-app.use(express.json({ limit: '2mb' }));
+// Parse ordinary API payloads conservatively while allowing larger calculation
+// and report payloads. Express skips parsers when a body is already parsed.
+app.use(
+  ['/api/carbon/calculate', '/api/reports/excel', '/api/reports/pdf'],
+  express.json({ limit: '2mb' })
+);
+app.use(express.json({ limit: '32kb' }));
+
+// Apply abuse protection to every API route. Express already resolves the trusted
+// proxy address, so the limiter does not trust user-supplied forwarding headers.
+const apiRateLimit = createExpressMiddleware({
+  trustProxy: false,
+  burstMaxRequests: 20
+});
+app.use('/api', apiRateLimit);
 
 // ============================================
 // HEALTH ENDPOINTS
@@ -218,6 +233,9 @@ app.post('/api/chat', async (req, res, next) => {
   try {
     const { message, pageContext = '', visitorGoal = '' } = req.body || {};
     if (!message || typeof message !== 'string') return res.status(400).json({ error: 'message is required' });
+    if (message.length > 4000) return res.status(400).json({ error: 'message must be 4000 characters or fewer' });
+    if (typeof pageContext !== 'string' || pageContext.length > 500) return res.status(400).json({ error: 'pageContext must be 500 characters or fewer' });
+    if (typeof visitorGoal !== 'string' || visitorGoal.length > 500) return res.status(400).json({ error: 'visitorGoal must be 500 characters or fewer' });
 
     const client = getOpenAIClient();
     if (!client) {
@@ -364,7 +382,7 @@ app.post('/api/subscribe', [
 
   const { email } = req.body;
   const reqId = `sub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  console.log(`[${reqId}] request_received /api/subscribe email=${email}`);
+  console.log(`[${reqId}] request_received /api/subscribe`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -571,7 +589,7 @@ app.post('/api/contact', [
 
   console.log(`[${reqId}] validation_passed`);
   const { name, email, company, phone, discipline, message, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore } = req.body;
-  console.log(`[${reqId}] request_received name=${name} email=${email}`);
+  console.log(`[${reqId}] request_received /api/contact`);
 
   // 1. ALWAYS persist lead first (source of truth)
   const leadResult = await saveLead({
@@ -627,8 +645,7 @@ Referrer: ${referrer || 'N/A'}
 
 ---
 Server Time: ${new Date().toISOString()}
-IP: ${req.ip || 'unknown'}
-User-Agent: ${req.headers['user-agent'] || 'unknown'}`;
+Request ID: ${reqId}`;
 
   console.log(`[${reqId}] brevo_notification_started`);
   fireAndForget(
@@ -691,93 +708,6 @@ User-Agent: ${req.headers['user-agent'] || 'unknown'}`;
      }),
     'Brevo contact notification'
   );
-});
-
-// ============================================
-// DEBUG ENDPOINTS — Root Cause Isolation
-// ============================================
-
-// Debug Echo — no validation, no saveLead, no email
-app.post('/api/debug-echo', (req, res) => {
-  console.log('[DEBUG-ECHO] received body:', JSON.stringify(req.body).substring(0, 200));
-  res.json({ ok: true, received: true });
-});
-
-// Debug Validation — same validation chain as /api/contact, no saveLead, no email
-app.post('/api/debug-validation', [
-  body('name')
-    .trim()
-    .isLength({ min: 1, max: 100 }).withMessage('Name must be 1-100 characters')
-    .matches(/^[a-zA-Z0-9\s\-\.'']+$/).withMessage('Name contains invalid characters')
-    .customSanitizer(sanitizeString),
-  body('email')
-    .isEmail().withMessage('Invalid email address')
-    .normalizeEmail()
-    .isLength({ max: 254 }).withMessage('Email too long')
-    .customSanitizer(sanitizeEmail),
-  body('company')
-    .optional()
-    .trim()
-    .isLength({ max: 200 }).withMessage('Company name too long')
-    .matches(/^[a-zA-Z0-9\s\-\.'',&]+$/).withMessage('Company contains invalid characters')
-    .customSanitizer(sanitizeString),
-  body('phone')
-    .optional()
-    .trim()
-    .isLength({ max: 50 }).withMessage('Phone number too long')
-    .matches(/^[\d\s\-\+\(\)]+$/).withMessage('Phone contains invalid characters')
-    .customSanitizer(sanitizeString),
-  body('discipline')
-    .optional()
-    .trim()
-    .isLength({ max: 100 }).withMessage('Discipline too long')
-    .isIn([
-      'Energy & Renewables',
-      'ESG Strategy & Reporting',
-      'Decarbonisation Strategies',
-      'Carbon Accounting & GHG Protocol',
-      'Sustainability Regulation & Compliance',
-      'Carbon Pricing & Tax',
-      'Other / General Inquiry'
-    ]).withMessage('Invalid discipline selected')
-    .customSanitizer(sanitizeString),
-  body('message')
-    .trim()
-    .isLength({ min: 10, max: 5000 }).withMessage('Message must be 10-5000 characters')
-    .customSanitizer(sanitizeString),
-  body('hp_field')
-    .optional()
-    .custom((value) => {
-      if (value && value.length > 0) {
-        throw new Error('Bot detected');
-      }
-      return true;
-    })
-], (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      validation: 'failed',
-      errors: errors.array().map(e => e.msg)
-    });
-  }
-  res.json({ ok: true, validation: 'passed' });
-});
-
-// Debug SaveLead — only saveLead, no validation, no email
-app.post('/api/debug-savelead', async (req, res) => {
-  console.log('[DEBUG-SAVELEAD] received body:', JSON.stringify(req.body).substring(0, 200));
-  const { name, email, company, message } = req.body || {};
-  const result = await saveLead({
-    type: 'debug',
-    name: name || 'Debug Test',
-    email: email || 'debug@example.com',
-    company: company || 'DebugCo',
-    message: message || 'Debug saveLead test',
-    source: 'debug-endpoint'
-  });
-  res.json({ ok: true, saveLead: result });
 });
 
 // ============================================
@@ -923,7 +853,7 @@ app.post('/api/assessment/lead', [
     reportDownloaded, certificateDownloaded
   } = req.body;
 
-  console.log(`[${reqId}] request_received name=${fullName} email=${email} assessment=${assessmentId}`);
+  console.log(`[${reqId}] request_received /api/assessment/lead assessment=${assessmentId}`);
 
   // Generate certificate ID if not provided
   let finalCertId = certificateId;
@@ -1058,7 +988,7 @@ app.get('/api/certificate/verify', (req, res) => {
     });
   }
 
-  console.log(`[${reqId}] certificate_valid id=${id} name=${certificate.participantName}`);
+  console.log(`[${reqId}] certificate_valid id=${id}`);
   res.json({
     valid: true,
     certificateId: certificate.certificateId,
@@ -1071,76 +1001,11 @@ app.get('/api/certificate/verify', (req, res) => {
   });
 });
 
-// Debug SMTP — test email configuration and send a diagnostic email
-app.post('/api/debug-smtp', async (req, res) => {
-  const reqId = `smtp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  console.log(`[${reqId}] debug-smtp_started`);
-
-  // Check env vars (redacted in response)
-  const envCheck = {
-    ZOHO_SMTP_HOST: !!process.env.ZOHO_SMTP_HOST,
-    ZOHO_SMTP_PORT: !!process.env.ZOHO_SMTP_PORT,
-    ZOHO_SMTP_USER: !!process.env.ZOHO_SMTP_USER,
-    ZOHO_SMTP_PASS: !!process.env.ZOHO_SMTP_PASS,
-    CONTACT_TO_EMAIL: !!process.env.CONTACT_TO_EMAIL,
-    CONTACT_FROM_EMAIL: !!process.env.CONTACT_FROM_EMAIL,
-    BREVO_API_KEY: !!process.env.BREVO_API_KEY
-  };
-  console.log(`[${reqId}] env_check`, JSON.stringify(envCheck));
-
-  // Test Brevo email (PRIMARY)
-  let brevoResult;
-  try {
-    brevoResult = await sendBrevoEmailWithTimeout({
-      subject: `[Terrnix Debug] Brevo Test ${reqId}`,
-      text: `This is a Brevo diagnostic test email from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, Brevo email is working correctly.`
-    }, 10000);
-    console.log(`[${reqId}] brevoResult:`, JSON.stringify(brevoResult));
-  } catch (err) {
-    brevoResult = { success: false, error: err.message };
-    console.error(`[${reqId}] brevo_exception:`, err.message);
-  }
-
-  // Test Zoho SMTP fallback (only if Brevo failed)
-  let zohoResult = null;
-  if (!brevoResult.success) {
-    try {
-      zohoResult = await sendNotificationEmailWithTimeout({
-        subject: `[Terrnix Debug] Zoho Fallback Test ${reqId}`,
-        text: `This is a Zoho SMTP fallback diagnostic test from Terrnix backend.\n\nRequest ID: ${reqId}\nTime: ${new Date().toISOString()}\n\nIf you received this, Zoho SMTP fallback is working.`
-      }, 10000);
-      console.log(`[${reqId}] zohoResult:`, JSON.stringify(zohoResult));
-    } catch (err) {
-      zohoResult = { success: false, error: err.message };
-      console.error(`[${reqId}] zoho_exception:`, err.message);
-    }
-  }
-
-  res.json({
-    ok: true,
-    reqId,
-    envConfigured: envCheck,
-    brevoResult: {
-      success: brevoResult.success,
-      messageId: brevoResult.messageId || null,
-      error: brevoResult.error || null,
-      status: brevoResult.status || null
-    },
-    zohoResult: zohoResult ? {
-      success: zohoResult.success,
-      messageId: zohoResult.messageId || null,
-      error: zohoResult.error || null,
-      code: zohoResult.code || null
-    } : null,
-    timestamp: new Date().toISOString()
-  });
-});
-
 // ============================================
 // ERROR HANDLING
 // ============================================
 
-app.use((err, _req, res, _next) => {
+app.use((err, req, res, _next) => {
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
       success: false,
@@ -1148,7 +1013,7 @@ app.use((err, _req, res, _next) => {
     });
   }
 
-  console.error(err);
+  console.error(`[${req.reqId || 'unknown'}] ${err.name || 'Error'}: ${err.message || 'Unhandled error'}`);
   res.status(err.status || 500).json({
     error: 'Internal server error',
     safe_message: NODE_ENV === 'development' ? err.message : 'Something went wrong. Check the Terrnix API logs.'
@@ -1162,38 +1027,46 @@ app.use((_req, res) => {
   });
 });
 
-// Verify email connection on startup (fire-and-forget, never block)
-setTimeout(() => {
-  verifyConnection().then(ok => {
-    if (!ok) {
-      console.warn('[Startup] Email service not fully configured. Check ZOHO_SMTP_* env vars.');
-    }
-  }).catch(err => {
-    console.error('[Startup] Email verification error:', err.message);
-  });
-}, 100);
+export function startServer(port = PORT) {
+  // Verify email connection on startup without blocking readiness.
+  setTimeout(() => {
+    verifyConnection().then(ok => {
+      if (!ok) {
+        console.warn('[Startup] Email service not fully configured. Check ZOHO_SMTP_* env vars.');
+      }
+    }).catch(err => {
+      console.error('[Startup] Email verification error:', err.message);
+    });
+  }, 100).unref?.();
 
-app.listen(PORT, () => {
-  console.log(`Terrnix unified backend running on port ${PORT}`);
-  console.log(`Environment: ${NODE_ENV}`);
-  console.log(`Allowed origin: ${allowedOrigin}`);
-  console.log(`Endpoints:`);
-  console.log(`  - GET  /health`);
-  console.log(`  - GET  /api/health/integrations`);
-  console.log(`  - GET  /api/admin/lead-stats`);
-  console.log(`  - GET  /api/factors/status`);
-  console.log(`  - POST /api/chat`);
-  console.log(`  - POST /api/carbon/calculate`);
-  console.log(`  - POST /api/reports/excel`);
-  console.log(`  - POST /api/reports/pdf`);
-  console.log(`  - POST /api/contact`);
-  console.log(`  - POST /api/subscribe`);
-  console.log(`  - POST /api/assessment/lead`);
-  console.log(`  - GET  /api/certificate/verify`);
-  console.log(`  - POST /api/debug-smtp`);
-  console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
-  console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
-  console.log(`Lead storage: ${isWritableSync() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
-});
+  const server = app.listen(port, () => {
+    const address = server.address();
+    const listeningPort = typeof address === 'object' && address ? address.port : port;
+    console.log(`Terrnix unified backend running on port ${listeningPort}`);
+    console.log(`Environment: ${NODE_ENV}`);
+    console.log(`Allowed origin: ${allowedOrigin}`);
+    console.log('Endpoints:');
+    console.log('  - GET  /health');
+    console.log('  - GET  /api/health/integrations');
+    console.log('  - GET  /api/admin/lead-stats');
+    console.log('  - GET  /api/factors/status');
+    console.log('  - POST /api/chat');
+    console.log('  - POST /api/carbon/calculate');
+    console.log('  - POST /api/reports/excel');
+    console.log('  - POST /api/reports/pdf');
+    console.log('  - POST /api/contact');
+    console.log('  - POST /api/subscribe');
+    console.log('  - POST /api/assessment/lead');
+    console.log('  - GET  /api/certificate/verify');
+    console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
+    console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
+    console.log(`Lead storage: ${isWritableSync() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
+  });
+  return server;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  startServer();
+}
 
 export default app;

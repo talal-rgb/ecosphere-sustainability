@@ -59,7 +59,7 @@ export async function sendBrevoEmail({ to, subject, text, html }) {
     if (response.ok || response.status === 201) {
       const data = await response.json().catch(() => ({}));
       const messageId = data.messageId || `brevo-${Date.now()}`;
-      console.log(`[BrevoEmail] Sent: ${messageId} to ${recipient}`);
+      console.log(`[BrevoEmail] Sent notification: ${messageId}`);
       return { success: true, messageId };
     }
 

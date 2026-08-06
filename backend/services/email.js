@@ -26,7 +26,7 @@ function getTransporter() {
   if (transporter) return transporter;
 
   if (!SMTP_USER || !SMTP_PASS) {
-    console.warn('[Email] SMTP credentials not configured. Emails will be logged but not sent.');
+    console.warn('[Email] SMTP credentials not configured. Notifications will not be sent.');
     return null;
   }
 
@@ -63,9 +63,7 @@ export async function sendNotificationEmail({ to, subject, text, html }) {
   const recipient = to || DEFAULT_TO;
 
   if (!t) {
-    console.log('[Email] Would send to:', recipient);
-    console.log('[Email] Subject:', subject);
-    console.log('[Email] Body:', text.substring(0, 500));
+    console.log('[Email] Notification skipped because SMTP is not configured');
     return { success: false, error: 'SMTP not configured' };
   }
 
@@ -83,7 +81,7 @@ export async function sendNotificationEmail({ to, subject, text, html }) {
       html: html || `<pre style="font-family:monospace;font-size:13px;line-height:1.5">${escapeHtml(text)}</pre>`
     });
 
-    console.log(`[Email] Sent: ${info.messageId} to ${recipient}`);
+    console.log(`[Email] Sent notification: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('[Email] Failed:', error.message, '| Code:', error.code || 'none', '| Command:', error.command || 'none');

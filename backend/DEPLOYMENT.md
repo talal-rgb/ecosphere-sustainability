@@ -1,8 +1,8 @@
-# Terrnix Backend Rate Limiting — Deployment Guide
+# Terrnix Backend Security — Deployment Guide
 
 ## Overview
 
-This directory contains the rate limiting middleware and example server for the Terrnix backend API. Rate limiting prevents abuse, protects against DDoS attacks, and ensures fair resource usage.
+This directory contains the production Terrnix API, its rate limiter, locked dependencies, and security regression tests.
 
 ## Security Risk Addressed
 
@@ -16,7 +16,7 @@ This directory contains the rate limiting middleware and example server for the 
 |-------|-------|--------|------------|
 | IP | 100 requests | 15 minutes | All API endpoints |
 | Endpoint | 10 requests | 1 minute | Per endpoint per IP |
-| Burst | 5 requests | 1 second | All requests |
+| Burst | 20 requests | 1 second | All API requests per IP |
 | Subscribe | 5 requests | 1 hour | `/api/subscribe` |
 | Contact | 3 requests | 1 hour | `/api/contact` |
 
@@ -26,8 +26,10 @@ This directory contains the rate limiting middleware and example server for the 
 backend/
 ├── middleware/
 │   └── rateLimiter.js    # Core rate limiting logic
-├── server.js             # Example Express server with integration
-├── package.json          # Dependencies
+├── test/                 # Security and report regression tests
+├── server.js             # Production Express application
+├── package.json          # Dependency and test commands
+├── package-lock.json     # Reproducible dependency resolution
 └── DEPLOYMENT.md         # This file
 ```
 
@@ -37,7 +39,7 @@ backend/
 
 ```bash
 cd backend
-npm install
+npm ci
 ```
 
 ### 2. Run Development Server
@@ -60,30 +62,18 @@ curl -X POST http://localhost:3000/api/subscribe \
   -d '{"email": "test2@example.com"}'
 ```
 
-## Integration with Existing Backend
-
-If you already have a backend server on Render:
-
-### Option A: Copy Middleware Only
-
-1. Copy `middleware/rateLimiter.js` to your existing backend
-2. Import and use in your Express app:
+## Rate Limiter Integration
 
 ```javascript
-const { RateLimiter } = require('./middleware/rateLimiter');
+import { createExpressMiddleware } from './middleware/rateLimiter.js';
 
-const rateLimiter = new RateLimiter({
-  trustProxy: true // Required for Render
+const apiRateLimit = createExpressMiddleware({
+  trustProxy: false,
+  burstMaxRequests: 20
 });
 
-app.use('/api', rateLimiter.middleware());
+app.use('/api', apiRateLimit);
 ```
-
-### Option B: Use Full Server Example
-
-1. Replace your existing `server.js` with the provided one
-2. Add your existing route handlers
-3. Update environment variables on Render
 
 ## Render.com Deployment
 
@@ -94,9 +84,7 @@ Set these in your Render dashboard:
 | Variable | Value | Description |
 |----------|-------|-------------|
 | `NODE_ENV` | `production` | Production mode |
-| `TRUST_PROXY` | `true` | Trust Render's reverse proxy |
-| `RATE_LIMIT_IP_MAX` | `100` | IP limit (optional) |
-| `RATE_LIMIT_IP_WINDOW` | `900000` | IP window in ms (optional) |
+| `ALLOWED_ORIGIN` | `https://terrnix.com` | Browser origin allowed by CORS |
 
 ### Important: Trust Proxy Setting
 
@@ -115,7 +103,7 @@ This is already configured in the example server.
 For production with multiple server instances, replace the in-memory store with Redis:
 
 ```javascript
-const Redis = require('ioredis');
+import Redis from 'ioredis';
 const redis = new Redis(process.env.REDIS_URL);
 
 // Modify rateLimiter.js to use redis.get/redis.set instead of Map
@@ -128,7 +116,7 @@ Add logging for rate limit events:
 ```javascript
 // In your route handlers
 app.use('/api', (req, res, next) => {
-  console.log(`[API] ${req.method} ${req.path} from ${req.ip}`);
+  console.log(`[API] ${req.method} ${req.path}`);
   next();
 });
 ```
@@ -165,8 +153,8 @@ Manual test with curl:
 
 ```bash
 #!/bin/bash
-# Test burst limit (should fail after 5)
-for i in {1..10}; do
+# Test endpoint limit (the 11th request should return 429)
+for i in {1..11}; do
   curl -s -o /dev/null -w "%{http_code}" \
     -X POST http://localhost:3000/api/subscribe \
     -H "Content-Type: application/json" \
@@ -203,19 +191,10 @@ Retry-After: 3600
 }
 ```
 
-## Rollback
-
-If issues occur, disable rate limiting by removing the middleware:
-
-```javascript
-// Comment out or remove this line
-// app.use('/api', rateLimiter.middleware());
-```
-
 ## Support
 
 For questions or issues with rate limiting:
 1. Check Render logs for errors
-2. Verify `trust proxy` is enabled
+2. Verify `app.set('trust proxy', 1)` is active on Render
 3. Test with `curl -v` to see headers
-4. Review rate limit status at `/api/rate-limit-status`
+4. Run `npm test` and `npm audit` before deployment
