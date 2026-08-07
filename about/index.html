@@ -5,35 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        display: ['Space Grotesk', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-      },
-      colors: {
-        terrnix: {
-          bg: '#0a0f0d',
-          'bg-secondary': '#111a16',
-          'bg-tertiary': '#1a2520',
-          border: '#2d3d35',
-          emerald: '#10b981',
-          'emerald-light': '#34d399',
-          cyan: '#06b6d4',
-          'cyan-light': '#22d3ee',
-        }
-      }
-    }
-  }
-}
-</script>
-<link rel="stylesheet" href="/components/design-system.css">
 <title>About Terrnix — AI Sustainability Intelligence | Terrnix</title>
 <meta name="description" content="AI-powered sustainability intelligence for carbon accounting, ESG reporting, and climate compliance. Built by experts, for experts.">
 <link rel="canonical" href="https://terrnix.com/about/">
@@ -90,7 +61,8 @@ tailwind.config = {
         .accent { color: #4ade80; }
         .btn-primary { background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%); color: #0a0f0d; }
     </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="stylesheet" href="/assets/css/tailwind.css">
 </head>
 <body class="gradient-bg min-h-screen">
 <!-- TERRNIX_SHARED_NAV_START -->

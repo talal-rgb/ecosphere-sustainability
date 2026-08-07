@@ -84,12 +84,25 @@ def main() -> int:
             errors.append(f"{label}: expected one shared footer, found {parser.footer_count}")
         if re.search(r"<!--\s*#include\b", content, flags=re.I):
             errors.append(f"{label}: unresolved SSI directive")
+        if "cdn.tailwindcss.com" in content:
+            errors.append(f"{label}: Tailwind runtime CDN is not allowed")
+        if "fonts.googleapis.com" in content or "fonts.gstatic.com" in content:
+            errors.append(f"{label}: remote Google Fonts are not allowed")
         head = re.search(r"<head\b[^>]*>(.*?)</head>", content, flags=re.I | re.S)
         head_content = head.group(1) if head else ""
         if len(re.findall(r"<title\b", head_content, flags=re.I)) != 1:
             errors.append(f"{label}: expected one document title")
         if not re.search(r"<link\b[^>]*\brel=[\"'][^\"']*icon", head_content, flags=re.I):
             errors.append(f"{label}: favicon missing")
+        compiled_tailwind = re.findall(
+            r'href=["\']/assets/css/tailwind(?:-home|-platform)?\.css["\']',
+            head_content,
+            flags=re.I,
+        )
+        if len(compiled_tailwind) != 1:
+            errors.append(f"{label}: expected one compiled Tailwind stylesheet")
+        if re.search(r'href=["\']/components/design-system(?:\.min)?\.css["\']', head_content, flags=re.I):
+            errors.append(f"{label}: design-system CSS must be included in the compiled route bundle")
         if 'class="nav-brand" href="/"' not in content:
             errors.append(f"{label}: home-linked Terrnix logo missing")
         if "main-content" not in parser.ids:
