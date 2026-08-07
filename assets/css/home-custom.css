@@ -42,6 +42,20 @@ body {
     background-clip: text;
 }
 
+/* Defer layout and paint for content well below the initial viewport. */
+#who-we-serve,
+#platform-launcher,
+#quick-carbon,
+#why-terrnix,
+#featured-intelligence,
+#ai-copilot,
+#social-proof,
+#final-cta,
+#footer-value {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 700px;
+}
+
 /* ========== GLASSMORPHISM ========== */
 .glass {
     background: rgba(17, 26, 22, 0.7);
