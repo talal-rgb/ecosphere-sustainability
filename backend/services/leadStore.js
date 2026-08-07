@@ -63,31 +63,24 @@ function isWritable() {
  */
 export async function saveLead({ type, name, email, company, message, source, discipline, phone, sourceUrl, submissionTimestamp, utmSource, utmMedium, utmCampaign, referrer, leadScore }) {
   const startTime = Date.now();
-  console.log(`[LeadStore] saveLead started for ${email}`);
 
   // Use setImmediate to yield event loop before sync operations
   await new Promise(resolve => setImmediate(resolve));
-  console.log(`[LeadStore] step 1: after setImmediate, elapsed=${Date.now() - startTime}ms`);
 
   ensureDirectory();
-  console.log(`[LeadStore] step 2: after ensureDirectory, elapsed=${Date.now() - startTime}ms`);
 
   if (!isWritable()) {
     console.error('[LeadStore] Directory not writable:', path.dirname(LEADS_FILE));
     return { success: false, error: 'Lead storage directory not writable' };
   }
-  console.log(`[LeadStore] step 3: after isWritable, elapsed=${Date.now() - startTime}ms`);
 
   const fileSize = getFileSize();
-  console.log(`[LeadStore] step 4: after getFileSize, elapsed=${Date.now() - startTime}ms, size=${fileSize}`);
   if (fileSize > MAX_FILE_SIZE_BYTES) {
     console.error('[LeadStore] File size limit exceeded:', LEADS_FILE);
     return { success: false, error: 'Lead storage file size limit exceeded' };
   }
 
-  console.log(`[LeadStore] step 5: before crypto.randomUUID, elapsed=${Date.now() - startTime}ms`);
   const id = crypto.randomUUID();
-  console.log(`[LeadStore] step 6: after crypto.randomUUID, elapsed=${Date.now() - startTime}ms, id=${id}`);
 
   const record = {
     id,
@@ -110,26 +103,16 @@ export async function saveLead({ type, name, email, company, message, source, di
     ip: null,
     userAgent: null
   };
-  console.log(`[LeadStore] step 7: after record creation, elapsed=${Date.now() - startTime}ms`);
-
   try {
     const line = JSON.stringify(record) + '\n';
-    console.log(`[LeadStore] step 8: after JSON.stringify, elapsed=${Date.now() - startTime}ms`);
-
-    const writeStart = Date.now();
     const fd = fs.openSync(LEADS_FILE, 'a', 0o600);
-    console.log(`[LeadStore] step 9: after openSync, elapsed=${Date.now() - startTime}ms`);
     try {
       fs.writeSync(fd, line);
-      console.log(`[LeadStore] step 10: after writeSync, elapsed=${Date.now() - startTime}ms`);
     } finally {
       fs.closeSync(fd);
-      console.log(`[LeadStore] step 11: after closeSync, elapsed=${Date.now() - startTime}ms`);
     }
 
-    console.log(`[LeadStore] writeSync took ${Date.now() - writeStart}ms`);
-    console.log(`[LeadStore] Saved ${type} lead: ${id} (${email})`);
-    console.log(`[LeadStore] saveLead total took ${Date.now() - startTime}ms`);
+    console.log(`[LeadStore] Saved ${type || 'unknown'} lead ${id} in ${Date.now() - startTime}ms`);
     return { success: true, id };
   } catch (error) {
     console.error('[LeadStore] Failed to save lead:', error.message);

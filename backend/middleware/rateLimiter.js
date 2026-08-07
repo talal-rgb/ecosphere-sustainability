@@ -12,7 +12,7 @@
  * @version 1.0.0
  */
 
-class RateLimiter {
+export class RateLimiter {
   constructor(options = {}) {
     // Default configuration
     this.config = {
@@ -50,6 +50,7 @@ class RateLimiter {
     
     // Start cleanup interval
     this.cleanupInterval = setInterval(() => this.cleanup(), this.config.cleanupIntervalMs);
+    this.cleanupInterval.unref?.();
     
     // Trust proxy setting (for accurate IP behind reverse proxy)
     this.trustProxy = options.trustProxy || false;
@@ -237,16 +238,9 @@ class RateLimiter {
 }
 
 // Express.js integration helper
-function createExpressMiddleware(options = {}) {
+export function createExpressMiddleware(options = {}) {
   const limiter = new RateLimiter(options);
-  return limiter.middleware();
-}
-
-// Export for different module systems
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { RateLimiter, createExpressMiddleware };
-}
-
-if (typeof window !== 'undefined') {
-  window.RateLimiter = RateLimiter;
+  const middleware = limiter.middleware();
+  middleware.limiter = limiter;
+  return middleware;
 }

@@ -21,8 +21,7 @@ const LIST_ID = process.env.BREVO_LIST_ID || '';
  */
 export async function addContact(email, attributes = {}) {
   if (!API_KEY) {
-    console.warn('[Brevo] BREVO_API_KEY not configured. Contact logged but not synced.');
-    console.log('[Brevo] Would add:', email, attributes);
+    console.warn('[Brevo] BREVO_API_KEY not configured. Contact was not synced.');
     return { success: false, error: 'BREVO_API_KEY not configured' };
   }
 
@@ -51,7 +50,7 @@ export async function addContact(email, attributes = {}) {
     });
 
     if (response.status === 204 || response.ok) {
-      console.log(`[Brevo] Contact added/updated: ${email}`);
+      console.log('[Brevo] Contact added or updated');
       return { success: true, message: 'Contact added to Brevo' };
     }
 

@@ -147,7 +147,7 @@ export async function saveCertificate({
       fs.closeSync(fd);
     }
 
-    console.log(`[CertificateStore] Saved certificate: ${finalId} (${participantName})`);
+    console.log(`[CertificateStore] Saved certificate: ${finalId}`);
     return { success: true, certificateId: finalId };
   } catch (error) {
     console.error('[CertificateStore] Failed to save certificate:', error.message);
