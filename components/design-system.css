@@ -22,12 +22,12 @@
   
   --color-text-primary: #ffffff;
   --color-text-secondary: #9ca3af;
-  --color-text-muted: #6b7280;
+  --color-text-muted: #9ca3af;
   --color-text-inverse: #0a0f0d;
   
   /* Typography */
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -188,14 +188,14 @@ body {
 }
 
 .mobile-nav-cta {
-  background: var(--color-emerald-600);
+  background: #047857;
   color: white;
   text-align: center;
   margin-top: var(--space-2);
 }
 
 .mobile-nav-cta:hover {
-  background: var(--color-emerald-500);
+  background: #065f46;
   color: white;
 }
 
@@ -225,11 +225,11 @@ body {
 
 /* Primary */
 .btn-primary {
-  background: var(--color-emerald-600);
+  background: #047857;
   color: white;
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--color-emerald-500);
+  background: #065f46;
   transform: translateY(-1px);
   box-shadow: var(--shadow-emerald);
 }
@@ -597,7 +597,7 @@ body {
   justify-content: center;
   padding: 0.62rem 0.9rem;
   border-radius: var(--radius-md);
-  background: var(--color-emerald-600);
+  background: #047857;
   color: #fff;
   font-size: var(--text-sm);
   font-weight: 700;
@@ -605,7 +605,7 @@ body {
 }
 
 .nav-launch:hover {
-  background: var(--color-emerald-500);
+  background: #065f46;
   color: #fff;
 }
 

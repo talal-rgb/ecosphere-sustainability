@@ -5,35 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        display: ['Space Grotesk', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-      },
-      colors: {
-        terrnix: {
-          bg: '#0a0f0d',
-          'bg-secondary': '#111a16',
-          'bg-tertiary': '#1a2520',
-          border: '#2d3d35',
-          emerald: '#10b981',
-          'emerald-light': '#34d399',
-          cyan: '#06b6d4',
-          'cyan-light': '#22d3ee',
-        }
-      }
-    }
-  }
-}
-</script>
-<link rel="stylesheet" href="/components/design-system.css">
 <title>ESG Report Analyzer | Terrnix</title>
 <meta name="description" content="Analyze and benchmark your ESG reports against CSRD, ISSB, and GRI standards.">
 <link rel="canonical" href="https://terrnix.com/esg-reporting/esg-report-analyzer/">
@@ -94,6 +65,8 @@ h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 .workflow-step:last-child::after { display: none; }
 @media (max-width: 768px) { .workflow-step::after { display: none; } }
 </style>
+<link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="/components/design-system.min.css">
 </head>
 <body class="min-h-screen">
 <!-- TERRNIX_SHARED_NAV_START -->

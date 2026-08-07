@@ -5,35 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        display: ['Space Grotesk', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-      },
-      colors: {
-        terrnix: {
-          bg: '#0a0f0d',
-          'bg-secondary': '#111a16',
-          'bg-tertiary': '#1a2520',
-          border: '#2d3d35',
-          emerald: '#10b981',
-          'emerald-light': '#34d399',
-          cyan: '#06b6d4',
-          'cyan-light': '#22d3ee',
-        }
-      }
-    }
-  }
-}
-</script>
-<link rel="stylesheet" href="/components/design-system.css">
 <title>Free Carbon Footprint Calculator — Scope 1, 2 & 3 | Terrnix</title>
 <meta name="description" content="Calculate your organisation's carbon footprint with GHG Protocol-aligned methodology. 15,000+ emission factors, 80+ countries. Export to CSV/PDF.">
 <link rel="canonical" href="https://terrnix.com/carbon-accounting/carbon-footprint-calculator/">
@@ -91,6 +62,8 @@ input[type="number"]:focus, select:focus { border-color: #4ade80; outline: none;
 .factor-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a2520; }
 .factor-row:last-child { border-bottom: none; }
 </style>
+<link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="/components/design-system.min.css">
 </head>
 <body>
 <!-- TERRNIX_SHARED_NAV_START -->

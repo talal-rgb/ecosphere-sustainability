@@ -5,15 +5,27 @@ on:
     branches: [main]
     paths:
       - '**/*.html'
+      - 'assets/css/**'
       - 'components/**'
+      - 'package.json'
+      - 'package-lock.json'
       - 'scripts/render-shared-components.py'
+      - 'tailwind.config.js'
+      - 'tailwind.home.config.js'
+      - 'tailwind.platform.config.js'
       - '.github/workflows/validate-static-components.yml'
   push:
     branches: [main]
     paths:
       - '**/*.html'
+      - 'assets/css/**'
       - 'components/**'
+      - 'package.json'
+      - 'package-lock.json'
       - 'scripts/render-shared-components.py'
+      - 'tailwind.config.js'
+      - 'tailwind.home.config.js'
+      - 'tailwind.platform.config.js'
       - '.github/workflows/validate-static-components.yml'
   workflow_dispatch:
 
@@ -31,6 +43,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install frontend build dependencies
+        run: npm ci
+
+      - name: Verify compiled Tailwind CSS
+        run: npm run check:css
 
       - name: Verify committed static components
         run: python scripts/render-shared-components.py --check

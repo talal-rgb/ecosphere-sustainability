@@ -26,39 +26,7 @@
     "isPartOf": {"@type": "WebSite", "@id": "https://terrnix.com/"}
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/components/design-system.css">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'tn-bg': '#0a0f0d',
-            'tn-surface': '#111a16',
-            'tn-elevated': '#1a2620',
-            'tn-border': '#2d3d35',
-            'tn-border-hover': '#3d5a4a',
-            'tn-emerald': '#34d399',
-            'tn-emerald-dark': '#10b981',
-            'tn-emerald-darker': '#059669',
-            'tn-cyan': '#22d3ee',
-            'tn-cyan-dark': '#06b6d4',
-            'tn-text': '#ffffff',
-            'tn-text-secondary': '#9ca3af',
-            'tn-text-muted': '#6b7280',
-          },
-          fontFamily: {
-            'display': ['Space Grotesk', 'sans-serif'],
-            'body': ['Inter', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-  <style>
+<style>
     .platform-hero { background: radial-gradient(ellipse at 50% 0%, rgba(52,211,153,0.08) 0%, transparent 60%); }
     .product-card { transition: all 0.2s ease; }
     .product-card:hover { transform: translateY(-3px); border-color: rgba(52,211,153,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
@@ -77,6 +45,8 @@
     .btn-primary:hover { background: #065f46; }
     .footer-copyright, .footer-version { color: #9ca3af; }
   </style>
+<link rel="stylesheet" href="/assets/css/tailwind-platform.css">
+<link rel="stylesheet" href="/components/design-system.min.css">
 </head>
 <body class="bg-tn-bg text-tn-text font-body min-h-screen">
 <!-- TERRNIX_SHARED_NAV_START -->

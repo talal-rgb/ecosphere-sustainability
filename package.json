@@ -2,6 +2,11 @@
   "name": "terrnix-static-site",
   "private": true,
   "scripts": {
-    "check": "python3 scripts/render-shared-components.py --check && python3 scripts/validate-static-site.py && node scripts/validate-inline-js.js && node scripts/validate-intelligence-content.js"
+    "build:css": "tailwindcss -c tailwind.config.js -i assets/css/tailwind-source.css -o assets/css/tailwind.css --minify && tailwindcss -c tailwind.home.config.js -i assets/css/tailwind-source.css -o assets/css/tailwind-home.css --minify && tailwindcss -c tailwind.platform.config.js -i assets/css/tailwind-source.css -o assets/css/tailwind-platform.css --minify && tailwindcss -c tailwind.config.js -i components/design-system.css -o components/design-system.min.css --minify",
+    "check:css": "npm run build:css && git diff --exit-code -- assets/css/tailwind.css assets/css/tailwind-home.css assets/css/tailwind-platform.css components/design-system.min.css",
+    "check": "npm run check:css && python3 scripts/render-shared-components.py --check && python3 scripts/validate-static-site.py && node scripts/validate-inline-js.js && node scripts/validate-intelligence-content.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
   }
 }

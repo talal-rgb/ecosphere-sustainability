@@ -17,7 +17,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NAV_SOURCE = ROOT / "components" / "nav.html"
 FOOTER_SOURCE = ROOT / "components" / "footer.html"
-DESIGN_SYSTEM_LINK = '<link rel="stylesheet" href="/components/design-system.css">'
+DESIGN_SYSTEM_LINK = '<link rel="stylesheet" href="/components/design-system.min.css">'
+TAILWIND_LINK = '<link rel="stylesheet" href="/assets/css/tailwind.css">'
+HOME_TAILWIND_LINK = '<link rel="stylesheet" href="/assets/css/tailwind-home.css">'
+PLATFORM_TAILWIND_LINK = '<link rel="stylesheet" href="/assets/css/tailwind-platform.css">'
 NAV_START = "<!-- TERRNIX_SHARED_NAV_START -->"
 NAV_END = "<!-- TERRNIX_SHARED_NAV_END -->"
 FOOTER_START = "<!-- TERRNIX_SHARED_FOOTER_START -->"
@@ -131,6 +134,58 @@ def strip_runtime_includes(content: str) -> str:
     return re.sub(r"\s*<!--\s*#include\b.*?-->\s*", "\n", content, flags=re.I | re.S)
 
 
+def strip_tailwind_runtime(content: str) -> str:
+    content = re.sub(
+        r"\s*<script\b[^>]*\bsrc=[\"']https://cdn\.tailwindcss\.com(?:/[^\"]*)?[\"'][^>]*>\s*</script>\s*",
+        "\n",
+        content,
+        flags=re.I,
+    )
+    return re.sub(
+        r"\s*<script>\s*tailwind\.config\s*=.*?</script>\s*",
+        "\n",
+        content,
+        flags=re.I | re.S,
+    )
+
+
+def strip_remote_fonts(content: str) -> str:
+    return re.sub(
+        r"\s*<link\b[^>]*\bhref=[\"']https://fonts\.(?:googleapis|gstatic)\.com[^\"']*[\"'][^>]*>\s*",
+        "\n",
+        content,
+        flags=re.I,
+    )
+
+
+def defer_noncritical_styles(content: str) -> str:
+    pattern = re.compile(
+        r"<link\b(?=[^>]*\bhref=[\"']https://cdnjs\.cloudflare\.com/ajax/libs/font-awesome/)[^>]*>",
+        flags=re.I,
+    )
+
+    def make_deferred(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        href_match = re.search(r"\bhref=[\"']([^\"']+)[\"']", tag, flags=re.I)
+        if not href_match:
+            return tag
+        attributes = [
+            'rel="preload"',
+            'as="style"',
+            f'href="{href_match.group(1)}"',
+            'onload="this.onload=null;this.rel=\'stylesheet\'"',
+        ]
+        integrity_match = re.search(r"\bintegrity=[\"']([^\"']+)[\"']", tag, flags=re.I)
+        if integrity_match:
+            attributes.append(f'integrity="{integrity_match.group(1)}"')
+        crossorigin_match = re.search(r"\bcrossorigin=[\"']([^\"']+)[\"']", tag, flags=re.I)
+        if crossorigin_match:
+            attributes.append(f'crossorigin="{crossorigin_match.group(1)}"')
+        return "<link " + " ".join(attributes) + ">"
+
+    return pattern.sub(make_deferred, content)
+
+
 def strip_existing_shell(content: str, strip_primary_nav: bool) -> str:
     content = re.sub(r"\s*<a\b[^>]*class=[\"'][^\"']*\bskip-link\b[^\"']*[\"'][^>]*>.*?</a>\s*", "\n", content, flags=re.I | re.S)
     if strip_primary_nav:
@@ -139,8 +194,27 @@ def strip_existing_shell(content: str, strip_primary_nav: bool) -> str:
     return content
 
 
-def ensure_head_assets(content: str) -> str:
-    if "/components/design-system.css" not in content:
+def ensure_head_assets(content: str, route: str) -> str:
+    content = re.sub(
+        r"\s*<link\b[^>]*\bhref=[\"']/assets/css/tailwind(?:-(?:home|platform))?\.css[\"'][^>]*>\s*",
+        "\n",
+        content,
+        flags=re.I,
+    )
+    if route == "/":
+        tailwind_link = HOME_TAILWIND_LINK
+    elif route == "/platform/":
+        tailwind_link = PLATFORM_TAILWIND_LINK
+    else:
+        tailwind_link = TAILWIND_LINK
+    content = content.replace("</head>", tailwind_link + "\n</head>", 1)
+    content = re.sub(
+        r"\s*<link\b[^>]*\bhref=[\"']/components/design-system(?:\.min)?\.css[\"'][^>]*>\s*",
+        "\n",
+        content,
+        flags=re.I,
+    )
+    if "/components/design-system.min.css" not in content:
         content = content.replace("</head>", DESIGN_SYSTEM_LINK + "\n</head>", 1)
     if not re.search(r"<link\b[^>]*\brel=[\"'][^\"']*icon", content, flags=re.I):
         content = content.replace("</head>", '<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">\n</head>', 1)
@@ -173,11 +247,14 @@ def render_page(path: Path, source_content: str | None = None) -> str:
     had_generated_nav = NAV_START in content
     content = strip_generated_regions(content)
     content = strip_runtime_includes(content)
+    content = strip_tailwind_runtime(content)
+    content = strip_remote_fonts(content)
+    content = defer_noncritical_styles(content)
     content = strip_existing_shell(content, strip_primary_nav=not had_generated_nav)
-    content = ensure_head_assets(content)
+    route = route_for(path)
+    content = ensure_head_assets(content, route)
     content = ensure_main_target(content)
 
-    route = route_for(path)
     nav = mark_active_navigation(NAV_SOURCE.read_text(encoding="utf-8").strip(), route)
     footer = FOOTER_SOURCE.read_text(encoding="utf-8").strip()
     nav_region = f"\n{NAV_START}\n{nav}\n{NAV_END}\n"
