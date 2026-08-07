@@ -17,7 +17,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NAV_SOURCE = ROOT / "components" / "nav.html"
 FOOTER_SOURCE = ROOT / "components" / "footer.html"
-DESIGN_SYSTEM_LINK = '<link rel="stylesheet" href="/components/design-system.min.css">'
 TAILWIND_LINK = '<link rel="stylesheet" href="/assets/css/tailwind.css">'
 HOME_TAILWIND_LINK = '<link rel="stylesheet" href="/assets/css/tailwind-home.css">'
 PLATFORM_TAILWIND_LINK = '<link rel="stylesheet" href="/assets/css/tailwind-platform.css">'
@@ -214,8 +213,6 @@ def ensure_head_assets(content: str, route: str) -> str:
         content,
         flags=re.I,
     )
-    if "/components/design-system.min.css" not in content:
-        content = content.replace("</head>", DESIGN_SYSTEM_LINK + "\n</head>", 1)
     if not re.search(r"<link\b[^>]*\brel=[\"'][^\"']*icon", content, flags=re.I):
         content = content.replace("</head>", '<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">\n</head>', 1)
     return content

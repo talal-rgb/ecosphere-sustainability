@@ -101,8 +101,8 @@ def main() -> int:
         )
         if len(compiled_tailwind) != 1:
             errors.append(f"{label}: expected one compiled Tailwind stylesheet")
-        if len(re.findall(r'href=["\']/components/design-system\.min\.css["\']', head_content, flags=re.I)) != 1:
-            errors.append(f"{label}: expected one minified design-system stylesheet")
+        if re.search(r'href=["\']/components/design-system(?:\.min)?\.css["\']', head_content, flags=re.I):
+            errors.append(f"{label}: design-system CSS must be included in the compiled route bundle")
         if 'class="nav-brand" href="/"' not in content:
             errors.append(f"{label}: home-linked Terrnix logo missing")
         if "main-content" not in parser.ids:
