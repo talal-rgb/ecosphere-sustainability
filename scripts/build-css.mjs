@@ -9,6 +9,8 @@ const tailwind = resolve(root, 'node_modules', '.bin', 'tailwindcss');
 const source = resolve(root, 'assets', 'css', 'tailwind-source.css');
 const designSource = resolve(root, 'components', 'design-system.css');
 const designOutput = resolve(root, 'components', 'design-system.min.css');
+const homeSource = resolve(root, 'assets', 'css', 'home-custom.css');
+const homeOutput = resolve(root, 'assets', 'css', 'home-custom.min.css');
 const bundles = [
   ['tailwind.config.js', 'assets/css/tailwind.css'],
   ['tailwind.home.config.js', 'assets/css/tailwind-home.css'],
@@ -24,9 +26,14 @@ function compile(config, input, output) {
 }
 
 compile('tailwind.config.js', designSource, designOutput);
+compile('tailwind.home.config.js', homeSource, homeOutput);
 const designSystem = readFileSync(designOutput, 'utf8');
+const homeStyles = readFileSync(homeOutput, 'utf8');
 
 for (const [config, output] of bundles) {
   compile(config, source, output);
   appendFileSync(resolve(root, output), `\n${designSystem}\n`);
+  if (output.endsWith('tailwind-home.css')) {
+    appendFileSync(resolve(root, output), `\n${homeStyles}\n`);
+  }
 }
