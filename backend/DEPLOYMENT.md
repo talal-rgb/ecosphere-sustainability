@@ -4,6 +4,8 @@
 
 This directory contains the production Terrnix API, its rate limiter, locked dependencies, and security regression tests.
 
+The Carbon Activity Ingestion API is documented in [`../docs/CARBON_ACTIVITY_INGESTION.md`](../docs/CARBON_ACTIVITY_INGESTION.md). Structured uploads are processed in memory, capped at 5 MiB and 5,000 rows, and are not persisted by the ingestion endpoint.
+
 ## Security Risk Addressed
 
 **Finding:** No rate limiting on backend API (Risk 8.0/10)

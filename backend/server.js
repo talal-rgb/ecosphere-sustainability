@@ -11,6 +11,7 @@
  * - GET  /api/admin/lead-stats
  * - GET  /api/factors/status
  * - POST /api/chat
+ * - POST /api/carbon/ingest
  * - POST /api/carbon/calculate
  * - POST /api/reports/excel
  * - POST /api/reports/pdf
@@ -31,6 +32,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import multer from 'multer';
 import { body, validationResult } from 'express-validator';
 import OpenAI from 'openai';
 import { pathToFileURL } from 'url';
@@ -41,6 +43,7 @@ import { buildChatInput, chatResponseSchema } from './services/terrnixPrompt.js'
 import { calculateFootprint } from './services/carbonEngine.js';
 import { getFactorBundle } from './services/factorProvider.js';
 import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
+import { parseActivityUpload } from './services/activityIngestion.js';
 
 // PR #30 services
 import { sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
@@ -59,6 +62,26 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://terrnix.com';
+const activityUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 5 },
+  fileFilter: (_req, file, callback) => {
+    const accepted = /\.(csv|xlsx)$/i.test(file.originalname || '') && [
+      'text/csv',
+      'application/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/octet-stream'
+    ].includes(file.mimetype);
+    if (!accepted) {
+      const error = new Error('Only CSV and XLSX activity files are accepted.');
+      error.status = 400;
+      error.code = 'unsupported_file_type';
+      return callback(error);
+    }
+    callback(null, true);
+  }
+});
 
 // Request logging middleware — log EVERY request before any other middleware
 app.use((req, res, next) => {
@@ -282,8 +305,37 @@ app.post('/api/chat', async (req, res, next) => {
 app.post('/api/carbon/calculate', async (req, res, next) => {
   try {
     const activityData = req.body || {};
+    if (activityData.activities !== undefined && !Array.isArray(activityData.activities)) {
+      return res.status(400).json({ error: 'invalid_activities', safe_message: 'activities must be an array.' });
+    }
+    if (activityData.activities?.length > 5000) {
+      return res.status(400).json({ error: 'activity_limit_exceeded', safe_message: 'A calculation is limited to 5000 activity rows.' });
+    }
     const factorBundle = await getFactorBundle(activityData);
     res.json(calculateFootprint(activityData, factorBundle));
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/carbon/ingest', activityUpload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'file_required', safe_message: 'Upload one CSV or XLSX file in the file field.' });
+    }
+    const ingestion = await parseActivityUpload({
+      buffer: req.file.buffer,
+      fileName: req.file.originalname,
+      mimeType: req.file.mimetype
+    });
+    res.json({
+      ...ingestion,
+      calculation_input: {
+        organization: String(req.body?.organization || '').trim().slice(0, 200) || 'Not provided',
+        reportingPeriod: String(req.body?.reportingPeriod || '').trim().slice(0, 100) || 'Not provided',
+        activities: ingestion.activities
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -1013,6 +1065,13 @@ app.use((err, req, res, _next) => {
     });
   }
 
+  if (err instanceof multer.MulterError || err.status === 400) {
+    return res.status(400).json({
+      error: err.code || 'invalid_upload',
+      safe_message: err.message || 'The uploaded activity file could not be processed.'
+    });
+  }
+
   console.error(`[${req.reqId || 'unknown'}] ${err.name || 'Error'}: ${err.message || 'Unhandled error'}`);
   res.status(err.status || 500).json({
     error: 'Internal server error',
@@ -1052,6 +1111,7 @@ export function startServer(port = PORT) {
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');
     console.log('  - POST /api/carbon/calculate');
+    console.log('  - POST /api/carbon/ingest');
     console.log('  - POST /api/reports/excel');
     console.log('  - POST /api/reports/pdf');
     console.log('  - POST /api/contact');

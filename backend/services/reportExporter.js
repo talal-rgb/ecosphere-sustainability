@@ -42,6 +42,8 @@ export async function buildExcelReport(result, activityData = {}) {
   summary.addRow(['Scope 3 tonnes CO2e', result.totals.scope3_tonnes_co2e, 'Value chain emissions.']);
   summary.addRow(['Total location-based tonnes CO2e', result.totals.total_location_based_tonnes_co2e, 'Scope 1 + Scope 2 LB + Scope 3.']);
   summary.addRow(['Data quality score', `${result.data_quality_score}/100`, 'Lower if fallback factors or missing categories are used.']);
+  summary.addRow(['Imported activities calculated', result.evidence_summary?.activities_calculated || 0, 'Structured activity rows included in the inventory.']);
+  summary.addRow(['Imported activities excluded', result.evidence_summary?.activities_excluded || 0, 'Rows excluded because an approved factor mapping was unavailable.']);
   styleWorksheet(summary);
 
   const inputs = workbook.addWorksheet('Inputs');
@@ -72,6 +74,47 @@ export async function buildExcelReport(result, activityData = {}) {
     s3.addRow([row.category, row.amount, row.unit, round(row.tonnes_co2e), row.factor?.id || 'missing', row.factor?.source || 'Missing factor']);
   }
   styleWorksheet(s3);
+
+  const ledger = workbook.addWorksheet('Calculation Ledger');
+  ledger.columns = [
+    { header: 'Activity ID', width: 22 },
+    { header: 'Evidence reference', width: 24 },
+    { header: 'Site', width: 24 },
+    { header: 'Supplier', width: 28 },
+    { header: 'Activity date', width: 16 },
+    { header: 'Scope', width: 10 },
+    { header: 'GHG category', width: 34 },
+    { header: 'Quantity', width: 16 },
+    { header: 'Activity unit', width: 18 },
+    { header: 'Factor ID', width: 38 },
+    { header: 'Factor value', width: 16 },
+    { header: 'Factor unit', width: 22 },
+    { header: 'kg CO2e', width: 16 },
+    { header: 't CO2e', width: 16 },
+    { header: 'Status', width: 14 },
+    { header: 'Formula / exclusion reason', width: 60 }
+  ];
+  for (const line of result.breakdown.calculation_lines || []) {
+    ledger.addRow([
+      line.activity_id,
+      line.evidence_ref,
+      line.site,
+      line.supplier,
+      line.activity_date,
+      line.scope,
+      line.ghg_category,
+      line.quantity,
+      line.activity_unit,
+      line.factor_id,
+      line.factor_value,
+      line.factor_unit,
+      round(line.emissions_kg_co2e),
+      round(line.emissions_tonnes_co2e),
+      line.status,
+      line.formula || line.reason
+    ]);
+  }
+  styleWorksheet(ledger);
 
   const sources = workbook.addWorksheet('Factor Sources');
   sources.columns = [
@@ -127,14 +170,14 @@ export async function buildPdfReport(result, activityData = {}) {
     doc.moveDown(0.3);
     doc.fontSize(11);
     const rows = [
-      ['Scope 1', result.totals.scope1_tonnes_co2e],
-      ['Scope 2 location-based', result.totals.scope2_location_tonnes_co2e],
-      ['Scope 2 market-based', result.totals.scope2_market_tonnes_co2e],
-      ['Scope 3', result.totals.scope3_tonnes_co2e],
-      ['Total location-based', result.totals.total_location_based_tonnes_co2e],
+      ['Scope 1', `${result.totals.scope1_tonnes_co2e} tonnes CO2e`],
+      ['Scope 2 location-based', `${result.totals.scope2_location_tonnes_co2e} tonnes CO2e`],
+      ['Scope 2 market-based', result.totals.scope2_market_tonnes_co2e === null ? 'Not calculated — contractual data required' : `${result.totals.scope2_market_tonnes_co2e} tonnes CO2e`],
+      ['Scope 3', `${result.totals.scope3_tonnes_co2e} tonnes CO2e`],
+      ['Total location-based', `${result.totals.total_location_based_tonnes_co2e} tonnes CO2e`],
       ['Data quality score', `${result.data_quality_score}/100`]
     ];
-    for (const [label, value] of rows) doc.text(`${label}: ${value} tonnes CO2e`);
+    for (const [label, value] of rows) doc.text(`${label}: ${value}`);
     doc.moveDown();
 
     doc.fontSize(16).text('Calculation Method');
@@ -154,6 +197,16 @@ export async function buildPdfReport(result, activityData = {}) {
     for (const warning of result.warnings || []) doc.text(`Warning: ${warning}`);
     for (const assumption of result.assumptions || []) doc.text(`Assumption: ${assumption}`);
     doc.moveDown();
+
+    if (result.evidence_summary?.activities_received) {
+      doc.fontSize(16).text('Evidence and Calculation Traceability');
+      doc.fontSize(9.5);
+      doc.text(`Imported activities received: ${result.evidence_summary.activities_received}`);
+      doc.text(`Calculated: ${result.evidence_summary.activities_calculated}; excluded: ${result.evidence_summary.activities_excluded}`);
+      doc.text(`Evidence references: ${(result.evidence_summary.evidence_references || []).join(', ') || 'None provided'}`);
+      doc.text('The accompanying Excel report contains the row-level calculation ledger and factor identifiers.');
+      doc.moveDown();
+    }
 
     doc.fontSize(16).text('Recommended Next Actions');
     doc.fontSize(10);

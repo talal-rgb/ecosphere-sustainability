@@ -18,6 +18,7 @@
     "express": "latest",
     "express-validator": "latest",
     "helmet": "latest",
+    "multer": "2.2.0",
     "nodemailer": "latest",
     "openai": "latest",
     "pdfkit": "latest"
