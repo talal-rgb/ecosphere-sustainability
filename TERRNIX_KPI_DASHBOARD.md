@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-08-03
-**Next Update:** 2026-08-03
+**Last Updated:** 2026-08-10
+**Next Update:** 2026-08-10
 
 ---
 
@@ -58,10 +58,9 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Direct | 10 | 50.0% |
-| Organic Search | 4 | 33.3% |
-| Organic Social | 1 | 8.3% |
-| Unassigned | 1 | 8.3% |
+| Organic Search | 14 | 47.4% |
+| Direct | 11 | 47.4% |
+| AI Assistant | 1 | 5.3% |
 
 ## 🔍 SEO
 
@@ -69,19 +68,17 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 72 | - | - |
+| Impressions | 29 | - | - |
 | Clicks | 2 | - | - |
-| CTR | 2.78% | - | - |
-| Avg Position | 21.4 | - | - |
+| CTR | 6.90% | - | - |
+| Avg Position | 20.3 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | sbti anforderungen 2026 | 7 | 0 | 0.00% | 55.1 | - |
-| 2 | scope 3 emissions gear supplier | 1 | 0 | 0.00% | 99.0 | - |
-| 3 | scope 3 supplier data | 1 | 0 | 0.00% | 98.0 | - |
-| 4 | scope 3 supplier engagement | 1 | 0 | 0.00% | 74.0 | - |
+| 1 | rearnix | 1 | 0 | 0.00% | 62.0 | - |
+| 2 | sbti anforderungen 2026 | 6 | 0 | 0.00% | 54.5 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -224,12 +221,12 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 4 | - | - | - | 
- | Total Users | 12 | - | - | - | 
- | Impressions | 72 | - | - | - | 
+ | Organic Sessions | 14 | - | - | - | 
+ | Total Users | 19 | - | - | - | 
+ | Impressions | 29 | - | - | - | 
  | Clicks | 2 | - | - | - | 
  | Calculator Runs | - | - | - | - | 
- | PDF Downloads | - | - | - | - | 
+ | PDF Downloads | 1 | - | - | - | 
  | Contact Forms | - | - | - | - | 
 | Qualified Leads | - | - | - | - |
 
@@ -254,6 +251,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-08-10 | Automated | Weekly KPI update |
 | 2026-08-03 | Automated | Weekly KPI update |
 | 2026-07-27 | Automated | Weekly KPI update |
 | 2026-07-20 | Automated | Weekly KPI update |
