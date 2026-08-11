@@ -21,6 +21,7 @@ export function getDatabasePool() {
     connectionTimeoutMillis: 5_000,
     statement_timeout: 15_000,
     application_name: 'terrnix-platform-api',
+    options: '-c search_path=auth,public',
     ssl: process.env.DATABASE_SSL === 'require' ? { rejectUnauthorized: true } : undefined
   });
   pool.on('error', (error) => console.error('[Database] Idle client error:', error.message));
@@ -37,6 +38,25 @@ export async function withPlatformContext(databasePool, context, operation) {
     await client.query('BEGIN');
     await client.query("SELECT set_config('app.current_organization_id', $1, true)", [context.organizationId]);
     await client.query("SELECT set_config('app.current_user_id', $1, true)", [context.userId]);
+    const result = await operation(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function withUserContext(databasePool, userId, operation) {
+  assertUuid(userId, 'userId');
+  if (typeof operation !== 'function') throw new TypeError('operation must be a function');
+
+  const client = await databasePool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT set_config('app.current_user_id', $1, true)", [userId]);
     const result = await operation(client);
     await client.query('COMMIT');
     return result;

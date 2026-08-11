@@ -92,6 +92,13 @@ Set these in your Render dashboard:
 | `DATABASE_URL` | Secret PostgreSQL connection string | Dedicated non-owner, non-`BYPASSRLS` application role |
 | `DATABASE_SSL` | `require` | Require verified TLS for the database connection |
 | `DATABASE_POOL_MAX` | `10` | Maximum application connections per service instance |
+| `BETTER_AUTH_SECRET` | Secret, 32+ random characters | Session, state, and token encryption key |
+| `BETTER_AUTH_URL` | `https://api.terrnix.com` | Public API origin used for auth routes and callbacks |
+| `AUTH_TRUSTED_ORIGINS` | `https://terrnix.com,https://www.terrnix.com` | Allowed credentialed frontend origins |
+| `AUTH_COOKIE_DOMAIN` | `terrnix.com` | Shared parent domain for first-party cookies |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth application credentials | Optional Google login |
+| `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET` | Entra application credentials | Optional Microsoft login |
+| `MICROSOFT_TENANT_ID` | `common` or tenant UUID | Microsoft account audience |
 
 Before an authenticated-platform deployment, run database migrations with a separate migration role:
 
@@ -105,6 +112,15 @@ npm test
 
 Do not give the runtime application role table ownership or `BYPASSRLS`. Never run migrations automatically from a public request or application startup.
 
+The runtime role needs data access without ownership. RLS protects `platform`; the `auth` schema is reachable only from the backend service:
+
+```sql
+GRANT USAGE ON SCHEMA platform, auth TO terrnix_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA platform TO terrnix_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA auth TO terrnix_app;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA platform TO terrnix_app;
+```
+
 After migrations, explicitly grant the application role access to the bootstrap entry point; it is revoked from `PUBLIC`:
 
 ```sql
@@ -114,6 +130,13 @@ GRANT EXECUTE ON FUNCTION platform.bootstrap_organization(
 ```
 
 Keep that function owned by the migration role. Subscription writes are intentionally unavailable to tenant sessions and will be performed by a separately authorized billing integration.
+
+Before enabling authentication, configure the API domain and register these OAuth callback URLs with the providers:
+
+- `https://api.terrnix.com/api/auth/callback/google`
+- `https://api.terrnix.com/api/auth/callback/microsoft`
+
+See [`../docs/AUTHENTICATION_ARCHITECTURE.md`](../docs/AUTHENTICATION_ARCHITECTURE.md) for the identity and tenant boundary.
 
 ### Important: Trust Proxy Setting
 
