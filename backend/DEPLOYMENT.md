@@ -6,6 +6,8 @@ This directory contains the production Terrnix API, its rate limiter, locked dep
 
 The Carbon Activity Ingestion API is documented in [`../docs/CARBON_ACTIVITY_INGESTION.md`](../docs/CARBON_ACTIVITY_INGESTION.md). Structured uploads are processed in memory, capped at 5 MiB and 5,000 rows, and are not persisted by the ingestion endpoint.
 
+The authenticated SaaS domain, tenant-isolation model, evidence metadata, entitlements, and database migration workflow are documented in [`../docs/PLATFORM_FOUNDATION.md`](../docs/PLATFORM_FOUNDATION.md). These services are not exposed through public routes until authenticated session middleware is delivered.
+
 ## Security Risk Addressed
 
 **Finding:** No rate limiting on backend API (Risk 8.0/10)
@@ -87,6 +89,31 @@ Set these in your Render dashboard:
 |----------|-------|-------------|
 | `NODE_ENV` | `production` | Production mode |
 | `ALLOWED_ORIGIN` | `https://terrnix.com` | Browser origin allowed by CORS |
+| `DATABASE_URL` | Secret PostgreSQL connection string | Dedicated non-owner, non-`BYPASSRLS` application role |
+| `DATABASE_SSL` | `require` | Require verified TLS for the database connection |
+| `DATABASE_POOL_MAX` | `10` | Maximum application connections per service instance |
+
+Before an authenticated-platform deployment, run database migrations with a separate migration role:
+
+```bash
+cd backend
+npm ci
+DATABASE_URL=postgresql://migration-role:... npm run db:migrate
+npm run check
+npm test
+```
+
+Do not give the runtime application role table ownership or `BYPASSRLS`. Never run migrations automatically from a public request or application startup.
+
+After migrations, explicitly grant the application role access to the bootstrap entry point; it is revoked from `PUBLIC`:
+
+```sql
+GRANT EXECUTE ON FUNCTION platform.bootstrap_organization(
+  uuid, uuid, text, text, text, text, text, text, text
+) TO terrnix_app;
+```
+
+Keep that function owned by the migration role. Subscription writes are intentionally unavailable to tenant sessions and will be performed by a separately authorized billing integration.
 
 ### Important: Trust Proxy Setting
 
