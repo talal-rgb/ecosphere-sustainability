@@ -3,7 +3,7 @@
 **Status:** Living document  
 **Owner:** Terrnix Product and Engineering  
 **Last updated:** 2026-08-11  
-**Current delivery stage:** Shared platform foundation
+**Current delivery stage:** Carbon Accounting Professional — evidence intelligence
 
 ## Product objective
 
@@ -34,8 +34,8 @@ The organization hierarchy supports organizations, nested business units, sites,
 | Authentication | Email/password, Google, Microsoft; modular path to Azure AD, SAML, and enterprise SSO | Foundation implemented; activation gated by credentials |
 | Organizations and permissions | Tenant hierarchy, memberships, eight system roles, granular permissions, row-level isolation | Organization, project, and hierarchy APIs implemented |
 | Subscriptions and billing | Five plans, trials, lifecycle, tax/invoices, upgrades, proration, provider adapters | Catalog, usage ledger, billing records, Stripe event sync, and portal reads implemented; live commerce approval-gated |
-| Evidence and storage | Private versioned documents, retention, tags, links, soft deletion, audit history | Intake, search, tags, version history, retention-aware deletion, and restoration implemented |
-| Document intelligence | Upload, scan, extract, classify, validate, store, link, insight, report | Durable intake and worker control plane implemented; provider processors pending |
+| Evidence and storage | Private versioned documents, retention, tags, links, soft deletion, audit history | Intake, search, tags, version history, retention lifecycle, and intelligence review implemented |
+| Document intelligence | Upload, scan, extract, classify, validate, store, link, insight, report | Durable intake, workers, source-located proposals, confidence review, and immutable corrections implemented; provider adapters pending |
 | AI services | Metered OCR, classification, embeddings, recommendations, summaries, gap/risk/regulation/Q&A | Usage foundation implemented; orchestration pending |
 | Reporting | Versioned executive, technical, board, audit, investor, and compliance outputs across standard formats | Report domain foundation implemented; renderer unification pending |
 | Notifications | In-app/email events, deadlines, missing evidence, regulation/training/risk alerts | Data foundation implemented; delivery orchestration pending |
@@ -63,7 +63,7 @@ An authenticated user can select only an organization where they have an active 
 - calculations, approval workflows, recommendations, and unified reports;
 - training, consulting collaboration, billing, support, integrations, and settings.
 
-The first API slice provides organization profile/usage, member listing, project listing/filtering, and entitlement-gated project creation. The next slice exposes reusable, bounded business-unit, site, and facility collections with plan limits and audit history.
+The platform APIs now provide the organization hierarchy, project workspace, private evidence intake, durable document processing, and entitlement-gated document review. Carbon Accounting Professional next converts approved evidence proposals into factor-mapped calculation ledger entries while retaining field-level provenance.
 
 ## Enterprise quality requirements
 
@@ -85,8 +85,8 @@ The first API slice provides organization profile/usage, member listing, project
 ## Delivery sequence
 
 1. Complete identity, organization, project, authorization, entitlement, audit, and customer workspace APIs.
-2. Add private evidence storage and the document-intelligence job pipeline.
-3. Persist calculation workflows and unify enterprise report rendering.
+2. Add private evidence storage and the document-intelligence job pipeline. **Implemented through human review and correction.**
+3. Persist evidence-linked carbon calculation workflows and unify enterprise report rendering.
 4. Add billing synchronization, subscription lifecycle, usage metering, and customer billing UX.
 5. Add notifications, permission-aware search, AI orchestration, and proactive customer success.
 6. Add admin/consultant workspaces, training links, public API/webhooks, and prioritized connectors.

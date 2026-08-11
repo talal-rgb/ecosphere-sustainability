@@ -2,6 +2,7 @@ import express from 'express';
 
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
 import { getDatabasePool } from '../services/database.js';
+import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
   addEvidenceTag,
@@ -33,6 +34,7 @@ const defaultServices = {
   createProject,
   createSite,
   getBillingOverview,
+  getEvidenceReview,
   getOrganizationProfile,
   getEvidence,
   listBusinessUnits,
@@ -44,7 +46,8 @@ const defaultServices = {
   listBillingInvoices,
   removeEvidenceTag,
   restoreEvidence,
-  softDeleteEvidence
+  softDeleteEvidence,
+  submitEvidenceReview
 };
 
 export function createPlatformRouter(options = {}) {
@@ -125,6 +128,28 @@ export function createPlatformRouter(options = {}) {
         databasePoolResolver(), request.platformContext, evidenceStorageResolver(), request.params.uploadId
       );
       response.json({ success: true, evidence });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get('/evidence/:evidenceId/review', async (request, response, next) => {
+    try {
+      const review = await services.getEvidenceReview(
+        databasePoolResolver(), request.platformContext, request.params.evidenceId
+      );
+      response.json({ success: true, review });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post('/evidence/:evidenceId/review', async (request, response, next) => {
+    try {
+      const review = await services.submitEvidenceReview(
+        databasePoolResolver(), request.platformContext, request.params.evidenceId, request.body || {}
+      );
+      response.json({ success: true, review });
     } catch (error) {
       next(error);
     }

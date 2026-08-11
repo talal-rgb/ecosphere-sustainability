@@ -9,5 +9,6 @@ ADRs record durable Terrnix platform choices. Once accepted, an ADR is not rewri
 | [0003](0003-private-evidence-intake.md) | Quarantine and verify evidence before processing | Accepted |
 | [0004](0004-durable-document-workers.md) | Use leased durable jobs for document intelligence | Accepted |
 | [0005](0005-provider-neutral-billing-ledger.md) | Keep billing state provider-neutral and event-driven | Accepted |
+| [0006](0006-immutable-document-proposals-and-reviews.md) | Preserve machine proposals and human reviews as separate immutable records | Accepted |
 
 New records use the next number and include context, decision, consequences, security/data effects, migration, and rollback considerations.

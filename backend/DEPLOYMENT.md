@@ -149,10 +149,14 @@ CREATE ROLE terrnix_document_worker LOGIN BYPASSRLS;
 GRANT USAGE ON SCHEMA platform TO terrnix_document_worker;
 GRANT SELECT, INSERT, UPDATE ON platform.document_processing_jobs TO terrnix_document_worker;
 GRANT SELECT, UPDATE ON platform.evidence_versions TO terrnix_document_worker;
+GRANT SELECT, UPDATE ON platform.evidence_documents TO terrnix_document_worker;
+GRANT SELECT, INSERT ON platform.document_extraction_runs TO terrnix_document_worker;
+GRANT SELECT, INSERT ON platform.document_extracted_fields TO terrnix_document_worker;
+GRANT SELECT, INSERT ON platform.document_classification_proposals TO terrnix_document_worker;
 GRANT SELECT, INSERT ON platform.audit_events TO terrnix_document_worker;
 ```
 
-Do not grant this role access to users, memberships, subscriptions, auth tables, or arbitrary tenant data. Rotate its credential independently and restrict network access to worker infrastructure.
+Do not grant this role access to human review tables, users, memberships, subscriptions, auth tables, or arbitrary tenant data. Rotate its credential independently and restrict network access to worker infrastructure.
 
 Billing provider events also use a dedicated cross-tenant role. Do not reuse the application or document-worker credentials:
 

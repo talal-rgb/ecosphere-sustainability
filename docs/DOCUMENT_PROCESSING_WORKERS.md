@@ -14,7 +14,8 @@ Workers must use stable instance IDs, process one claimed job idempotently, and 
 
 - Malware results accept only `clean` or `infected`. Only clean evidence advances to extraction.
 - Extraction stores structured data, model identity, and confidence before classification.
-- Validation sets `complete` or `review_required`.
+- Validation derives `complete` or `review_required` from persisted source-located proposals and the evidence version's snapshotted confidence threshold.
+- Review-required evidence stops before linking; immutable human decisions resume linking only after required items are resolved.
 - Successful stages enqueue the next stage once; the database uniqueness constraint prevents duplicates.
 - Retryable failures use exponential backoff from 30 seconds to one hour.
 - Exhausted or explicitly non-retryable failures become terminal, update the evidence state, and append a system audit event.
@@ -23,7 +24,7 @@ The queue stores sanitized error codes, not provider responses, stack traces, or
 
 ## Database isolation
 
-The public API role remains subject to forced row-level security. A separate `terrnix_document_worker` role may use `BYPASSRLS` solely to claim work across organizations and receives narrow grants only on processing jobs, evidence versions, and audit events. Its connection string must differ from `DATABASE_URL`.
+The public API role remains subject to forced row-level security. A separate `terrnix_document_worker` role may use `BYPASSRLS` solely to claim work across organizations and receives narrow grants only on processing jobs, evidence versions, extraction/classification proposals, and audit events. It cannot write human review tables. Its connection string must differ from `DATABASE_URL`.
 
 ## Activation gates
 
