@@ -99,6 +99,11 @@ Set these in your Render dashboard:
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth application credentials | Optional Google login |
 | `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET` | Entra application credentials | Optional Microsoft login |
 | `MICROSOFT_TENANT_ID` | `common` or tenant UUID | Microsoft account audience |
+| `EVIDENCE_STORAGE_BUCKET` | Private bucket name | Quarantine and evidence object storage |
+| `EVIDENCE_STORAGE_REGION` | Provider region | S3 request signing region |
+| `EVIDENCE_STORAGE_ENDPOINT` | Optional HTTPS endpoint | S3-compatible provider endpoint |
+| `EVIDENCE_STORAGE_KMS_KEY_ID` | Optional KMS key ID | Customer-managed server-side encryption |
+| `EVIDENCE_UPLOAD_URL_SECONDS` | `600` | Signed upload lifetime (60–900 seconds) |
 
 Before an authenticated-platform deployment, run database migrations with a separate migration role:
 

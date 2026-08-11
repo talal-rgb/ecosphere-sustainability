@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 
 import { withPlatformContext } from '../services/database.js';
+import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
   bootstrapOrganization,
   canonicalJson,
@@ -24,7 +25,8 @@ import {
 
 const migrationUrls = [
   new URL('../db/migrations/001_platform_foundation.sql', import.meta.url),
-  new URL('../db/migrations/003_organization_hierarchy_entitlements.sql', import.meta.url)
+  new URL('../db/migrations/003_organization_hierarchy_entitlements.sql', import.meta.url),
+  new URL('../db/migrations/004_evidence_intake.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -385,6 +387,64 @@ test('organization hierarchy is reusable, audited, and constrained by plan entit
       "SELECT action FROM platform.audit_events WHERE action IN ('business_unit.created','site.created','facility.created') ORDER BY created_at, id"
     ));
     assert.deepEqual(events.rows.map((row) => row.action), ['business_unit.created', 'site.created', 'facility.created']);
+  } finally {
+    await db.close();
+  }
+});
+
+test('evidence intake issues server-owned uploads and queues verified documents for malware scanning', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  const storageCalls = [];
+  const storage = {
+    provider: 's3',
+    bucket: 'private-evidence',
+    async createUploadIntent(input) {
+      storageCalls.push(['create', input]);
+      return { method: 'PUT', url: 'https://storage.example/upload', expiresInSeconds: 600, requiredHeaders: { 'if-none-match': '*' } };
+    },
+    async verifyObject(input) {
+      storageCalls.push(['verify', input]);
+      return { checksumSha256: Buffer.from(input.sha256, 'hex').toString('base64') };
+    }
+  };
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const context = { userId: ids.userA, organizationId: ids.orgA };
+    const project = await createProject(pool, context, { name: 'Evidence Project', productModule: 'carbon', projectType: 'annual_inventory' });
+    const upload = await initiateEvidenceUpload(pool, context, storage, {
+      projectId: project.id,
+      displayName: 'January electricity bill',
+      documentType: 'electricity_bill',
+      originalFileName: 'january.pdf',
+      mediaType: 'application/pdf',
+      byteSize: 4096,
+      sha256: 'c'.repeat(64)
+    });
+    assert.equal(upload.upload.method, 'PUT');
+    assert.equal(upload.objectKey, undefined);
+    assert.match(storageCalls[0][1].objectKey, new RegExp(`^${ids.orgA}/quarantine/`));
+
+    const finalized = await finalizeEvidenceUpload(pool, context, storage, upload.uploadId);
+    assert.equal(finalized.evidenceId, upload.evidenceId);
+    assert.equal(finalized.processingStage, 'malware_scan');
+    const persisted = await withPlatformContext(pool, context, async (client) => {
+      const version = await client.query('SELECT malware_scan_status, extraction_status FROM platform.evidence_versions WHERE id = $1', [upload.versionId]);
+      const job = await client.query('SELECT stage, status FROM platform.document_processing_jobs WHERE evidence_version_id = $1', [upload.versionId]);
+      return { version: version.rows[0], job: job.rows[0] };
+    });
+    assert.deepEqual(persisted.version, { malware_scan_status: 'pending', extraction_status: 'pending' });
+    assert.deepEqual(persisted.job, { stage: 'malware_scan', status: 'queued' });
+    await assert.rejects(
+      withPlatformContext(pool, context, (client) => client.query(
+        "UPDATE platform.evidence_upload_sessions SET object_key = $1 WHERE id = $2",
+        [`${ids.orgA}/quarantine/tampered`, upload.uploadId]
+      )),
+      /identity and storage metadata are immutable/
+    );
+    const repeated = await finalizeEvidenceUpload(pool, context, storage, upload.uploadId);
+    assert.equal(repeated.status, 'finalized');
+    assert.equal(storageCalls.filter(([operation]) => operation === 'verify').length, 1);
   } finally {
     await db.close();
   }

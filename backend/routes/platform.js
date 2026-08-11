@@ -1,6 +1,8 @@
 import express from 'express';
 
 import { getDatabasePool } from '../services/database.js';
+import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
+import { createEvidenceStorage } from '../services/evidenceStorage.js';
 import {
   createBusinessUnit,
   createFacility,
@@ -34,6 +36,7 @@ export function createPlatformRouter(options = {}) {
   const router = express.Router();
   const services = { ...defaultServices, ...options.services };
   const databasePoolResolver = options.databasePoolResolver || getDatabasePool;
+  const evidenceStorageResolver = options.evidenceStorageResolver || createEvidenceStorage;
 
   router.use(options.requireSession, options.requireTenant);
 
@@ -86,6 +89,28 @@ export function createPlatformRouter(options = {}) {
   addCollectionRoutes(router, '/facilities', services.listFacilities, services.createFacility, databasePoolResolver, (request) => ({
     siteId: request.query.siteId
   }));
+
+  router.post('/evidence/uploads', async (request, response, next) => {
+    try {
+      const upload = await (options.services?.initiateEvidenceUpload || initiateEvidenceUpload)(
+        databasePoolResolver(), request.platformContext, evidenceStorageResolver(), request.body || {}
+      );
+      response.status(201).json({ success: true, upload });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post('/evidence/uploads/:uploadId/finalize', async (request, response, next) => {
+    try {
+      const evidence = await (options.services?.finalizeEvidenceUpload || finalizeEvidenceUpload)(
+        databasePoolResolver(), request.platformContext, evidenceStorageResolver(), request.params.uploadId
+      );
+      response.json({ success: true, evidence });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   return router;
 }
