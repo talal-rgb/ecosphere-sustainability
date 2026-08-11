@@ -104,6 +104,8 @@ Set these in your Render dashboard:
 | `EVIDENCE_STORAGE_ENDPOINT` | Optional HTTPS endpoint | S3-compatible provider endpoint |
 | `EVIDENCE_STORAGE_KMS_KEY_ID` | Optional KMS key ID | Customer-managed server-side encryption |
 | `EVIDENCE_UPLOAD_URL_SECONDS` | `600` | Signed upload lifetime (60–900 seconds) |
+| `DOCUMENT_WORKER_DATABASE_URL` | Separate secret connection string | Dedicated least-privilege processing role; never the public API role |
+| `DOCUMENT_WORKER_POOL_MAX` | `2` | Maximum database connections per worker process |
 
 Before an authenticated-platform deployment, run database migrations with a separate migration role:
 
@@ -135,6 +137,18 @@ GRANT EXECUTE ON FUNCTION platform.bootstrap_organization(
 ```
 
 Keep that function owned by the migration role. Subscription writes are intentionally unavailable to tenant sessions and will be performed by a separately authorized billing integration.
+
+Document workers require cross-tenant queue claiming, so use a separate role that is never available to the public API. `BYPASSRLS` is acceptable only with narrow table grants:
+
+```sql
+CREATE ROLE terrnix_document_worker LOGIN BYPASSRLS;
+GRANT USAGE ON SCHEMA platform TO terrnix_document_worker;
+GRANT SELECT, INSERT, UPDATE ON platform.document_processing_jobs TO terrnix_document_worker;
+GRANT SELECT, UPDATE ON platform.evidence_versions TO terrnix_document_worker;
+GRANT SELECT, INSERT ON platform.audit_events TO terrnix_document_worker;
+```
+
+Do not grant this role access to users, memberships, subscriptions, auth tables, or arbitrary tenant data. Rotate its credential independently and restrict network access to worker infrastructure.
 
 Before enabling authentication, configure the API domain and register these OAuth callback URLs with the providers:
 

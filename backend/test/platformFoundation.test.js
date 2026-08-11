@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 
 import { withPlatformContext } from '../services/database.js';
+import { claimDocumentJob, completeDocumentJob, failDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
   bootstrapOrganization,
@@ -445,6 +446,27 @@ test('evidence intake issues server-owned uploads and queues verified documents 
     const repeated = await finalizeEvidenceUpload(pool, context, storage, upload.uploadId);
     assert.equal(repeated.status, 'finalized');
     assert.equal(storageCalls.filter(([operation]) => operation === 'verify').length, 1);
+
+    await db.exec('RESET ROLE');
+    const malwareJob = await claimDocumentJob(pool, { workerId: 'scanner:test-1', stages: ['malware_scan'], leaseSeconds: 60 });
+    assert.equal(malwareJob.stage, 'malware_scan');
+    assert.equal(malwareJob.object.sha256, 'c'.repeat(64));
+    const scanCompletion = await completeDocumentJob(pool, {
+      workerId: 'scanner:test-1', jobId: malwareJob.id, result: { outcome: 'clean', engine: 'test-scanner' }
+    });
+    assert.equal(scanCompletion.nextStage, 'extract');
+    const extractionJob = await claimDocumentJob(pool, { workerId: 'extractor:test-1', stages: ['extract'] });
+    const retry = await failDocumentJob(pool, {
+      workerId: 'extractor:test-1', jobId: extractionJob.id, errorCode: 'provider.timeout', retryable: true
+    });
+    assert.equal(retry.status, 'retry');
+    await db.query("UPDATE platform.document_processing_jobs SET available_at = now() WHERE id = $1", [extractionJob.id]);
+    const retriedJob = await claimDocumentJob(pool, { workerId: 'extractor:test-2', stages: ['extract'] });
+    const terminalFailure = await failDocumentJob(pool, {
+      workerId: 'extractor:test-2', jobId: retriedJob.id, errorCode: 'parser.unsupported', retryable: false
+    });
+    assert.equal(terminalFailure.status, 'failed');
+    assert.equal((await db.query('SELECT extraction_status FROM platform.evidence_versions WHERE id = $1', [upload.versionId])).rows[0].extraction_status, 'failed');
   } finally {
     await db.close();
   }

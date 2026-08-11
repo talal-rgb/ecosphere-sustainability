@@ -20,6 +20,8 @@ The first boundary accepts PDF, JPEG, PNG, TIFF, CSV, XLS, and XLSX up to 50 MiB
 
 Each stage has one durable job per evidence version, bounded attempts, availability/lock fields, sanitized error codes, and structured results. Workers must be idempotent and use short leases. A completed malware scan updates the version status and queues extraction only when the object is clean.
 
+The shared lease, retry, completion, and failure behavior is implemented in `backend/services/documentWorker.js` and documented in [`DOCUMENT_PROCESSING_WORKERS.md`](DOCUMENT_PROCESSING_WORKERS.md). Provider-specific scanners and parsers remain activation dependencies.
+
 Production still requires:
 
 - private bucket credentials and encryption policy;
