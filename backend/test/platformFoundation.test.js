@@ -6,6 +6,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { withPlatformContext } from '../services/database.js';
 import { ingestBillingEvent } from '../services/billingEvents.js';
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
+import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
 import { claimDocumentJob, completeDocumentJob, failDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
@@ -59,7 +60,8 @@ const migrationUrls = [
   new URL('../db/migrations/007_billing_control_plane.sql', import.meta.url),
   new URL('../db/migrations/008_notification_service.sql', import.meta.url),
   new URL('../db/migrations/009_report_engine.sql', import.meta.url),
-  new URL('../db/migrations/010_search_service.sql', import.meta.url)
+  new URL('../db/migrations/010_search_service.sql', import.meta.url),
+  new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -588,6 +590,7 @@ test('evidence intake issues server-owned uploads and queues verified documents 
   };
   try {
     await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await setPlan(db, ids.orgA, 'professional');
     const context = { userId: ids.userA, organizationId: ids.orgA };
     const project = await createProject(pool, context, { name: 'Evidence Project', productModule: 'carbon', projectType: 'annual_inventory' });
     const upload = await initiateEvidenceUpload(pool, context, storage, {
@@ -694,6 +697,183 @@ test('evidence intake issues server-owned uploads and queues verified documents 
     });
     assert.equal(terminalFailure.status, 'failed');
     assert.equal((await db.query('SELECT extraction_status FROM platform.evidence_versions WHERE id = $1', [upload.versionId])).rows[0].extraction_status, 'failed');
+  } finally {
+    await db.close();
+  }
+});
+
+test('document intelligence preserves source provenance and requires versioned human correction before linking', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  const storage = {
+    provider: 's3',
+    bucket: 'private-evidence',
+    async createUploadIntent() {
+      return { method: 'PUT', url: 'https://storage.example/upload', expiresInSeconds: 600, requiredHeaders: {} };
+    },
+    async verifyObject() {}
+  };
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await setPlan(db, ids.orgA, 'professional');
+    const context = { userId: ids.userA, organizationId: ids.orgA };
+    const project = await createProject(pool, context, {
+      name: 'Professional Inventory', productModule: 'carbon', projectType: 'annual_inventory'
+    });
+    const upload = await initiateEvidenceUpload(pool, context, storage, {
+      projectId: project.id,
+      displayName: 'Electricity bill',
+      documentType: 'electricity_bill',
+      originalFileName: 'electricity.pdf',
+      mediaType: 'application/pdf',
+      byteSize: 2048,
+      sha256: 'd'.repeat(64)
+    });
+    await finalizeEvidenceUpload(pool, context, storage, upload.uploadId);
+
+    await db.exec('RESET ROLE');
+    const scanJob = await claimDocumentJob(pool, { workerId: 'scanner:review-1', stages: ['malware_scan'] });
+    assert.equal((await completeDocumentJob(pool, {
+      workerId: 'scanner:review-1', jobId: scanJob.id, result: { outcome: 'clean' }
+    })).nextStage, 'extract');
+    const extractJob = await claimDocumentJob(pool, { workerId: 'extractor:review-1', stages: ['extract'] });
+    await completeDocumentJob(pool, {
+      workerId: 'extractor:review-1',
+      jobId: extractJob.id,
+      result: {
+        provider: 'test-parser',
+        model: 'invoice-v1',
+        schemaVersion: 'carbon-activity-v1',
+        confidence: 0.78,
+        data: { invoiceNumber: 'INV-100', consumption: 1250 },
+        fields: [
+          { code: 'invoice_number', value: 'INV-100', confidence: 0.98, source: { page: 1 } },
+          { code: 'activity_quantity', value: 1250, unit: 'kWh', confidence: 0.62, source: { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] } }
+        ]
+      }
+    });
+    const classificationJob = await claimDocumentJob(pool, { workerId: 'classifier:review-1', stages: ['classify'] });
+    await completeDocumentJob(pool, {
+      workerId: 'classifier:review-1',
+      jobId: classificationJob.id,
+      result: {
+        provider: 'test-classifier', model: 'carbon-v1', documentType: 'electricity_bill',
+        activityType: 'purchased_electricity', ghgScope: 'scope_2', confidence: 0.74,
+        rationaleCode: 'utility.electricity'
+      }
+    });
+    const validationJob = await claimDocumentJob(pool, { workerId: 'validator:review-1', stages: ['validate'] });
+    const validation = await completeDocumentJob(pool, {
+      workerId: 'validator:review-1', jobId: validationJob.id, result: {}
+    });
+    assert.equal(validation.nextStage, null);
+
+    await db.exec('SET ROLE terrnix_app_test');
+    const pending = await getEvidenceReview(pool, context, upload.evidenceId);
+    assert.equal(pending.status, 'review_required');
+    assert.equal(pending.classification.proposed.ghgScope, 'scope_2');
+    const quantity = pending.fields.find((field) => field.code === 'activity_quantity');
+    assert.equal(quantity.requiresReview, true);
+    assert.deepEqual(quantity.source, { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] });
+
+    const reviewed = await submitEvidenceReview(pool, context, upload.evidenceId, {
+      versionId: upload.versionId,
+      classification: {
+        proposalId: pending.classification.proposalId,
+        expectedRevision: 0,
+        decision: 'accepted',
+        reasonCode: 'utility.bill_confirmed'
+      },
+      fields: [{
+        fieldId: quantity.fieldId,
+        expectedRevision: 0,
+        decision: 'corrected',
+        correctedValue: 1200,
+        correctedUnit: 'kWh',
+        reasonCode: 'invoice.total_verified',
+        comment: 'Verified against the invoice total.'
+      }]
+    });
+    assert.equal(reviewed.status, 'approved');
+    assert.equal(reviewed.classification.review.revision, 1);
+    assert.equal(reviewed.fields.find((field) => field.code === 'activity_quantity').review.revision, 1);
+    const linkJob = await withPlatformContext(pool, context, (client) => client.query(
+      "SELECT status FROM platform.document_processing_jobs WHERE evidence_version_id = $1 AND stage = 'link'",
+      [upload.versionId]
+    ));
+    assert.equal(linkJob.rows[0].status, 'queued');
+    await assert.rejects(
+      submitEvidenceReview(pool, context, upload.evidenceId, {
+        versionId: upload.versionId,
+        fields: [{ fieldId: quantity.fieldId, expectedRevision: 0, decision: 'accepted' }]
+      }),
+      (error) => error.code === 'review_conflict'
+    );
+    const mutationAttempt = await withPlatformContext(pool, context, (client) => client.query(
+      "UPDATE platform.document_field_reviews SET decision = 'accepted' WHERE extracted_field_id = $1",
+      [quantity.fieldId]
+    ));
+    assert.equal(mutationAttempt.rowCount ?? mutationAttempt.affectedRows, 0);
+    const preservedReview = await withPlatformContext(pool, context, (client) => client.query(
+      'SELECT decision FROM platform.document_field_reviews WHERE extracted_field_id = $1',
+      [quantity.fieldId]
+    ));
+    assert.equal(preservedReview.rows[0].decision, 'corrected');
+    const audit = await withPlatformContext(pool, context, (client) => client.query(
+      "SELECT payload FROM platform.audit_events WHERE action = 'document_intelligence.reviewed'"
+    ));
+    assert.equal(audit.rows[0].payload.reviews[0].decision, 'corrected');
+    assert.equal(audit.rows[0].payload.reviews[0].revision, 1);
+
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
+    await setPlan(db, ids.orgB, 'professional');
+    await assert.rejects(
+      getEvidenceReview(pool, { userId: ids.userB, organizationId: ids.orgB }, upload.evidenceId),
+      (error) => error.code === 'not_found'
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test('document review is gated independently from basic evidence upload', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  const storage = {
+    provider: 's3', bucket: 'private-evidence',
+    async createUploadIntent() { return { method: 'PUT', url: 'https://storage.example/upload', expiresInSeconds: 600, requiredHeaders: {} }; },
+    async verifyObject() {}
+  };
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const context = { userId: ids.userA, organizationId: ids.orgA };
+    const project = await createProject(pool, context, {
+      name: 'Starter evidence', productModule: 'carbon', projectType: 'annual_inventory'
+    });
+    const upload = await initiateEvidenceUpload(pool, context, storage, {
+      projectId: project.id, displayName: 'Starter bill', documentType: 'electricity_bill',
+      originalFileName: 'starter.pdf', mediaType: 'application/pdf', byteSize: 1000, sha256: 'e'.repeat(64)
+    });
+    await finalizeEvidenceUpload(pool, context, storage, upload.uploadId);
+    await db.exec('RESET ROLE');
+    const scanJob = await claimDocumentJob(pool, { workerId: 'scanner:starter-1', stages: ['malware_scan'] });
+    assert.equal(scanJob.object.processingProfile, 'storage_only');
+    const completion = await completeDocumentJob(pool, {
+      workerId: 'scanner:starter-1', jobId: scanJob.id, result: { outcome: 'clean' }
+    });
+    assert.equal(completion.nextStage, null);
+    assert.equal((await db.query(
+      'SELECT extraction_status FROM platform.evidence_versions WHERE id = $1', [upload.versionId]
+    )).rows[0].extraction_status, 'not_applicable');
+    assert.equal((await db.query(
+      "SELECT count(*)::integer AS total FROM platform.document_processing_jobs WHERE evidence_version_id = $1 AND stage = 'extract'",
+      [upload.versionId]
+    )).rows[0].total, 0);
+    await db.exec('SET ROLE terrnix_app_test');
+    await assert.rejects(
+      getEvidenceReview(pool, context, upload.evidenceId),
+      (error) => error.code === 'plan_upgrade_required'
+    );
   } finally {
     await db.close();
   }
