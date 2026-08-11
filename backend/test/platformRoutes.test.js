@@ -126,3 +126,25 @@ test('platform router delegates evidence initiation and finalization to the shar
   assert.equal(finalized.status, 200);
   assert.equal(finalized.body.evidence.status, 'finalized');
 });
+
+test('platform router exposes evidence search, tags, soft deletion, and restoration', async () => {
+  const app = buildApp({
+    async listEvidence(_pool, _context, options) {
+      assert.equal(options.query, 'electricity');
+      return { items: [{ id: 'evidence-1' }], pagination: { total: 1 } };
+    },
+    async addEvidenceTag(_pool, _context, evidenceId, input) {
+      return { evidenceId, value: input.tag, created: true };
+    },
+    async softDeleteEvidence(_pool, _context, evidenceId, input) {
+      return { id: evidenceId, reason: input.reason };
+    },
+    async restoreEvidence(_pool, _context, evidenceId) {
+      return { id: evidenceId };
+    }
+  });
+  assert.equal((await request(app).get('/api/platform/evidence?query=electricity')).status, 200);
+  assert.equal((await request(app).post('/api/platform/evidence/evidence-1/tags').send({ tag: 'bill' })).status, 201);
+  assert.equal((await request(app).delete('/api/platform/evidence/evidence-1').send({ reason: 'duplicate' })).status, 200);
+  assert.equal((await request(app).post('/api/platform/evidence/evidence-1/restore')).status, 200);
+});

@@ -15,6 +15,8 @@ The browser receives the signed URL and required headers but not control over st
 
 The first job is always malware scanning. Extraction, classification, validation, linking, insights, and reporting follow only through durable stage transitions. Quarantined evidence is not downloadable or usable by calculations until the security and review policies for its state permit it.
 
+Later uploads reference an existing evidence document and reserve its next version number. Finalization locks the document and advances only from the current version, so concurrent uploads cannot overwrite or skip immutable history. Stale reservations fail with a version conflict and remain auditable.
+
 ## Consequences
 
 - Upload traffic bypasses the API process while authorization and provenance remain server-controlled.

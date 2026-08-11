@@ -2,6 +2,14 @@ import express from 'express';
 
 import { getDatabasePool } from '../services/database.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
+import {
+  addEvidenceTag,
+  getEvidence,
+  listEvidence,
+  removeEvidenceTag,
+  restoreEvidence,
+  softDeleteEvidence
+} from '../services/evidenceRepository.js';
 import { createEvidenceStorage } from '../services/evidenceStorage.js';
 import {
   createBusinessUnit,
@@ -17,16 +25,22 @@ import {
 } from '../services/platformService.js';
 
 const defaultServices = {
+  addEvidenceTag,
   createBusinessUnit,
   createFacility,
   createProject,
   createSite,
   getOrganizationProfile,
+  getEvidence,
   listBusinessUnits,
   listFacilities,
   listOrganizationMembers,
   listProjects,
-  listSites
+  listSites,
+  listEvidence,
+  removeEvidenceTag,
+  restoreEvidence,
+  softDeleteEvidence
 };
 
 export function createPlatformRouter(options = {}) {
@@ -107,6 +121,71 @@ export function createPlatformRouter(options = {}) {
         databasePoolResolver(), request.platformContext, evidenceStorageResolver(), request.params.uploadId
       );
       response.json({ success: true, evidence });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get('/evidence', async (request, response, next) => {
+    try {
+      const result = await services.listEvidence(databasePoolResolver(), request.platformContext, {
+        page: request.query.page,
+        pageSize: request.query.pageSize,
+        projectId: request.query.projectId,
+        documentType: request.query.documentType,
+        classificationStatus: request.query.classificationStatus,
+        extractionStatus: request.query.extractionStatus,
+        malwareScanStatus: request.query.malwareScanStatus,
+        tag: request.query.tag,
+        query: request.query.query,
+        includeDeleted: request.query.includeDeleted
+      });
+      response.json({ success: true, ...result });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get('/evidence/:evidenceId', async (request, response, next) => {
+    try {
+      const evidence = await services.getEvidence(databasePoolResolver(), request.platformContext, request.params.evidenceId);
+      response.json({ success: true, evidence });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post('/evidence/:evidenceId/tags', async (request, response, next) => {
+    try {
+      const tag = await services.addEvidenceTag(databasePoolResolver(), request.platformContext, request.params.evidenceId, request.body || {});
+      response.status(tag.created ? 201 : 200).json({ success: true, tag });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.delete('/evidence/:evidenceId/tags/:tag', async (request, response, next) => {
+    try {
+      const result = await services.removeEvidenceTag(databasePoolResolver(), request.platformContext, request.params.evidenceId, request.params.tag);
+      response.json({ success: true, ...result });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.delete('/evidence/:evidenceId', async (request, response, next) => {
+    try {
+      const deletion = await services.softDeleteEvidence(databasePoolResolver(), request.platformContext, request.params.evidenceId, request.body || {});
+      response.json({ success: true, deletion });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post('/evidence/:evidenceId/restore', async (request, response, next) => {
+    try {
+      const restoration = await services.restoreEvidence(databasePoolResolver(), request.platformContext, request.params.evidenceId);
+      response.json({ success: true, restoration });
     } catch (error) {
       next(error);
     }
