@@ -10,6 +10,9 @@ import {
   createEvidenceDocument,
   createProject,
   getAccessSnapshot,
+  getOrganizationProfile,
+  listOrganizationMembers,
+  listProjects,
   requireFeature
 } from '../services/platformService.js';
 
@@ -289,6 +292,46 @@ test('platform service bootstraps free tenancy, gates features, and appends chai
 
 test('canonical audit serialization is stable across object key ordering', () => {
   assert.equal(canonicalJson({ b: 2, a: { d: 4, c: 3 } }), canonicalJson({ a: { c: 3, d: 4 }, b: 2 }));
+});
+
+test('organization workspace services return tenant-scoped profile, members, and filtered projects', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const context = { userId: ids.userA, organizationId: ids.orgA };
+    await createProject(pool, context, {
+      name: '2026 Carbon Inventory',
+      productModule: 'carbon',
+      projectType: 'annual_inventory'
+    });
+    await createProject(pool, context, {
+      name: 'Energy Audit',
+      productModule: 'energy',
+      projectType: 'facility_audit'
+    });
+
+    const organization = await getOrganizationProfile(pool, context);
+    assert.equal(organization.id, ids.orgA);
+    assert.equal(organization.subscription.planCode, 'starter');
+    assert.equal(organization.usage.members, 1);
+    assert.equal(organization.usage.activeProjects, 2);
+
+    const members = await listOrganizationMembers(pool, context, { page: 1, pageSize: 10 });
+    assert.equal(members.pagination.total, 1);
+    assert.equal(members.items[0].role.code, 'owner');
+
+    const projects = await listProjects(pool, context, { productModule: 'energy', pageSize: 1 });
+    assert.equal(projects.pagination.total, 1);
+    assert.equal(projects.items[0].name, 'Energy Audit');
+    assert.equal(projects.items[0].productModule, 'energy');
+    await assert.rejects(
+      listProjects(pool, context, { productModule: 'unsupported' }),
+      (error) => error.code === 'validation_error'
+    );
+  } finally {
+    await db.close();
+  }
 });
 
 test('feature checks return limits from the active organization subscription', async () => {

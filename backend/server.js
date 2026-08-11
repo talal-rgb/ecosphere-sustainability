@@ -38,6 +38,7 @@ import OpenAI from 'openai';
 import { pathToFileURL } from 'url';
 import { createExpressMiddleware } from './middleware/rateLimiter.js';
 import { createSessionContextMiddleware, createTenantContextMiddleware } from './middleware/authContext.js';
+import { createPlatformRouter } from './routes/platform.js';
 
 // Live backend services
 import { buildChatInput, chatResponseSchema } from './services/terrnixPrompt.js';
@@ -219,6 +220,12 @@ app.get('/api/platform/access', requireSession, requireTenant, async (req, res, 
     next(error);
   }
 });
+
+app.use('/api/platform', createPlatformRouter({
+  requireSession,
+  requireTenant,
+  databasePoolResolver: getDatabasePool
+}));
 
 app.get('/api/health/integrations', (_req, res) => {
   const health = getHealthStatusSync();
@@ -1104,6 +1111,14 @@ app.use((err, req, res, _next) => {
     });
   }
 
+  if (Number.isInteger(err.status) && err.status >= 400 && err.status < 500 && err.code) {
+    return res.status(err.status).json({
+      success: false,
+      error: err.code,
+      safe_message: err.message
+    });
+  }
+
   console.error(`[${req.reqId || 'unknown'}] ${err.name || 'Error'}: ${err.message || 'Unhandled error'}`);
   res.status(err.status || 500).json({
     error: 'Internal server error',
@@ -1142,6 +1157,10 @@ export function startServer(port = PORT) {
     console.log('  - ALL  /api/auth/*');
     console.log('  - GET  /api/platform/session');
     console.log('  - GET  /api/platform/access');
+    console.log('  - GET  /api/platform/organization');
+    console.log('  - GET  /api/platform/members');
+    console.log('  - GET  /api/platform/projects');
+    console.log('  - POST /api/platform/projects');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');
