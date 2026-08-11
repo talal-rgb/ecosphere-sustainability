@@ -162,3 +162,25 @@ test('platform router exposes billing overview, invoices, and usage as read-only
   assert.equal((await request(app).get('/api/platform/billing/invoices?pageSize=10')).body.items[0].id, 'invoice-1');
   assert.equal((await request(app).get('/api/platform/billing/usage')).body.usage[0].used, 2);
 });
+
+test('platform router exposes the personal notification center and preferences', async () => {
+  const app = buildApp({
+    async listNotifications(_pool, _context, options) {
+      assert.equal(options.unreadOnly, 'true');
+      return { items: [{ id: 'notification-1' }], unread: 1, pagination: { total: 1 } };
+    },
+    async getNotificationPreferences() { return [{ category: 'risk', emailEnabled: false }]; },
+    async updateNotificationPreference(_pool, _context, category, input) {
+      return { category, emailEnabled: input.emailEnabled };
+    },
+    async markNotificationRead() { return { id: 'notification-1', readAt: 'now' }; },
+    async markAllNotificationsRead() { return { updated: 3 }; },
+    async archiveNotification() { return { id: 'notification-1' }; }
+  });
+  assert.equal((await request(app).get('/api/platform/notifications?unreadOnly=true')).body.unread, 1);
+  assert.equal((await request(app).get('/api/platform/notifications/preferences')).body.preferences[0].category, 'risk');
+  assert.equal((await request(app).put('/api/platform/notifications/preferences/risk').send({ emailEnabled: true })).body.preference.emailEnabled, true);
+  assert.equal((await request(app).post('/api/platform/notifications/notification-1/read')).status, 200);
+  assert.equal((await request(app).post('/api/platform/notifications/read-all')).body.updated, 3);
+  assert.equal((await request(app).delete('/api/platform/notifications/notification-1')).status, 200);
+});

@@ -17,6 +17,13 @@ import {
 } from '../services/evidenceRepository.js';
 import { getUsageSnapshot, recordUsage } from '../services/usageMetering.js';
 import {
+  getNotificationPreferences,
+  listNotifications,
+  markNotificationRead,
+  publishNotificationEvent,
+  updateNotificationPreference
+} from '../services/notificationService.js';
+import {
   bootstrapOrganization,
   canonicalJson,
   createBusinessUnit,
@@ -40,7 +47,8 @@ const migrationUrls = [
   new URL('../db/migrations/004_evidence_intake.sql', import.meta.url),
   new URL('../db/migrations/005_evidence_repository.sql', import.meta.url),
   new URL('../db/migrations/006_evidence_versions.sql', import.meta.url),
-  new URL('../db/migrations/007_billing_control_plane.sql', import.meta.url)
+  new URL('../db/migrations/007_billing_control_plane.sql', import.meta.url),
+  new URL('../db/migrations/008_notification_service.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -111,6 +119,46 @@ test('platform migration creates the shared SaaS domain and commercial plan matr
     assert.equal(enterprise.rows[0].enabled, true);
     const starterSites = await db.query("SELECT enabled, limit_value FROM platform.plan_features WHERE plan_code = 'starter' AND feature_code = 'sites.total'");
     assert.deepEqual(starterSites.rows[0], { enabled: true, limit_value: 3 });
+  } finally {
+    await db.close();
+  }
+});
+
+test('notification service publishes idempotent events and honors channel preferences', async () => {
+  const db = await createTestDatabase();
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const preferences = await getNotificationPreferences(asPool(db), { organizationId: ids.orgA, userId: ids.userA });
+    assert.equal(preferences.length, 9);
+    await updateNotificationPreference(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, 'evidence', {
+      emailEnabled: true, digestFrequency: 'daily', timezone: 'Europe/Paris'
+    });
+    const input = {
+      eventKey: 'evidence.missing', sourceModule: 'evidence', idempotencyKey: 'missing:electricity:2026-07',
+      category: 'evidence', severity: 'warning', title: 'Electricity bill missing',
+      body: 'Upload the July electricity bill before the reporting deadline.'
+    };
+    const published = await publishNotificationEvent(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, input);
+    assert.equal(published.duplicate, false);
+    assert.equal(published.notifications.length, 1);
+    assert.equal((await db.query("SELECT count(*)::integer AS total FROM platform.notification_delivery_outbox WHERE channel = 'email'")).rows[0].total, 1);
+    assert.equal((await publishNotificationEvent(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, input)).duplicate, true);
+    assert.equal((await db.query(
+      "UPDATE platform.notification_events SET event_key = 'tampered' WHERE id = $1 RETURNING id",
+      [published.eventId]
+    )).rows.length, 0);
+    await db.exec('RESET ROLE');
+    await assert.rejects(
+      db.query("UPDATE platform.notification_events SET event_key = 'tampered' WHERE id = $1", [published.eventId]),
+      /immutable/
+    );
+    await db.exec('SET ROLE terrnix_app_test');
+    const feed = await listNotifications(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, { unreadOnly: true });
+    assert.equal(feed.unread, 1);
+    await markNotificationRead(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, published.notifications[0].id);
+    assert.equal((await listNotifications(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, { unreadOnly: true })).unread, 0);
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
+    assert.equal((await listNotifications(asPool(db), { organizationId: ids.orgB, userId: ids.userB })).items.length, 0);
   } finally {
     await db.close();
   }
