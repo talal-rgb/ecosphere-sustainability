@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
+import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
 import { getDatabasePool } from '../services/database.js';
 import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
@@ -49,11 +50,13 @@ const defaultServices = {
   addReportContentVersion,
   archiveNotification,
   createBusinessUnit,
+  createEvidenceCalculation,
   createFacility,
   createReport,
   createProject,
   createSite,
   getBillingOverview,
+  getCalculationLedger,
   getEvidenceReview,
   getOrganizationProfile,
   getEvidence,
@@ -183,6 +186,24 @@ export function createPlatformRouter(options = {}) {
     } catch (error) {
       next(error);
     }
+  });
+
+  router.post('/evidence/:evidenceId/calculations', async (request, response, next) => {
+    try {
+      const calculation = await services.createEvidenceCalculation(
+        databasePoolResolver(), request.platformContext, request.params.evidenceId, request.body || {}
+      );
+      response.status(calculation.duplicate ? 200 : 201).json({ success: true, calculation });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/calculations/:calculationId', async (request, response, next) => {
+    try {
+      const calculation = await services.getCalculationLedger(
+        databasePoolResolver(), request.platformContext, request.params.calculationId
+      );
+      response.json({ success: true, calculation });
+    } catch (error) { next(error); }
   });
 
   router.get('/evidence', async (request, response, next) => {

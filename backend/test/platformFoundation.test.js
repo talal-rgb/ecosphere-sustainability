@@ -6,6 +6,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { withPlatformContext } from '../services/database.js';
 import { ingestBillingEvent } from '../services/billingEvents.js';
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
+import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
 import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
 import { claimDocumentJob, completeDocumentJob, failDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
@@ -61,7 +62,8 @@ const migrationUrls = [
   new URL('../db/migrations/008_notification_service.sql', import.meta.url),
   new URL('../db/migrations/009_report_engine.sql', import.meta.url),
   new URL('../db/migrations/010_search_service.sql', import.meta.url),
-  new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url)
+  new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url),
+  new URL('../db/migrations/012_calculation_ledger.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -775,6 +777,14 @@ test('document intelligence preserves source provenance and requires versioned h
     const quantity = pending.fields.find((field) => field.code === 'activity_quantity');
     assert.equal(quantity.requiresReview, true);
     assert.deepEqual(quantity.source, { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] });
+    await assert.rejects(
+      createEvidenceCalculation(pool, context, upload.evidenceId, {
+        versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+        factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+        idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'uk_grid_location_based'
+      }),
+      (error) => error.code === 'review_required'
+    );
 
     const reviewed = await submitEvidenceReview(pool, context, upload.evidenceId, {
       versionId: upload.versionId,
@@ -788,8 +798,8 @@ test('document intelligence preserves source provenance and requires versioned h
         fieldId: quantity.fieldId,
         expectedRevision: 0,
         decision: 'corrected',
-        correctedValue: 1200,
-        correctedUnit: 'kWh',
+        correctedValue: 1.2,
+        correctedUnit: 'MWh',
         reasonCode: 'invoice.total_verified',
         comment: 'Verified against the invoice total.'
       }]
@@ -797,6 +807,44 @@ test('document intelligence preserves source provenance and requires versioned h
     assert.equal(reviewed.status, 'approved');
     assert.equal(reviewed.classification.review.revision, 1);
     assert.equal(reviewed.fields.find((field) => field.code === 'activity_quantity').review.revision, 1);
+    const calculation = await createEvidenceCalculation(pool, context, upload.evidenceId, {
+      versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+      factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+      idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'uk_grid_location_based'
+    });
+    assert.equal(calculation.result.ghgScope, 'scope_2');
+    assert.equal(calculation.result.emissionsKgCo2e, 157.152);
+    assert.equal(calculation.input.sourceQuantity, 1.2);
+    assert.equal(calculation.input.conversionFactor, 1000);
+    assert.equal(calculation.input.normalizedQuantity, 1200);
+    assert.equal(calculation.provenance.fieldReviewId !== null, true);
+    assert.deepEqual(calculation.provenance.source, { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] });
+    assert.equal(calculation.factors[0].version, '2026.1');
+    assert.equal((await createEvidenceCalculation(pool, context, upload.evidenceId, {
+      versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+      factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+      idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'uk_grid_location_based'
+    })).duplicate, true);
+    await assert.rejects(
+      createEvidenceCalculation(pool, context, upload.evidenceId, {
+        versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+        factorGroup: 'electricity_location_based', factorKey: 'world_average',
+        idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'fallback_proxy',
+        acceptLowConfidenceFactor: true
+      }),
+      (error) => error.code === 'idempotency_conflict'
+    );
+    assert.equal((await getCalculationLedger(pool, context, calculation.id)).inputSha256.length, 64);
+    assert.equal((await db.query(
+      'SELECT count(*)::integer AS total FROM platform.calculation_evidence WHERE calculation_id = $1',
+      [calculation.id]
+    )).rows[0].total, 1);
+    await db.exec('RESET ROLE');
+    await assert.rejects(
+      db.query("UPDATE platform.calculation_lineage SET mapping_reason = 'tampered' WHERE calculation_id = $1", [calculation.id]),
+      /immutable/
+    );
+    await db.exec('SET ROLE terrnix_app_test');
     const linkJob = await withPlatformContext(pool, context, (client) => client.query(
       "SELECT status FROM platform.document_processing_jobs WHERE evidence_version_id = $1 AND stage = 'link'",
       [upload.versionId]
@@ -829,6 +877,10 @@ test('document intelligence preserves source provenance and requires versioned h
     await setPlan(db, ids.orgB, 'professional');
     await assert.rejects(
       getEvidenceReview(pool, { userId: ids.userB, organizationId: ids.orgB }, upload.evidenceId),
+      (error) => error.code === 'not_found'
+    );
+    await assert.rejects(
+      getCalculationLedger(pool, { userId: ids.userB, organizationId: ids.orgB }, calculation.id),
       (error) => error.code === 'not_found'
     );
   } finally {
