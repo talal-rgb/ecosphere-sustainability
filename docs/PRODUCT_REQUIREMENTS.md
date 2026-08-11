@@ -32,7 +32,7 @@ The organization hierarchy supports organizations, nested business units, sites,
 | Capability | Required outcome | Delivery state |
 | --- | --- | --- |
 | Authentication | Email/password, Google, Microsoft; modular path to Azure AD, SAML, and enterprise SSO | Foundation implemented; activation gated by credentials |
-| Organizations and permissions | Tenant hierarchy, memberships, eight system roles, granular permissions, row-level isolation | Data foundation implemented; read/project API in progress |
+| Organizations and permissions | Tenant hierarchy, memberships, eight system roles, granular permissions, row-level isolation | Organization, project, and hierarchy APIs implemented |
 | Subscriptions and billing | Five plans, trials, lifecycle, tax/invoices, upgrades, proration, provider adapters | Entitlement model implemented; provider synchronization pending |
 | Evidence and storage | Private versioned documents, retention, tags, links, soft deletion, audit history | Metadata foundation implemented; object storage pipeline pending |
 | Document intelligence | Upload, scan, extract, classify, validate, store, link, insight, report | Planned shared pipeline |
@@ -63,7 +63,7 @@ An authenticated user can select only an organization where they have an active 
 - calculations, approval workflows, recommendations, and unified reports;
 - training, consulting collaboration, billing, support, integrations, and settings.
 
-The first API slice provides organization profile/usage, member listing, project listing/filtering, and entitlement-gated project creation.
+The first API slice provides organization profile/usage, member listing, project listing/filtering, and entitlement-gated project creation. The next slice exposes reusable, bounded business-unit, site, and facility collections with plan limits and audit history.
 
 ## Enterprise quality requirements
 

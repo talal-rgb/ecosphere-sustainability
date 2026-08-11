@@ -5,6 +5,7 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const HASH_PATTERN = /^[a-f0-9]{64}$/;
 const PROJECT_MODULES = new Set(['carbon', 'esg', 'energy', 'training', 'quiz', 'intelligence', 'cross_platform']);
 const PROJECT_STATUSES = new Set(['draft', 'active', 'in_review', 'approved', 'archived']);
+const HIERARCHY_TABLES = new Set(['business_units', 'sites', 'facilities']);
 
 export async function bootstrapOrganization(databasePool, input) {
   assertUuid(input.userId, 'userId');
@@ -198,6 +199,131 @@ export async function listProjects(databasePool, context, options = {}) {
       parameters
     );
     return paginatedResult(itemsResult.rows.map(projectResource), countResult.rows[0].total, pagination);
+  });
+}
+
+export async function listBusinessUnits(databasePool, context, options = {}) {
+  return listHierarchyResources(databasePool, context, options, {
+    table: 'business_units',
+    columns: 'id, parent_id, code, name, description, status, created_at, updated_at',
+    mapper: (row) => ({
+      id: row.id, parentId: row.parent_id, code: row.code, name: row.name,
+      description: row.description, status: row.status, createdAt: row.created_at, updatedAt: row.updated_at
+    })
+  });
+}
+
+export async function listSites(databasePool, context, options = {}) {
+  return listHierarchyResources(databasePool, context, options, {
+    table: 'sites',
+    columns: 'id, business_unit_id, code, name, country_code, address, latitude, longitude, status, created_at, updated_at',
+    mapper: (row) => ({
+      id: row.id, businessUnitId: row.business_unit_id, code: row.code, name: row.name,
+      countryCode: row.country_code, address: row.address,
+      latitude: row.latitude === null ? null : Number(row.latitude),
+      longitude: row.longitude === null ? null : Number(row.longitude),
+      status: row.status, createdAt: row.created_at, updatedAt: row.updated_at
+    })
+  });
+}
+
+export async function listFacilities(databasePool, context, options = {}) {
+  const siteId = options.siteId ? nullableUuid(options.siteId, 'siteId') : null;
+  return listHierarchyResources(databasePool, context, options, {
+    table: 'facilities',
+    columns: 'id, site_id, code, name, facility_type, floor_area_m2, status, metadata, created_at, updated_at',
+    extraPredicate: siteId ? 'site_id = $2' : null,
+    extraParameters: siteId ? [siteId] : [],
+    mapper: (row) => ({
+      id: row.id, siteId: row.site_id, code: row.code, name: row.name,
+      facilityType: row.facility_type,
+      floorAreaM2: row.floor_area_m2 === null ? null : Number(row.floor_area_m2),
+      status: row.status, metadata: row.metadata, createdAt: row.created_at, updatedAt: row.updated_at
+    })
+  });
+}
+
+export async function createBusinessUnit(databasePool, context, input) {
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'organization.update');
+    const id = input.id || crypto.randomUUID();
+    assertUuid(id, 'businessUnitId');
+    const parentId = nullableUuid(input.parentId, 'parentId');
+    if (parentId === id) throw validationError('A business unit cannot be its own parent.');
+    const name = requiredText(input.name, 'name', 200);
+    await requireAvailableCapacity(client, context.organizationId, 'business_units.total', 'business_units');
+    const result = await client.query(
+      `INSERT INTO platform.business_units (id, organization_id, parent_id, code, name, description)
+       VALUES ($1,$2,$3,$4,$5,$6)
+       RETURNING id, parent_id, code, name, description, status, created_at, updated_at`,
+      [id, context.organizationId, parentId, optionalText(input.code, 80),
+        name, optionalText(input.description, 2000)]
+    );
+    await appendAuditEvent(client, {
+      organizationId: context.organizationId, actorUserId: context.userId,
+      action: 'business_unit.created', entityType: 'business_unit', entityId: id,
+      payload: { name: input.name, parentId: input.parentId || null }
+    });
+    const row = result.rows[0];
+    return { id: row.id, parentId: row.parent_id, code: row.code, name: row.name, description: row.description,
+      status: row.status, createdAt: row.created_at, updatedAt: row.updated_at };
+  });
+}
+
+export async function createSite(databasePool, context, input) {
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'organization.update');
+    const id = input.id || crypto.randomUUID();
+    assertUuid(id, 'siteId');
+    const name = requiredText(input.name, 'name', 200);
+    const latitude = optionalCoordinate(input.latitude, 'latitude', -90, 90);
+    const longitude = optionalCoordinate(input.longitude, 'longitude', -180, 180);
+    await requireAvailableCapacity(client, context.organizationId, 'sites.total', 'sites');
+    const result = await client.query(
+      `INSERT INTO platform.sites (id, organization_id, business_unit_id, code, name, country_code, address, latitude, longitude)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       RETURNING id, business_unit_id, code, name, country_code, address, latitude, longitude, status, created_at, updated_at`,
+      [id, context.organizationId, nullableUuid(input.businessUnitId, 'businessUnitId'), optionalText(input.code, 80),
+        name, normalizeCountryCode(input.countryCode), objectValue(input.address), latitude, longitude]
+    );
+    await appendAuditEvent(client, {
+      organizationId: context.organizationId, actorUserId: context.userId,
+      action: 'site.created', entityType: 'site', entityId: id,
+      payload: { name: input.name, businessUnitId: input.businessUnitId || null }
+    });
+    const row = result.rows[0];
+    return { id: row.id, businessUnitId: row.business_unit_id, code: row.code, name: row.name,
+      countryCode: row.country_code, address: row.address,
+      latitude: row.latitude === null ? null : Number(row.latitude), longitude: row.longitude === null ? null : Number(row.longitude),
+      status: row.status, createdAt: row.created_at, updatedAt: row.updated_at };
+  });
+}
+
+export async function createFacility(databasePool, context, input) {
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'organization.update');
+    const id = input.id || crypto.randomUUID();
+    assertUuid(id, 'facilityId');
+    assertUuid(input.siteId, 'siteId');
+    const name = requiredText(input.name, 'name', 200);
+    const floorAreaM2 = optionalNonNegativeNumber(input.floorAreaM2, 'floorAreaM2');
+    await requireAvailableCapacity(client, context.organizationId, 'facilities.total', 'facilities');
+    const result = await client.query(
+      `INSERT INTO platform.facilities (id, organization_id, site_id, code, name, facility_type, floor_area_m2, metadata)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       RETURNING id, site_id, code, name, facility_type, floor_area_m2, status, metadata, created_at, updated_at`,
+      [id, context.organizationId, input.siteId, optionalText(input.code, 80), name,
+        optionalText(input.facilityType, 100), floorAreaM2, objectValue(input.metadata)]
+    );
+    await appendAuditEvent(client, {
+      organizationId: context.organizationId, actorUserId: context.userId,
+      action: 'facility.created', entityType: 'facility', entityId: id,
+      payload: { name: input.name, siteId: input.siteId, facilityType: input.facilityType || null }
+    });
+    const row = result.rows[0];
+    return { id: row.id, siteId: row.site_id, code: row.code, name: row.name, facilityType: row.facility_type,
+      floorAreaM2: row.floor_area_m2 === null ? null : Number(row.floor_area_m2), status: row.status,
+      metadata: row.metadata, createdAt: row.created_at, updatedAt: row.updated_at };
   });
 }
 
@@ -456,7 +582,53 @@ function normalizePagination(options) {
   if (!Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 100) {
     throw validationError('pageSize must be an integer between 1 and 100.');
   }
-  return { page, pageSize, offset: (page - 1) * pageSize };
+  const offset = (page - 1) * pageSize;
+  if (!Number.isSafeInteger(offset)) throw validationError('page is too large.');
+  return { page, pageSize, offset };
+}
+
+async function listHierarchyResources(databasePool, context, options, definition) {
+  if (!HIERARCHY_TABLES.has(definition.table)) throw new TypeError('Unsupported hierarchy resource.');
+  const pagination = normalizePagination(options);
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'organization.read');
+    const parameters = [context.organizationId, ...(definition.extraParameters || [])];
+    const where = ['organization_id = $1', definition.extraPredicate].filter(Boolean).join(' AND ');
+    const countResult = await client.query(`SELECT count(*)::integer AS total FROM platform.${definition.table} WHERE ${where}`, parameters);
+    parameters.push(pagination.pageSize, pagination.offset);
+    const itemsResult = await client.query(
+      `SELECT ${definition.columns} FROM platform.${definition.table}
+       WHERE ${where} ORDER BY lower(name), id
+       LIMIT $${parameters.length - 1} OFFSET $${parameters.length}`,
+      parameters
+    );
+    return paginatedResult(itemsResult.rows.map(definition.mapper), countResult.rows[0].total, pagination);
+  });
+}
+
+async function requireAvailableCapacity(client, organizationId, featureCode, tableName) {
+  if (!HIERARCHY_TABLES.has(tableName)) throw new TypeError('Unsupported capacity resource.');
+  const entitlement = await requireFeature(client, featureCode);
+  await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`${organizationId}:${featureCode}`]);
+  if (entitlement.limit === null) return;
+  const usage = await client.query(`SELECT count(*)::integer AS total FROM platform.${tableName} WHERE organization_id = $1`, [organizationId]);
+  if (usage.rows[0].total >= entitlement.limit) throw entitlementError(`Limit reached for ${featureCode}.`);
+}
+
+function optionalCoordinate(value, fieldName, minimum, maximum) {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < minimum || number > maximum) {
+    throw validationError(`${fieldName} must be between ${minimum} and ${maximum}.`);
+  }
+  return number;
+}
+
+function optionalNonNegativeNumber(value, fieldName) {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) throw validationError(`${fieldName} must be a non-negative number.`);
+  return number;
 }
 
 function paginatedResult(items, total, pagination) {
