@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { assertUuid, withPlatformContext } from './database.js';
 import { appendAuditEvent, canonicalJson, requireFeature, requirePermission } from './platformService.js';
 import { consumeUsage } from './usageMetering.js';
+import { upsertSearchDocument } from './searchService.js';
 
 const FORMATS = new Set(['pdf', 'xlsx', 'docx', 'pptx', 'dashboard']);
 const STATUSES = new Set(['draft', 'generated', 'in_review', 'approved', 'published', 'archived']);
@@ -58,6 +59,12 @@ export async function createReport(databasePool, context, input = {}) {
     await appendAuditEvent(client, { organizationId: context.organizationId, actorUserId: context.userId,
       action: 'report.created', entityType: 'report', entityId: reportId,
       payload: { projectId: input.projectId, templateCode, reportType: template.report_type, contentSha256 } });
+    await upsertSearchDocument(client, context, {
+      entityType: 'report', entityId: reportId, projectId: input.projectId, sourceVersion: contentSha256,
+      title, body: [template.report_type, input.reportingStandard].filter(Boolean).join(' '),
+      keywords: [template.report_type, templateCode], actionUrl: `/portal/reports/${reportId}`,
+      metadata: { reportType: template.report_type, templateCode, status: 'draft' }
+    });
     return { id: reportId, projectId: input.projectId, title, reportType: template.report_type,
       templateCode, status: 'draft', currentContentVersion: 1, contentSha256 };
   });
@@ -71,7 +78,7 @@ export async function addReportContentVersion(databasePool, context, reportId, i
     await requirePermission(client, 'report.create');
     await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`${context.organizationId}:report:${reportId}`]);
     const reportResult = await client.query(
-      `SELECT current_content_version, status FROM platform.reports
+      `SELECT current_content_version, status, project_id, title, report_type, template_code, reporting_standard FROM platform.reports
        WHERE organization_id = $1 AND id = $2 FOR UPDATE`, [context.organizationId, reportId]
     );
     const report = reportResult.rows[0];
@@ -92,6 +99,12 @@ export async function addReportContentVersion(databasePool, context, reportId, i
     await appendAuditEvent(client, { organizationId: context.organizationId, actorUserId: context.userId,
       action: 'report.content_version_created', entityType: 'report', entityId: reportId,
       payload: { version, contentSha256 } });
+    await upsertSearchDocument(client, context, {
+      entityType: 'report', entityId: reportId, projectId: report.project_id, sourceVersion: contentSha256,
+      title: report.title, body: [report.report_type, report.reporting_standard].filter(Boolean).join(' '),
+      keywords: [report.report_type, report.template_code], actionUrl: `/portal/reports/${reportId}`,
+      metadata: { reportType: report.report_type, templateCode: report.template_code, status: 'draft' }
+    });
     return { reportId, version, contentSha256, status: 'draft' };
   });
 }

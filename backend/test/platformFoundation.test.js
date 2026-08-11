@@ -31,6 +31,7 @@ import {
   queueReportGeneration
 } from '../services/reportEngine.js';
 import { claimReportJob, completeReportJob } from '../services/reportWorker.js';
+import { indexSearchDocument, searchPlatform } from '../services/searchService.js';
 import {
   bootstrapOrganization,
   canonicalJson,
@@ -57,7 +58,8 @@ const migrationUrls = [
   new URL('../db/migrations/006_evidence_versions.sql', import.meta.url),
   new URL('../db/migrations/007_billing_control_plane.sql', import.meta.url),
   new URL('../db/migrations/008_notification_service.sql', import.meta.url),
-  new URL('../db/migrations/009_report_engine.sql', import.meta.url)
+  new URL('../db/migrations/009_report_engine.sql', import.meta.url),
+  new URL('../db/migrations/010_search_service.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -229,6 +231,50 @@ test('report engine versions shared content and queues entitlement-aware format 
     });
     assert.equal(boardJob.outputFormat, 'pptx');
     assert.equal((await db.query("SELECT count(*)::integer AS total FROM platform.usage_events WHERE feature_code = 'reports.professional'")).rows[0].total, 0);
+  } finally {
+    await db.close();
+  }
+});
+
+test('unified search ranks indexed resources and rechecks per-resource permissions', async () => {
+  const db = await createTestDatabase();
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const owner = { organizationId: ids.orgA, userId: ids.userA };
+    const project = await createProject(asPool(db), owner, {
+      name: 'Climate Transition Programme', description: 'Decarbonisation roadmap and climate targets',
+      productModule: 'carbon', projectType: 'transition_plan'
+    });
+    await createReport(asPool(db), owner, {
+      projectId: project.id, templateCode: 'executive-standard', title: 'Climate Board Summary',
+      content: { summary: 'Climate progress' }
+    });
+    await indexSearchDocument(asPool(db), owner, {
+      entityType: 'evidence', entityId: 'aaaaaaaa-7777-4777-8777-aaaaaaaaaaaa', projectId: project.id,
+      sourceVersion: '1', title: 'Climate supplier declaration', body: 'Supplier emissions evidence',
+      actionUrl: '/portal/evidence/aaaaaaaa-7777-4777-8777-aaaaaaaaaaaa'
+    });
+    const ownerResults = await searchPlatform(asPool(db), owner, { query: 'climate' });
+    assert.equal(ownerResults.pagination.total, 3);
+    assert.deepEqual(Object.keys(ownerResults.facets).sort(), ['evidence', 'project', 'report']);
+
+    await db.query("SELECT set_config('app.current_user_id', $1, false)", [ids.userB]);
+    await db.query(`INSERT INTO platform.app_users (id, auth_subject, email, display_name, status)
+      VALUES ($1,'auth:viewer','viewer@example.com','Viewer','active')`, [ids.userB]);
+    await db.query("SELECT set_config('app.current_user_id', $1, false)", [ids.userA]);
+    await db.query(`INSERT INTO platform.organization_memberships (organization_id, user_id, role_code, status, invited_by, joined_at)
+      VALUES ($1,$2,'read_only','active',$3,now())`, [ids.orgA, ids.userB, ids.userA]);
+    const viewerResults = await searchPlatform(asPool(db), { organizationId: ids.orgA, userId: ids.userB }, { query: 'climate' });
+    assert.equal(viewerResults.pagination.total, 2);
+    assert.equal(viewerResults.items.some((item) => item.entityType === 'evidence'), false);
+
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.reviewerA, slug: 'org-beta', email: 'beta@example.com' });
+    await createProject(asPool(db), { organizationId: ids.orgB, userId: ids.reviewerA }, {
+      name: 'Climate Confidential Programme', productModule: 'carbon', projectType: 'annual_inventory'
+    });
+    const isolatedResults = await searchPlatform(asPool(db), owner, { query: 'climate' });
+    assert.equal(isolatedResults.pagination.total, 3);
+    assert.equal(isolatedResults.items.some((item) => item.title.includes('Confidential')), false);
   } finally {
     await db.close();
   }

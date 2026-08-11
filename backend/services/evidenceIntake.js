@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { assertUuid, withPlatformContext } from './database.js';
 import { appendAuditEvent, requireFeature, requirePermission } from './platformService.js';
 import { consumeUsage } from './usageMetering.js';
+import { upsertSearchDocument } from './searchService.js';
 
 const DOCUMENT_TYPES = new Set([
   'fuel_invoice', 'electricity_bill', 'gas_bill', 'travel_invoice', 'waste_report',
@@ -178,6 +179,12 @@ export async function finalizeEvidenceUpload(databasePool, context, storage, upl
       action: 'evidence.upload_finalized', entityType: 'evidence_document',
       entityId: current.planned_evidence_document_id,
       payload: { uploadId, versionId: current.planned_version_id, versionNumber: Number(current.version_number), sha256: current.sha256, nextStage: 'malware_scan' }
+    });
+    await upsertSearchDocument(client, context, {
+      entityType: 'evidence', entityId: current.planned_evidence_document_id, projectId: current.project_id,
+      sourceVersion: String(current.version_number), title: current.display_name, body: current.original_file_name,
+      keywords: [current.document_type], actionUrl: `/portal/evidence/${current.planned_evidence_document_id}`,
+      metadata: { documentType: current.document_type, classificationStatus: 'pending', version: Number(current.version_number) }
     });
     return { ...finalizedResource(current), finalizedAt };
   });

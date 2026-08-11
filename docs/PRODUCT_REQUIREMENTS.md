@@ -39,7 +39,7 @@ The organization hierarchy supports organizations, nested business units, sites,
 | AI services | Metered OCR, classification, embeddings, recommendations, summaries, gap/risk/regulation/Q&A | Usage foundation implemented; orchestration pending |
 | Notifications and customer success | Personal feed, preferences, event triggers, delivery outbox, deadlines, evidence gaps, risks, training, regulation, and billing alerts | Shared event, preference, feed, and delivery-outbox foundation implemented; external delivery approval-gated |
 | Reporting | Versioned executive, technical, board, audit, investor, and compliance outputs across standard formats | Shared templates, content versions, metered generation jobs, immutable artifacts, APIs, and worker contract implemented; renderer adapters pending |
-| Search | Permission-aware keyword and semantic discovery | Planned |
+| Search | Permission-aware keyword and semantic discovery | Shared weighted keyword index, transactional project/evidence/report indexing, facets, filters, and tenant/resource permission enforcement implemented; semantic adapter pending |
 | API and integrations | Versioned API, webhooks, API keys, connector framework, sync health | Permission foundation implemented; contracts pending |
 | Customer portal | Daily workspace for organizations, projects, evidence, reports, training, billing, KPIs, activity, and support | API foundation in progress |
 | Admin portal | Controlled operations for customers, commerce, support, content, flags, analytics, and AI usage | Planned; separate privilege boundary required |
