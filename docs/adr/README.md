@@ -10,5 +10,6 @@ ADRs record durable Terrnix platform choices. Once accepted, an ADR is not rewri
 | [0004](0004-durable-document-workers.md) | Use leased durable jobs for document intelligence | Accepted |
 | [0005](0005-provider-neutral-billing-ledger.md) | Keep billing state provider-neutral and event-driven | Accepted |
 | [0006](0006-event-driven-notifications.md) | Separate notification events, user inbox state, and channel delivery | Accepted |
+| [0007](0007-versioned-report-engine.md) | Separate report content, generation jobs, and immutable artifacts | Accepted |
 
 New records use the next number and include context, decision, consequences, security/data effects, migration, and rollback considerations.

@@ -38,8 +38,7 @@ The organization hierarchy supports organizations, nested business units, sites,
 | Document intelligence | Upload, scan, extract, classify, validate, store, link, insight, report | Durable intake and worker control plane implemented; provider processors pending |
 | AI services | Metered OCR, classification, embeddings, recommendations, summaries, gap/risk/regulation/Q&A | Usage foundation implemented; orchestration pending |
 | Notifications and customer success | Personal feed, preferences, event triggers, delivery outbox, deadlines, evidence gaps, risks, training, regulation, and billing alerts | Shared event, preference, feed, and delivery-outbox foundation implemented; external delivery approval-gated |
-| Reporting | Versioned executive, technical, board, audit, investor, and compliance outputs across standard formats | Report domain foundation implemented; renderer unification pending |
-| Notifications | In-app/email events, deadlines, missing evidence, regulation/training/risk alerts | Data foundation implemented; delivery orchestration pending |
+| Reporting | Versioned executive, technical, board, audit, investor, and compliance outputs across standard formats | Shared templates, content versions, metered generation jobs, immutable artifacts, APIs, and worker contract implemented; renderer adapters pending |
 | Search | Permission-aware keyword and semantic discovery | Planned |
 | API and integrations | Versioned API, webhooks, API keys, connector framework, sync health | Permission foundation implemented; contracts pending |
 | Customer portal | Daily workspace for organizations, projects, evidence, reports, training, billing, KPIs, activity, and support | API foundation in progress |

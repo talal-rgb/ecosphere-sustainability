@@ -24,6 +24,14 @@ import {
   updateNotificationPreference
 } from '../services/notificationService.js';
 import {
+  addReportContentVersion,
+  createReport,
+  getReport,
+  listReportTemplates,
+  queueReportGeneration
+} from '../services/reportEngine.js';
+import { claimReportJob, completeReportJob } from '../services/reportWorker.js';
+import {
   bootstrapOrganization,
   canonicalJson,
   createBusinessUnit,
@@ -48,7 +56,8 @@ const migrationUrls = [
   new URL('../db/migrations/005_evidence_repository.sql', import.meta.url),
   new URL('../db/migrations/006_evidence_versions.sql', import.meta.url),
   new URL('../db/migrations/007_billing_control_plane.sql', import.meta.url),
-  new URL('../db/migrations/008_notification_service.sql', import.meta.url)
+  new URL('../db/migrations/008_notification_service.sql', import.meta.url),
+  new URL('../db/migrations/009_report_engine.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -68,6 +77,10 @@ async function createTestDatabase() {
   for (const migrationUrl of migrationUrls) await db.exec(await fs.readFile(migrationUrl, 'utf8'));
   await db.exec(`
     RESET ROLE;
+    CREATE ROLE terrnix_report_worker_test BYPASSRLS;
+    GRANT USAGE ON SCHEMA platform TO terrnix_report_worker_test;
+    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA platform TO terrnix_report_worker_test;
+    GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA platform TO terrnix_report_worker_test;
     CREATE ROLE terrnix_app_test;
     GRANT USAGE ON SCHEMA platform TO terrnix_app_test;
     GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA platform TO terrnix_app_test;
@@ -159,6 +172,63 @@ test('notification service publishes idempotent events and honors channel prefer
     assert.equal((await listNotifications(asPool(db), { organizationId: ids.orgA, userId: ids.userA }, { unreadOnly: true })).unread, 0);
     await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
     assert.equal((await listNotifications(asPool(db), { organizationId: ids.orgB, userId: ids.userB })).items.length, 0);
+  } finally {
+    await db.close();
+  }
+});
+
+test('report engine versions shared content and queues entitlement-aware format jobs idempotently', async () => {
+  const db = await createTestDatabase();
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const projectId = 'aaaaaaaa-9090-4090-8090-aaaaaaaaaaaa';
+    await db.query(
+      `INSERT INTO platform.projects (id, organization_id, name, product_module, project_type)
+       VALUES ($1,$2,'Annual reporting','carbon','annual_inventory')`, [projectId, ids.orgA]
+    );
+    const context = { organizationId: ids.orgA, userId: ids.userA };
+    assert.equal((await listReportTemplates(asPool(db), context)).length, 6);
+    const report = await createReport(asPool(db), context, {
+      projectId, templateCode: 'executive-standard', title: '2026 Executive Carbon Report',
+      reportingStandard: 'GHG Protocol', content: { summary: { totalTco2e: 125.4 } },
+      sourceManifest: { calculationIds: [] }
+    });
+    assert.equal(report.currentContentVersion, 1);
+    const version = await addReportContentVersion(asPool(db), context, report.id, {
+      content: { summary: { totalTco2e: 123.1 }, recommendations: [] }
+    });
+    assert.equal(version.version, 2);
+    const generationInput = { outputFormat: 'xlsx', rendererVersion: 'carbon-v3', idempotencyKey: 'report:2026:xlsx:v2' };
+    const generation = await queueReportGeneration(asPool(db), context, report.id, generationInput);
+    assert.equal(generation.duplicate, false);
+    assert.equal(generation.contentVersion, 2);
+    assert.equal((await queueReportGeneration(asPool(db), context, report.id, generationInput)).duplicate, true);
+    await db.exec('RESET ROLE; SET ROLE terrnix_report_worker_test;');
+    const claimed = await claimReportJob(asPool(db), { workerId: 'report-worker:test' });
+    assert.equal(claimed.id, generation.id);
+    assert.deepEqual(claimed.content, { summary: { totalTco2e: 123.1 }, recommendations: [] });
+    const completed = await completeReportJob(asPool(db), {
+      workerId: 'report-worker:test', jobId: claimed.id,
+      mediaType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      byteSize: 2048, sha256: 'b'.repeat(64), storageProvider: 's3', storageBucket: 'reports',
+      objectKey: `${ids.orgA}/reports/${report.id}/v2.xlsx`
+    });
+    assert.equal(completed.status, 'completed');
+    await db.exec('RESET ROLE; SET ROLE terrnix_app_test;');
+    const detail = await getReport(asPool(db), context, report.id);
+    assert.equal(detail.contentVersions.length, 2);
+    assert.equal(detail.generationJobs[0].status, 'completed');
+    assert.equal(detail.artifacts.length, 1);
+    assert.equal((await db.query("SELECT count(*)::integer AS total FROM platform.usage_events WHERE feature_code = 'reports.basic'")).rows[0].total, 1);
+    await setPlan(db, ids.orgA, 'professional');
+    const boardReport = await createReport(asPool(db), context, {
+      projectId, templateCode: 'board-standard', title: '2026 Board Report', content: { highlights: [] }
+    });
+    const boardJob = await queueReportGeneration(asPool(db), context, boardReport.id, {
+      outputFormat: 'pptx', idempotencyKey: 'report:2026:board:pptx:v1'
+    });
+    assert.equal(boardJob.outputFormat, 'pptx');
+    assert.equal((await db.query("SELECT count(*)::integer AS total FROM platform.usage_events WHERE feature_code = 'reports.professional'")).rows[0].total, 0);
   } finally {
     await db.close();
   }
