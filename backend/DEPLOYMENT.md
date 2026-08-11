@@ -106,6 +106,10 @@ Set these in your Render dashboard:
 | `EVIDENCE_UPLOAD_URL_SECONDS` | `600` | Signed upload lifetime (60–900 seconds) |
 | `DOCUMENT_WORKER_DATABASE_URL` | Separate secret connection string | Dedicated least-privilege processing role; never the public API role |
 | `DOCUMENT_WORKER_POOL_MAX` | `2` | Maximum database connections per worker process |
+| `BILLING_DATABASE_URL` | Separate secret connection string | Dedicated provider synchronization role; never the public API role |
+| `BILLING_POOL_MAX` | `2` | Maximum billing synchronization connections |
+| `STRIPE_SECRET_KEY` | Restricted Stripe secret | Disabled until payment activation is approved |
+| `STRIPE_WEBHOOK_SECRET` | Stripe endpoint signing secret | Verifies raw webhook bodies |
 
 Before an authenticated-platform deployment, run database migrations with a separate migration role:
 
@@ -149,6 +153,20 @@ GRANT SELECT, INSERT ON platform.audit_events TO terrnix_document_worker;
 ```
 
 Do not grant this role access to users, memberships, subscriptions, auth tables, or arbitrary tenant data. Rotate its credential independently and restrict network access to worker infrastructure.
+
+Billing provider events also use a dedicated cross-tenant role. Do not reuse the application or document-worker credentials:
+
+```sql
+CREATE ROLE terrnix_billing LOGIN BYPASSRLS;
+GRANT USAGE ON SCHEMA platform TO terrnix_billing;
+GRANT SELECT ON platform.organizations, platform.billing_prices TO terrnix_billing;
+GRANT SELECT, UPDATE ON platform.subscriptions TO terrnix_billing;
+GRANT SELECT, INSERT, UPDATE ON platform.billing_event_inbox TO terrnix_billing;
+GRANT SELECT, INSERT, UPDATE ON platform.billing_invoices, platform.billing_payments TO terrnix_billing;
+GRANT SELECT, INSERT ON platform.billing_subscription_history TO terrnix_billing;
+```
+
+Register `https://api.terrnix.com/api/billing/stripe/webhook` only after commercial, tax, privacy, and production deployment approval. Subscribe only to the documented subscription, invoice, and payment events. Never expose `BILLING_DATABASE_URL` or Stripe secrets to the customer portal.
 
 Before enabling authentication, configure the API domain and register these OAuth callback URLs with the providers:
 

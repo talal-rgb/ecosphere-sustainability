@@ -29,6 +29,7 @@
  */
 
 import 'dotenv/config';
+import crypto from 'node:crypto';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -47,8 +48,11 @@ import { getFactorBundle } from './services/factorProvider.js';
 import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
 import { parseActivityUpload } from './services/activityIngestion.js';
 import { authNodeHandler, isAuthConfigured } from './services/auth.js';
+import { getBillingPool } from './services/billingDatabase.js';
+import { ingestBillingEvent } from './services/billingEvents.js';
 import { getDatabasePool } from './services/database.js';
 import { getAccessSnapshot } from './services/platformService.js';
+import { createStripeBillingProvider } from './services/stripeBillingProvider.js';
 
 // PR #30 services
 import { sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
@@ -165,6 +169,24 @@ app.use(cors({
 // express.json(); guest tools and all existing public endpoints remain anonymous.
 app.all('/api/auth', authNodeHandler);
 app.all('/api/auth/*splat', authNodeHandler);
+
+const billingWebhookLimit = createExpressMiddleware({
+  trustProxy: false,
+  endpointMaxRequests: 120,
+  endpointWindowMs: 60_000,
+  burstMaxRequests: 30
+});
+app.post('/api/billing/stripe/webhook', billingWebhookLimit, express.raw({ type: 'application/json', limit: '1mb' }), async (req, res, next) => {
+  try {
+    const provider = createStripeBillingProvider();
+    const event = provider.verifyAndMapWebhook(req.body, req.get('Stripe-Signature'));
+    const payloadSha256 = crypto.createHash('sha256').update(req.body).digest('hex');
+    const result = await ingestBillingEvent(getBillingPool(), event, payloadSha256);
+    res.json({ received: true, status: result.status });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Parse ordinary API payloads conservatively while allowing larger calculation
 // and report payloads. Express skips parsers when a body is already parsed.
@@ -1171,6 +1193,10 @@ export function startServer(port = PORT) {
     console.log('  - POST/DELETE /api/platform/evidence/:evidenceId/tags');
     console.log('  - DELETE /api/platform/evidence/:evidenceId');
     console.log('  - POST /api/platform/evidence/:evidenceId/restore');
+    console.log('  - POST /api/billing/stripe/webhook');
+    console.log('  - GET  /api/platform/billing');
+    console.log('  - GET  /api/platform/billing/invoices');
+    console.log('  - GET  /api/platform/billing/usage');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');

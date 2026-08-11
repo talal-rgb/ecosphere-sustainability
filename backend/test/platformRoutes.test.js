@@ -148,3 +148,17 @@ test('platform router exposes evidence search, tags, soft deletion, and restorat
   assert.equal((await request(app).delete('/api/platform/evidence/evidence-1').send({ reason: 'duplicate' })).status, 200);
   assert.equal((await request(app).post('/api/platform/evidence/evidence-1/restore')).status, 200);
 });
+
+test('platform router exposes billing overview, invoices, and usage as read-only resources', async () => {
+  const app = buildApp({
+    async getBillingOverview() { return { subscription: { planCode: 'professional' }, usage: [] }; },
+    async listBillingInvoices(_pool, _context, options) {
+      assert.equal(options.pageSize, '10');
+      return { items: [{ id: 'invoice-1' }], pagination: { total: 1 } };
+    },
+    async getUsageSnapshot() { return [{ code: 'ai.requests.monthly', used: 2 }]; }
+  });
+  assert.equal((await request(app).get('/api/platform/billing')).body.billing.subscription.planCode, 'professional');
+  assert.equal((await request(app).get('/api/platform/billing/invoices?pageSize=10')).body.items[0].id, 'invoice-1');
+  assert.equal((await request(app).get('/api/platform/billing/usage')).body.usage[0].used, 2);
+});
