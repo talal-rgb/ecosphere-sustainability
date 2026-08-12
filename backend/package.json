@@ -8,7 +8,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check middleware/rateLimiter.js",
+    "check": "node --check server.js && node --check middleware/rateLimiter.js && node --check services/database.js && node --check services/platformService.js && node --check scripts/migrate.js",
+    "db:migrate": "node scripts/migrate.js",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
@@ -21,12 +22,14 @@
     "multer": "2.2.0",
     "nodemailer": "latest",
     "openai": "latest",
-    "pdfkit": "latest"
+    "pdfkit": "latest",
+    "pg": "8.23.0"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
     "supertest": "^7.1.4"
   },
   "overrides": {
