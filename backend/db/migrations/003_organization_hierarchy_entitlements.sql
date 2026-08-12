@@ -1,0 +1,16 @@
+INSERT INTO platform.plan_features (plan_code, feature_code, enabled, limit_value) VALUES
+  ('free', 'business_units.total', false, 0),
+  ('free', 'sites.total', false, 0),
+  ('free', 'facilities.total', false, 0),
+  ('starter', 'business_units.total', true, 1),
+  ('starter', 'sites.total', true, 3),
+  ('starter', 'facilities.total', true, 5),
+  ('professional', 'business_units.total', true, 10),
+  ('professional', 'sites.total', true, 50),
+  ('professional', 'facilities.total', true, 100),
+  ('business', 'business_units.total', true, NULL),
+  ('business', 'sites.total', true, NULL),
+  ('business', 'facilities.total', true, NULL),
+  ('enterprise', 'business_units.total', true, NULL),
+  ('enterprise', 'sites.total', true, NULL),
+  ('enterprise', 'facilities.total', true, NULL);

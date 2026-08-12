@@ -1161,6 +1161,9 @@ export function startServer(port = PORT) {
     console.log('  - GET  /api/platform/members');
     console.log('  - GET  /api/platform/projects');
     console.log('  - POST /api/platform/projects');
+    console.log('  - GET/POST /api/platform/business-units');
+    console.log('  - GET/POST /api/platform/sites');
+    console.log('  - GET/POST /api/platform/facilities');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');

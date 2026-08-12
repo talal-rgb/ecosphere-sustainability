@@ -7,16 +7,25 @@ import { withPlatformContext } from '../services/database.js';
 import {
   bootstrapOrganization,
   canonicalJson,
+  createBusinessUnit,
   createEvidenceDocument,
+  createFacility,
   createProject,
+  createSite,
   getAccessSnapshot,
   getOrganizationProfile,
+  listBusinessUnits,
+  listFacilities,
   listOrganizationMembers,
   listProjects,
+  listSites,
   requireFeature
 } from '../services/platformService.js';
 
-const migrationUrl = new URL('../db/migrations/001_platform_foundation.sql', import.meta.url);
+const migrationUrls = [
+  new URL('../db/migrations/001_platform_foundation.sql', import.meta.url),
+  new URL('../db/migrations/003_organization_hierarchy_entitlements.sql', import.meta.url)
+];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
   orgA: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -32,7 +41,7 @@ async function createTestDatabase() {
     GRANT CREATE ON DATABASE postgres TO terrnix_migrator;
     SET ROLE terrnix_migrator;
   `);
-  await db.exec(await fs.readFile(migrationUrl, 'utf8'));
+  for (const migrationUrl of migrationUrls) await db.exec(await fs.readFile(migrationUrl, 'utf8'));
   await db.exec(`
     RESET ROLE;
     CREATE ROLE terrnix_app_test;
@@ -84,6 +93,8 @@ test('platform migration creates the shared SaaS domain and commercial plan matr
     assert.deepEqual(plans.rows.map((row) => row.code), ['free', 'starter', 'professional', 'business', 'enterprise']);
     const enterprise = await db.query("SELECT enabled FROM platform.plan_features WHERE plan_code = 'enterprise' AND feature_code = 'sso.saml'");
     assert.equal(enterprise.rows[0].enabled, true);
+    const starterSites = await db.query("SELECT enabled, limit_value FROM platform.plan_features WHERE plan_code = 'starter' AND feature_code = 'sites.total'");
+    assert.deepEqual(starterSites.rows[0], { enabled: true, limit_value: 3 });
   } finally {
     await db.close();
   }
@@ -329,6 +340,51 @@ test('organization workspace services return tenant-scoped profile, members, and
       listProjects(pool, context, { productModule: 'unsupported' }),
       (error) => error.code === 'validation_error'
     );
+  } finally {
+    await db.close();
+  }
+});
+
+test('organization hierarchy is reusable, audited, and constrained by plan entitlements', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const context = { userId: ids.userA, organizationId: ids.orgA };
+    const businessUnit = await createBusinessUnit(pool, context, { name: 'France Operations', code: 'FR' });
+    await assert.rejects(
+      createBusinessUnit(pool, context, { id: 'aaaaaaaa-9999-4999-8999-aaaaaaaaaaaa', parentId: 'aaaaaaaa-9999-4999-8999-aaaaaaaaaaaa', name: 'Invalid Unit' }),
+      (error) => error.code === 'validation_error'
+    );
+    await assert.rejects(
+      createBusinessUnit(pool, context, { name: 'Second Unit' }),
+      (error) => error.code === 'plan_upgrade_required'
+    );
+    const site = await createSite(pool, context, {
+      businessUnitId: businessUnit.id,
+      name: 'Paris Site',
+      countryCode: 'fr',
+      latitude: 48.8566,
+      longitude: 2.3522,
+      address: { city: 'Paris' }
+    });
+    const facility = await createFacility(pool, context, {
+      siteId: site.id,
+      name: 'Head Office',
+      facilityType: 'office',
+      floorAreaM2: 1250.5
+    });
+
+    assert.equal((await listBusinessUnits(pool, context)).items[0].name, 'France Operations');
+    assert.equal((await listSites(pool, context)).items[0].countryCode, 'FR');
+    const facilities = await listFacilities(pool, context, { siteId: site.id });
+    assert.equal(facilities.items[0].id, facility.id);
+    assert.equal(facilities.items[0].floorAreaM2, 1250.5);
+
+    const events = await withPlatformContext(pool, context, (client) => client.query(
+      "SELECT action FROM platform.audit_events WHERE action IN ('business_unit.created','site.created','facility.created') ORDER BY created_at, id"
+    ));
+    assert.deepEqual(events.rows.map((row) => row.action), ['business_unit.created', 'site.created', 'facility.created']);
   } finally {
     await db.close();
   }

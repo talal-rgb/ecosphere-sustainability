@@ -85,3 +85,23 @@ test('platform router forwards domain errors to the API error boundary', async (
   assert.equal(response.status, 402);
   assert.equal(response.body.error, 'plan_upgrade_required');
 });
+
+test('platform router exposes hierarchy collections through the same tenant boundary', async () => {
+  const app = buildApp({
+    async listSites(_pool, receivedContext, options) {
+      assert.equal(receivedContext.organizationId, context.organizationId);
+      assert.equal(options.pageSize, '20');
+      return { items: [{ id: 'site-1' }], pagination: { total: 1 } };
+    },
+    async createSite(_pool, receivedContext, input) {
+      assert.equal(receivedContext.role, 'owner');
+      return { id: 'site-2', ...input };
+    }
+  });
+  const listed = await request(app).get('/api/platform/sites?pageSize=20');
+  assert.equal(listed.status, 200);
+  assert.equal(listed.body.items[0].id, 'site-1');
+  const created = await request(app).post('/api/platform/sites').send({ name: 'Paris' });
+  assert.equal(created.status, 201);
+  assert.equal(created.body.resource.name, 'Paris');
+});
