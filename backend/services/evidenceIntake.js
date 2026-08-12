@@ -113,6 +113,18 @@ export async function finalizeEvidenceUpload(databasePool, context, storage, upl
     if (current.status === 'finalized') return finalizedResource(current);
     if (current.status !== 'initiated') throw domainError('invalid_upload_state', 409, 'Upload is no longer available for finalization.');
     if (new Date(current.expires_at) <= new Date()) throw domainError('upload_expired', 410, 'Evidence upload session has expired.');
+    const intelligenceFeature = await client.query(
+      `SELECT feature.enabled, feature.configuration
+       FROM platform.subscriptions subscription
+       JOIN platform.plan_features feature ON feature.plan_code = subscription.plan_code
+       WHERE subscription.organization_id = $1 AND feature.feature_code = 'document_intelligence.review'`,
+      [context.organizationId]
+    );
+    const processingProfile = intelligenceFeature.rows[0]?.enabled === true ? 'document_intelligence' : 'storage_only';
+    const configuredThreshold = Number(intelligenceFeature.rows[0]?.configuration?.minimum_confidence);
+    const reviewThreshold = processingProfile === 'document_intelligence'
+      ? (Number.isFinite(configuredThreshold) && configuredThreshold >= 0 && configuredThreshold <= 1 ? configuredThreshold : 0.85)
+      : null;
     if (Number(current.version_number) === 1) {
       await client.query(
         `INSERT INTO platform.evidence_documents (
@@ -136,11 +148,13 @@ export async function finalizeEvidenceUpload(databasePool, context, storage, upl
     await client.query(
       `INSERT INTO platform.evidence_versions (
          id, organization_id, evidence_document_id, version_number, original_file_name,
-         media_type, byte_size, sha256, storage_provider, storage_bucket, object_key, uploaded_by
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+         media_type, byte_size, sha256, storage_provider, storage_bucket, object_key,
+         processing_profile, review_threshold, uploaded_by
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
       [current.planned_version_id, context.organizationId, current.planned_evidence_document_id,
         current.version_number, current.original_file_name, current.media_type, current.byte_size, current.sha256,
-        current.storage_provider, current.storage_bucket, current.object_key, context.userId]
+        current.storage_provider, current.storage_bucket, current.object_key, processingProfile,
+        reviewThreshold, context.userId]
     );
     if (Number(current.version_number) > 1) {
       await client.query(
@@ -178,7 +192,10 @@ export async function finalizeEvidenceUpload(databasePool, context, storage, upl
       organizationId: context.organizationId, actorUserId: context.userId,
       action: 'evidence.upload_finalized', entityType: 'evidence_document',
       entityId: current.planned_evidence_document_id,
-      payload: { uploadId, versionId: current.planned_version_id, versionNumber: Number(current.version_number), sha256: current.sha256, nextStage: 'malware_scan' }
+      payload: {
+        uploadId, versionId: current.planned_version_id, versionNumber: Number(current.version_number),
+        sha256: current.sha256, processingProfile, reviewThreshold, nextStage: 'malware_scan'
+      }
     });
     await upsertSearchDocument(client, context, {
       entityType: 'evidence', entityId: current.planned_evidence_document_id, projectId: current.project_id,

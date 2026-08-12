@@ -214,3 +214,25 @@ test('platform router exposes bounded unified search filters', async () => {
   assert.equal(response.status, 200);
   assert.equal(response.body.items[0].entityType, 'project');
 });
+
+test('platform router exposes tenant-bound document review reads and corrections', async () => {
+  const evidenceId = 'aaaaaaaa-3333-4333-8333-aaaaaaaaaaaa';
+  const app = buildApp({
+    async getEvidenceReview(_pool, receivedContext, receivedEvidenceId) {
+      assert.equal(receivedContext.organizationId, context.organizationId);
+      assert.equal(receivedEvidenceId, evidenceId);
+      return { evidenceId, status: 'review_required' };
+    },
+    async submitEvidenceReview(_pool, receivedContext, receivedEvidenceId, input) {
+      assert.equal(receivedContext.userId, context.userId);
+      assert.equal(receivedEvidenceId, evidenceId);
+      return { evidenceId, status: 'approved', versionId: input.versionId };
+    }
+  });
+  const read = await request(app).get(`/api/platform/evidence/${evidenceId}/review`);
+  assert.equal(read.status, 200);
+  assert.equal(read.body.review.status, 'review_required');
+  const corrected = await request(app).post(`/api/platform/evidence/${evidenceId}/review`).send({ versionId: 'version-1' });
+  assert.equal(corrected.status, 200);
+  assert.equal(corrected.body.review.status, 'approved');
+});
