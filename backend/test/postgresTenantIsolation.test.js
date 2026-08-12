@@ -5,9 +5,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 
+import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
 import { withPlatformContext } from '../services/database.js';
+import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
+import { claimDocumentJob, completeDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import { getEvidence } from '../services/evidenceRepository.js';
+import { createReport, getReport } from '../services/reportEngine.js';
 import {
   bootstrapOrganization,
   createBusinessUnit,
@@ -37,8 +41,14 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
   appUrl.username = 'terrnix_app_e2e';
   appUrl.password = appPassword;
   const app = new Pool({ connectionString: appUrl.toString(), max: 2 });
+  const workerPassword = 'e2e-document-worker-password';
+  const workerUrl = new URL(adminUrl);
+  workerUrl.username = 'terrnix_document_worker_e2e';
+  workerUrl.password = workerPassword;
+  const documentWorker = new Pool({ connectionString: workerUrl.toString(), max: 1 });
   try {
     await admin.query(`CREATE ROLE terrnix_app_e2e LOGIN PASSWORD '${appPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS`);
+    await admin.query(`CREATE ROLE terrnix_document_worker_e2e LOGIN PASSWORD '${workerPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE BYPASSRLS`);
     const migrationDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../db/migrations');
     const migrations = (await fs.readdir(migrationDirectory)).filter((name) => name.endsWith('.sql')).sort();
     for (const migration of migrations) {
@@ -48,6 +58,14 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       GRANT USAGE ON SCHEMA platform TO terrnix_app_e2e;
       GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA platform TO terrnix_app_e2e;
       GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA platform TO terrnix_app_e2e;
+      GRANT USAGE ON SCHEMA platform TO terrnix_document_worker_e2e;
+      GRANT SELECT, INSERT, UPDATE ON platform.document_processing_jobs TO terrnix_document_worker_e2e;
+      GRANT SELECT, UPDATE ON platform.evidence_versions TO terrnix_document_worker_e2e;
+      GRANT SELECT, UPDATE ON platform.evidence_documents TO terrnix_document_worker_e2e;
+      GRANT SELECT, INSERT ON platform.document_extraction_runs TO terrnix_document_worker_e2e;
+      GRANT SELECT, INSERT ON platform.document_extracted_fields TO terrnix_document_worker_e2e;
+      GRANT SELECT, INSERT ON platform.document_classification_proposals TO terrnix_document_worker_e2e;
+      GRANT SELECT, INSERT ON platform.audit_events TO terrnix_document_worker_e2e;
     `);
 
     await bootstrapOrganization(app, {
@@ -93,9 +111,96 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
     });
     await finalizeEvidenceUpload(app, contextA, storage, upload.uploadId);
 
+    const scanJob = await claimDocumentJob(documentWorker, {
+      workerId: 'scanner:postgres-e2e', stages: ['malware_scan']
+    });
+    await completeDocumentJob(documentWorker, {
+      workerId: 'scanner:postgres-e2e', jobId: scanJob.id, result: { outcome: 'clean', engine: 'e2e-scanner' }
+    });
+    const extractJob = await claimDocumentJob(documentWorker, {
+      workerId: 'extractor:postgres-e2e', stages: ['extract']
+    });
+    await completeDocumentJob(documentWorker, {
+      workerId: 'extractor:postgres-e2e', jobId: extractJob.id,
+      result: {
+        provider: 'e2e-parser', model: 'utility-v1', schemaVersion: 'carbon-activity-v1',
+        confidence: 0.76, data: { consumption: 1250 },
+        fields: [{
+          code: 'activity_quantity', value: 1250, unit: 'kWh', confidence: 0.62,
+          source: { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] }
+        }]
+      }
+    });
+    const classifyJob = await claimDocumentJob(documentWorker, {
+      workerId: 'classifier:postgres-e2e', stages: ['classify']
+    });
+    await completeDocumentJob(documentWorker, {
+      workerId: 'classifier:postgres-e2e', jobId: classifyJob.id,
+      result: {
+        provider: 'e2e-classifier', model: 'carbon-v1', documentType: 'electricity_bill',
+        activityType: 'purchased_electricity', ghgScope: 'scope_2', confidence: 0.74,
+        rationaleCode: 'utility.electricity'
+      }
+    });
+    const validateJob = await claimDocumentJob(documentWorker, {
+      workerId: 'validator:postgres-e2e', stages: ['validate']
+    });
+    const validation = await completeDocumentJob(documentWorker, {
+      workerId: 'validator:postgres-e2e', jobId: validateJob.id, result: {}
+    });
+    assert.equal(validation.nextStage, null);
+
+    const pendingReview = await getEvidenceReview(app, contextA, upload.evidenceId);
+    assert.equal(pendingReview.status, 'review_required');
+    const quantity = pendingReview.fields.find((field) => field.code === 'activity_quantity');
+    const approvedReview = await submitEvidenceReview(app, contextA, upload.evidenceId, {
+      versionId: upload.versionId,
+      classification: {
+        proposalId: pendingReview.classification.proposalId, expectedRevision: 0,
+        decision: 'accepted', reasonCode: 'utility.bill_confirmed'
+      },
+      fields: [{
+        fieldId: quantity.fieldId, expectedRevision: 0, decision: 'corrected',
+        correctedValue: 1.2, correctedUnit: 'MWh', reasonCode: 'invoice.total_verified',
+        comment: 'Verified against the uploaded electricity bill.'
+      }]
+    });
+    assert.equal(approvedReview.status, 'approved');
+
+    const calculation = await createEvidenceCalculation(app, contextA, upload.evidenceId, {
+      versionId: upload.versionId, quantityFieldId: quantity.fieldId, siteId: site.id,
+      factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+      idempotencyKey: 'postgres-e2e:electricity:2026-01', mappingReason: 'reviewed_location_based_factor'
+    });
+    assert.equal(calculation.result.emissionsKgCo2e, 157.152);
+    assert.equal(calculation.provenance.fieldReviewId !== null, true);
+    assert.equal(calculation.inputSha256.length, 64);
+
+    const report = await createReport(app, contextA, {
+      projectId: project.id, templateCode: 'executive-standard', title: '2026 Carbon Inventory',
+      reportingStandard: 'GHG Protocol', calculationIds: [calculation.id], evidenceIds: [upload.evidenceId],
+      content: {
+        methodology: 'Activity data multiplied by a versioned emission factor.',
+        scope2: { kgCo2e: calculation.result.emissionsKgCo2e },
+        reviewStatus: 'review-ready'
+      },
+      sourceManifest: { calculationIds: [calculation.id], evidenceIds: [upload.evidenceId] }
+    });
+    const persistedReport = await getReport(app, contextA, report.id);
+    assert.equal(persistedReport.status, 'draft');
+    assert.equal(persistedReport.contentVersions[0].sourceManifest.calculationIds[0], calculation.id);
+
     await assert.rejects(
       getEvidence(app, contextB, upload.evidenceId),
       (error) => error.code === 'not_found'
+    );
+    await assert.rejects(
+      getCalculationLedger(app, contextB, calculation.id),
+      (error) => error.code === 'not_found'
+    );
+    await assert.rejects(
+      getReport(app, contextB, report.id),
+      (error) => error.code === 'report_not_found'
     );
     const crossTenantRead = await withPlatformContext(app, contextB, (client) => client.query(
       'SELECT id FROM platform.evidence_documents WHERE id = $1', [upload.evidenceId]
@@ -110,14 +215,22 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       /row-level security/
     );
     const auditA = await withPlatformContext(app, contextA, (client) => client.query(
-      'SELECT count(*)::integer AS total FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
+      'SELECT action FROM platform.audit_events WHERE organization_id = $1 ORDER BY created_at, id', [ids.orgA]
     ));
     const auditB = await withPlatformContext(app, contextB, (client) => client.query(
-      'SELECT count(*)::integer AS total FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
+      'SELECT action FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
     ));
-    assert.ok(auditA.rows[0].total >= 6);
-    assert.equal(auditB.rows[0].total, 0);
+    const auditActions = new Set(auditA.rows.map((row) => row.action));
+    for (const action of [
+      'organization.created', 'project.created', 'evidence.upload_initiated',
+      'evidence.upload_finalized', 'document_processing.completed',
+      'document_intelligence.reviewed', 'calculation.created_from_evidence', 'report.created'
+    ]) {
+      assert.ok(auditActions.has(action), `Expected audit action ${action}`);
+    }
+    assert.equal(auditB.rows.length, 0);
   } finally {
+    await documentWorker.end().catch(() => {});
     await app.end().catch(() => {});
     await admin.end().catch(() => {});
   }
