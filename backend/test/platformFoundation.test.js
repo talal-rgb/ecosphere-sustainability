@@ -6,6 +6,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { withPlatformContext } from '../services/database.js';
 import { ingestBillingEvent } from '../services/billingEvents.js';
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
+import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
 import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
 import { claimDocumentJob, completeDocumentJob, failDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
@@ -61,7 +62,9 @@ const migrationUrls = [
   new URL('../db/migrations/008_notification_service.sql', import.meta.url),
   new URL('../db/migrations/009_report_engine.sql', import.meta.url),
   new URL('../db/migrations/010_search_service.sql', import.meta.url),
-  new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url)
+  new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url),
+  new URL('../db/migrations/012_calculation_ledger.sql', import.meta.url),
+  new URL('../db/migrations/013_security_integrity_hardening.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -362,6 +365,89 @@ test('granular roles deny reviewer writes while allowing review access', async (
         [ids.orgA]
       ),
       /row-level security policy/
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test('member directory RLS permits authorized tenant reads and blocks role escalation', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await setContext(db, ids.orgA, ids.reviewerA);
+    await db.query(
+      `INSERT INTO platform.app_users (id, auth_subject, email, display_name, status)
+       VALUES ($1, $2, $3, $4, 'active')`,
+      [ids.reviewerA, `auth:${ids.reviewerA}`, 'admin@example.com', 'Tenant administrator']
+    );
+    await setContext(db, ids.orgA, ids.userA);
+    await db.query(
+      `INSERT INTO platform.organization_memberships (
+         organization_id, user_id, role_code, status, invited_by, joined_at
+       ) VALUES ($1, $2, 'administrator', 'active', $3, now())`,
+      [ids.orgA, ids.reviewerA, ids.userA]
+    );
+
+    const directory = await listOrganizationMembers(pool, { organizationId: ids.orgA, userId: ids.userA });
+    assert.equal(directory.pagination.total, 2);
+    assert.deepEqual(directory.items.map((item) => item.userId).sort(), [ids.userA, ids.reviewerA].sort());
+
+    await setContext(db, ids.orgA, ids.reviewerA);
+    const escalation = await db.query(
+      `UPDATE platform.organization_memberships SET role_code = 'owner'
+       WHERE organization_id = $1 AND user_id = $2`,
+      [ids.orgA, ids.reviewerA]
+    );
+    assert.equal(escalation.rowCount ?? escalation.affectedRows, 0);
+    const ownerDeletion = await db.query(
+      `DELETE FROM platform.organization_memberships
+       WHERE organization_id = $1 AND user_id = $2`,
+      [ids.orgA, ids.userA]
+    );
+    assert.equal(ownerDeletion.rowCount ?? ownerDeletion.affectedRows, 0);
+  } finally {
+    await db.close();
+  }
+});
+
+test('billing foreign keys reject cross-organization subscriptions and invoices', async () => {
+  const db = await createTestDatabase();
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
+    await db.exec('RESET ROLE');
+    const subscriptions = await db.query(
+      'SELECT organization_id, id FROM platform.subscriptions WHERE organization_id IN ($1, $2)',
+      [ids.orgA, ids.orgB]
+    );
+    const subscriptionByOrganization = Object.fromEntries(
+      subscriptions.rows.map((row) => [row.organization_id, row.id])
+    );
+    await assert.rejects(
+      db.query(
+        `INSERT INTO platform.billing_invoices (
+           organization_id, subscription_id, provider, provider_invoice_ref, status, currency
+         ) VALUES ($1, $2, 'stripe', 'in_cross_tenant', 'open', 'EUR')`,
+        [ids.orgA, subscriptionByOrganization[ids.orgB]]
+      ),
+      /foreign key constraint/
+    );
+    const invoice = await db.query(
+      `INSERT INTO platform.billing_invoices (
+         organization_id, subscription_id, provider, provider_invoice_ref, status, currency
+       ) VALUES ($1, $2, 'stripe', 'in_alpha', 'open', 'EUR') RETURNING id`,
+      [ids.orgA, subscriptionByOrganization[ids.orgA]]
+    );
+    await assert.rejects(
+      db.query(
+        `INSERT INTO platform.billing_payments (
+           organization_id, invoice_id, provider, provider_payment_ref, status, amount_minor, currency
+         ) VALUES ($1, $2, 'stripe', 'pi_cross_tenant', 'succeeded', 100, 'EUR')`,
+        [ids.orgB, invoice.rows[0].id]
+      ),
+      /foreign key constraint/
     );
   } finally {
     await db.close();
@@ -775,6 +861,14 @@ test('document intelligence preserves source provenance and requires versioned h
     const quantity = pending.fields.find((field) => field.code === 'activity_quantity');
     assert.equal(quantity.requiresReview, true);
     assert.deepEqual(quantity.source, { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] });
+    await assert.rejects(
+      createEvidenceCalculation(pool, context, upload.evidenceId, {
+        versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+        factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+        idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'uk_grid_location_based'
+      }),
+      (error) => error.code === 'review_required'
+    );
 
     const reviewed = await submitEvidenceReview(pool, context, upload.evidenceId, {
       versionId: upload.versionId,
@@ -788,8 +882,8 @@ test('document intelligence preserves source provenance and requires versioned h
         fieldId: quantity.fieldId,
         expectedRevision: 0,
         decision: 'corrected',
-        correctedValue: 1200,
-        correctedUnit: 'kWh',
+        correctedValue: 1.2,
+        correctedUnit: 'MWh',
         reasonCode: 'invoice.total_verified',
         comment: 'Verified against the invoice total.'
       }]
@@ -797,6 +891,44 @@ test('document intelligence preserves source provenance and requires versioned h
     assert.equal(reviewed.status, 'approved');
     assert.equal(reviewed.classification.review.revision, 1);
     assert.equal(reviewed.fields.find((field) => field.code === 'activity_quantity').review.revision, 1);
+    const calculation = await createEvidenceCalculation(pool, context, upload.evidenceId, {
+      versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+      factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+      idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'uk_grid_location_based'
+    });
+    assert.equal(calculation.result.ghgScope, 'scope_2');
+    assert.equal(calculation.result.emissionsKgCo2e, 157.152);
+    assert.equal(calculation.input.sourceQuantity, 1.2);
+    assert.equal(calculation.input.conversionFactor, 1000);
+    assert.equal(calculation.input.normalizedQuantity, 1200);
+    assert.equal(calculation.provenance.fieldReviewId !== null, true);
+    assert.deepEqual(calculation.provenance.source, { page: 2, boundingBox: [0.1, 0.2, 0.3, 0.4] });
+    assert.equal(calculation.factors[0].version, '2026.1');
+    assert.equal((await createEvidenceCalculation(pool, context, upload.evidenceId, {
+      versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+      factorGroup: 'electricity_location_based', factorKey: 'uk_2026',
+      idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'uk_grid_location_based'
+    })).duplicate, true);
+    await assert.rejects(
+      createEvidenceCalculation(pool, context, upload.evidenceId, {
+        versionId: upload.versionId, quantityFieldId: quantity.fieldId,
+        factorGroup: 'electricity_location_based', factorKey: 'world_average',
+        idempotencyKey: 'electricity:inv-100:v1', mappingReason: 'fallback_proxy',
+        acceptLowConfidenceFactor: true
+      }),
+      (error) => error.code === 'idempotency_conflict'
+    );
+    assert.equal((await getCalculationLedger(pool, context, calculation.id)).inputSha256.length, 64);
+    assert.equal((await db.query(
+      'SELECT count(*)::integer AS total FROM platform.calculation_evidence WHERE calculation_id = $1',
+      [calculation.id]
+    )).rows[0].total, 1);
+    await db.exec('RESET ROLE');
+    await assert.rejects(
+      db.query("UPDATE platform.calculation_lineage SET mapping_reason = 'tampered' WHERE calculation_id = $1", [calculation.id]),
+      /immutable/
+    );
+    await db.exec('SET ROLE terrnix_app_test');
     const linkJob = await withPlatformContext(pool, context, (client) => client.query(
       "SELECT status FROM platform.document_processing_jobs WHERE evidence_version_id = $1 AND stage = 'link'",
       [upload.versionId]
@@ -829,6 +961,10 @@ test('document intelligence preserves source provenance and requires versioned h
     await setPlan(db, ids.orgB, 'professional');
     await assert.rejects(
       getEvidenceReview(pool, { userId: ids.userB, organizationId: ids.orgB }, upload.evidenceId),
+      (error) => error.code === 'not_found'
+    );
+    await assert.rejects(
+      getCalculationLedger(pool, { userId: ids.userB, organizationId: ids.orgB }, calculation.id),
       (error) => error.code === 'not_found'
     );
   } finally {
@@ -896,7 +1032,9 @@ test('usage metering and trusted billing events drive canonical subscription and
   const pool = asPool(db);
   try {
     await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
     const context = { userId: ids.userA, organizationId: ids.orgA };
+    await setContext(db, ids.orgA, ids.userA);
     const usage = await recordUsage(pool, context, {
       featureCode: 'calculations.monthly', quantity: 2, idempotencyKey: 'calculation:batch-1', sourceType: 'calculation'
     });
@@ -933,6 +1071,24 @@ test('usage metering and trusted billing events drive canonical subscription and
       hostedInvoiceUrl: 'https://billing.example/invoice', invoicePdfUrl: 'https://billing.example/invoice.pdf'
     };
     assert.equal((await ingestBillingEvent(pool, invoiceEvent, 'f'.repeat(64))).status, 'processed');
+    await assert.rejects(
+      ingestBillingEvent(pool, {
+        ...invoiceEvent,
+        providerEventRef: 'evt_invoice_cross_reference',
+        organizationId: ids.orgB
+      }, 'a'.repeat(64)),
+      (error) => error.code === 'billing_tenant_mismatch'
+    );
+    await assert.rejects(
+      ingestBillingEvent(pool, {
+        ...invoiceEvent,
+        providerEventRef: 'evt_invoice_cross_upsert',
+        organizationId: ids.orgB,
+        customerRef: null,
+        subscriptionRef: null
+      }, 'b'.repeat(64)),
+      (error) => error.code === 'billing_tenant_mismatch'
+    );
 
     await db.exec('SET ROLE terrnix_app_test');
     await setContext(db, ids.orgA, ids.userA);

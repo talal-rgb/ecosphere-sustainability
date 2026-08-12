@@ -30,6 +30,7 @@
 
 import 'dotenv/config';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -71,6 +72,8 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://terrnix.com';
+const packageMetadata = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const deploymentMetadata = resolveDeploymentMetadata(process.env, packageMetadata.version, NODE_ENV);
 const activityUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 5 },
@@ -216,12 +219,34 @@ app.get('/health', (_req, res) => {
     ok: true,
     service: 'terrnix-website-api',
     repo: 'talal-rgb/ecosphere-sustainability',
-    version: 'brevo-primary-2026-06-26',
-    commit: process.env.RENDER_GIT_COMMIT || 'unknown',
-    deployedAt: new Date().toISOString(),
+    version: deploymentMetadata.version,
+    gitCommit: deploymentMetadata.gitCommit,
+    commit: deploymentMetadata.gitCommit,
+    buildDate: deploymentMetadata.buildDate,
+    environment: deploymentMetadata.environment,
     time: new Date().toISOString()
   });
 });
+
+function resolveDeploymentMetadata(environment, packageVersion, nodeEnvironment) {
+  const rawCommit = environment.GIT_COMMIT || environment.RENDER_GIT_COMMIT || environment.CF_PAGES_COMMIT_SHA;
+  const gitCommit = /^[a-f0-9]{7,40}$/i.test(rawCommit || '') ? rawCommit.toLowerCase() : 'unknown';
+  const rawBuildDate = environment.BUILD_DATE;
+  const parsedBuildDate = rawBuildDate ? new Date(rawBuildDate) : null;
+  const buildDate = parsedBuildDate && !Number.isNaN(parsedBuildDate.valueOf())
+    ? parsedBuildDate.toISOString()
+    : 'unknown';
+  const rawEnvironment = environment.DEPLOYMENT_ENVIRONMENT || nodeEnvironment;
+  const deploymentEnvironment = /^[a-z0-9][a-z0-9._-]{0,63}$/i.test(rawEnvironment || '')
+    ? rawEnvironment.toLowerCase()
+    : 'unknown';
+  return Object.freeze({
+    version: /^\d+\.\d+\.\d+(?:[-+][a-z0-9.-]+)?$/i.test(packageVersion || '') ? packageVersion : 'unknown',
+    gitCommit,
+    buildDate,
+    environment: deploymentEnvironment
+  });
+}
 
 app.get('/api/platform/session', requireSession, (req, res) => {
   res.json({
@@ -1200,6 +1225,8 @@ export function startServer(port = PORT) {
     console.log('  - GET/PUT /api/platform/notifications and preferences');
     console.log('  - GET/POST /api/platform/reports and generation jobs');
     console.log('  - GET  /api/platform/search');
+    console.log('  - POST /api/platform/evidence/:evidenceId/calculations');
+    console.log('  - GET  /api/platform/calculations/:calculationId');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');

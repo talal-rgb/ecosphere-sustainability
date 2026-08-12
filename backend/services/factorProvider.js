@@ -7,6 +7,12 @@ async function loadLocalFactors() {
   return JSON.parse(raw);
 }
 
+export async function getApprovedLocalFactor(factorGroup, factorKey) {
+  const local = await loadLocalFactors();
+  const factor = local[factorGroup]?.[factorKey];
+  return factor ? { factor, metadata: local.metadata } : null;
+}
+
 async function getElectricityMapsFactor(activityData) {
   if (!process.env.ELECTRICITYMAPS_API_KEY || process.env.ELECTRICITYMAPS_API_KEY.includes('REPLACE_WITH')) return null;
   if (!activityData.electricityMapsZone) return null;

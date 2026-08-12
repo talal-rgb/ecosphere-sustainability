@@ -49,11 +49,7 @@ export async function ingestBillingEvent(databasePool, event, payloadSha256) {
 
 async function resolveOrganization(client, event) {
   const explicit = validOrganizationId(event.organizationId);
-  if (explicit) {
-    const exists = await client.query('SELECT id FROM platform.organizations WHERE id = $1', [explicit]);
-    if (exists.rows[0]) return explicit;
-  }
-  const result = await client.query(
+  const mapped = await client.query(
     `SELECT organization_id FROM platform.subscriptions
      WHERE provider = $1 AND (
        ($2::text IS NOT NULL AND provider_subscription_ref = $2)
@@ -61,7 +57,15 @@ async function resolveOrganization(client, event) {
      ) LIMIT 1`,
     [event.provider, event.subscriptionRef || null, event.customerRef || null]
   );
-  return result.rows[0]?.organization_id || null;
+  const mappedOrganizationId = mapped.rows[0]?.organization_id || null;
+  if (explicit && mappedOrganizationId && explicit !== mappedOrganizationId) {
+    throw domainError('billing_tenant_mismatch', 409, 'Provider references do not belong to the declared organization.');
+  }
+  if (explicit) {
+    const exists = await client.query('SELECT id FROM platform.organizations WHERE id = $1', [explicit]);
+    if (exists.rows[0]) return explicit;
+  }
+  return mappedOrganizationId;
 }
 
 async function syncSubscription(client, organizationId, event) {
@@ -104,7 +108,7 @@ async function syncSubscription(client, organizationId, event) {
 
 async function syncInvoice(client, organizationId, event) {
   const subscription = await client.query('SELECT id FROM platform.subscriptions WHERE organization_id = $1', [organizationId]);
-  await client.query(
+  const result = await client.query(
     `INSERT INTO platform.billing_invoices (
        organization_id, subscription_id, provider, provider_invoice_ref, invoice_number, status,
        currency, subtotal_minor, discount_minor, tax_minor, total_minor, amount_paid_minor,
@@ -117,29 +121,39 @@ async function syncInvoice(client, organizationId, event) {
        tax_minor = EXCLUDED.tax_minor, total_minor = EXCLUDED.total_minor,
        amount_paid_minor = EXCLUDED.amount_paid_minor, amount_due_minor = EXCLUDED.amount_due_minor,
        due_at = EXCLUDED.due_at, paid_at = EXCLUDED.paid_at,
-       hosted_invoice_url = EXCLUDED.hosted_invoice_url, invoice_pdf_url = EXCLUDED.invoice_pdf_url`,
+       hosted_invoice_url = EXCLUDED.hosted_invoice_url, invoice_pdf_url = EXCLUDED.invoice_pdf_url
+     WHERE platform.billing_invoices.organization_id = EXCLUDED.organization_id
+     RETURNING id`,
     [organizationId, subscription.rows[0]?.id || null, event.provider, event.invoiceRef, event.invoiceNumber,
       invoiceStatus(event.status), event.currency, event.subtotalMinor, event.discountMinor, event.taxMinor,
       event.totalMinor, event.amountPaidMinor, event.amountDueMinor, event.periodStartsAt,
       event.periodEndsAt, event.dueAt, event.paidAt, event.hostedInvoiceUrl, event.invoicePdfUrl]
   );
+  if (!result.rows[0]) throw domainError('billing_tenant_mismatch', 409, 'Invoice reference belongs to another organization.');
 }
 
 async function syncPayment(client, organizationId, event) {
   const invoice = event.invoiceRef
-    ? await client.query('SELECT id FROM platform.billing_invoices WHERE provider = $1 AND provider_invoice_ref = $2', [event.provider, event.invoiceRef])
+    ? await client.query(
+      `SELECT id FROM platform.billing_invoices
+       WHERE organization_id = $1 AND provider = $2 AND provider_invoice_ref = $3`,
+      [organizationId, event.provider, event.invoiceRef]
+    )
     : { rows: [] };
-  await client.query(
+  const result = await client.query(
     `INSERT INTO platform.billing_payments (
        organization_id, invoice_id, provider, provider_payment_ref, status,
        amount_minor, currency, failure_code, paid_at
      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
      ON CONFLICT (provider, provider_payment_ref) DO UPDATE SET
        invoice_id = EXCLUDED.invoice_id, status = EXCLUDED.status,
-       amount_minor = EXCLUDED.amount_minor, failure_code = EXCLUDED.failure_code, paid_at = EXCLUDED.paid_at`,
+       amount_minor = EXCLUDED.amount_minor, failure_code = EXCLUDED.failure_code, paid_at = EXCLUDED.paid_at
+     WHERE platform.billing_payments.organization_id = EXCLUDED.organization_id
+     RETURNING id`,
     [organizationId, invoice.rows[0]?.id || null, event.provider, event.paymentRef, event.status,
       event.amountMinor, event.currency, event.failureCode, event.paidAt]
   );
+  if (!result.rows[0]) throw domainError('billing_tenant_mismatch', 409, 'Payment reference belongs to another organization.');
 }
 
 function subscriptionStatus(status) {

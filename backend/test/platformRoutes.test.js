@@ -236,3 +236,25 @@ test('platform router exposes tenant-bound document review reads and corrections
   assert.equal(corrected.status, 200);
   assert.equal(corrected.body.review.status, 'approved');
 });
+
+test('platform router creates and reads evidence-backed calculation ledger entries', async () => {
+  const evidenceId = 'aaaaaaaa-3333-4333-8333-aaaaaaaaaaaa';
+  const calculationId = 'aaaaaaaa-5555-4555-8555-aaaaaaaaaaaa';
+  const app = buildApp({
+    async createEvidenceCalculation(_pool, _context, receivedEvidenceId, input) {
+      assert.equal(receivedEvidenceId, evidenceId);
+      assert.equal(input.factorKey, 'uk_2026');
+      return { id: calculationId, duplicate: false };
+    },
+    async getCalculationLedger(_pool, _context, receivedCalculationId) {
+      assert.equal(receivedCalculationId, calculationId);
+      return { id: calculationId, inputSha256: 'a'.repeat(64) };
+    }
+  });
+  const created = await request(app).post(`/api/platform/evidence/${evidenceId}/calculations`).send({ factorKey: 'uk_2026' });
+  assert.equal(created.status, 201);
+  assert.equal(created.body.calculation.id, calculationId);
+  const ledger = await request(app).get(`/api/platform/calculations/${calculationId}`);
+  assert.equal(ledger.status, 200);
+  assert.equal(ledger.body.calculation.inputSha256.length, 64);
+});
