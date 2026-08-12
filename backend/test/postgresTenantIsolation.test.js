@@ -215,13 +215,20 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       /row-level security/
     );
     const auditA = await withPlatformContext(app, contextA, (client) => client.query(
-      'SELECT count(*)::integer AS total FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
+      'SELECT action FROM platform.audit_events WHERE organization_id = $1 ORDER BY occurred_at, id', [ids.orgA]
     ));
     const auditB = await withPlatformContext(app, contextB, (client) => client.query(
-      'SELECT count(*)::integer AS total FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
+      'SELECT action FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
     ));
-    assert.ok(auditA.rows[0].total >= 15);
-    assert.equal(auditB.rows[0].total, 0);
+    const auditActions = new Set(auditA.rows.map((row) => row.action));
+    for (const action of [
+      'organization.created', 'project.created', 'evidence.upload_initiated',
+      'evidence.upload_finalized', 'document_processing.completed',
+      'document_intelligence.reviewed', 'calculation.created_from_evidence', 'report.created'
+    ]) {
+      assert.ok(auditActions.has(action), `Expected audit action ${action}`);
+    }
+    assert.equal(auditB.rows.length, 0);
   } finally {
     await documentWorker.end().catch(() => {});
     await app.end().catch(() => {});
