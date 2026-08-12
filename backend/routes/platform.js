@@ -12,6 +12,14 @@ import {
   softDeleteEvidence
 } from '../services/evidenceRepository.js';
 import { createEvidenceStorage } from '../services/evidenceStorage.js';
+import {
+  archiveNotification,
+  getNotificationPreferences,
+  listNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+  updateNotificationPreference
+} from '../services/notificationService.js';
 import { getUsageSnapshot } from '../services/usageMetering.js';
 import {
   createBusinessUnit,
@@ -28,6 +36,7 @@ import {
 
 const defaultServices = {
   addEvidenceTag,
+  archiveNotification,
   createBusinessUnit,
   createFacility,
   createProject,
@@ -35,6 +44,7 @@ const defaultServices = {
   getBillingOverview,
   getOrganizationProfile,
   getEvidence,
+  getNotificationPreferences,
   listBusinessUnits,
   listFacilities,
   listOrganizationMembers,
@@ -42,9 +52,13 @@ const defaultServices = {
   listSites,
   listEvidence,
   listBillingInvoices,
+  listNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
   removeEvidenceTag,
   restoreEvidence,
-  softDeleteEvidence
+  softDeleteEvidence,
+  updateNotificationPreference
 };
 
 export function createPlatformRouter(options = {}) {
@@ -215,6 +229,57 @@ export function createPlatformRouter(options = {}) {
     try {
       const usage = await (options.services?.getUsageSnapshot || getUsageSnapshot)(databasePoolResolver(), request.platformContext);
       response.json({ success: true, usage });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/notifications', async (request, response, next) => {
+    try {
+      const result = await services.listNotifications(databasePoolResolver(), request.platformContext, {
+        page: request.query.page, pageSize: request.query.pageSize,
+        category: request.query.category, unreadOnly: request.query.unreadOnly
+      });
+      response.json({ success: true, ...result });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/notifications/preferences', async (request, response, next) => {
+    try {
+      const preferences = await services.getNotificationPreferences(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, preferences });
+    } catch (error) { next(error); }
+  });
+
+  router.put('/notifications/preferences/:category', async (request, response, next) => {
+    try {
+      const preference = await services.updateNotificationPreference(
+        databasePoolResolver(), request.platformContext, request.params.category, request.body || {}
+      );
+      response.json({ success: true, preference });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/notifications/read-all', async (request, response, next) => {
+    try {
+      const result = await services.markAllNotificationsRead(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, ...result });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/notifications/:notificationId/read', async (request, response, next) => {
+    try {
+      const notification = await services.markNotificationRead(
+        databasePoolResolver(), request.platformContext, request.params.notificationId
+      );
+      response.json({ success: true, notification });
+    } catch (error) { next(error); }
+  });
+
+  router.delete('/notifications/:notificationId', async (request, response, next) => {
+    try {
+      const notification = await services.archiveNotification(
+        databasePoolResolver(), request.platformContext, request.params.notificationId
+      );
+      response.json({ success: true, notification });
     } catch (error) { next(error); }
   });
 
