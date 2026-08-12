@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check middleware/rateLimiter.js && node --check middleware/authContext.js && node --check services/auth.js && node --check services/authConfig.js && node --check services/database.js && node --check services/platformIdentityService.js && node --check services/platformService.js && node --check scripts/migrate.js",
+    "check": "node --check server.js && node --check middleware/rateLimiter.js && node --check middleware/authContext.js && node --check routes/platform.js && node --check services/auth.js && node --check services/authConfig.js && node --check services/database.js && node --check services/platformIdentityService.js && node --check services/platformService.js && node --check scripts/migrate.js",
     "db:migrate": "node scripts/migrate.js",
     "test": "node --test test/*.test.js"
   },

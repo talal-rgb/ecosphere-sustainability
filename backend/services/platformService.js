@@ -3,6 +3,8 @@ import { assertUuid, withPlatformContext } from './database.js';
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const HASH_PATTERN = /^[a-f0-9]{64}$/;
+const PROJECT_MODULES = new Set(['carbon', 'esg', 'energy', 'training', 'quiz', 'intelligence', 'cross_platform']);
+const PROJECT_STATUSES = new Set(['draft', 'active', 'in_review', 'approved', 'archived']);
 
 export async function bootstrapOrganization(databasePool, input) {
   assertUuid(input.userId, 'userId');
@@ -77,10 +79,133 @@ export async function getAccessSnapshot(databasePool, context) {
   });
 }
 
+export async function getOrganizationProfile(databasePool, context) {
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'organization.read');
+    const [organizationResult, usageResult] = await Promise.all([
+      client.query(
+        `SELECT organization.id, organization.slug, organization.name, organization.logo_url,
+                organization.industry_code, organization.country_code, organization.data_region,
+                organization.status, organization.settings, organization.created_at,
+                subscription.plan_code, subscription.status AS subscription_status,
+                subscription.current_period_ends_at, subscription.trial_ends_at
+         FROM platform.organizations organization
+         LEFT JOIN platform.subscriptions subscription ON subscription.organization_id = organization.id
+         WHERE organization.id = $1`,
+        [context.organizationId]
+      ),
+      client.query(
+        `SELECT
+           (SELECT count(*)::integer FROM platform.organization_memberships WHERE organization_id = $1 AND status = 'active') AS members,
+           (SELECT count(*)::integer FROM platform.business_units WHERE organization_id = $1 AND status = 'active') AS business_units,
+           (SELECT count(*)::integer FROM platform.sites WHERE organization_id = $1 AND status = 'active') AS sites,
+           (SELECT count(*)::integer FROM platform.facilities WHERE organization_id = $1 AND status = 'active') AS facilities,
+           (SELECT count(*)::integer FROM platform.projects WHERE organization_id = $1 AND status <> 'archived') AS active_projects,
+           (SELECT count(*)::integer FROM platform.evidence_documents WHERE organization_id = $1 AND deleted_at IS NULL) AS evidence_documents`,
+        [context.organizationId]
+      )
+    ]);
+    const organization = organizationResult.rows[0];
+    if (!organization) throw notFoundError('Organization was not found.');
+    return {
+      id: organization.id,
+      slug: organization.slug,
+      name: organization.name,
+      logoUrl: organization.logo_url,
+      industryCode: organization.industry_code,
+      countryCode: organization.country_code,
+      dataRegion: organization.data_region,
+      status: organization.status,
+      settings: organization.settings,
+      createdAt: organization.created_at,
+      subscription: organization.plan_code ? {
+        planCode: organization.plan_code,
+        status: organization.subscription_status,
+        currentPeriodEnd: organization.current_period_ends_at,
+        trialEndsAt: organization.trial_ends_at
+      } : null,
+      usage: camelizeUsage(usageResult.rows[0])
+    };
+  });
+}
+
+export async function listOrganizationMembers(databasePool, context, options = {}) {
+  const pagination = normalizePagination(options);
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'member.read');
+    const [itemsResult, countResult] = await Promise.all([
+      client.query(
+        `SELECT membership.user_id, membership.role_code, role.name AS role_name,
+                membership.status, membership.invited_at, membership.joined_at,
+                user_account.email, user_account.display_name, user_account.avatar_url,
+                user_account.last_active_at
+         FROM platform.organization_memberships membership
+         JOIN platform.app_users user_account ON user_account.id = membership.user_id
+         JOIN platform.role_definitions role ON role.code = membership.role_code
+         WHERE membership.organization_id = $1
+         ORDER BY lower(user_account.display_name), membership.user_id
+         LIMIT $2 OFFSET $3`,
+        [context.organizationId, pagination.pageSize, pagination.offset]
+      ),
+      client.query(
+        'SELECT count(*)::integer AS total FROM platform.organization_memberships WHERE organization_id = $1',
+        [context.organizationId]
+      )
+    ]);
+    return paginatedResult(itemsResult.rows.map((row) => ({
+      userId: row.user_id,
+      email: row.email,
+      displayName: row.display_name,
+      avatarUrl: row.avatar_url,
+      role: { code: row.role_code, name: row.role_name },
+      status: row.status,
+      invitedAt: row.invited_at,
+      joinedAt: row.joined_at,
+      lastActiveAt: row.last_active_at
+    })), countResult.rows[0].total, pagination);
+  });
+}
+
+export async function listProjects(databasePool, context, options = {}) {
+  const pagination = normalizePagination(options);
+  const status = optionalEnum(options.status, 'status', PROJECT_STATUSES);
+  const productModule = optionalEnum(options.productModule, 'productModule', PROJECT_MODULES);
+  return withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'project.read');
+    const parameters = [context.organizationId];
+    const predicates = ['project.organization_id = $1'];
+    if (status) {
+      parameters.push(status);
+      predicates.push(`project.status = $${parameters.length}`);
+    }
+    if (productModule) {
+      parameters.push(productModule);
+      predicates.push(`project.product_module = $${parameters.length}`);
+    }
+    const where = predicates.join(' AND ');
+    const countResult = await client.query(`SELECT count(*)::integer AS total FROM platform.projects project WHERE ${where}`, parameters);
+    parameters.push(pagination.pageSize, pagination.offset);
+    const itemsResult = await client.query(
+      `SELECT project.id, project.code, project.name, project.description, project.product_module,
+              project.project_type, project.status, project.reporting_period_start,
+              project.reporting_period_end, project.business_unit_id, project.site_id,
+              project.facility_id, project.owner_user_id, project.metadata,
+              project.created_at, project.updated_at
+       FROM platform.projects project
+       WHERE ${where}
+       ORDER BY project.updated_at DESC, project.id
+       LIMIT $${parameters.length - 1} OFFSET $${parameters.length}`,
+      parameters
+    );
+    return paginatedResult(itemsResult.rows.map(projectResource), countResult.rows[0].total, pagination);
+  });
+}
+
 export async function createProject(databasePool, context, input) {
   return withPlatformContext(databasePool, context, async (client) => {
     await requirePermission(client, 'project.create');
     const projectEntitlement = await requireFeature(client, 'projects.total');
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`${context.organizationId}:projects.total`]);
     if (projectEntitlement.limit !== null) {
       const usage = await client.query('SELECT count(*)::integer AS total FROM platform.projects WHERE organization_id = $1', [context.organizationId]);
       if (usage.rows[0].total >= projectEntitlement.limit) throw entitlementError('Project limit reached for the current plan.');
@@ -93,7 +218,9 @@ export async function createProject(databasePool, context, input) {
          code, name, description, product_module, project_type,
          reporting_period_start, reporting_period_end, status, metadata
        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'draft',$14)
-       RETURNING id, organization_id, code, name, product_module, project_type, status, created_at`,
+       RETURNING id, code, name, description, product_module, project_type, status,
+                 reporting_period_start, reporting_period_end, business_unit_id, site_id,
+                 facility_id, owner_user_id, metadata, created_at, updated_at`,
       [
         projectId,
         context.organizationId,
@@ -104,7 +231,7 @@ export async function createProject(databasePool, context, input) {
         optionalText(input.code, 80),
         requiredText(input.name, 'name', 200),
         optionalText(input.description, 2000),
-        requiredText(input.productModule, 'productModule', 50),
+        requiredEnum(input.productModule, 'productModule', PROJECT_MODULES),
         requiredText(input.projectType, 'projectType', 100),
         input.reportingPeriodStart || null,
         input.reportingPeriodEnd || null,
@@ -119,7 +246,7 @@ export async function createProject(databasePool, context, input) {
       entityId: projectId,
       payload: { name: input.name, productModule: input.productModule, projectType: input.projectType }
     });
-    return result.rows[0];
+    return projectResource(result.rows[0]);
   });
 }
 
@@ -311,6 +438,71 @@ function objectValue(value) {
   return value;
 }
 
+function requiredEnum(value, fieldName, acceptedValues) {
+  const normalized = requiredText(value, fieldName, 100);
+  if (!acceptedValues.has(normalized)) throw validationError(`${fieldName} is not supported.`);
+  return normalized;
+}
+
+function optionalEnum(value, fieldName, acceptedValues) {
+  if (value === null || value === undefined || value === '') return null;
+  return requiredEnum(value, fieldName, acceptedValues);
+}
+
+function normalizePagination(options) {
+  const page = Number(options.page ?? 1);
+  const pageSize = Number(options.pageSize ?? 25);
+  if (!Number.isSafeInteger(page) || page < 1) throw validationError('page must be a positive integer.');
+  if (!Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+    throw validationError('pageSize must be an integer between 1 and 100.');
+  }
+  return { page, pageSize, offset: (page - 1) * pageSize };
+}
+
+function paginatedResult(items, total, pagination) {
+  return {
+    items,
+    pagination: {
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      total: Number(total),
+      totalPages: Math.ceil(Number(total) / pagination.pageSize)
+    }
+  };
+}
+
+function projectResource(row) {
+  return {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    description: row.description,
+    productModule: row.product_module,
+    projectType: row.project_type,
+    status: row.status,
+    reportingPeriodStart: row.reporting_period_start,
+    reportingPeriodEnd: row.reporting_period_end,
+    businessUnitId: row.business_unit_id,
+    siteId: row.site_id,
+    facilityId: row.facility_id,
+    ownerUserId: row.owner_user_id,
+    metadata: row.metadata,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function camelizeUsage(row) {
+  return {
+    members: Number(row.members),
+    businessUnits: Number(row.business_units),
+    sites: Number(row.sites),
+    facilities: Number(row.facilities),
+    activeProjects: Number(row.active_projects),
+    evidenceDocuments: Number(row.evidence_documents)
+  };
+}
+
 function validationError(message) {
   const error = new Error(message);
   error.code = 'validation_error';
@@ -329,5 +521,12 @@ function entitlementError(message) {
   const error = new Error(message);
   error.code = 'plan_upgrade_required';
   error.status = 402;
+  return error;
+}
+
+function notFoundError(message) {
+  const error = new Error(message);
+  error.code = 'not_found';
+  error.status = 404;
   return error;
 }
