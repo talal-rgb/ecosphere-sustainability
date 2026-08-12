@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
-import path from 'node:path';
 
-const localFactorPath = path.join(process.cwd(), 'data', 'emission_factors.local.json');
+const localFactorPath = new URL('../data/emission_factors.local.json', import.meta.url);
 
 async function loadLocalFactors() {
   const raw = await fs.readFile(localFactorPath, 'utf8');

@@ -1,42 +1,166 @@
 {
   "metadata": {
-    "version": "1.0.0",
-    "source": "Terrnix default fallback",
-    "generated_at": "2026-06-22T00:00:00Z",
-    "description": "Default emission factors for carbon calculator fallback"
+    "version": "2026.1",
+    "published_year": 2026,
+    "jurisdiction": "United Kingdom",
+    "source": "UK Government GHG Conversion Factors for Company Reporting 2026, flat file v1.2",
+    "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+    "retrieved_at": "2026-08-09T00:00:00Z",
+    "description": "Curated activity factors for the Terrnix calculation and structured-ingestion foundation. International users must select jurisdiction-appropriate factors."
   },
-  "factors": {
-    "electricity": {
-      "global_average": {
-        "value": 0.475,
-        "unit": "kgCO2e/kWh",
-        "source": "IEA World Energy Outlook 2023"
-      }
+  "stationary_combustion": {
+    "diesel_litre": {
+      "id": "desnz-2026-1_101_1011_8_1",
+      "name": "Diesel (average biofuel blend)",
+      "value": 2.58354,
+      "unit": "kgCO2e/litre",
+      "activity_unit": "litre",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
     },
-    "natural_gas": {
-      "value": 2.02,
+    "petrol_litre": {
+      "id": "desnz-2026-1_101_1017_8_1",
+      "name": "Petrol (average biofuel blend)",
+      "value": 2.075,
+      "unit": "kgCO2e/litre",
+      "activity_unit": "litre",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
+    },
+    "natural_gas_m3": {
+      "id": "desnz-2026-1_100_1004_1_1",
+      "name": "Natural gas",
+      "value": 2.02633,
       "unit": "kgCO2e/m3",
-      "source": "EPA GHG Emission Factors Hub"
+      "activity_unit": "m3",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
+    }
+  },
+  "mobile_combustion": {
+    "passenger_car_diesel_km": {
+      "id": "desnz-2026-4_301_3069_4_1",
+      "name": "Average diesel car",
+      "value": 0.17265,
+      "unit": "kgCO2e/km",
+      "activity_unit": "km",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
     },
-    "diesel": {
-      "value": 2.68,
-      "unit": "kgCO2e/litre",
-      "source": "UK DESNZ GHG Conversion Factors 2024"
+    "passenger_car_petrol_km": {
+      "id": "desnz-2026-4_301_3070_4_1",
+      "name": "Average petrol car",
+      "value": 0.16152,
+      "unit": "kgCO2e/km",
+      "activity_unit": "km",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
     },
-    "gasoline": {
-      "value": 2.31,
-      "unit": "kgCO2e/litre",
-      "source": "UK DESNZ GHG Conversion Factors 2024"
+    "passenger_car_unknown_km": {
+      "id": "desnz-2026-4_301_3074_4_1",
+      "name": "Average car, fuel unknown",
+      "value": 0.16591,
+      "unit": "kgCO2e/km",
+      "activity_unit": "km",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "medium"
+    }
+  },
+  "electricity_location_based": {
+    "uk_2026": {
+      "id": "desnz-2026-7_400_4000_5_1",
+      "name": "UK grid electricity generated",
+      "value": 0.13096,
+      "unit": "kgCO2e/kWh",
+      "activity_unit": "kWh",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
     },
-    "flight_short_haul": {
-      "value": 0.255,
+    "world_average": {
+      "id": "planning-proxy-world-electricity-2023",
+      "name": "World electricity planning proxy",
+      "value": 0.475,
+      "unit": "kgCO2e/kWh",
+      "activity_unit": "kWh",
+      "source": "Legacy Terrnix planning proxy; replace with jurisdiction-specific data",
+      "source_url": "https://ghgprotocol.org/scope-2-guidance",
+      "year": 2023,
+      "confidence": "low"
+    }
+  },
+  "electricity_market_based": {
+    "residual_mix_default": {
+      "id": "planning-proxy-uk-location-2026",
+      "name": "UK location factor used only as a market-based planning proxy",
+      "value": 0.13096,
+      "unit": "kgCO2e/kWh",
+      "activity_unit": "kWh",
+      "source": "UK DESNZ GHG Conversion Factors 2026; not a residual-mix factor",
+      "source_url": "https://ghgprotocol.org/scope-2-frequently-asked-questions",
+      "year": 2026,
+      "confidence": "low"
+    }
+  },
+  "purchased_heat": {
+    "steam_heat_gj": {
+      "id": "desnz-2026-10_401_4003_5_1-converted-gj",
+      "name": "District heat and steam",
+      "value": 48.69167,
+      "unit": "kgCO2e/GJ",
+      "activity_unit": "GJ",
+      "source": "UK DESNZ GHG Conversion Factors 2026; converted from 0.17529 kgCO2e/kWh",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
+    }
+  },
+  "scope3": {
+    "business_flight_short_haul_pkm": {
+      "id": "desnz-2026-21_316_3162_11_1",
+      "name": "Short-haul flight, average passenger, with radiative forcing",
+      "value": 0.12786,
       "unit": "kgCO2e/passenger-km",
-      "source": "DEFRA 2024"
+      "activity_unit": "passenger-km",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
     },
-    "flight_long_haul": {
-      "value": 0.195,
+    "business_flight_long_haul_pkm": {
+      "id": "desnz-2026-21_316_3168_11_1",
+      "name": "Long-haul flight, average passenger, with radiative forcing",
+      "value": 0.15282,
       "unit": "kgCO2e/passenger-km",
-      "source": "DEFRA 2024"
+      "activity_unit": "passenger-km",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
+    },
+    "business_rail_pkm": {
+      "id": "desnz-2026-25_315_3147_11_1",
+      "name": "National rail passenger travel",
+      "value": 0.03092,
+      "unit": "kgCO2e/passenger-km",
+      "activity_unit": "passenger-km",
+      "source": "UK DESNZ GHG Conversion Factors 2026",
+      "source_url": "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026",
+      "year": 2026,
+      "confidence": "high"
     }
   }
 }
