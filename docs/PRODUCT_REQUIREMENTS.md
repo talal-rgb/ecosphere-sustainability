@@ -35,7 +35,7 @@ The organization hierarchy supports organizations, nested business units, sites,
 | Organizations and permissions | Tenant hierarchy, memberships, eight system roles, granular permissions, row-level isolation | Organization, project, and hierarchy APIs implemented |
 | Subscriptions and billing | Five plans, trials, lifecycle, tax/invoices, upgrades, proration, provider adapters | Entitlement model implemented; provider synchronization pending |
 | Evidence and storage | Private versioned documents, retention, tags, links, soft deletion, audit history | Verified private intake implemented; review/search/version APIs pending |
-| Document intelligence | Upload, scan, extract, classify, validate, store, link, insight, report | Durable intake and malware-scan queue implemented; processors pending |
+| Document intelligence | Upload, scan, extract, classify, validate, store, link, insight, report | Durable intake and worker control plane implemented; provider processors pending |
 | AI services | Metered OCR, classification, embeddings, recommendations, summaries, gap/risk/regulation/Q&A | Usage foundation implemented; orchestration pending |
 | Reporting | Versioned executive, technical, board, audit, investor, and compliance outputs across standard formats | Report domain foundation implemented; renderer unification pending |
 | Notifications | In-app/email events, deadlines, missing evidence, regulation/training/risk alerts | Data foundation implemented; delivery orchestration pending |
