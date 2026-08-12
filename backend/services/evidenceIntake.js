@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 
 import { assertUuid, withPlatformContext } from './database.js';
 import { appendAuditEvent, requireFeature, requirePermission } from './platformService.js';
+import { consumeUsage } from './usageMetering.js';
 
 const DOCUMENT_TYPES = new Set([
   'fuel_invoice', 'electricity_bill', 'gas_bill', 'travel_invoice', 'waste_report',
@@ -155,6 +156,18 @@ export async function finalizeEvidenceUpload(databasePool, context, storage, upl
       [context.organizationId, current.planned_version_id]
     );
     const finalizedAt = new Date();
+    await consumeUsage(client, context, {
+      featureCode: 'document_uploads.monthly', quantity: 1,
+      idempotencyKey: `evidence-upload:${uploadId}`, sourceType: 'evidence_version',
+      sourceRef: current.planned_version_id, occurredAt: finalizedAt,
+      metadata: { documentType: current.document_type }
+    });
+    await consumeUsage(client, context, {
+      featureCode: 'storage.bytes', quantity: Number(current.byte_size),
+      idempotencyKey: `evidence-storage:${current.planned_version_id}`, sourceType: 'evidence_version',
+      sourceRef: current.planned_version_id, occurredAt: finalizedAt,
+      metadata: { mediaType: current.media_type }
+    });
     await client.query(
       `UPDATE platform.evidence_upload_sessions
        SET status = 'finalized', verified_at = $1, finalized_at = $1 WHERE id = $2`,

@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
 import { getDatabasePool } from '../services/database.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
@@ -11,6 +12,7 @@ import {
   softDeleteEvidence
 } from '../services/evidenceRepository.js';
 import { createEvidenceStorage } from '../services/evidenceStorage.js';
+import { getUsageSnapshot } from '../services/usageMetering.js';
 import {
   createBusinessUnit,
   createFacility,
@@ -30,6 +32,7 @@ const defaultServices = {
   createFacility,
   createProject,
   createSite,
+  getBillingOverview,
   getOrganizationProfile,
   getEvidence,
   listBusinessUnits,
@@ -38,6 +41,7 @@ const defaultServices = {
   listProjects,
   listSites,
   listEvidence,
+  listBillingInvoices,
   removeEvidenceTag,
   restoreEvidence,
   softDeleteEvidence
@@ -189,6 +193,29 @@ export function createPlatformRouter(options = {}) {
     } catch (error) {
       next(error);
     }
+  });
+
+  router.get('/billing', async (request, response, next) => {
+    try {
+      const billing = await services.getBillingOverview(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, billing });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/billing/invoices', async (request, response, next) => {
+    try {
+      const result = await services.listBillingInvoices(databasePoolResolver(), request.platformContext, {
+        page: request.query.page, pageSize: request.query.pageSize
+      });
+      response.json({ success: true, ...result });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/billing/usage', async (request, response, next) => {
+    try {
+      const usage = await (options.services?.getUsageSnapshot || getUsageSnapshot)(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, usage });
+    } catch (error) { next(error); }
   });
 
   return router;

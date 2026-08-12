@@ -4,6 +4,8 @@ import fs from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 
 import { withPlatformContext } from '../services/database.js';
+import { ingestBillingEvent } from '../services/billingEvents.js';
+import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
 import { claimDocumentJob, completeDocumentJob, failDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
@@ -13,6 +15,7 @@ import {
   restoreEvidence,
   softDeleteEvidence
 } from '../services/evidenceRepository.js';
+import { getUsageSnapshot, recordUsage } from '../services/usageMetering.js';
 import {
   bootstrapOrganization,
   canonicalJson,
@@ -36,7 +39,8 @@ const migrationUrls = [
   new URL('../db/migrations/003_organization_hierarchy_entitlements.sql', import.meta.url),
   new URL('../db/migrations/004_evidence_intake.sql', import.meta.url),
   new URL('../db/migrations/005_evidence_repository.sql', import.meta.url),
-  new URL('../db/migrations/006_evidence_versions.sql', import.meta.url)
+  new URL('../db/migrations/006_evidence_versions.sql', import.meta.url),
+  new URL('../db/migrations/007_billing_control_plane.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -479,6 +483,9 @@ test('evidence intake issues server-owned uploads and queues verified documents 
     assert.equal(detail.versions.length, 2);
     assert.equal(detail.versions[0].number, 2);
     assert.equal(detail.tags[0].value, 'electricity-bill');
+    const evidenceUsage = await getUsageSnapshot(pool, context);
+    assert.equal(evidenceUsage.find((item) => item.code === 'document_uploads.monthly').used, 2);
+    assert.equal(evidenceUsage.find((item) => item.code === 'storage.bytes').used, 8704);
 
     await withPlatformContext(pool, context, (client) => client.query(
       'UPDATE platform.evidence_documents SET legal_hold = true WHERE id = $1', [upload.evidenceId]
@@ -535,6 +542,63 @@ test('feature checks return limits from the active organization subscription', a
     const entitlement = await requireFeature(db, 'projects.total');
     assert.deepEqual(entitlement, { enabled: true, limit: 5, configuration: {} });
     await assert.rejects(requireFeature(db, 'sso.saml'), (error) => error.code === 'plan_upgrade_required');
+  } finally {
+    await db.close();
+  }
+});
+
+test('usage metering and trusted billing events drive canonical subscription and invoice state', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    const context = { userId: ids.userA, organizationId: ids.orgA };
+    const usage = await recordUsage(pool, context, {
+      featureCode: 'calculations.monthly', quantity: 2, idempotencyKey: 'calculation:batch-1', sourceType: 'calculation'
+    });
+    assert.equal(usage.used, 2);
+    assert.equal((await recordUsage(pool, context, {
+      featureCode: 'calculations.monthly', quantity: 2, idempotencyKey: 'calculation:batch-1', sourceType: 'calculation'
+    })).duplicate, true);
+    assert.equal((await getUsageSnapshot(pool, context)).find((item) => item.code === 'calculations.monthly').used, 2);
+
+    await db.exec('RESET ROLE');
+    await db.query(
+      `INSERT INTO platform.billing_prices (
+         provider, plan_code, billing_interval, currency, unit_amount_minor,
+         provider_product_ref, provider_price_ref
+       ) VALUES ('stripe','professional','monthly','EUR',9900,'prod_professional','price_professional_monthly')`
+    );
+    const subscriptionEvent = {
+      provider: 'stripe', providerEventRef: 'evt_subscription_1', eventType: 'customer.subscription.updated',
+      apiVersion: '2026-08-01', livemode: false, occurredAt: new Date(), kind: 'subscription',
+      organizationId: ids.orgA, customerRef: 'cus_alpha', subscriptionRef: 'sub_alpha',
+      priceRef: 'price_professional_monthly', status: 'active', billingInterval: 'month',
+      cancelAtPeriodEnd: false, trialEndsAt: null, currentPeriodStartsAt: new Date(), currentPeriodEndsAt: new Date(Date.now() + 30 * 86400000)
+    };
+    assert.equal((await ingestBillingEvent(pool, subscriptionEvent, 'e'.repeat(64))).status, 'processed');
+    assert.equal((await ingestBillingEvent(pool, subscriptionEvent, 'e'.repeat(64))).status, 'duplicate');
+    const invoiceEvent = {
+      provider: 'stripe', providerEventRef: 'evt_invoice_1', eventType: 'invoice.paid',
+      apiVersion: '2026-08-01', livemode: false, occurredAt: new Date(), kind: 'invoice',
+      organizationId: ids.orgA, customerRef: 'cus_alpha', subscriptionRef: 'sub_alpha',
+      invoiceRef: 'in_alpha_1', invoiceNumber: 'TNX-0001', status: 'paid', currency: 'EUR',
+      subtotalMinor: 9900, discountMinor: 0, taxMinor: 1980, totalMinor: 11880,
+      amountPaidMinor: 11880, amountDueMinor: 0, periodStartsAt: new Date(),
+      periodEndsAt: new Date(Date.now() + 30 * 86400000), dueAt: null, paidAt: new Date(),
+      hostedInvoiceUrl: 'https://billing.example/invoice', invoicePdfUrl: 'https://billing.example/invoice.pdf'
+    };
+    assert.equal((await ingestBillingEvent(pool, invoiceEvent, 'f'.repeat(64))).status, 'processed');
+
+    await db.exec('SET ROLE terrnix_app_test');
+    await setContext(db, ids.orgA, ids.userA);
+    const overview = await getBillingOverview(pool, context);
+    assert.equal(overview.subscription.planCode, 'professional');
+    assert.equal(overview.subscription.provider, 'stripe');
+    assert.equal(overview.history[0].changeType, 'upgraded');
+    const invoices = await listBillingInvoices(pool, context);
+    assert.equal(invoices.items[0].number, 'TNX-0001');
+    assert.equal(invoices.items[0].taxMinor, 1980);
   } finally {
     await db.close();
   }
