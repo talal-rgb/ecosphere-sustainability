@@ -11,7 +11,7 @@ const context = {
   role: 'owner'
 };
 
-function buildApp(services) {
+function buildApp(services, evidenceStorageResolver) {
   const app = express();
   app.use(express.json());
   app.use('/api/platform', createPlatformRouter({
@@ -24,6 +24,7 @@ function buildApp(services) {
       next();
     },
     databasePoolResolver: () => ({ name: 'test-pool' }),
+    evidenceStorageResolver,
     services
   }));
   app.use((error, _request, response, _next) => {
@@ -104,4 +105,24 @@ test('platform router exposes hierarchy collections through the same tenant boun
   const created = await request(app).post('/api/platform/sites').send({ name: 'Paris' });
   assert.equal(created.status, 201);
   assert.equal(created.body.resource.name, 'Paris');
+});
+
+test('platform router delegates evidence initiation and finalization to the shared intake boundary', async () => {
+  const storage = { createUploadIntent() {}, verifyObject() {} };
+  const app = buildApp({
+    async initiateEvidenceUpload(_pool, receivedContext, receivedStorage, input) {
+      assert.equal(receivedContext.organizationId, context.organizationId);
+      assert.equal(receivedStorage, storage);
+      return { uploadId: 'upload-1', displayName: input.displayName };
+    },
+    async finalizeEvidenceUpload(_pool, _context, receivedStorage, uploadId) {
+      assert.equal(receivedStorage, storage);
+      return { uploadId, status: 'finalized' };
+    }
+  }, () => storage);
+  const initiated = await request(app).post('/api/platform/evidence/uploads').send({ displayName: 'Bill' });
+  assert.equal(initiated.status, 201);
+  const finalized = await request(app).post('/api/platform/evidence/uploads/upload-1/finalize');
+  assert.equal(finalized.status, 200);
+  assert.equal(finalized.body.evidence.status, 'finalized');
 });
