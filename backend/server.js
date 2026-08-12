@@ -37,6 +37,7 @@ import { body, validationResult } from 'express-validator';
 import OpenAI from 'openai';
 import { pathToFileURL } from 'url';
 import { createExpressMiddleware } from './middleware/rateLimiter.js';
+import { createSessionContextMiddleware, createTenantContextMiddleware } from './middleware/authContext.js';
 
 // Live backend services
 import { buildChatInput, chatResponseSchema } from './services/terrnixPrompt.js';
@@ -44,6 +45,9 @@ import { calculateFootprint } from './services/carbonEngine.js';
 import { getFactorBundle } from './services/factorProvider.js';
 import { buildExcelReport, buildPdfReport } from './services/reportExporter.js';
 import { parseActivityUpload } from './services/activityIngestion.js';
+import { authNodeHandler, isAuthConfigured } from './services/auth.js';
+import { getDatabasePool } from './services/database.js';
+import { getAccessSnapshot } from './services/platformService.js';
 
 // PR #30 services
 import { sendNotificationEmailWithTimeout, verifyConnection } from './services/email.js';
@@ -151,10 +155,15 @@ app.use(cors({
     callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Admin-Token'],
-  credentials: false,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Admin-Token', 'X-Terrnix-Organization-ID'],
+  credentials: true,
   maxAge: 86400
 }));
+
+// Better Auth requires the unparsed request body. Keep these handlers before
+// express.json(); guest tools and all existing public endpoints remain anonymous.
+app.all('/api/auth', authNodeHandler);
+app.all('/api/auth/*splat', authNodeHandler);
 
 // Parse ordinary API payloads conservatively while allowing larger calculation
 // and report payloads. Express skips parsers when a body is already parsed.
@@ -172,6 +181,9 @@ const apiRateLimit = createExpressMiddleware({
 });
 app.use('/api', apiRateLimit);
 
+const requireSession = createSessionContextMiddleware();
+const requireTenant = createTenantContextMiddleware();
+
 // ============================================
 // HEALTH ENDPOINTS
 // ============================================
@@ -186,6 +198,26 @@ app.get('/health', (_req, res) => {
     deployedAt: new Date().toISOString(),
     time: new Date().toISOString()
   });
+});
+
+app.get('/api/platform/session', requireSession, (req, res) => {
+  res.json({
+    success: true,
+    user: {
+      id: req.authContext.userId,
+      email: req.authContext.email,
+      displayName: req.authContext.displayName
+    }
+  });
+});
+
+app.get('/api/platform/access', requireSession, requireTenant, async (req, res, next) => {
+  try {
+    const access = await getAccessSnapshot(getDatabasePool(), req.platformContext);
+    res.json({ success: true, access });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get('/api/health/integrations', (_req, res) => {
@@ -1107,6 +1139,9 @@ export function startServer(port = PORT) {
     console.log('Endpoints:');
     console.log('  - GET  /health');
     console.log('  - GET  /api/health/integrations');
+    console.log('  - ALL  /api/auth/*');
+    console.log('  - GET  /api/platform/session');
+    console.log('  - GET  /api/platform/access');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');
@@ -1121,6 +1156,7 @@ export function startServer(port = PORT) {
     console.log(`Email notifications: ${process.env.ZOHO_SMTP_USER ? 'enabled' : 'disabled (configure ZOHO_SMTP_USER)'}`);
     console.log(`Brevo integration: ${process.env.BREVO_API_KEY ? 'enabled' : 'disabled (configure BREVO_API_KEY)'}`);
     console.log(`Lead storage: ${isWritableSync() ? 'writable' : 'NOT WRITABLE — check permissions'}`);
+    console.log(`Authentication: ${isAuthConfigured() ? 'configured' : 'disabled (configure database and auth secrets)'}`);
   });
   return server;
 }
