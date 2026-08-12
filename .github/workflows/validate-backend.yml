@@ -199,6 +199,40 @@ jobs:
             node --test --test-name-pattern='migration creates|platform migration creates' "${tests[@]}"
           fi
 
+  postgres-tenant-isolation:
+    name: PostgreSQL tenant isolation
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.10-alpine3.23
+        env:
+          POSTGRES_DB: terrnix_e2e
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres-e2e-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d terrnix_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Run real PostgreSQL isolation journey
+        env:
+          STAGING_E2E_CONFIRM: ephemeral-only
+          STAGING_TEST_DATABASE_URL: postgresql://postgres:postgres-e2e-only@localhost:5432/terrnix_e2e
+        run: node --test test/postgresTenantIsolation.test.js
+
   deployment-compatibility:
     name: Cloudflare and deployment compatibility
     runs-on: ubuntu-latest
