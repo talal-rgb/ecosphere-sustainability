@@ -1199,6 +1199,7 @@ export function startServer(port = PORT) {
     console.log('  - GET  /api/platform/billing/usage');
     console.log('  - GET/PUT /api/platform/notifications and preferences');
     console.log('  - GET/POST /api/platform/reports and generation jobs');
+    console.log('  - GET  /api/platform/search');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');

@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { assertUuid, withPlatformContext } from './database.js';
+import { upsertSearchDocument } from './searchService.js';
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const HASH_PATTERN = /^[a-f0-9]{64}$/;
@@ -372,7 +373,14 @@ export async function createProject(databasePool, context, input) {
       entityId: projectId,
       payload: { name: input.name, productModule: input.productModule, projectType: input.projectType }
     });
-    return projectResource(result.rows[0]);
+    const project = projectResource(result.rows[0]);
+    await upsertSearchDocument(client, context, {
+      entityType: 'project', entityId: projectId, projectId, sourceVersion: String(project.updatedAt),
+      title: project.name, body: project.description || '',
+      keywords: [project.productModule, project.projectType, project.status],
+      actionUrl: `/portal/projects/${projectId}`, metadata: { productModule: project.productModule, status: project.status }
+    });
+    return project;
   });
 }
 
@@ -439,6 +447,12 @@ export async function createEvidenceDocument(databasePool, context, input) {
       entityType: 'evidence_document',
       entityId: evidenceId,
       payload: { projectId: input.projectId, documentType: input.documentType, version: 1, sha256: input.sha256 }
+    });
+    await upsertSearchDocument(client, context, {
+      entityType: 'evidence', entityId: evidenceId, projectId: input.projectId, sourceVersion: '1',
+      title: input.displayName, body: input.originalFileName,
+      keywords: [input.documentType], actionUrl: `/portal/evidence/${evidenceId}`,
+      metadata: { documentType: input.documentType, classificationStatus: 'pending' }
     });
     return { evidenceId, versionId, version: 1, objectKey };
   });

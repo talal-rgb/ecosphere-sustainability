@@ -201,3 +201,16 @@ test('platform router exposes shared report definitions, versions, and generatio
   assert.equal((await request(app).post('/api/platform/reports/report-1/versions').send({ content: {} })).status, 201);
   assert.equal((await request(app).post('/api/platform/reports/report-1/generations').send({ outputFormat: 'pdf' })).status, 202);
 });
+
+test('platform router exposes bounded unified search filters', async () => {
+  const app = buildApp({
+    async searchPlatform(_pool, _context, options) {
+      assert.equal(options.query, 'climate');
+      assert.equal(options.types, 'project,report');
+      return { query: options.query, items: [{ entityType: 'project' }], facets: { project: 1 }, pagination: { total: 1 } };
+    }
+  });
+  const response = await request(app).get('/api/platform/search?query=climate&types=project,report&pageSize=10');
+  assert.equal(response.status, 200);
+  assert.equal(response.body.items[0].entityType, 'project');
+});

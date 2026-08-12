@@ -21,6 +21,7 @@ import {
   updateNotificationPreference
 } from '../services/notificationService.js';
 import { getUsageSnapshot } from '../services/usageMetering.js';
+import { searchPlatform } from '../services/searchService.js';
 import {
   addReportContentVersion,
   createReport,
@@ -69,6 +70,7 @@ const defaultServices = {
   markAllNotificationsRead,
   markNotificationRead,
   queueReportGeneration,
+  searchPlatform,
   removeEvidenceTag,
   restoreEvidence,
   softDeleteEvidence,
@@ -343,6 +345,16 @@ export function createPlatformRouter(options = {}) {
         databasePoolResolver(), request.platformContext, request.params.reportId, request.body || {}
       );
       response.status(generation.duplicate ? 200 : 202).json({ success: true, generation });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/search', async (request, response, next) => {
+    try {
+      const result = await services.searchPlatform(databasePoolResolver(), request.platformContext, {
+        query: request.query.query, types: request.query.types, projectId: request.query.projectId,
+        page: request.query.page, pageSize: request.query.pageSize
+      });
+      response.json({ success: true, ...result });
     } catch (error) { next(error); }
   });
 
