@@ -7,6 +7,13 @@ import { withPlatformContext } from '../services/database.js';
 import { claimDocumentJob, completeDocumentJob, failDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import {
+  addEvidenceTag,
+  getEvidence,
+  listEvidence,
+  restoreEvidence,
+  softDeleteEvidence
+} from '../services/evidenceRepository.js';
+import {
   bootstrapOrganization,
   canonicalJson,
   createBusinessUnit,
@@ -27,7 +34,9 @@ import {
 const migrationUrls = [
   new URL('../db/migrations/001_platform_foundation.sql', import.meta.url),
   new URL('../db/migrations/003_organization_hierarchy_entitlements.sql', import.meta.url),
-  new URL('../db/migrations/004_evidence_intake.sql', import.meta.url)
+  new URL('../db/migrations/004_evidence_intake.sql', import.meta.url),
+  new URL('../db/migrations/005_evidence_repository.sql', import.meta.url),
+  new URL('../db/migrations/006_evidence_versions.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -446,6 +455,53 @@ test('evidence intake issues server-owned uploads and queues verified documents 
     const repeated = await finalizeEvidenceUpload(pool, context, storage, upload.uploadId);
     assert.equal(repeated.status, 'finalized');
     assert.equal(storageCalls.filter(([operation]) => operation === 'verify').length, 1);
+
+    const secondUpload = await initiateEvidenceUpload(pool, context, storage, {
+      evidenceId: upload.evidenceId,
+      projectId: project.id,
+      displayName: 'January electricity bill — corrected',
+      documentType: 'electricity_bill',
+      originalFileName: 'january-corrected.pdf',
+      mediaType: 'application/pdf',
+      byteSize: 4608,
+      sha256: 'd'.repeat(64)
+    });
+    assert.equal(secondUpload.versionNumber, 2);
+    await finalizeEvidenceUpload(pool, context, storage, secondUpload.uploadId);
+
+    const tag = await addEvidenceTag(pool, context, upload.evidenceId, { tag: 'Electricity-Bill' });
+    assert.equal(tag.value, 'electricity-bill');
+    const search = await listEvidence(pool, context, { query: 'January electricity', tag: 'electricity-bill' });
+    assert.equal(search.pagination.total, 1);
+    assert.equal(search.items[0].id, upload.evidenceId);
+    const detail = await getEvidence(pool, context, upload.evidenceId);
+    assert.equal(detail.currentVersion, 2);
+    assert.equal(detail.versions.length, 2);
+    assert.equal(detail.versions[0].number, 2);
+    assert.equal(detail.tags[0].value, 'electricity-bill');
+
+    await withPlatformContext(pool, context, (client) => client.query(
+      'UPDATE platform.evidence_documents SET legal_hold = true WHERE id = $1', [upload.evidenceId]
+    ));
+    await assert.rejects(
+      softDeleteEvidence(pool, context, upload.evidenceId, { reason: 'Duplicate source' }),
+      (error) => error.code === 'legal_hold_active'
+    );
+    await withPlatformContext(pool, context, (client) => client.query(
+      "UPDATE platform.evidence_documents SET legal_hold = false, retention_until = current_date + 30 WHERE id = $1", [upload.evidenceId]
+    ));
+    await assert.rejects(
+      softDeleteEvidence(pool, context, upload.evidenceId, { reason: 'Duplicate source' }),
+      (error) => error.code === 'retention_period_active'
+    );
+    await withPlatformContext(pool, context, (client) => client.query(
+      "UPDATE platform.evidence_documents SET retention_until = current_date - 1 WHERE id = $1", [upload.evidenceId]
+    ));
+    await softDeleteEvidence(pool, context, upload.evidenceId, { reason: 'Duplicate source' });
+    assert.equal((await listEvidence(pool, context)).pagination.total, 0);
+    assert.equal((await listEvidence(pool, context, { includeDeleted: true })).pagination.total, 1);
+    await restoreEvidence(pool, context, upload.evidenceId);
+    assert.equal((await listEvidence(pool, context)).pagination.total, 1);
 
     await db.exec('RESET ROLE');
     const malwareJob = await claimDocumentJob(pool, { workerId: 'scanner:test-1', stages: ['malware_scan'], leaseSeconds: 60 });

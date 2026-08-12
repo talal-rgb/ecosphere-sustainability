@@ -155,7 +155,7 @@ app.use(cors({
     if (corsOrigins.indexOf(origin) !== -1) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Admin-Token', 'X-Terrnix-Organization-ID'],
   credentials: true,
   maxAge: 86400
@@ -1166,6 +1166,11 @@ export function startServer(port = PORT) {
     console.log('  - GET/POST /api/platform/facilities');
     console.log('  - POST /api/platform/evidence/uploads');
     console.log('  - POST /api/platform/evidence/uploads/:uploadId/finalize');
+    console.log('  - GET  /api/platform/evidence');
+    console.log('  - GET  /api/platform/evidence/:evidenceId');
+    console.log('  - POST/DELETE /api/platform/evidence/:evidenceId/tags');
+    console.log('  - DELETE /api/platform/evidence/:evidenceId');
+    console.log('  - POST /api/platform/evidence/:evidenceId/restore');
     console.log('  - GET  /api/admin/lead-stats');
     console.log('  - GET  /api/factors/status');
     console.log('  - POST /api/chat');

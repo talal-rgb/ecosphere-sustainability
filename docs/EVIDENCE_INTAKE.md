@@ -10,6 +10,8 @@
 
 The client never supplies `storage_provider`, `storage_bucket`, or `object_key`. The legacy internal metadata helper is not exposed as an API route.
 
+Passing an existing `evidenceId` creates an upload reservation for its next version. Finalization locks the document, rejects stale version numbers, and advances `current_version` only after the immutable file version and processing job are created atomically.
+
 ## Accepted intake formats
 
 The first boundary accepts PDF, JPEG, PNG, TIFF, CSV, XLS, and XLSX up to 50 MiB. File extensions are not trusted; the future malware/extraction worker must inspect magic bytes and reject type mismatches before promotion from quarantine.
