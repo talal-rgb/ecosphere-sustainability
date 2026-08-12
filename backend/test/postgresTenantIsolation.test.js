@@ -215,7 +215,7 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       /row-level security/
     );
     const auditA = await withPlatformContext(app, contextA, (client) => client.query(
-      'SELECT action FROM platform.audit_events WHERE organization_id = $1 ORDER BY occurred_at, id', [ids.orgA]
+      'SELECT action FROM platform.audit_events WHERE organization_id = $1 ORDER BY created_at, id', [ids.orgA]
     ));
     const auditB = await withPlatformContext(app, contextB, (client) => client.query(
       'SELECT action FROM platform.audit_events WHERE organization_id = $1', [ids.orgA]
