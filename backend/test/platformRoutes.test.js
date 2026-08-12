@@ -184,3 +184,20 @@ test('platform router exposes the personal notification center and preferences',
   assert.equal((await request(app).post('/api/platform/notifications/read-all')).body.updated, 3);
   assert.equal((await request(app).delete('/api/platform/notifications/notification-1')).status, 200);
 });
+
+test('platform router exposes shared report definitions, versions, and generation jobs', async () => {
+  const app = buildApp({
+    async listReportTemplates() { return [{ code: 'executive-standard' }]; },
+    async listReports(_pool, _context, options) { assert.equal(options.status, 'draft'); return { items: [{ id: 'report-1' }], pagination: { total: 1 } }; },
+    async createReport(_pool, _context, input) { return { id: 'report-2', title: input.title }; },
+    async getReport() { return { id: 'report-1', contentVersions: [] }; },
+    async addReportContentVersion() { return { reportId: 'report-1', version: 2 }; },
+    async queueReportGeneration(_pool, _context, _id, input) { return { id: 'job-1', outputFormat: input.outputFormat, duplicate: false }; }
+  });
+  assert.equal((await request(app).get('/api/platform/report-templates')).body.templates[0].code, 'executive-standard');
+  assert.equal((await request(app).get('/api/platform/reports?status=draft')).body.items[0].id, 'report-1');
+  assert.equal((await request(app).post('/api/platform/reports').send({ title: 'Report' })).status, 201);
+  assert.equal((await request(app).get('/api/platform/reports/report-1')).status, 200);
+  assert.equal((await request(app).post('/api/platform/reports/report-1/versions').send({ content: {} })).status, 201);
+  assert.equal((await request(app).post('/api/platform/reports/report-1/generations').send({ outputFormat: 'pdf' })).status, 202);
+});

@@ -110,6 +110,8 @@ Set these in your Render dashboard:
 | `BILLING_POOL_MAX` | `2` | Maximum billing synchronization connections |
 | `STRIPE_SECRET_KEY` | Restricted Stripe secret | Disabled until payment activation is approved |
 | `STRIPE_WEBHOOK_SECRET` | Stripe endpoint signing secret | Verifies raw webhook bodies |
+| `REPORT_WORKER_DATABASE_URL` | Separate secret connection string | Dedicated least-privilege report rendering role |
+| `REPORT_WORKER_POOL_MAX` | `2` | Maximum report worker database connections |
 
 Before an authenticated-platform deployment, run database migrations with a separate migration role:
 
@@ -167,6 +169,19 @@ GRANT SELECT, INSERT ON platform.billing_subscription_history TO terrnix_billing
 ```
 
 Register `https://api.terrnix.com/api/billing/stripe/webhook` only after commercial, tax, privacy, and production deployment approval. Subscribe only to the documented subscription, invoice, and payment events. Never expose `BILLING_DATABASE_URL` or Stripe secrets to the customer portal.
+
+Report renderers use a separate cross-tenant worker role. They must not reuse API, billing, or document-intelligence credentials:
+
+```sql
+CREATE ROLE terrnix_report_worker LOGIN BYPASSRLS;
+GRANT USAGE ON SCHEMA platform TO terrnix_report_worker;
+GRANT SELECT ON platform.reports, platform.report_content_versions, platform.report_template_definitions TO terrnix_report_worker;
+GRANT SELECT, UPDATE ON platform.report_generation_jobs TO terrnix_report_worker;
+GRANT SELECT, INSERT ON platform.report_artifacts, platform.audit_events TO terrnix_report_worker;
+GRANT UPDATE ON platform.reports TO terrnix_report_worker;
+```
+
+Restrict the role to renderer infrastructure and private report-artifact storage. Renderer logs must not contain report content. Existing synchronous public PDF/Excel endpoints remain unchanged until their compatibility adapter and private artifact storage are approved for deployment.
 
 Before enabling authentication, configure the API domain and register these OAuth callback URLs with the providers:
 

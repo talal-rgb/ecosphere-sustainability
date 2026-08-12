@@ -22,6 +22,14 @@ import {
 } from '../services/notificationService.js';
 import { getUsageSnapshot } from '../services/usageMetering.js';
 import {
+  addReportContentVersion,
+  createReport,
+  getReport,
+  listReports,
+  listReportTemplates,
+  queueReportGeneration
+} from '../services/reportEngine.js';
+import {
   createBusinessUnit,
   createFacility,
   createProject,
@@ -36,15 +44,18 @@ import {
 
 const defaultServices = {
   addEvidenceTag,
+  addReportContentVersion,
   archiveNotification,
   createBusinessUnit,
   createFacility,
+  createReport,
   createProject,
   createSite,
   getBillingOverview,
   getOrganizationProfile,
   getEvidence,
   getNotificationPreferences,
+  getReport,
   listBusinessUnits,
   listFacilities,
   listOrganizationMembers,
@@ -53,8 +64,11 @@ const defaultServices = {
   listEvidence,
   listBillingInvoices,
   listNotifications,
+  listReports,
+  listReportTemplates,
   markAllNotificationsRead,
   markNotificationRead,
+  queueReportGeneration,
   removeEvidenceTag,
   restoreEvidence,
   softDeleteEvidence,
@@ -280,6 +294,55 @@ export function createPlatformRouter(options = {}) {
         databasePoolResolver(), request.platformContext, request.params.notificationId
       );
       response.json({ success: true, notification });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/report-templates', async (request, response, next) => {
+    try {
+      const templates = await services.listReportTemplates(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, templates });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/reports', async (request, response, next) => {
+    try {
+      const result = await services.listReports(databasePoolResolver(), request.platformContext, {
+        page: request.query.page, pageSize: request.query.pageSize,
+        projectId: request.query.projectId, status: request.query.status
+      });
+      response.json({ success: true, ...result });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/reports', async (request, response, next) => {
+    try {
+      const report = await services.createReport(databasePoolResolver(), request.platformContext, request.body || {});
+      response.status(201).json({ success: true, report });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/reports/:reportId', async (request, response, next) => {
+    try {
+      const report = await services.getReport(databasePoolResolver(), request.platformContext, request.params.reportId);
+      response.json({ success: true, report });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/reports/:reportId/versions', async (request, response, next) => {
+    try {
+      const version = await services.addReportContentVersion(
+        databasePoolResolver(), request.platformContext, request.params.reportId, request.body || {}
+      );
+      response.status(201).json({ success: true, version });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/reports/:reportId/generations', async (request, response, next) => {
+    try {
+      const generation = await services.queueReportGeneration(
+        databasePoolResolver(), request.platformContext, request.params.reportId, request.body || {}
+      );
+      response.status(generation.duplicate ? 200 : 202).json({ success: true, generation });
     } catch (error) { next(error); }
   });
 

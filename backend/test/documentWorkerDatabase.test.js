@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import { getDocumentWorkerPool } from '../services/documentWorkerDatabase.js';
 import { getBillingPool } from '../services/billingDatabase.js';
+import { getReportWorkerPool } from '../services/reportWorkerDatabase.js';
 
 test('document worker database requires a distinct dedicated role', () => {
   assert.throws(
@@ -20,5 +21,13 @@ test('billing synchronization requires a distinct dedicated role', () => {
   assert.throws(
     () => getBillingPool({ DATABASE_URL: 'postgres://shared', BILLING_DATABASE_URL: 'postgres://shared' }),
     (error) => error.code === 'unsafe_billing_role'
+  );
+});
+
+test('report rendering requires a distinct dedicated role', () => {
+  assert.throws(() => getReportWorkerPool({}), (error) => error.code === 'report_worker_database_not_configured');
+  assert.throws(
+    () => getReportWorkerPool({ DATABASE_URL: 'postgres://shared', REPORT_WORKER_DATABASE_URL: 'postgres://shared' }),
+    (error) => error.code === 'unsafe_report_worker_role'
   );
 });
