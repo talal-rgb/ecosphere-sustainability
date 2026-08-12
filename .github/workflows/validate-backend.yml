@@ -107,7 +107,7 @@ jobs:
             tests=(test/platformFoundation.test.js)
             [[ -f test/authBoundary.test.js ]] && tests+=(test/authBoundary.test.js)
             node --test \
-              --test-name-pattern='row-level security blocks cross-organization|tenant middleware treats the organization header|Organization B|cross-tenant' \
+              --test-name-pattern='cross-organization|tenant middleware treats the organization header|Organization B|cross-tenant' \
               "${tests[@]}"
           else
             echo 'Tenant domain is not present in this stack layer; full backend tests remain required.'
@@ -132,7 +132,7 @@ jobs:
         run: |
           if [[ -f test/authBoundary.test.js ]]; then
             node --test \
-              --test-name-pattern='session middleware rejects|tenant middleware treats|unauthenticated owner|granular roles deny' \
+              --test-name-pattern='session middleware rejects|tenant middleware treats|unauthenticated owner|granular roles deny|member directory RLS' \
               test/authBoundary.test.js test/platformFoundation.test.js
           else
             echo 'Authenticated platform routes are not present in this stack layer.'

@@ -88,6 +88,9 @@ Set these in your Render dashboard:
 | Variable | Value | Description |
 |----------|-------|-------------|
 | `NODE_ENV` | `production` | Production mode |
+| `DEPLOYMENT_ENVIRONMENT` | `production` or `staging` | Non-secret environment label exposed by `/health` |
+| `GIT_COMMIT` | Exact deployed repository SHA | Inject from the deployment checkout; `/health` validates the format |
+| `BUILD_DATE` | ISO-8601 build timestamp | Inject once during the build; never generated per health request |
 | `ALLOWED_ORIGIN` | `https://terrnix.com` | Browser origin allowed by CORS |
 | `DATABASE_URL` | Secret PostgreSQL connection string | Dedicated non-owner, non-`BYPASSRLS` application role |
 | `DATABASE_SSL` | `require` | Require verified TLS for the database connection |
@@ -125,13 +128,48 @@ npm test
 
 Do not give the runtime application role table ownership or `BYPASSRLS`. Never run migrations automatically from a public request or application startup.
 
-The runtime role needs data access without ownership. RLS protects `platform`; the `auth` schema is reachable only from the backend service:
+The runtime role needs data access without ownership. RLS protects `platform`; the `auth` schema is reachable only from the backend service. Do not grant write access to every platform table: global role, permission, plan, feature, price, and template definitions are control-plane data and must remain read-only to the API role.
 
 ```sql
 GRANT USAGE ON SCHEMA platform, auth TO terrnix_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA platform TO terrnix_app;
+GRANT SELECT ON ALL TABLES IN SCHEMA platform TO terrnix_app;
+GRANT INSERT, UPDATE, DELETE ON
+  platform.app_users,
+  platform.organizations,
+  platform.organization_memberships,
+  platform.business_units,
+  platform.sites,
+  platform.facilities,
+  platform.projects,
+  platform.evidence_documents,
+  platform.evidence_versions,
+  platform.evidence_tags,
+  platform.calculations,
+  platform.calculation_evidence,
+  platform.reports,
+  platform.report_calculations,
+  platform.notifications,
+  platform.ai_usage,
+  platform.audit_events,
+  platform.evidence_upload_sessions,
+  platform.document_processing_jobs,
+  platform.usage_events,
+  platform.notification_preferences,
+  platform.notification_events,
+  platform.notification_delivery_outbox,
+  platform.report_content_versions,
+  platform.report_generation_jobs,
+  platform.report_evidence,
+  platform.search_documents,
+  platform.document_field_reviews,
+  platform.document_classification_reviews,
+  platform.calculation_lineage
+TO terrnix_app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA auth TO terrnix_app;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA platform TO terrnix_app;
+GRANT EXECUTE ON FUNCTION platform.current_organization_id() TO terrnix_app;
+GRANT EXECUTE ON FUNCTION platform.current_user_id() TO terrnix_app;
+GRANT EXECUTE ON FUNCTION platform.has_permission(text) TO terrnix_app;
+GRANT EXECUTE ON FUNCTION platform.can_manage_membership(text) TO terrnix_app;
 ```
 
 After migrations, explicitly grant the application role access to the bootstrap entry point; it is revoked from `PUBLIC`:
@@ -141,6 +179,8 @@ GRANT EXECUTE ON FUNCTION platform.bootstrap_organization(
   uuid, uuid, text, text, text, text, text, text, text
 ) TO terrnix_app;
 ```
+
+Deployment automation must derive `GIT_COMMIT` from the exact checked-out SHA and `BUILD_DATE` from the build job. After deployment, compare `/health.gitCommit` with that job's SHA. Treat `unknown`, an unresolvable SHA, or a mismatch as a failed traceability check. The endpoint exposes only version metadata, never credentials or provider configuration.
 
 Keep that function owned by the migration role. Subscription writes are intentionally unavailable to tenant sessions and will be performed by a separately authorized billing integration.
 

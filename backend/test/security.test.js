@@ -26,6 +26,12 @@ test('health endpoint returns security headers without exposing diagnostics', as
   const response = await request(app).get('/health').expect(200);
 
   assert.equal(response.body.ok, true);
+  assert.match(response.body.version, /^\d+\.\d+\.\d+/);
+  assert.match(response.body.gitCommit, /^(unknown|[a-f0-9]{7,40})$/);
+  assert.equal(response.body.commit, response.body.gitCommit);
+  assert.ok(response.body.buildDate === 'unknown' || !Number.isNaN(Date.parse(response.body.buildDate)));
+  assert.match(response.body.environment, /^[a-z0-9][a-z0-9._-]*$/);
+  assert.equal('deployedAt' in response.body, false);
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
   assert.equal(response.headers['x-frame-options'], 'DENY');
   assert.match(response.headers['strict-transport-security'], /max-age=31536000/);

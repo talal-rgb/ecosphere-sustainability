@@ -63,7 +63,8 @@ const migrationUrls = [
   new URL('../db/migrations/009_report_engine.sql', import.meta.url),
   new URL('../db/migrations/010_search_service.sql', import.meta.url),
   new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url),
-  new URL('../db/migrations/012_calculation_ledger.sql', import.meta.url)
+  new URL('../db/migrations/012_calculation_ledger.sql', import.meta.url),
+  new URL('../db/migrations/013_security_integrity_hardening.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -364,6 +365,89 @@ test('granular roles deny reviewer writes while allowing review access', async (
         [ids.orgA]
       ),
       /row-level security policy/
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test('member directory RLS permits authorized tenant reads and blocks role escalation', async () => {
+  const db = await createTestDatabase();
+  const pool = asPool(db);
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await setContext(db, ids.orgA, ids.reviewerA);
+    await db.query(
+      `INSERT INTO platform.app_users (id, auth_subject, email, display_name, status)
+       VALUES ($1, $2, $3, $4, 'active')`,
+      [ids.reviewerA, `auth:${ids.reviewerA}`, 'admin@example.com', 'Tenant administrator']
+    );
+    await setContext(db, ids.orgA, ids.userA);
+    await db.query(
+      `INSERT INTO platform.organization_memberships (
+         organization_id, user_id, role_code, status, invited_by, joined_at
+       ) VALUES ($1, $2, 'administrator', 'active', $3, now())`,
+      [ids.orgA, ids.reviewerA, ids.userA]
+    );
+
+    const directory = await listOrganizationMembers(pool, { organizationId: ids.orgA, userId: ids.userA });
+    assert.equal(directory.pagination.total, 2);
+    assert.deepEqual(directory.items.map((item) => item.userId).sort(), [ids.userA, ids.reviewerA].sort());
+
+    await setContext(db, ids.orgA, ids.reviewerA);
+    const escalation = await db.query(
+      `UPDATE platform.organization_memberships SET role_code = 'owner'
+       WHERE organization_id = $1 AND user_id = $2`,
+      [ids.orgA, ids.reviewerA]
+    );
+    assert.equal(escalation.rowCount ?? escalation.affectedRows, 0);
+    const ownerDeletion = await db.query(
+      `DELETE FROM platform.organization_memberships
+       WHERE organization_id = $1 AND user_id = $2`,
+      [ids.orgA, ids.userA]
+    );
+    assert.equal(ownerDeletion.rowCount ?? ownerDeletion.affectedRows, 0);
+  } finally {
+    await db.close();
+  }
+});
+
+test('billing foreign keys reject cross-organization subscriptions and invoices', async () => {
+  const db = await createTestDatabase();
+  try {
+    await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
+    await db.exec('RESET ROLE');
+    const subscriptions = await db.query(
+      'SELECT organization_id, id FROM platform.subscriptions WHERE organization_id IN ($1, $2)',
+      [ids.orgA, ids.orgB]
+    );
+    const subscriptionByOrganization = Object.fromEntries(
+      subscriptions.rows.map((row) => [row.organization_id, row.id])
+    );
+    await assert.rejects(
+      db.query(
+        `INSERT INTO platform.billing_invoices (
+           organization_id, subscription_id, provider, provider_invoice_ref, status, currency
+         ) VALUES ($1, $2, 'stripe', 'in_cross_tenant', 'open', 'EUR')`,
+        [ids.orgA, subscriptionByOrganization[ids.orgB]]
+      ),
+      /foreign key constraint/
+    );
+    const invoice = await db.query(
+      `INSERT INTO platform.billing_invoices (
+         organization_id, subscription_id, provider, provider_invoice_ref, status, currency
+       ) VALUES ($1, $2, 'stripe', 'in_alpha', 'open', 'EUR') RETURNING id`,
+      [ids.orgA, subscriptionByOrganization[ids.orgA]]
+    );
+    await assert.rejects(
+      db.query(
+        `INSERT INTO platform.billing_payments (
+           organization_id, invoice_id, provider, provider_payment_ref, status, amount_minor, currency
+         ) VALUES ($1, $2, 'stripe', 'pi_cross_tenant', 'succeeded', 100, 'EUR')`,
+        [ids.orgB, invoice.rows[0].id]
+      ),
+      /foreign key constraint/
     );
   } finally {
     await db.close();
@@ -948,7 +1032,9 @@ test('usage metering and trusted billing events drive canonical subscription and
   const pool = asPool(db);
   try {
     await bootstrap(db, { organizationId: ids.orgA, userId: ids.userA, slug: 'org-alpha', email: 'alpha@example.com' });
+    await bootstrap(db, { organizationId: ids.orgB, userId: ids.userB, slug: 'org-beta', email: 'beta@example.com' });
     const context = { userId: ids.userA, organizationId: ids.orgA };
+    await setContext(db, ids.orgA, ids.userA);
     const usage = await recordUsage(pool, context, {
       featureCode: 'calculations.monthly', quantity: 2, idempotencyKey: 'calculation:batch-1', sourceType: 'calculation'
     });
@@ -985,6 +1071,24 @@ test('usage metering and trusted billing events drive canonical subscription and
       hostedInvoiceUrl: 'https://billing.example/invoice', invoicePdfUrl: 'https://billing.example/invoice.pdf'
     };
     assert.equal((await ingestBillingEvent(pool, invoiceEvent, 'f'.repeat(64))).status, 'processed');
+    await assert.rejects(
+      ingestBillingEvent(pool, {
+        ...invoiceEvent,
+        providerEventRef: 'evt_invoice_cross_reference',
+        organizationId: ids.orgB
+      }, 'a'.repeat(64)),
+      (error) => error.code === 'billing_tenant_mismatch'
+    );
+    await assert.rejects(
+      ingestBillingEvent(pool, {
+        ...invoiceEvent,
+        providerEventRef: 'evt_invoice_cross_upsert',
+        organizationId: ids.orgB,
+        customerRef: null,
+        subscriptionRef: null
+      }, 'b'.repeat(64)),
+      (error) => error.code === 'billing_tenant_mismatch'
+    );
 
     await db.exec('SET ROLE terrnix_app_test');
     await setContext(db, ids.orgA, ids.userA);
