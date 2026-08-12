@@ -1,46 +1,223 @@
-name: Validate Backend
+name: Validate Backend and Platform
 
 on:
   pull_request:
-    branches: [main]
     paths:
       - 'backend/**'
+      - '**/*.html'
+      - 'assets/**'
+      - 'components/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'CNAME'
       - '.github/workflows/validate-backend.yml'
   push:
     branches: [main]
     paths:
       - 'backend/**'
+      - '**/*.html'
+      - 'assets/**'
+      - 'components/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'CNAME'
       - '.github/workflows/validate-backend.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: platform-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  backend-tests:
+    name: Backend tests
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm test
 
-      - name: Install locked dependencies
-        run: npm ci
+  backend-static-validation:
+    name: Static validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+        working-directory: backend
+      - run: npm run check
+        working-directory: backend
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run check
 
-      - name: Check backend syntax
-        run: npm run check
+  dependency-security-audit:
+    name: Dependency and security audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
 
-      - name: Run backend regression tests
-        run: npm test
+  tenant-isolation:
+    name: Tenant isolation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Exercise tenant boundaries when the platform domain is present
+        shell: bash
+        run: |
+          if [[ -f test/platformFoundation.test.js ]]; then
+            tests=(test/platformFoundation.test.js)
+            [[ -f test/authBoundary.test.js ]] && tests+=(test/authBoundary.test.js)
+            node --test \
+              --test-name-pattern='row-level security blocks cross-organization|tenant middleware treats the organization header|Organization B|cross-tenant' \
+              "${tests[@]}"
+          else
+            echo 'Tenant domain is not present in this stack layer; full backend tests remain required.'
+          fi
 
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+  authorization:
+    name: Authorization
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Exercise authentication and role boundaries when present
+        shell: bash
+        run: |
+          if [[ -f test/authBoundary.test.js ]]; then
+            node --test \
+              --test-name-pattern='session middleware rejects|tenant middleware treats|unauthenticated owner|granular roles deny' \
+              test/authBoundary.test.js test/platformFoundation.test.js
+          else
+            echo 'Authenticated platform routes are not present in this stack layer.'
+          fi
+
+  entitlements:
+    name: Entitlements
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Exercise plan and feature gates when present
+        shell: bash
+        run: |
+          if [[ -f test/platformFoundation.test.js ]]; then
+            node --test \
+              --test-name-pattern='commercial plan matrix|plan entitlements|gated independently|feature checks return limits' \
+              test/platformFoundation.test.js
+          else
+            echo 'Entitlements are not present in this stack layer.'
+          fi
+
+  migration-validation:
+    name: Migration validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Validate migration numbering and execute migration integration tests
+        shell: bash
+        run: |
+          if [[ ! -d db/migrations ]]; then
+            echo 'No database migrations exist in this stack layer.'
+            exit 0
+          fi
+          mapfile -t migrations < <(find db/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sort)
+          for index in "${!migrations[@]}"; do
+            expected=$(printf '%03d_' "$((index + 1))")
+            if [[ "${migrations[$index]}" != "$expected"* ]]; then
+              echo "Expected migration prefix $expected, found ${migrations[$index]}" >&2
+              exit 1
+            fi
+          done
+          tests=()
+          [[ -f test/authBoundary.test.js ]] && tests+=(test/authBoundary.test.js)
+          [[ -f test/platformFoundation.test.js ]] && tests+=(test/platformFoundation.test.js)
+          if ((${#tests[@]})); then
+            node --test --test-name-pattern='migration creates|platform migration creates' "${tests[@]}"
+          fi
+
+  deployment-compatibility:
+    name: Cloudflare and deployment compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate static edge-hosting contract
+        shell: bash
+        run: |
+          [[ "$(tr -d '\r\n' < CNAME)" == 'terrnix.com' ]]
+          python scripts/validate-static-site.py
+          if grep -RIn --include='*.html' '<!--[[:space:]]*#include' .; then
+            echo 'Runtime SSI directives are incompatible with the static deployment.' >&2
+            exit 1
+          fi
+      - name: Validate backend deployment entrypoint
+        run: node --check backend/server.js
