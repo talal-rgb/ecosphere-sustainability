@@ -40,13 +40,12 @@ export async function bootstrapOrganization(databasePool, input) {
 
 export async function getAccessSnapshot(databasePool, context) {
   return withPlatformContext(databasePool, context, async (client) => {
-    const [membershipResult, permissionResult, featureResult] = await Promise.all([
-      client.query(
+    const membershipResult = await client.query(
         `SELECT role_code, status FROM platform.organization_memberships
          WHERE organization_id = $1 AND user_id = $2`,
         [context.organizationId, context.userId]
-      ),
-      client.query(
+      );
+    const permissionResult = await client.query(
         `SELECT permission.code
          FROM platform.organization_memberships membership
          JOIN platform.role_permissions grant_row ON grant_row.role_code = membership.role_code
@@ -54,16 +53,15 @@ export async function getAccessSnapshot(databasePool, context) {
          WHERE membership.organization_id = $1 AND membership.user_id = $2 AND membership.status = 'active'
          ORDER BY permission.code`,
         [context.organizationId, context.userId]
-      ),
-      client.query(
+      );
+    const featureResult = await client.query(
         `SELECT subscription.plan_code, feature.feature_code, feature.enabled, feature.limit_value, feature.configuration
          FROM platform.subscriptions subscription
          JOIN platform.plan_features feature ON feature.plan_code = subscription.plan_code
          WHERE subscription.organization_id = $1
          ORDER BY feature.feature_code`,
         [context.organizationId]
-      )
-    ]);
+      );
     const membership = membershipResult.rows[0];
     if (!membership || membership.status !== 'active') throw forbiddenError('Active organization membership is required.');
     return {
@@ -84,8 +82,7 @@ export async function getAccessSnapshot(databasePool, context) {
 export async function getOrganizationProfile(databasePool, context) {
   return withPlatformContext(databasePool, context, async (client) => {
     await requirePermission(client, 'organization.read');
-    const [organizationResult, usageResult] = await Promise.all([
-      client.query(
+    const organizationResult = await client.query(
         `SELECT organization.id, organization.slug, organization.name, organization.logo_url,
                 organization.industry_code, organization.country_code, organization.data_region,
                 organization.status, organization.settings, organization.created_at,
@@ -95,8 +92,8 @@ export async function getOrganizationProfile(databasePool, context) {
          LEFT JOIN platform.subscriptions subscription ON subscription.organization_id = organization.id
          WHERE organization.id = $1`,
         [context.organizationId]
-      ),
-      client.query(
+      );
+    const usageResult = await client.query(
         `SELECT
            (SELECT count(*)::integer FROM platform.organization_memberships WHERE organization_id = $1 AND status = 'active') AS members,
            (SELECT count(*)::integer FROM platform.business_units WHERE organization_id = $1 AND status = 'active') AS business_units,
@@ -105,8 +102,7 @@ export async function getOrganizationProfile(databasePool, context) {
            (SELECT count(*)::integer FROM platform.projects WHERE organization_id = $1 AND status <> 'archived') AS active_projects,
            (SELECT count(*)::integer FROM platform.evidence_documents WHERE organization_id = $1 AND deleted_at IS NULL) AS evidence_documents`,
         [context.organizationId]
-      )
-    ]);
+      );
     const organization = organizationResult.rows[0];
     if (!organization) throw notFoundError('Organization was not found.');
     return {
@@ -135,8 +131,7 @@ export async function listOrganizationMembers(databasePool, context, options = {
   const pagination = normalizePagination(options);
   return withPlatformContext(databasePool, context, async (client) => {
     await requirePermission(client, 'member.read');
-    const [itemsResult, countResult] = await Promise.all([
-      client.query(
+    const itemsResult = await client.query(
         `SELECT membership.user_id, membership.role_code, role.name AS role_name,
                 membership.status, membership.invited_at, membership.joined_at,
                 user_account.email, user_account.display_name, user_account.avatar_url,
@@ -148,12 +143,11 @@ export async function listOrganizationMembers(databasePool, context, options = {
          ORDER BY lower(user_account.display_name), membership.user_id
          LIMIT $2 OFFSET $3`,
         [context.organizationId, pagination.pageSize, pagination.offset]
-      ),
-      client.query(
+      );
+    const countResult = await client.query(
         'SELECT count(*)::integer AS total FROM platform.organization_memberships WHERE organization_id = $1',
         [context.organizationId]
-      )
-    ]);
+      );
     return paginatedResult(itemsResult.rows.map((row) => ({
       userId: row.user_id,
       email: row.email,

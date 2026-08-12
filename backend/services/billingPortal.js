@@ -5,12 +5,10 @@ import { getUsageSnapshot } from './usageMetering.js';
 export async function getBillingOverview(databasePool, context) {
   const core = await withPlatformContext(databasePool, context, async (client) => {
     await requirePermission(client, 'billing.read');
-    const [subscription, account, discounts, history] = await Promise.all([
-      client.query('SELECT * FROM platform.subscriptions WHERE organization_id = $1', [context.organizationId]),
-      client.query('SELECT * FROM platform.billing_accounts WHERE organization_id = $1', [context.organizationId]),
-      client.query("SELECT name, percent_off, amount_off_minor, currency, status, starts_at, ends_at FROM platform.billing_discounts WHERE organization_id = $1 AND status = 'active' ORDER BY created_at DESC", [context.organizationId]),
-      client.query('SELECT change_type, previous_state, new_state, effective_at, recorded_at FROM platform.billing_subscription_history WHERE organization_id = $1 ORDER BY effective_at DESC, id DESC LIMIT 20', [context.organizationId])
-    ]);
+    const subscription = await client.query('SELECT * FROM platform.subscriptions WHERE organization_id = $1', [context.organizationId]);
+    const account = await client.query('SELECT * FROM platform.billing_accounts WHERE organization_id = $1', [context.organizationId]);
+    const discounts = await client.query("SELECT name, percent_off, amount_off_minor, currency, status, starts_at, ends_at FROM platform.billing_discounts WHERE organization_id = $1 AND status = 'active' ORDER BY created_at DESC", [context.organizationId]);
+    const history = await client.query('SELECT change_type, previous_state, new_state, effective_at, recorded_at FROM platform.billing_subscription_history WHERE organization_id = $1 ORDER BY effective_at DESC, id DESC LIMIT 20', [context.organizationId]);
     const row = subscription.rows[0];
     const billingAccount = account.rows[0];
     return {
