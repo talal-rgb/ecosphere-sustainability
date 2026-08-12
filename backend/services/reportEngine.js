@@ -181,14 +181,12 @@ export async function getReport(databasePool, context, reportId) {
     await requirePermission(client, 'report.read');
     const report = await client.query('SELECT * FROM platform.reports WHERE organization_id = $1 AND id = $2', [context.organizationId, reportId]);
     if (!report.rows[0]) throw notFoundError('Report was not found.');
-    const [versions, jobs, artifacts] = await Promise.all([
-      client.query(`SELECT version, content_sha256, source_manifest, created_by, created_at
-        FROM platform.report_content_versions WHERE organization_id = $1 AND report_id = $2 ORDER BY version DESC`, [context.organizationId, reportId]),
-      client.query(`SELECT id, content_version, output_format, renderer_version, status, attempts, queued_at, completed_at, last_error_code
-        FROM platform.report_generation_jobs WHERE organization_id = $1 AND report_id = $2 ORDER BY created_at DESC`, [context.organizationId, reportId]),
-      client.query(`SELECT id, content_version, output_format, media_type, byte_size, sha256, renderer_version, created_at
-        FROM platform.report_artifacts WHERE organization_id = $1 AND report_id = $2 ORDER BY created_at DESC`, [context.organizationId, reportId])
-    ]);
+    const versions = await client.query(`SELECT version, content_sha256, source_manifest, created_by, created_at
+      FROM platform.report_content_versions WHERE organization_id = $1 AND report_id = $2 ORDER BY version DESC`, [context.organizationId, reportId]);
+    const jobs = await client.query(`SELECT id, content_version, output_format, renderer_version, status, attempts, queued_at, completed_at, last_error_code
+      FROM platform.report_generation_jobs WHERE organization_id = $1 AND report_id = $2 ORDER BY created_at DESC`, [context.organizationId, reportId]);
+    const artifacts = await client.query(`SELECT id, content_version, output_format, media_type, byte_size, sha256, renderer_version, created_at
+      FROM platform.report_artifacts WHERE organization_id = $1 AND report_id = $2 ORDER BY created_at DESC`, [context.organizationId, reportId]);
     return { ...reportResource(report.rows[0]), contentVersions: versions.rows.map((row) => ({ version: row.version,
       contentSha256: row.content_sha256, sourceManifest: row.source_manifest, createdBy: row.created_by, createdAt: row.created_at })),
       generationJobs: jobs.rows.map(jobResource), artifacts: artifacts.rows.map((row) => ({ id: row.id,

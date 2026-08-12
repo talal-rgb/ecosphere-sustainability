@@ -107,8 +107,7 @@ export async function getEvidence(databasePool, context, evidenceId) {
     );
     if (!documentResult.rows[0]) throw domainError('not_found', 404, 'Evidence document was not found.');
     if (documentResult.rows[0].deleted_at) await requirePermission(client, 'evidence.delete');
-    const [versions, tags, calculations, reports] = await Promise.all([
-      client.query(
+    const versions = await client.query(
         `SELECT version.id, version.version_number, version.original_file_name, version.media_type,
                 version.byte_size, version.sha256, version.malware_scan_status,
                 version.extraction_status, version.extraction_confidence, version.extraction_model,
@@ -118,16 +117,16 @@ export async function getEvidence(databasePool, context, evidenceId) {
          WHERE version.organization_id = $1 AND version.evidence_document_id = $2
          ORDER BY version.version_number DESC`,
         [context.organizationId, evidenceId]
-      ),
-      client.query('SELECT tag, created_at FROM platform.evidence_tags WHERE organization_id = $1 AND evidence_document_id = $2 ORDER BY tag', [context.organizationId, evidenceId]),
-      client.query(
+      );
+    const tags = await client.query('SELECT tag, created_at FROM platform.evidence_tags WHERE organization_id = $1 AND evidence_document_id = $2 ORDER BY tag', [context.organizationId, evidenceId]);
+    const calculations = await client.query(
         `SELECT calculation.id, calculation.calculation_type, calculation.status, link.purpose, link.linked_at
          FROM platform.calculation_evidence link
          JOIN platform.calculations calculation ON calculation.organization_id = link.organization_id AND calculation.id = link.calculation_id
          WHERE link.organization_id = $1 AND link.evidence_document_id = $2 ORDER BY link.linked_at DESC`,
         [context.organizationId, evidenceId]
-      ),
-      client.query(
+      );
+    const reports = await client.query(
         `SELECT DISTINCT report.id, report.title, report.report_type, report.status
          FROM platform.calculation_evidence evidence_link
          JOIN platform.report_calculations report_link
@@ -136,8 +135,7 @@ export async function getEvidence(databasePool, context, evidenceId) {
          WHERE evidence_link.organization_id = $1 AND evidence_link.evidence_document_id = $2
          ORDER BY report.title, report.id`,
         [context.organizationId, evidenceId]
-      )
-    ]);
+      );
     const row = documentResult.rows[0];
     return {
       id: row.id, project: { id: row.project_id, name: row.project_name },
