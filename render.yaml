@@ -1,0 +1,89 @@
+projects:
+  - name: terrnix-platform
+    environments:
+      - name: staging
+        networking:
+          isolation: enabled
+        permissions:
+          protection: enabled
+        databases:
+          - name: terrnix-staging-postgres
+            plan: basic-256mb
+            region: frankfurt
+            postgresMajorVersion: "17"
+            databaseName: terrnix_staging
+            user: terrnix_migration_staging
+            connectionPool: none
+            storageAutoscalingEnabled: false
+            ipAllowList: []
+        services:
+          - type: web
+            name: terrnix-staging
+            runtime: static
+            repo: https://github.com/talal-rgb/ecosphere-sustainability
+            branch: main
+            autoDeployTrigger: checksPass
+            buildCommand: npm ci && npm run check && npm run build:staging
+            staticPublishPath: ./dist-staging
+            envVars:
+              - key: STAGING_API_ORIGIN
+                value: https://terrnix-staging-api.onrender.com
+            headers:
+              - path: /*
+                name: X-Robots-Tag
+                value: noindex, nofollow, noarchive
+          - type: web
+            name: terrnix-staging-api
+            runtime: node
+            plan: starter
+            region: frankfurt
+            repo: https://github.com/talal-rgb/ecosphere-sustainability
+            branch: main
+            rootDir: backend
+            autoDeployTrigger: checksPass
+            buildCommand: npm ci && npm run build:render
+            startCommand: BUILD_DATE="$(cat .build-date)" npm start
+            healthCheckPath: /health
+            envVars:
+              - key: NODE_ENV
+                value: production
+              - key: DEPLOYMENT_ENVIRONMENT
+                value: staging
+              - key: PORT
+                value: "10000"
+              - key: ALLOWED_ORIGIN
+                value: https://terrnix-staging.onrender.com
+              - key: AUTH_TRUSTED_ORIGINS
+                value: https://terrnix-staging.onrender.com
+              - key: BETTER_AUTH_URL
+                value: https://terrnix-staging-api.onrender.com
+              - key: BETTER_AUTH_SECRET
+                generateValue: true
+              - key: DATABASE_SSL
+                value: require
+              - key: DATABASE_POOL_MAX
+                value: "10"
+              - key: DATABASE_URL
+                sync: false
+              - key: EVIDENCE_STORAGE_PROVIDER
+                value: s3
+              - key: EVIDENCE_STORAGE_BUCKET
+                sync: false
+              - key: EVIDENCE_STORAGE_REGION
+                sync: false
+              - key: EVIDENCE_STORAGE_ENDPOINT
+                sync: false
+              - key: EVIDENCE_STORAGE_FORCE_PATH_STYLE
+                value: "false"
+              - key: EVIDENCE_UPLOAD_URL_SECONDS
+                value: "600"
+              - key: AWS_ACCESS_KEY_ID
+                sync: false
+              - key: AWS_SECRET_ACCESS_KEY
+                sync: false
+              - key: BREVO_API_KEY
+                sync: false
+              - key: CONTACT_FROM_EMAIL
+                sync: false
+              - key: CONTACT_TO_EMAIL
+                sync: false
