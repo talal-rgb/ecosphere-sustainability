@@ -96,7 +96,7 @@ export async function createEvidenceCalculation(databasePool, context, evidenceI
          status, input_data, result_data, factor_manifest, created_by
        ) VALUES ($1,$2,$3,$4,'carbon_activity','activity_data_x_emission_factor','calculated',$5,$6,$7,$8)`,
       [calculationId, context.organizationId, provenance.projectId, input.siteId || null,
-        inputData, resultData, factorManifest, context.userId]
+        inputData, resultData, JSON.stringify(factorManifest), context.userId]
     );
     await client.query(
       `INSERT INTO platform.calculation_evidence (
