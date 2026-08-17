@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-08-10
-**Next Update:** 2026-08-10
+**Last Updated:** 2026-08-17
+**Next Update:** 2026-08-17
 
 ---
 
@@ -58,9 +58,9 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Organic Search | 14 | 47.4% |
-| Direct | 11 | 47.4% |
-| AI Assistant | 1 | 5.3% |
+| Organic Search | 11 | 56.3% |
+| Direct | 6 | 37.5% |
+| Organic Social | 1 | 6.3% |
 
 ## 🔍 SEO
 
@@ -68,17 +68,18 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 29 | - | - |
-| Clicks | 2 | - | - |
-| CTR | 6.90% | - | - |
-| Avg Position | 20.3 | - | - |
+| Impressions | 41 | - | - |
+| Clicks | 1 | - | - |
+| CTR | 2.44% | - | - |
+| Avg Position | 26.9 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | rearnix | 1 | 0 | 0.00% | 62.0 | - |
-| 2 | sbti anforderungen 2026 | 6 | 0 | 0.00% | 54.5 | - |
+| 1 | conformité cbam maroc | 1 | 0 | 0.00% | 77.0 | - |
+| 2 | sbti anforderungen 2026 | 5 | 0 | 0.00% | 58.2 | - |
+| 3 | sustainability test | 1 | 0 | 0.00% | 63.0 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -221,12 +222,12 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 14 | - | - | - | 
- | Total Users | 19 | - | - | - | 
- | Impressions | 29 | - | - | - | 
- | Clicks | 2 | - | - | - | 
+ | Organic Sessions | 11 | - | - | - | 
+ | Total Users | 16 | - | - | - | 
+ | Impressions | 41 | - | - | - | 
+ | Clicks | 1 | - | - | - | 
  | Calculator Runs | - | - | - | - | 
- | PDF Downloads | 1 | - | - | - | 
+ | PDF Downloads | - | - | - | - | 
  | Contact Forms | - | - | - | - | 
 | Qualified Leads | - | - | - | - |
 
@@ -251,6 +252,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-08-17 | Automated | Weekly KPI update |
 | 2026-08-10 | Automated | Weekly KPI update |
 | 2026-08-03 | Automated | Weekly KPI update |
 | 2026-07-27 | Automated | Weekly KPI update |
