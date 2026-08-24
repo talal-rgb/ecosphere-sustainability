@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-08-17
-**Next Update:** 2026-08-17
+**Last Updated:** 2026-08-24
+**Next Update:** 2026-08-24
 
 ---
 
@@ -58,9 +58,9 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Organic Search | 11 | 56.3% |
-| Direct | 6 | 37.5% |
-| Organic Social | 1 | 6.3% |
+| Organic Search | 5 | 50.0% |
+| Direct | 3 | 37.5% |
+| Unassigned | 1 | 12.5% |
 
 ## 🔍 SEO
 
@@ -68,18 +68,19 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 41 | - | - |
-| Clicks | 1 | - | - |
-| CTR | 2.44% | - | - |
-| Avg Position | 26.9 | - | - |
+| Impressions | 63 | - | - |
+| Clicks | 0 | - | - |
+| CTR | 0.00% | - | - |
+| Avg Position | 41.4 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | conformité cbam maroc | 1 | 0 | 0.00% | 77.0 | - |
-| 2 | sbti anforderungen 2026 | 5 | 0 | 0.00% | 58.2 | - |
-| 3 | sustainability test | 1 | 0 | 0.00% | 63.0 | - |
+| 1 | carbon accounting morocco | 1 | 0 | 0.00% | 43.0 | - |
+| 2 | sbti anforderungen 2026 | 8 | 0 | 0.00% | 57.3 | - |
+| 3 | sustainability concept test | 1 | 0 | 0.00% | 57.0 | - |
+| 4 | sustainability services quiz | 1 | 0 | 0.00% | 61.0 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -222,10 +223,10 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 11 | - | - | - | 
- | Total Users | 16 | - | - | - | 
- | Impressions | 41 | - | - | - | 
- | Clicks | 1 | - | - | - | 
+ | Organic Sessions | 5 | - | - | - | 
+ | Total Users | 8 | - | - | - | 
+ | Impressions | 63 | - | - | - | 
+ | Clicks | - | - | - | - | 
  | Calculator Runs | - | - | - | - | 
  | PDF Downloads | - | - | - | - | 
  | Contact Forms | - | - | - | - | 
@@ -252,6 +253,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-08-24 | Automated | Weekly KPI update |
 | 2026-08-17 | Automated | Weekly KPI update |
 | 2026-08-10 | Automated | Weekly KPI update |
 | 2026-08-03 | Automated | Weekly KPI update |
