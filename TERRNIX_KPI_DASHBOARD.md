@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-08-31
-**Next Update:** 2026-08-31
+**Last Updated:** 2026-09-07
+**Next Update:** 2026-09-07
 
 ---
 
@@ -58,11 +58,9 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Direct | 18 | 41.2% |
-| Organic Search | 10 | 26.5% |
-| Organic Social | 7 | 17.6% |
-| Unassigned | 4 | 11.8% |
-| AI Assistant | 1 | 2.9% |
+| Organic Search | 11 | 47.1% |
+| Direct | 10 | 41.2% |
+| Unassigned | 3 | 11.8% |
 
 ## 🔍 SEO
 
@@ -70,19 +68,22 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 54 | - | - |
-| Clicks | 0 | - | - |
-| CTR | 0.00% | - | - |
-| Avg Position | 42.5 | - | - |
+| Impressions | 44 | - | - |
+| Clicks | 1 | - | - |
+| CTR | 2.27% | - | - |
+| Avg Position | 26.6 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | conformité cbam maroc | 1 | 0 | 0.00% | 76.0 | - |
-| 2 | esg 2026 | 1 | 0 | 0.00% | 10.0 | - |
-| 3 | sbti anforderungen 2026 | 6 | 0 | 0.00% | 57.2 | - |
-| 4 | sustainability test | 1 | 0 | 0.00% | 69.0 | - |
+| 1 | carbon accounting morocco | 1 | 0 | 0.00% | 36.0 | - |
+| 2 | cbam consultant morocco | 1 | 0 | 0.00% | 37.0 | - |
+| 3 | decarbonization quiz | 1 | 0 | 0.00% | 72.0 | - |
+| 4 | sbti anforderungen 2026 | 7 | 0 | 0.00% | 56.6 | - |
+| 5 | sustainability concept test | 1 | 0 | 0.00% | 55.0 | - |
+| 6 | sustainability quiz | 1 | 0 | 0.00% | 68.0 | - |
+| 7 | sustainability services quiz | 1 | 0 | 0.00% | 65.0 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -225,10 +226,10 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 10 | - | - | - | 
- | Total Users | 34 | - | - | - | 
- | Impressions | 54 | - | - | - | 
- | Clicks | - | - | - | - | 
+ | Organic Sessions | 11 | - | - | - | 
+ | Total Users | 17 | - | - | - | 
+ | Impressions | 44 | - | - | - | 
+ | Clicks | 1 | - | - | - | 
  | Calculator Runs | - | - | - | - | 
  | PDF Downloads | - | - | - | - | 
  | Contact Forms | - | - | - | - | 
@@ -255,6 +256,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-09-07 | Automated | Weekly KPI update |
 | 2026-08-31 | Automated | Weekly KPI update |
 | 2026-08-24 | Automated | Weekly KPI update |
 | 2026-08-17 | Automated | Weekly KPI update |
