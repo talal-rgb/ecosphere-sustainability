@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-09-07
-**Next Update:** 2026-09-07
+**Last Updated:** 2026-09-14
+**Next Update:** 2026-09-14
 
 ---
 
@@ -58,9 +58,10 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Organic Search | 11 | 47.1% |
-| Direct | 10 | 41.2% |
-| Unassigned | 3 | 11.8% |
+| Direct | 20 | 46.9% |
+| Organic Search | 19 | 40.6% |
+| Unassigned | 3 | 9.4% |
+| AI Assistant | 1 | 3.1% |
 
 ## 🔍 SEO
 
@@ -68,22 +69,17 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 44 | - | - |
-| Clicks | 1 | - | - |
-| CTR | 2.27% | - | - |
-| Avg Position | 26.6 | - | - |
+| Impressions | 24 | - | - |
+| Clicks | 0 | - | - |
+| CTR | 0.00% | - | - |
+| Avg Position | 20.8 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | carbon accounting morocco | 1 | 0 | 0.00% | 36.0 | - |
-| 2 | cbam consultant morocco | 1 | 0 | 0.00% | 37.0 | - |
-| 3 | decarbonization quiz | 1 | 0 | 0.00% | 72.0 | - |
-| 4 | sbti anforderungen 2026 | 7 | 0 | 0.00% | 56.6 | - |
-| 5 | sustainability concept test | 1 | 0 | 0.00% | 55.0 | - |
-| 6 | sustainability quiz | 1 | 0 | 0.00% | 68.0 | - |
-| 7 | sustainability services quiz | 1 | 0 | 0.00% | 65.0 | - |
+| 1 | conformité cbam maroc | 1 | 0 | 0.00% | 73.0 | - |
+| 2 | sbti anforderungen 2026 | 3 | 0 | 0.00% | 51.0 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -226,10 +222,10 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 11 | - | - | - | 
- | Total Users | 17 | - | - | - | 
- | Impressions | 44 | - | - | - | 
- | Clicks | 1 | - | - | - | 
+ | Organic Sessions | 19 | - | - | - | 
+ | Total Users | 32 | - | - | - | 
+ | Impressions | 24 | - | - | - | 
+ | Clicks | - | - | - | - | 
  | Calculator Runs | - | - | - | - | 
  | PDF Downloads | - | - | - | - | 
  | Contact Forms | - | - | - | - | 
@@ -256,6 +252,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-09-14 | Automated | Weekly KPI update |
 | 2026-09-07 | Automated | Weekly KPI update |
 | 2026-08-31 | Automated | Weekly KPI update |
 | 2026-08-24 | Automated | Weekly KPI update |
