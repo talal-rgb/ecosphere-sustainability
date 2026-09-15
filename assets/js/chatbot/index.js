@@ -1,14 +1,13 @@
 /**
  * Chatbot V2 — Main Controller
- * Week 1 Implementation
- * Entry point for chatbot functionality
+ * Week 2 Implementation
+ * Entry point for chatbot functionality with session memory, confidence, PDF assistant, quiz, and lead qualification
  */
 
 const TerrnixChatbot = {
   // State
   initialized: false,
   knowledgeBase: null,
-  messageHistory: [], // Session-only, not persisted
 
   /**
    * Initialize chatbot
@@ -21,16 +20,27 @@ const TerrnixChatbot = {
       const response = await fetch('assets/js/chatbot/knowledge.json');
       this.knowledgeBase = await response.json();
 
-      // Initialize components
+      // Initialize Week 1 components
       ResponseBuilder.init(this.knowledgeBase);
 
+      // Initialize Week 2 components
+      SessionMemory.init();
+      QuizRecommender.init();
+      LeadQualification.init();
+
       this.initialized = true;
-      console.log('Terrnix Chatbot V2 initialized');
+      console.log('Terrnix Chatbot V2 (Week 2) initialized');
     } catch (error) {
       console.error('Chatbot initialization error:', error);
       // Fallback: use inline knowledge if fetch fails
       this.knowledgeBase = this.getFallbackKnowledge();
       ResponseBuilder.init(this.knowledgeBase);
+
+      // Initialize Week 2 components even in fallback
+      SessionMemory.init();
+      QuizRecommender.init();
+      LeadQualification.init();
+
       this.initialized = true;
     }
   },
@@ -49,41 +59,105 @@ const TerrnixChatbot = {
     // Detect intent and topic
     const intent = IntentDetector.detect(message);
     const topic = TopicDetector.detect(message);
+    const questionType = this.detectQuestionType(message);
 
-    // Get calculator context (if on calculator page)
-    const calculatorContext = CalculatorBridge.getContext();
+    // Update session memory with user message
+    SessionMemory.recordUserMessage(message, intent, topic ? topic.id : null, questionType);
 
-    // Build response
+    // Infer lead qualification data
+    LeadQualification.inferFromMessage(message, intent, topic ? topic.id : null);
+
+    // Update calculator context
+    SessionMemory.updateCalculatorContext();
+
+    // Get enriched context
+    const context = SessionMemory.getContext();
+
+    // Check for follow-up
+    const isFollowUp = SessionMemory.isFollowUp(message);
+    if (isFollowUp && context.lastTopic) {
+      // Enhance topic detection for follow-ups
+      // e.g., "What about Scope 3?" after Scope 2 discussion
+    }
+
+    // Build base response
     let response;
     if (intent === 'fallback' && !topic) {
       response = ResponseBuilder.getFallback();
     } else {
-      response = ResponseBuilder.build(intent, topic, message, calculatorContext);
+      response = ResponseBuilder.build(intent, topic, message, context.calculatorContext);
     }
 
-    // Store in session history (no persistence)
-    this.messageHistory.push({
-      role: 'user',
-      text: message,
-      intent,
-      topic: topic ? topic.id : null,
-      timestamp: Date.now()
-    });
+    // Calculate confidence
+    const knowledgeDepth = Confidence.getKnowledgeDepth(topic ? topic.id : null, intent);
+    const confidence = Confidence.calculate(intent, topic ? topic.id : null, context, knowledgeDepth);
 
-    this.messageHistory.push({
-      role: 'ai',
-      text: response.text,
-      intent: response.intent,
-      topic: response.topic,
-      timestamp: Date.now()
-    });
+    // Add confidence to response
+    response.text = Confidence.addToResponse(response.text, confidence);
+    response.confidence = confidence;
 
-    // Keep only last 20 messages
-    if (this.messageHistory.length > 20) {
-      this.messageHistory = this.messageHistory.slice(-20);
+    // PDF Assistant: handle PDF-related intents
+    if (intent === 'pdf_help' || message.toLowerCase().includes('pdf') || message.toLowerCase().includes('report')) {
+      const pdfResponse = PDFAssistant.interpretResults(context.calculatorContext);
+      response.text = pdfResponse;
+      response.intent = 'pdf_help';
     }
+
+    // Quiz Recommendation
+    const quizRec = QuizRecommender.recommend(
+      SessionMemory.topicsDiscussed,
+      SessionMemory.engagement.messageCount,
+      SessionMemory.maturity
+    );
+
+    if (quizRec && QuizRecommender.shouldRecommend(SessionMemory)) {
+      response.text += QuizRecommender.format(quizRec);
+      SessionMemory.recordQuizInterest();
+    }
+
+    // Record bot message in session memory
+    SessionMemory.recordBotMessage(response.text, confidence.level, topic ? topic.id : null);
+
+    // Update engagement score
+    LeadQualification.calculateEngagementScore(SessionMemory);
 
     return response;
+  },
+
+  /**
+   * Detect question type for maturity inference
+   */
+  detectQuestionType(message) {
+    const lower = message.toLowerCase();
+
+    if (/\b(difference|compare|versus|vs)\b/.test(lower)) {
+      return 'comparison';
+    }
+    if (/\b(how|steps|process|guide)\b/.test(lower)) {
+      return 'how-to';
+    }
+    if (/\b(why|reason|cause)\b/.test(lower)) {
+      return 'why';
+    }
+    if (/\b(what is|define|meaning)\b/.test(lower)) {
+      return 'definition';
+    }
+    if (/\b(should|recommend|advise|suggest)\b/.test(lower)) {
+      return 'recommendation';
+    }
+
+    return 'general';
+  },
+
+  /**
+   * Get session context (for debugging)
+   */
+  getSessionContext() {
+    return {
+      memory: SessionMemory.export(),
+      leadProfile: LeadQualification.getProfile(),
+      isQualifiedLead: LeadQualification.isQualifiedLead()
+    };
   },
 
   /**
@@ -126,10 +200,12 @@ const TerrnixChatbot = {
   },
 
   /**
-   * Clear session history
+   * Clear session history and memory
    */
   clearHistory() {
-    this.messageHistory = [];
+    SessionMemory.clear();
+    LeadQualification.clear();
+    QuizRecommender.init();
   }
 };
 
