@@ -25,8 +25,12 @@ const adminUrl = process.env.STAGING_TEST_DATABASE_URL;
 const enabled = process.env.STAGING_E2E_CONFIRM === 'ephemeral-only' && Boolean(adminUrl);
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
+  authUserA: '11111111-1111-4111-9111-111111111111',
+  sessionA: '11111111-1111-4111-a111-111111111111',
+  sessionA2: '11111111-1111-4111-b111-111111111111',
   orgA: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   userB: '22222222-2222-4222-8222-222222222222',
+  authUserB: '22222222-2222-4222-9222-222222222222',
   orgB: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'
 };
 
@@ -68,6 +72,20 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       GRANT SELECT, INSERT ON platform.audit_events TO terrnix_document_worker_e2e;
     `);
 
+    // Auth email delivery and HTTP cookie handling remain adapter-mocked here.
+    // These rows exercise the same durable auth schema without claiming that a
+    // real email provider or browser session has been validated.
+    await admin.query(
+      `INSERT INTO auth.auth_users (id, name, email, email_verified, platform_user_id)
+       VALUES ($1, 'Owner A', 'owner-a@example.test', false, $2),
+              ($3, 'Owner B', 'owner-b@example.test', false, $4)`,
+      [ids.authUserA, ids.userA, ids.authUserB, ids.userB]
+    );
+    await admin.query(
+      `INSERT INTO auth.auth_verifications (identifier, value, expires_at)
+       VALUES ('owner-a@example.test', 'mock-verification-adapter-token', now() + interval '1 hour')`
+    );
+
     await bootstrapOrganization(app, {
       userId: ids.userA, organizationId: ids.orgA, authSubject: `auth:${ids.userA}`,
       email: 'owner-a@example.test', displayName: 'Owner A',
@@ -78,6 +96,26 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       email: 'owner-b@example.test', displayName: 'Owner B',
       organizationSlug: 'organization-beta', organizationName: 'Organization Beta'
     });
+    await admin.query(
+      'UPDATE auth.auth_users SET email_verified = true, updated_at = now() WHERE id = $1',
+      [ids.authUserA]
+    );
+    await admin.query(
+      "DELETE FROM auth.auth_verifications WHERE identifier = 'owner-a@example.test'"
+    );
+    await admin.query(
+      `INSERT INTO auth.auth_sessions (id, expires_at, token, updated_at, user_id)
+       VALUES ($1, now() + interval '7 days', 'mock-session-a', now(), $2)`,
+      [ids.sessionA, ids.authUserA]
+    );
+    const verifiedLogin = await admin.query(
+      `SELECT users.email_verified, sessions.user_id
+         FROM auth.auth_sessions sessions
+         JOIN auth.auth_users users ON users.id = sessions.user_id
+        WHERE sessions.id = $1`,
+      [ids.sessionA]
+    );
+    assert.deepEqual(verifiedLogin.rows[0], { email_verified: true, user_id: ids.authUserA });
     await admin.query(
       `UPDATE platform.subscriptions SET plan_code = 'professional', status = 'active'
        WHERE organization_id IN ($1, $2)`,
@@ -189,6 +227,29 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
     const persistedReport = await getReport(app, contextA, report.id);
     assert.equal(persistedReport.status, 'draft');
     assert.equal(persistedReport.contentVersions[0].sourceManifest.calculationIds[0], calculation.id);
+
+    // Logout invalidates the first durable session; logging in again creates a
+    // new session while the tenant resources remain persisted.
+    await admin.query('DELETE FROM auth.auth_sessions WHERE id = $1', [ids.sessionA]);
+    assert.equal((await admin.query('SELECT id FROM auth.auth_sessions WHERE id = $1', [ids.sessionA])).rowCount, 0);
+    await admin.query(
+      `INSERT INTO auth.auth_sessions (id, expires_at, token, updated_at, user_id)
+       VALUES ($1, now() + interval '7 days', 'mock-session-a-second-login', now(), $2)`,
+      [ids.sessionA2, ids.authUserA]
+    );
+    const afterLogin = await withPlatformContext(app, contextA, (client) => client.query(
+      `SELECT project.id AS project_id, evidence.id AS evidence_id, calculation.id AS calculation_id
+         FROM platform.projects project
+         JOIN platform.evidence_documents evidence ON evidence.project_id = project.id
+         JOIN platform.calculations calculation ON calculation.project_id = project.id
+        WHERE project.id = $1`,
+      [project.id]
+    ));
+    assert.deepEqual(afterLogin.rows[0], {
+      project_id: project.id,
+      evidence_id: upload.evidenceId,
+      calculation_id: calculation.id
+    });
 
     await assert.rejects(
       getEvidence(app, contextB, upload.evidenceId),
