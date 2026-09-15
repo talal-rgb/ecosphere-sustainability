@@ -14,11 +14,11 @@ This runbook prepares a staging website, API, and persistent PostgreSQL database
 
 ## Cost decision (verified 2026-09-15)
 
-Render's public pricing lists Starter service compute at $0.05/hour, the smallest paid PostgreSQL compute at $6/month, and PostgreSQL storage at $0.30/GB/month. Confirm the dashboard total before creation because prices can change.
+Render's public pricing lists Starter service compute at $7/month, the smallest paid PostgreSQL compute at $6/month, and PostgreSQL storage at $0.30/GB/month. Confirm the dashboard total before creation because prices can change.
 
 | Option | Persistent SaaS validation | Estimated monthly baseline | Tradeoff |
 |---|---|---:|---|
-| Paid API + paid PostgreSQL | Yes | $42.80 at 730 API hours and 1 GB database storage | Always-on API; unnecessary for an initially intermittent staging workflow. |
+| Paid API + paid PostgreSQL | Yes | $13.30 with Starter API compute and 1 GB database storage | Always-on API; unnecessary for an initially intermittent staging workflow. |
 | Free API + paid PostgreSQL (selected) | Yes | $6.30 | API sleeps after 15 idle minutes and cold-starts; database remains durable. |
 | Local/CI API + ephemeral test PostgreSQL | No | $0 infrastructure baseline | Valuable pre-merge validation, but it cannot verify persistence across real SaaS sessions and deployments. |
 
@@ -110,7 +110,7 @@ Add these only in **Render → terrnix-staging-api → Environment**:
 | `EVIDENCE_STORAGE_ENDPOINT` | S3-compatible provider endpoint; omit for AWS S3 | Provider routing |
 | `AWS_ACCESS_KEY_ID` | Staging-only storage service account | Signed object operations |
 | `AWS_SECRET_ACCESS_KEY` | Same storage service account | Signed object operations |
-| `BREVO_API_KEY` | Brevo transactional staging key | Verification and reset emails |
+| `BREVO_API_KEY` | New Brevo transactional staging key, only after owner rotation/revocation approval | Verification and reset emails; currently blocked |
 | `CONTACT_FROM_EMAIL` | Verified staging sender | Sender identity |
 | `CONTACT_TO_EMAIL` | Staging test inbox | Operational notifications |
 
@@ -120,6 +120,8 @@ Do not configure optional integrations until their validation phase:
 - Microsoft OAuth: `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `MICROSOFT_TENANT_ID`.
 - SMTP fallback: `ZOHO_SMTP_HOST`, `ZOHO_SMTP_PORT`, `ZOHO_SMTP_USER`, `ZOHO_SMTP_PASS`.
 - Stripe test mode only: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BILLING_DATABASE_URL`.
+
+Real Brevo/email integration remains blocked until the owner confirms the historical credential has been revoked or rotated. Development and automated checks must use the mock notification adapter in the meantime; no historical credential may be copied, tested, or reused.
 
 ## Persistent database preflight
 
