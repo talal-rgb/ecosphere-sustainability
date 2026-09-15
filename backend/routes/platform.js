@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
+import { getCarbonDashboardOverview } from '../services/carbonProfessional.js';
 import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
 import { getDatabasePool } from '../services/database.js';
 import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
@@ -56,6 +57,7 @@ const defaultServices = {
   createProject,
   createSite,
   getBillingOverview,
+  getCarbonDashboardOverview,
   getCalculationLedger,
   getEvidenceReview,
   getOrganizationProfile,
@@ -98,6 +100,15 @@ export function createPlatformRouter(options = {}) {
     try {
       const organization = await services.getOrganizationProfile(databasePoolResolver(), request.platformContext);
       response.json({ success: true, organization });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get('/carbon/overview', async (request, response, next) => {
+    try {
+      const overview = await services.getCarbonDashboardOverview(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, overview });
     } catch (error) {
       next(error);
     }

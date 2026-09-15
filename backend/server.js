@@ -53,6 +53,7 @@ import { getBillingPool } from './services/billingDatabase.js';
 import { ingestBillingEvent } from './services/billingEvents.js';
 import { getDatabasePool } from './services/database.js';
 import { getAccessSnapshot } from './services/platformService.js';
+import { listUserOrganizations } from './services/platformIdentityService.js';
 import { createStripeBillingProvider } from './services/stripeBillingProvider.js';
 
 // PR #30 services
@@ -257,6 +258,15 @@ app.get('/api/platform/session', requireSession, (req, res) => {
       displayName: req.authContext.displayName
     }
   });
+});
+
+app.get('/api/platform/organizations', requireSession, async (req, res, next) => {
+  try {
+    const organizations = await listUserOrganizations(getDatabasePool(), req.authContext.userId);
+    res.json({ success: true, organizations });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get('/api/platform/access', requireSession, requireTenant, async (req, res, next) => {

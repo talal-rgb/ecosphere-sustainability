@@ -22,6 +22,7 @@ const publicEntries = [
   'data',
   'esg-reporting',
   'platform',
+  'portal',
   'privacy',
   'quiz',
   'resources',

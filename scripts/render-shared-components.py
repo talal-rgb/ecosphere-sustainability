@@ -25,7 +25,9 @@ NAV_END = "<!-- TERRNIX_SHARED_NAV_END -->"
 FOOTER_START = "<!-- TERRNIX_SHARED_FOOTER_START -->"
 FOOTER_END = "<!-- TERRNIX_SHARED_FOOTER_END -->"
 
-EXCLUDED_PARTS = {".git", "backend", "components", "node_modules"}
+# The authenticated portal has its own application shell and is validated by
+# validate-static-site.py; it must not receive the public marketing navigation.
+EXCLUDED_PARTS = {".git", "backend", "components", "node_modules", "portal"}
 EXCLUDED_ROOT_FILES = {
     "download-pdf.html",
     "test-encryption-migration.html",

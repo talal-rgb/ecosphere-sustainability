@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Customer Workspace — Terrnix</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/tailwind-platform.css">
+  <link rel="stylesheet" href="/assets/css/portal.css">
+</head>
+<body class="portal-body">
+  <a class="skip-link" href="#main-content">Skip to workspace</a>
+  <nav class="nav-main portal-topbar" aria-label="Workspace navigation">
+    <a class="nav-brand" href="/" aria-label="Terrnix home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.8 1.2 8 4.6 8 9.2 0 4.9-3.5 8.1-8 8.8-4.5-.7-8-3.9-8-8.8C4 7.6 7.2 4.2 12 3Zm0 3.2v11.5m0-5.8 4-3m-4 5.6-3.7-2.8"/></svg>
+      <span>Terrnix</span><small>Workspace</small>
+    </a>
+    <div class="portal-topbar-actions">
+      <label for="portal-organization">Organization</label>
+      <select id="portal-organization" data-organization-select aria-describedby="portal-status">
+        <option>Loading organizations…</option>
+      </select>
+      <a href="/platform/">Public platform</a>
+    </div>
+  </nav>
+
+  <div class="portal-shell">
+    <aside class="portal-sidebar" aria-label="Application sections" data-app-navigation>
+      <p class="portal-sidebar-label">Workspace</p>
+      <a href="?view=overview" data-section="overview" aria-current="true">Overview</a>
+      <a href="?view=carbon" data-section="carbon">Carbon Accounting</a>
+      <a href="?view=evidence" data-section="evidence">Evidence</a>
+      <a href="?view=reports" data-section="reports">Reports</a>
+      <p class="portal-sidebar-label">Operations</p>
+      <a href="?view=organizations" data-section="organizations">Organizations</a>
+      <a href="?view=facilities" data-section="facilities">Facilities</a>
+      <a href="?view=projects" data-section="projects">Projects</a>
+      <a href="?view=reviews" data-section="reviews">Reviews</a>
+      <a href="?view=team" data-section="team">Team</a>
+      <p class="portal-sidebar-label">Account</p>
+      <a href="?view=subscription" data-section="subscription">Subscription</a>
+      <a href="?view=settings" data-section="settings">Settings</a>
+    </aside>
+
+    <main id="main-content" class="portal-main" tabindex="-1">
+      <p id="portal-status" class="sr-only" aria-live="polite" data-status>Loading workspace.</p>
+      <div data-dashboard-content>
+        <section class="portal-auth-state" aria-busy="true">
+          <p class="portal-eyebrow">Secure customer workspace</p>
+          <h1>Loading Terrnix…</h1>
+          <p>Retrieving authenticated, tenant-scoped application data.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer-main portal-footer">
+    <p>Terrnix customer workspace · Audit-ready, traceable, evidence-backed.</p>
+    <a href="/privacy/">Privacy</a>
+    <a href="/terms/">Terms</a>
+  </footer>
+  <script type="module" src="/assets/js/portal/dashboard.js"></script>
+</body>
+</html>

@@ -7,7 +7,8 @@
     "clean:staging": "node -e \"require('node:fs').rmSync('dist-staging',{recursive:true,force:true})\"",
     "check:render-blueprint": "node scripts/validate-render-blueprint.mjs",
     "check:css": "npm run build:css && git diff --exit-code -- assets/css/tailwind.css assets/css/tailwind-home.css assets/css/tailwind-platform.css assets/css/home-custom.min.css components/design-system.min.css",
-    "check": "npm run clean:staging && npm run check:css && npm run check:render-blueprint && python3 scripts/render-shared-components.py --check && python3 scripts/validate-static-site.py && node scripts/validate-inline-js.js && node scripts/validate-intelligence-content.js"
+    "test:portal": "node --test test/portalDashboard.test.js",
+    "check": "npm run clean:staging && npm run check:css && npm run check:render-blueprint && npm run test:portal && python3 scripts/render-shared-components.py --check && python3 scripts/validate-static-site.py && node scripts/validate-inline-js.js && node scripts/validate-intelligence-content.js"
   },
   "devDependencies": {
     "tailwindcss": "3.4.17"
