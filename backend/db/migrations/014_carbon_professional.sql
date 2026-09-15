@@ -4,6 +4,8 @@ CREATE TABLE platform.carbon_inventories (
   name text NOT NULL,
   reporting_standard text NOT NULL DEFAULT 'ghg_protocol_corporate',
   consolidation_approach text NOT NULL CHECK (consolidation_approach IN ('operational_control', 'financial_control', 'equity_share')),
+  operational_boundary text NOT NULL DEFAULT 'scopes_1_2_3' CHECK (operational_boundary IN ('scopes_1_2', 'scopes_1_2_3')),
+  boundary_notes text,
   base_year integer CHECK (base_year BETWEEN 1990 AND 2200),
   status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'archived')),
   created_by uuid NOT NULL REFERENCES platform.app_users(id),
@@ -45,6 +47,7 @@ CREATE TABLE platform.carbon_boundary_members (
   facility_id uuid,
   ownership_percent numeric(7,4) CHECK (ownership_percent BETWEEN 0 AND 100),
   consolidation_percent numeric(7,4) NOT NULL CHECK (consolidation_percent BETWEEN 0 AND 100),
+  control_classification text NOT NULL CHECK (control_classification IN ('operational_control', 'financial_control', 'equity_share', 'not_controlled')),
   included boolean NOT NULL DEFAULT true,
   exclusion_reason text,
   effective_from date,
@@ -103,16 +106,18 @@ CREATE TABLE platform.carbon_activity_data (
   quantity numeric NOT NULL CHECK (quantity > 0),
   unit text NOT NULL,
   activity_date date,
-  scope_2_method text CHECK (scope_2_method IN ('location_based', 'market_based')),
   data_quality_status text NOT NULL DEFAULT 'unassessed' CHECK (data_quality_status IN ('unassessed', 'estimated', 'secondary', 'primary', 'verified')),
   data_quality_dimensions jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(data_quality_dimensions) = 'object'),
   review_status text NOT NULL DEFAULT 'draft' CHECK (review_status IN ('draft', 'review_required', 'approved', 'rejected')),
+  approval_status text NOT NULL DEFAULT 'not_submitted' CHECK (approval_status IN ('not_submitted', 'pending', 'approved', 'rejected')),
   anomaly_status text NOT NULL DEFAULT 'unchecked' CHECK (anomaly_status IN ('unchecked', 'clear', 'flagged', 'resolved')),
   anomaly_details jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(anomaly_details) = 'array'),
   source_reference text,
   created_by uuid NOT NULL REFERENCES platform.app_users(id),
   reviewed_by uuid REFERENCES platform.app_users(id),
   reviewed_at timestamptz,
+  approved_by uuid REFERENCES platform.app_users(id),
+  approved_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (organization_id, id),
@@ -121,7 +126,8 @@ CREATE TABLE platform.carbon_activity_data (
   FOREIGN KEY (organization_id, project_id) REFERENCES platform.projects(organization_id, id),
   FOREIGN KEY (organization_id, facility_id) REFERENCES platform.facilities(organization_id, id),
   CHECK ((review_status = 'approved' AND reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL) OR review_status <> 'approved'),
-  CHECK ((scope_category_code LIKE 'scope_2.%') = (scope_2_method IS NOT NULL))
+  CHECK ((approval_status = 'approved' AND approved_by IS NOT NULL AND approved_at IS NOT NULL) OR approval_status <> 'approved'),
+  CHECK (approval_status <> 'approved' OR review_status = 'approved')
 );
 
 ALTER TABLE platform.evidence_versions
@@ -158,13 +164,17 @@ CREATE TABLE platform.carbon_emission_factors (
   version text NOT NULL,
   methodology text NOT NULL,
   uncertainty_percent numeric CHECK (uncertainty_percent BETWEEN 0 AND 100),
+  review_status text NOT NULL DEFAULT 'proposed' CHECK (review_status IN ('proposed', 'approved', 'rejected', 'superseded')),
+  reviewed_by uuid REFERENCES platform.app_users(id),
+  reviewed_at timestamptz,
   valid_from date,
   valid_to date,
   created_by uuid NOT NULL REFERENCES platform.app_users(id),
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (organization_id, id),
   UNIQUE (organization_id, factor_key, version),
-  CHECK (valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from)
+  CHECK (valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from),
+  CHECK ((review_status IN ('approved', 'rejected') AND reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL) OR review_status IN ('proposed', 'superseded'))
 );
 
 CREATE TABLE platform.carbon_calculation_details (
@@ -177,12 +187,17 @@ CREATE TABLE platform.carbon_calculation_details (
   formula text NOT NULL,
   activity_quantity numeric NOT NULL CHECK (activity_quantity > 0),
   activity_unit text NOT NULL,
+  scope_2_method text CHECK (scope_2_method IN ('location_based', 'market_based')),
   conversion_factor numeric NOT NULL DEFAULT 1 CHECK (conversion_factor > 0),
   factor_value numeric NOT NULL CHECK (factor_value >= 0),
   factor_unit text NOT NULL,
   emissions_kg_co2e numeric NOT NULL CHECK (emissions_kg_co2e >= 0),
   provenance jsonb NOT NULL CHECK (jsonb_typeof(provenance) = 'object'),
   input_sha256 text NOT NULL CHECK (input_sha256 ~ '^[a-f0-9]{64}$'),
+  calculation_version integer NOT NULL DEFAULT 1 CHECK (calculation_version > 0),
+  supersedes_calculation_detail_id uuid,
+  recalculation_reason text,
+  is_current boolean NOT NULL DEFAULT true,
   calculated_by uuid NOT NULL REFERENCES platform.app_users(id),
   calculated_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (organization_id, id),
@@ -190,13 +205,21 @@ CREATE TABLE platform.carbon_calculation_details (
   FOREIGN KEY (organization_id, calculation_id) REFERENCES platform.calculations(organization_id, id),
   FOREIGN KEY (organization_id, activity_data_id) REFERENCES platform.carbon_activity_data(organization_id, id),
   FOREIGN KEY (organization_id, emission_factor_id) REFERENCES platform.carbon_emission_factors(organization_id, id),
-  FOREIGN KEY (organization_id, evidence_document_id) REFERENCES platform.evidence_documents(organization_id, id)
+  FOREIGN KEY (organization_id, evidence_document_id) REFERENCES platform.evidence_documents(organization_id, id),
+  FOREIGN KEY (organization_id, supersedes_calculation_detail_id)
+    REFERENCES platform.carbon_calculation_details(organization_id, id),
+  CHECK ((calculation_version = 1 AND supersedes_calculation_detail_id IS NULL)
+    OR (calculation_version > 1 AND supersedes_calculation_detail_id IS NOT NULL AND char_length(recalculation_reason) > 0))
 );
 
 CREATE INDEX carbon_activity_period_scope_idx ON platform.carbon_activity_data
   (organization_id, reporting_period_id, scope_category_code, review_status);
 CREATE INDEX carbon_calculation_activity_idx ON platform.carbon_calculation_details
   (organization_id, activity_data_id, calculated_at DESC);
+CREATE UNIQUE INDEX carbon_calculation_current_idx ON platform.carbon_calculation_details
+  (organization_id, activity_data_id, COALESCE(scope_2_method, 'not_applicable')) WHERE is_current;
+CREATE UNIQUE INDEX carbon_calculation_version_idx ON platform.carbon_calculation_details
+  (organization_id, activity_data_id, calculation_version, COALESCE(scope_2_method, 'not_applicable'));
 
 CREATE TRIGGER carbon_inventories_updated BEFORE UPDATE ON platform.carbon_inventories
 FOR EACH ROW EXECUTE FUNCTION platform.touch_updated_at();

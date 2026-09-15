@@ -11,7 +11,8 @@ import { getEvidenceReview, submitEvidenceReview } from '../services/documentInt
 import { claimDocumentJob, completeDocumentJob } from '../services/documentWorker.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
 import { getEvidence } from '../services/evidenceRepository.js';
-import { createReport, getReport } from '../services/reportEngine.js';
+import { createReport, getReport, queueReportGeneration } from '../services/reportEngine.js';
+import { claimReportJob, completeReportJob } from '../services/reportWorker.js';
 import {
   bootstrapOrganization,
   createBusinessUnit,
@@ -25,8 +26,12 @@ const adminUrl = process.env.STAGING_TEST_DATABASE_URL;
 const enabled = process.env.STAGING_E2E_CONFIRM === 'ephemeral-only' && Boolean(adminUrl);
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
+  authUserA: '11111111-1111-4111-9111-111111111111',
+  sessionA: '11111111-1111-4111-a111-111111111111',
+  sessionA2: '11111111-1111-4111-b111-111111111111',
   orgA: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   userB: '22222222-2222-4222-8222-222222222222',
+  authUserB: '22222222-2222-4222-9222-222222222222',
   orgB: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'
 };
 
@@ -46,9 +51,15 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
   workerUrl.username = 'terrnix_document_worker_e2e';
   workerUrl.password = workerPassword;
   const documentWorker = new Pool({ connectionString: workerUrl.toString(), max: 1 });
+  const reportWorkerPassword = 'e2e-report-worker-password';
+  const reportWorkerUrl = new URL(adminUrl);
+  reportWorkerUrl.username = 'terrnix_report_worker_e2e';
+  reportWorkerUrl.password = reportWorkerPassword;
+  const reportWorker = new Pool({ connectionString: reportWorkerUrl.toString(), max: 1 });
   try {
     await admin.query(`CREATE ROLE terrnix_app_e2e LOGIN PASSWORD '${appPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS`);
     await admin.query(`CREATE ROLE terrnix_document_worker_e2e LOGIN PASSWORD '${workerPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE BYPASSRLS`);
+    await admin.query(`CREATE ROLE terrnix_report_worker_e2e LOGIN PASSWORD '${reportWorkerPassword}' NOSUPERUSER NOCREATEDB NOCREATEROLE BYPASSRLS`);
     const migrationDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../db/migrations');
     const migrations = (await fs.readdir(migrationDirectory)).filter((name) => name.endsWith('.sql')).sort();
     for (const migration of migrations) {
@@ -66,7 +77,28 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       GRANT SELECT, INSERT ON platform.document_extracted_fields TO terrnix_document_worker_e2e;
       GRANT SELECT, INSERT ON platform.document_classification_proposals TO terrnix_document_worker_e2e;
       GRANT SELECT, INSERT ON platform.audit_events TO terrnix_document_worker_e2e;
+      GRANT USAGE ON SCHEMA platform TO terrnix_report_worker_e2e;
+      GRANT SELECT ON platform.report_template_definitions TO terrnix_report_worker_e2e;
+      GRANT SELECT, UPDATE ON platform.reports TO terrnix_report_worker_e2e;
+      GRANT SELECT ON platform.report_content_versions TO terrnix_report_worker_e2e;
+      GRANT SELECT, UPDATE ON platform.report_generation_jobs TO terrnix_report_worker_e2e;
+      GRANT SELECT, INSERT ON platform.report_artifacts TO terrnix_report_worker_e2e;
+      GRANT SELECT, INSERT ON platform.audit_events TO terrnix_report_worker_e2e;
     `);
+
+    // Auth email delivery and HTTP cookie handling remain adapter-mocked here.
+    // These rows exercise the same durable auth schema without claiming that a
+    // real email provider or browser session has been validated.
+    await admin.query(
+      `INSERT INTO auth.auth_users (id, name, email, email_verified, platform_user_id)
+       VALUES ($1, 'Owner A', 'owner-a@example.test', false, $2),
+              ($3, 'Owner B', 'owner-b@example.test', false, $4)`,
+      [ids.authUserA, ids.userA, ids.authUserB, ids.userB]
+    );
+    await admin.query(
+      `INSERT INTO auth.auth_verifications (identifier, value, expires_at)
+       VALUES ('owner-a@example.test', 'mock-verification-adapter-token', now() + interval '1 hour')`
+    );
 
     await bootstrapOrganization(app, {
       userId: ids.userA, organizationId: ids.orgA, authSubject: `auth:${ids.userA}`,
@@ -79,6 +111,26 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
       organizationSlug: 'organization-beta', organizationName: 'Organization Beta'
     });
     await admin.query(
+      'UPDATE auth.auth_users SET email_verified = true, updated_at = now() WHERE id = $1',
+      [ids.authUserA]
+    );
+    await admin.query(
+      "DELETE FROM auth.auth_verifications WHERE identifier = 'owner-a@example.test'"
+    );
+    await admin.query(
+      `INSERT INTO auth.auth_sessions (id, expires_at, token, updated_at, user_id)
+       VALUES ($1, now() + interval '7 days', 'mock-session-a', now(), $2)`,
+      [ids.sessionA, ids.authUserA]
+    );
+    const verifiedLogin = await admin.query(
+      `SELECT users.email_verified, sessions.user_id
+         FROM auth.auth_sessions sessions
+         JOIN auth.auth_users users ON users.id = sessions.user_id
+        WHERE sessions.id = $1`,
+      [ids.sessionA]
+    );
+    assert.deepEqual(verifiedLogin.rows[0], { email_verified: true, user_id: ids.authUserA });
+    await admin.query(
       `UPDATE platform.subscriptions SET plan_code = 'professional', status = 'active'
        WHERE organization_id IN ($1, $2)`,
       [ids.orgA, ids.orgB]
@@ -86,6 +138,27 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
 
     const contextA = { userId: ids.userA, organizationId: ids.orgA };
     const contextB = { userId: ids.userB, organizationId: ids.orgB };
+    const inventory = await withPlatformContext(app, contextA, (client) => client.query(
+      `INSERT INTO platform.carbon_inventories (
+         organization_id, name, consolidation_approach, operational_boundary, created_by
+       ) VALUES ($1, '2026 Corporate Inventory', 'operational_control', 'scopes_1_2_3', $2)
+       RETURNING id`,
+      [ids.orgA, ids.userA]
+    ));
+    const inventoryId = inventory.rows[0].id;
+    const crossTenantInventory = await withPlatformContext(app, contextB, (client) => client.query(
+      'SELECT id FROM platform.carbon_inventories WHERE id = $1', [inventoryId]
+    ));
+    assert.equal(crossTenantInventory.rowCount, 0);
+    await assert.rejects(
+      withPlatformContext(app, contextB, (client) => client.query(
+        `INSERT INTO platform.carbon_reporting_periods (
+           organization_id, inventory_id, label, starts_on, ends_on, created_by
+         ) VALUES ($1, $2, 'Forbidden period', '2026-01-01', '2026-12-31', $3)`,
+        [ids.orgA, inventoryId, ids.userB]
+      )),
+      /row-level security/
+    );
     const businessUnit = await createBusinessUnit(app, contextA, { name: 'Operations' });
     const site = await createSite(app, contextA, { name: 'Paris site', businessUnitId: businessUnit.id, countryCode: 'FR' });
     const facility = await createFacility(app, contextA, { name: 'Main facility', siteId: site.id, facilityType: 'office' });
@@ -190,6 +263,48 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
     assert.equal(persistedReport.status, 'draft');
     assert.equal(persistedReport.contentVersions[0].sourceManifest.calculationIds[0], calculation.id);
 
+    const generation = await queueReportGeneration(app, contextA, report.id, {
+      outputFormat: 'pdf', rendererVersion: 'mock-renderer-e2e-v1',
+      idempotencyKey: 'postgres-e2e:report:pdf:v1'
+    });
+    const generationJob = await claimReportJob(reportWorker, { workerId: 'reporter:postgres-e2e' });
+    assert.equal(generationJob.id, generation.id);
+    // Rendering and object storage are adapter-mocked. The durable queue,
+    // artifact metadata, report state, and audit event use real PostgreSQL.
+    await completeReportJob(reportWorker, {
+      workerId: 'reporter:postgres-e2e', jobId: generationJob.id,
+      sha256: 'b'.repeat(64), byteSize: 8192, mediaType: 'application/pdf',
+      storageProvider: 'mock-s3', storageBucket: 'terrnix-e2e-private',
+      objectKey: `${ids.orgA}/reports/${report.id}/inventory.pdf`
+    });
+    const generatedReport = await getReport(app, contextA, report.id);
+    assert.equal(generatedReport.status, 'generated');
+    assert.equal(generatedReport.generationJobs[0].status, 'completed');
+    assert.equal(generatedReport.artifacts[0].outputFormat, 'pdf');
+
+    // Logout invalidates the first durable session; logging in again creates a
+    // new session while the tenant resources remain persisted.
+    await admin.query('DELETE FROM auth.auth_sessions WHERE id = $1', [ids.sessionA]);
+    assert.equal((await admin.query('SELECT id FROM auth.auth_sessions WHERE id = $1', [ids.sessionA])).rowCount, 0);
+    await admin.query(
+      `INSERT INTO auth.auth_sessions (id, expires_at, token, updated_at, user_id)
+       VALUES ($1, now() + interval '7 days', 'mock-session-a-second-login', now(), $2)`,
+      [ids.sessionA2, ids.authUserA]
+    );
+    const afterLogin = await withPlatformContext(app, contextA, (client) => client.query(
+      `SELECT project.id AS project_id, evidence.id AS evidence_id, calculation.id AS calculation_id
+         FROM platform.projects project
+         JOIN platform.evidence_documents evidence ON evidence.project_id = project.id
+         JOIN platform.calculations calculation ON calculation.project_id = project.id
+        WHERE project.id = $1`,
+      [project.id]
+    ));
+    assert.deepEqual(afterLogin.rows[0], {
+      project_id: project.id,
+      evidence_id: upload.evidenceId,
+      calculation_id: calculation.id
+    });
+
     await assert.rejects(
       getEvidence(app, contextB, upload.evidenceId),
       (error) => error.code === 'not_found'
@@ -224,12 +339,14 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
     for (const action of [
       'organization.created', 'project.created', 'evidence.upload_initiated',
       'evidence.upload_finalized', 'document_processing.completed',
-      'document_intelligence.reviewed', 'calculation.created_from_evidence', 'report.created'
+      'document_intelligence.reviewed', 'calculation.created_from_evidence', 'report.created',
+      'report.generation_queued', 'report.generation_completed'
     ]) {
       assert.ok(auditActions.has(action), `Expected audit action ${action}`);
     }
     assert.equal(auditB.rows.length, 0);
   } finally {
+    await reportWorker.end().catch(() => {});
     await documentWorker.end().catch(() => {});
     await app.end().catch(() => {});
     await admin.end().catch(() => {});

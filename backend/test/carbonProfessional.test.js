@@ -42,6 +42,19 @@ test('Carbon Professional migration defines the complete inventory and provenanc
          AND relation.relkind = 'r' AND relation.relrowsecurity AND relation.relforcerowsecurity`
     );
     assert.equal(protectedRelations.rows[0].count, 7);
+    const detailColumns = await db.query(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'platform' AND table_name = 'carbon_calculation_details'`
+    );
+    const detailColumnNames = new Set(detailColumns.rows.map((row) => row.column_name));
+    for (const required of ['scope_2_method', 'calculation_version', 'supersedes_calculation_detail_id', 'recalculation_reason', 'is_current']) {
+      assert.ok(detailColumnNames.has(required), `Expected calculation provenance column ${required}`);
+    }
+    const activityColumns = await db.query(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'platform' AND table_name = 'carbon_activity_data'`
+    );
+    assert.ok(new Set(activityColumns.rows.map((row) => row.column_name)).has('approval_status'));
   } finally {
     await db.close();
   }

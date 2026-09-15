@@ -6,10 +6,10 @@ export async function getInventoryYearOverYear(databasePool, context, inventoryI
     `WITH period_totals AS (
        SELECT period.id, period.label, period.starts_on, period.ends_on,
               COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 1), 0) AS scope_1_kg,
-              COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 2 AND activity.scope_2_method = 'location_based'), 0) AS scope_2_location_kg,
-              COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 2 AND activity.scope_2_method = 'market_based'), 0) AS scope_2_market_kg,
+              COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 2 AND detail.scope_2_method = 'location_based'), 0) AS scope_2_location_kg,
+              COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 2 AND detail.scope_2_method = 'market_based'), 0) AS scope_2_market_kg,
               COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 3), 0) AS scope_3_kg,
-              COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope <> 2 OR activity.scope_2_method <> 'market_based'), 0) AS total_location_kg
+              COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope <> 2 OR detail.scope_2_method = 'location_based'), 0) AS total_location_kg
          FROM platform.carbon_reporting_periods period
          LEFT JOIN platform.carbon_activity_data activity
            ON activity.reporting_period_id = period.id AND activity.organization_id = period.organization_id
@@ -19,7 +19,8 @@ export async function getInventoryYearOverYear(databasePool, context, inventoryI
          LEFT JOIN platform.calculations calculation
            ON calculation.id = detail.calculation_id AND calculation.organization_id = detail.organization_id
         WHERE period.organization_id = $1 AND period.inventory_id = $2
-          AND (detail.id IS NULL OR (activity.review_status = 'approved' AND calculation.status = 'approved'))
+          AND (detail.id IS NULL OR (detail.is_current AND activity.review_status = 'approved'
+            AND activity.approval_status = 'approved' AND calculation.status = 'approved'))
         GROUP BY period.id, period.label, period.starts_on, period.ends_on
      ), compared AS (
        SELECT period_totals.*,
