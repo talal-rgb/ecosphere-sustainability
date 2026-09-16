@@ -55,6 +55,73 @@ test('Carbon Professional migration defines the complete inventory and provenanc
         WHERE table_schema = 'platform' AND table_name = 'carbon_activity_data'`
     );
     assert.ok(new Set(activityColumns.rows.map((row) => row.column_name)).has('approval_status'));
+    const periodConstraints = await db.query(
+      `SELECT pg_get_constraintdef(oid) AS definition
+         FROM pg_constraint
+        WHERE conrelid = 'platform.carbon_reporting_periods'::regclass AND contype = 'f'`
+    );
+    assert.ok(periodConstraints.rows.some((row) =>
+      row.definition.includes('(organization_id, comparison_period_id, inventory_id)')),
+    'Comparison periods must belong to the same organization and inventory');
+    const lifecyclePolicies = await db.query(
+      `SELECT policyname FROM pg_policies
+        WHERE schemaname = 'platform'
+          AND policyname IN ('carbon_factors_review', 'carbon_details_retire')
+        ORDER BY policyname`
+    );
+    assert.deepEqual(lifecyclePolicies.rows.map((row) => row.policyname), [
+      'carbon_details_retire',
+      'carbon_factors_review'
+    ]);
+  } finally {
+    await db.close();
+  }
+});
+
+test('Carbon Professional lifecycle guards allow review and supersession without mutating provenance', async () => {
+  const db = new PGlite();
+  try {
+    await db.exec('CREATE ROLE terrnix_migrator; GRANT CREATE ON DATABASE postgres TO terrnix_migrator; SET ROLE terrnix_migrator');
+    const migrationDirectory = new URL('../db/migrations/', import.meta.url);
+    const names = (await fs.readdir(migrationDirectory)).filter((name) => name.endsWith('.sql')).sort();
+    for (const name of names) await db.exec(await fs.readFile(new URL(name, migrationDirectory), 'utf8'));
+
+    await db.exec(`
+      CREATE TEMP TABLE factor_guard_probe (
+        review_status text NOT NULL,
+        reviewed_by uuid,
+        reviewed_at timestamptz,
+        valid_to date,
+        factor_value numeric NOT NULL
+      );
+      CREATE TRIGGER factor_guard_probe_trigger BEFORE UPDATE OR DELETE ON factor_guard_probe
+      FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_emission_factor_mutation();
+      INSERT INTO factor_guard_probe (review_status, factor_value) VALUES ('proposed', 0.42);
+      UPDATE factor_guard_probe
+         SET review_status = 'approved', reviewed_by = '11111111-1111-4111-8111-111111111111', reviewed_at = now();
+    `);
+    await assert.rejects(
+      db.exec('UPDATE factor_guard_probe SET factor_value = 0.99'),
+      /Unsupported carbon emission factor lifecycle transition|cannot alter factor provenance/
+    );
+    await db.exec("UPDATE factor_guard_probe SET review_status = 'superseded', valid_to = '2026-12-31'");
+    await assert.rejects(db.exec('DELETE FROM factor_guard_probe'), /append-only/);
+
+    await db.exec(`
+      CREATE TEMP TABLE calculation_guard_probe (
+        is_current boolean NOT NULL,
+        formula text NOT NULL
+      );
+      CREATE TRIGGER calculation_guard_probe_trigger BEFORE UPDATE OR DELETE ON calculation_guard_probe
+      FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_calculation_detail_mutation();
+      INSERT INTO calculation_guard_probe (is_current, formula) VALUES (true, 'activity x factor');
+      UPDATE calculation_guard_probe SET is_current = false;
+    `);
+    await assert.rejects(
+      db.exec("UPDATE calculation_guard_probe SET formula = 'changed'"),
+      /Carbon calculation provenance is immutable/
+    );
+    await assert.rejects(db.exec('DELETE FROM calculation_guard_probe'), /append-only/);
   } finally {
     await db.close();
   }

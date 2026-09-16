@@ -14,6 +14,9 @@ test('dashboard overview uses the tenant context and maps auditable totals', asy
   const pool = fakePool(async (text, values) => {
     calls.push({ text, values });
     if (text.includes('platform.has_permission')) return { rows: [{ allowed: true }] };
+    if (text.includes('platform.plan_features')) {
+      return { rows: [{ enabled: true, limit_value: null, configuration: {} }] };
+    }
     if (!text.includes('WITH selected_period')) return { rows: [] };
     return { rows: [{
       id: '22222222-2222-4222-8222-222222222222',
@@ -32,6 +35,9 @@ test('dashboard overview uses the tenant context and maps auditable totals', asy
   const query = calls.find((call) => call.text.includes('WITH selected_period'));
   assert.deepEqual(query.values, [context.organizationId]);
   assert.equal(query.text.includes(context.organizationId), false);
+  assert.match(query.text, /CASE WHEN calculation\.status = 'approved' THEN detail\.emissions_kg_co2e END/);
+  assert.doesNotMatch(query.text, /WHERE detail\.id IS NULL/);
+  assert.ok(calls.some((call) => call.values?.[0] === 'carbon.professional.workspace'));
   assert.equal(overview.metrics.totalKgCo2e, 1000);
   assert.equal(overview.metrics.evidenceCoveragePercent, 80);
   assert.equal(overview.metrics.highQualityPercent, 60);
