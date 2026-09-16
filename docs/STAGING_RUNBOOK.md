@@ -19,7 +19,7 @@ Set `DEPLOYMENT_ENVIRONMENT=staging`, `GIT_COMMIT` to the exact deployed SHA, an
 
 1. Provision a new empty staging database and storage bucket.
 2. Create the least-privilege roles and grants from `backend/DEPLOYMENT.md`.
-3. Apply migrations 001 through 013 with the migration role.
+3. Apply all ordered migrations (currently 001 through 017) with the migration role.
 4. Start the API with staging-only origins and credentials.
 5. Start document and report workers with their dedicated roles.
 6. Confirm `/health` version, commit, build date, and environment.

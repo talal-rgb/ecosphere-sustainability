@@ -16,8 +16,16 @@ export async function getCarbonDashboardOverview(databasePool, context) {
                  period.ends_on DESC, period.id
         LIMIT 1
      ), current_details AS (
-       SELECT CASE WHEN calculation.status = 'approved' THEN detail.emissions_kg_co2e END AS emissions_kg_co2e,
-              CASE WHEN calculation.status = 'approved' THEN detail.scope_2_method END AS scope_2_method,
+       SELECT CASE WHEN calculation.status = 'approved'
+                        AND activity.review_status = 'approved'
+                        AND activity.approval_status = 'approved'
+                        AND activity.anomaly_status <> 'flagged'
+                   THEN detail.emissions_kg_co2e END AS emissions_kg_co2e,
+              CASE WHEN calculation.status = 'approved'
+                        AND activity.review_status = 'approved'
+                        AND activity.approval_status = 'approved'
+                        AND activity.anomaly_status <> 'flagged'
+                   THEN detail.scope_2_method END AS scope_2_method,
               activity.scope_category_code,
               activity.data_quality_status, activity.review_status, activity.approval_status,
               activity.anomaly_status, activity.activity_date, activity.id AS activity_id
@@ -105,7 +113,10 @@ function emptyMetrics() {
 
 export async function getInventoryYearOverYear(databasePool, context, inventoryId) {
   assertUuid(inventoryId, 'inventoryId');
-  const result = await withPlatformContext(databasePool, context, (client) => client.query(
+  const result = await withPlatformContext(databasePool, context, async (client) => {
+    await requirePermission(client, 'calculation.read');
+    await requireFeature(client, 'carbon.professional.workspace');
+    return client.query(
     `WITH period_totals AS (
        SELECT period.id, period.label, period.starts_on, period.ends_on,
               COALESCE(SUM(detail.emissions_kg_co2e) FILTER (WHERE category.ghg_scope = 1), 0) AS scope_1_kg,
@@ -132,7 +143,8 @@ export async function getInventoryYearOverYear(databasePool, context, inventoryI
      )
      SELECT * FROM compared ORDER BY starts_on, id`,
     [context.organizationId, inventoryId]
-  ));
+    );
+  });
 
   return result.rows.map((row) => {
     const total = Number(row.total_location_kg);

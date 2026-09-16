@@ -112,7 +112,9 @@ async function validateRequiredRelations(pool) {
     'calculations', 'calculation_lineage', 'reports', 'subscriptions', 'plan_features', 'audit_events',
     'carbon_inventories', 'carbon_reporting_periods', 'carbon_boundary_members',
     'carbon_activity_data', 'carbon_activity_evidence', 'carbon_emission_factors',
-    'carbon_calculation_details'
+    'carbon_calculation_details', 'carbon_factor_mapping_proposals',
+    'carbon_factor_mapping_reviews', 'carbon_calculation_runs',
+    'carbon_calculation_run_activities'
   ];
   const result = await pool.query(
     `SELECT table_name FROM information_schema.tables
@@ -130,7 +132,9 @@ async function validateRls(pool) {
     'document_processing_jobs', 'document_field_reviews', 'document_classification_reviews',
     'calculations', 'calculation_lineage', 'reports', 'audit_events', 'carbon_inventories',
     'carbon_reporting_periods', 'carbon_boundary_members', 'carbon_activity_data',
-    'carbon_activity_evidence', 'carbon_emission_factors', 'carbon_calculation_details'
+    'carbon_activity_evidence', 'carbon_emission_factors', 'carbon_calculation_details',
+    'carbon_factor_mapping_proposals', 'carbon_factor_mapping_reviews',
+    'carbon_calculation_runs', 'carbon_calculation_run_activities'
   ];
   const result = await pool.query(
     `SELECT relname, relrowsecurity, relforcerowsecurity

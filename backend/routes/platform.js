@@ -2,6 +2,20 @@ import express from 'express';
 
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
 import { getCarbonDashboardOverview } from '../services/carbonProfessional.js';
+import {
+  createCarbonActivity,
+  createCarbonBoundaryMember,
+  createCarbonCalculationRun,
+  createCarbonInventory,
+  createCarbonReportingPeriod,
+  getCarbonCalculationRun,
+  listCarbonBoundaryMembers,
+  listCarbonInventories,
+  listCarbonReportingPeriods,
+  proposeCarbonFactor,
+  reviewCarbonActivity,
+  reviewCarbonFactorProposal
+} from '../services/carbonWorkflow.js';
 import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
 import { getDatabasePool } from '../services/database.js';
 import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
@@ -51,6 +65,11 @@ const defaultServices = {
   addReportContentVersion,
   archiveNotification,
   createBusinessUnit,
+  createCarbonActivity,
+  createCarbonBoundaryMember,
+  createCarbonCalculationRun,
+  createCarbonInventory,
+  createCarbonReportingPeriod,
   createEvidenceCalculation,
   createFacility,
   createReport,
@@ -58,6 +77,7 @@ const defaultServices = {
   createSite,
   getBillingOverview,
   getCarbonDashboardOverview,
+  getCarbonCalculationRun,
   getCalculationLedger,
   getEvidenceReview,
   getOrganizationProfile,
@@ -65,6 +85,9 @@ const defaultServices = {
   getNotificationPreferences,
   getReport,
   listBusinessUnits,
+  listCarbonBoundaryMembers,
+  listCarbonInventories,
+  listCarbonReportingPeriods,
   listFacilities,
   listOrganizationMembers,
   listProjects,
@@ -77,9 +100,12 @@ const defaultServices = {
   markAllNotificationsRead,
   markNotificationRead,
   queueReportGeneration,
+  proposeCarbonFactor,
   searchPlatform,
   removeEvidenceTag,
   restoreEvidence,
+  reviewCarbonActivity,
+  reviewCarbonFactorProposal,
   softDeleteEvidence,
   submitEvidenceReview,
   updateNotificationPreference
@@ -112,6 +138,90 @@ export function createPlatformRouter(options = {}) {
     } catch (error) {
       next(error);
     }
+  });
+
+  router.get('/carbon/inventories', async (request, response, next) => {
+    try {
+      const inventories = await services.listCarbonInventories(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, inventories });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/inventories', async (request, response, next) => {
+    try {
+      const inventory = await services.createCarbonInventory(databasePoolResolver(), request.platformContext, request.body || {});
+      response.status(201).json({ success: true, inventory });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/carbon/inventories/:inventoryId/periods', async (request, response, next) => {
+    try {
+      const periods = await services.listCarbonReportingPeriods(databasePoolResolver(), request.platformContext, request.params.inventoryId);
+      response.json({ success: true, periods });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/inventories/:inventoryId/periods', async (request, response, next) => {
+    try {
+      const period = await services.createCarbonReportingPeriod(databasePoolResolver(), request.platformContext, request.params.inventoryId, request.body || {});
+      response.status(201).json({ success: true, period });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/carbon/inventories/:inventoryId/boundary-members', async (request, response, next) => {
+    try {
+      const boundaryMembers = await services.listCarbonBoundaryMembers(databasePoolResolver(), request.platformContext, request.params.inventoryId);
+      response.json({ success: true, boundaryMembers });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/inventories/:inventoryId/boundary-members', async (request, response, next) => {
+    try {
+      const boundaryMember = await services.createCarbonBoundaryMember(databasePoolResolver(), request.platformContext, request.params.inventoryId, request.body || {});
+      response.status(201).json({ success: true, boundaryMember });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/activities', async (request, response, next) => {
+    try {
+      const activity = await services.createCarbonActivity(databasePoolResolver(), request.platformContext, request.body || {});
+      response.status(201).json({ success: true, activity });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/activities/:activityId/review', async (request, response, next) => {
+    try {
+      const activity = await services.reviewCarbonActivity(databasePoolResolver(), request.platformContext, request.params.activityId, request.body || {});
+      response.json({ success: true, activity });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/activities/:activityId/factor-proposals', async (request, response, next) => {
+    try {
+      const proposal = await services.proposeCarbonFactor(databasePoolResolver(), request.platformContext, request.params.activityId, request.body || {});
+      response.status(201).json({ success: true, proposal });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/factor-proposals/:proposalId/reviews', async (request, response, next) => {
+    try {
+      const review = await services.reviewCarbonFactorProposal(databasePoolResolver(), request.platformContext, request.params.proposalId, request.body || {});
+      response.status(201).json({ success: true, review });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/calculation-runs', async (request, response, next) => {
+    try {
+      const run = await services.createCarbonCalculationRun(databasePoolResolver(), request.platformContext, request.body || {});
+      response.status(run.duplicate ? 200 : 201).json({ success: true, run });
+    } catch (error) { next(error); }
+  });
+
+  router.get('/carbon/calculation-runs/:runId', async (request, response, next) => {
+    try {
+      const run = await services.getCarbonCalculationRun(databasePoolResolver(), request.platformContext, request.params.runId);
+      response.json({ success: true, run });
+    } catch (error) { next(error); }
   });
 
   router.get('/members', async (request, response, next) => {
