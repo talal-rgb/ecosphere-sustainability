@@ -112,7 +112,7 @@ export async function addReportContentVersion(databasePool, context, reportId, i
 export async function queueReportGeneration(databasePool, context, reportId, input = {}) {
   assertUuid(reportId, 'reportId');
   const outputFormat = requiredEnum(input.outputFormat, FORMATS, 'outputFormat');
-  const rendererVersion = requiredText(input.rendererVersion || 'terrnix-report-v1', 'rendererVersion', 100);
+  const rendererVersion = 'terrnix-report-v1';
   const idempotencyKey = requiredText(input.idempotencyKey, 'idempotencyKey', 200);
   return withPlatformContext(databasePool, context, async (client) => {
     await requirePermission(client, 'report.create');
@@ -127,10 +127,17 @@ export async function queueReportGeneration(databasePool, context, reportId, inp
     if (!report.supported_formats.includes(outputFormat)) throw validationError('The selected template does not support this output format.');
     const featureCode = await requireReportFeature(client, report.report_type, outputFormat);
     const existing = await client.query(
-      `SELECT id, status, content_version, output_format FROM platform.report_generation_jobs
+      `SELECT id, report_id, status, content_version, output_format, renderer_version FROM platform.report_generation_jobs
        WHERE organization_id = $1 AND idempotency_key = $2`, [context.organizationId, idempotencyKey]
     );
-    if (existing.rows[0]) return { ...jobResource(existing.rows[0]), duplicate: true };
+    if (existing.rows[0]) {
+      const prior = existing.rows[0];
+      if (prior.report_id !== reportId || prior.content_version !== report.current_content_version
+          || prior.output_format !== outputFormat || prior.renderer_version !== rendererVersion) {
+        throw conflictError('The idempotency key was already used for a different report generation request.');
+      }
+      return { ...jobResource(prior), duplicate: true };
+    }
     if (featureCode === 'reports.basic') await consumeUsage(client, context, { featureCode, quantity: 1,
       idempotencyKey: `report-generation:${idempotencyKey}`, sourceType: 'report', sourceRef: reportId,
       metadata: { outputFormat, reportType: report.report_type } });

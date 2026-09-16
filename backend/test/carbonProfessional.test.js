@@ -22,7 +22,11 @@ test('Carbon Professional migration defines the complete inventory and provenanc
       'carbon_activity_evidence',
       'carbon_boundary_members',
       'carbon_calculation_details',
+      'carbon_calculation_run_activities',
+      'carbon_calculation_runs',
       'carbon_emission_factors',
+      'carbon_factor_mapping_proposals',
+      'carbon_factor_mapping_reviews',
       'carbon_inventories',
       'carbon_reporting_periods',
       'carbon_scope_categories'
@@ -41,7 +45,7 @@ test('Carbon Professional migration defines the complete inventory and provenanc
        WHERE namespace.nspname = 'platform' AND relation.relname LIKE 'carbon_%'
          AND relation.relkind = 'r' AND relation.relrowsecurity AND relation.relforcerowsecurity`
     );
-    assert.equal(protectedRelations.rows[0].count, 7);
+    assert.equal(protectedRelations.rows[0].count, 11);
     const detailColumns = await db.query(
       `SELECT column_name FROM information_schema.columns
         WHERE table_schema = 'platform' AND table_name = 'carbon_calculation_details'`
@@ -73,6 +77,21 @@ test('Carbon Professional migration defines the complete inventory and provenanc
       'carbon_details_retire',
       'carbon_factors_review'
     ]);
+    const workflowTables = await db.query(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'platform'
+          AND table_name IN ('carbon_factor_mapping_proposals','carbon_factor_mapping_reviews',
+                             'carbon_calculation_runs','carbon_calculation_run_activities')
+        ORDER BY table_name`
+    );
+    assert.equal(workflowTables.rows.length, 4);
+    const lifecycleTriggers = await db.query(
+      `SELECT trigger_name FROM information_schema.triggers
+        WHERE trigger_schema = 'platform'
+          AND trigger_name IN ('carbon_reporting_periods_lifecycle','carbon_activity_data_lifecycle',
+                               'calculations_approval_lifecycle','reports_approval_lifecycle')`
+    );
+    assert.equal(new Set(lifecycleTriggers.rows.map((row) => row.trigger_name)).size, 4);
   } finally {
     await db.close();
   }
@@ -85,6 +104,14 @@ test('Carbon Professional lifecycle guards allow review and supersession without
     const migrationDirectory = new URL('../db/migrations/', import.meta.url);
     const names = (await fs.readdir(migrationDirectory)).filter((name) => name.endsWith('.sql')).sort();
     for (const name of names) await db.exec(await fs.readFile(new URL(name, migrationDirectory), 'utf8'));
+
+    await db.query("SELECT set_config('app.current_organization_id',$1,false)", ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa']);
+    await db.query("SELECT set_config('app.current_user_id',$1,false)", ['11111111-1111-4111-8111-111111111111']);
+    await db.query(
+      'SELECT platform.bootstrap_organization($1,$2,$3,$4,$5,$6,$7,$8,$9)',
+      ['11111111-1111-4111-8111-111111111111', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        'auth:lifecycle', 'lifecycle@example.test', 'Lifecycle Owner', 'lifecycle-org', 'Lifecycle Org', null, null]
+    );
 
     await db.exec(`
       CREATE TEMP TABLE factor_guard_probe (
@@ -133,6 +160,8 @@ test('year-over-year aggregation is tenant-parameterized and maps comparison val
     async query(text, values) {
       calls.push({ text, values });
       if (text.startsWith('BEGIN') || text.startsWith('SET LOCAL') || text.startsWith('COMMIT')) return { rows: [] };
+      if (text.includes('platform.has_permission')) return { rows: [{ allowed: true }] };
+      if (text.includes('FROM platform.subscriptions subscription')) return { rows: [{ enabled: true, limit_value: null, configuration: {} }] };
       return { rows: [{
         id: '33333333-3333-4333-8333-333333333333', label: '2026', starts_on: '2026-01-01', ends_on: '2026-12-31',
         scope_1_kg: '100', scope_2_location_kg: '200', scope_2_market_kg: '150', scope_3_kg: '700',

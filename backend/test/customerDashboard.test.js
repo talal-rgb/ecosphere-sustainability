@@ -35,7 +35,7 @@ test('dashboard overview uses the tenant context and maps auditable totals', asy
   const query = calls.find((call) => call.text.includes('WITH selected_period'));
   assert.deepEqual(query.values, [context.organizationId]);
   assert.equal(query.text.includes(context.organizationId), false);
-  assert.match(query.text, /CASE WHEN calculation\.status = 'approved' THEN detail\.emissions_kg_co2e END/);
+  assert.match(query.text, /CASE WHEN calculation\.status = 'approved'[\s\S]+activity\.review_status = 'approved'[\s\S]+activity\.approval_status = 'approved'[\s\S]+activity\.anomaly_status <> 'flagged'[\s\S]+THEN detail\.emissions_kg_co2e END/);
   assert.doesNotMatch(query.text, /WHERE detail\.id IS NULL/);
   assert.ok(calls.some((call) => call.values?.[0] === 'carbon.professional.workspace'));
   assert.equal(overview.metrics.totalKgCo2e, 1000);

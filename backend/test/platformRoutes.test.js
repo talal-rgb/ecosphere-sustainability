@@ -237,6 +237,40 @@ test('platform router exposes tenant-bound document review reads and corrections
   assert.equal(corrected.body.review.status, 'approved');
 });
 
+test('platform router exposes the authenticated Carbon Professional workflow', async () => {
+  const inventoryId = 'aaaaaaaa-1000-4000-8000-aaaaaaaaaaaa';
+  const periodId = 'aaaaaaaa-2000-4000-8000-aaaaaaaaaaaa';
+  const activityId = 'aaaaaaaa-3000-4000-8000-aaaaaaaaaaaa';
+  const proposalId = 'aaaaaaaa-4000-4000-8000-aaaaaaaaaaaa';
+  const runId = 'aaaaaaaa-5000-4000-8000-aaaaaaaaaaaa';
+  const app = buildApp({
+    async listCarbonInventories() { return [{ id: inventoryId }]; },
+    async createCarbonInventory(_pool, receivedContext, input) { assert.equal(receivedContext.organizationId, context.organizationId); return { id: inventoryId, name: input.name }; },
+    async listCarbonReportingPeriods(_pool, _context, receivedId) { assert.equal(receivedId, inventoryId); return [{ id: periodId }]; },
+    async createCarbonReportingPeriod() { return { id: periodId }; },
+    async listCarbonBoundaryMembers() { return []; },
+    async createCarbonBoundaryMember() { return { id: 'boundary-1' }; },
+    async createCarbonActivity() { return { id: activityId }; },
+    async reviewCarbonActivity(_pool, _context, receivedId, input) { assert.equal(receivedId, activityId); return { id: activityId, approvalStatus: input.decision }; },
+    async proposeCarbonFactor() { return { id: proposalId }; },
+    async reviewCarbonFactorProposal() { return { id: 'review-1' }; },
+    async createCarbonCalculationRun() { return { id: runId, duplicate: false }; },
+    async getCarbonCalculationRun() { return { id: runId, lines: [] }; }
+  });
+  assert.equal((await request(app).get('/api/platform/carbon/inventories')).body.inventories[0].id, inventoryId);
+  assert.equal((await request(app).post('/api/platform/carbon/inventories').send({ name: '2026' })).status, 201);
+  assert.equal((await request(app).get(`/api/platform/carbon/inventories/${inventoryId}/periods`)).body.periods[0].id, periodId);
+  assert.equal((await request(app).post(`/api/platform/carbon/inventories/${inventoryId}/periods`).send({ label: '2026' })).status, 201);
+  assert.equal((await request(app).get(`/api/platform/carbon/inventories/${inventoryId}/boundary-members`)).status, 200);
+  assert.equal((await request(app).post(`/api/platform/carbon/inventories/${inventoryId}/boundary-members`).send({ facilityId: 'x' })).status, 201);
+  assert.equal((await request(app).post('/api/platform/carbon/activities').send({})).status, 201);
+  assert.equal((await request(app).post(`/api/platform/carbon/activities/${activityId}/review`).send({ decision: 'approved' })).body.activity.approvalStatus, 'approved');
+  assert.equal((await request(app).post(`/api/platform/carbon/activities/${activityId}/factor-proposals`).send({ geography: 'GB' })).body.proposal.id, proposalId);
+  assert.equal((await request(app).post(`/api/platform/carbon/factor-proposals/${proposalId}/reviews`).send({ decision: 'accepted' })).status, 201);
+  assert.equal((await request(app).post('/api/platform/carbon/calculation-runs').send({ activityIds: [activityId] })).status, 201);
+  assert.equal((await request(app).get(`/api/platform/carbon/calculation-runs/${runId}`)).body.run.id, runId);
+});
+
 test('platform router creates and reads evidence-backed calculation ledger entries', async () => {
   const evidenceId = 'aaaaaaaa-3333-4333-8333-aaaaaaaaaaaa';
   const calculationId = 'aaaaaaaa-5555-4555-8555-aaaaaaaaaaaa';
