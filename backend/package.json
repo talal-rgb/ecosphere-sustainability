@@ -13,7 +13,8 @@
     "db:migrate": "node scripts/migrate.js",
     "db:grant-staging-role": "node scripts/grant-staging-role.js",
     "staging:preflight": "node scripts/validate-persistent-staging.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "test:staging-e2e": "node --test test/postgresTenantIsolation.test.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1107.0",
