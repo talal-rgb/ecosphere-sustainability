@@ -42,6 +42,20 @@ export async function resolveTenantMembership(databasePool, context) {
   });
 }
 
+export async function listUserOrganizations(databasePool, userId) {
+  assertUuid(userId, 'userId');
+  return withUserContext(databasePool, userId, async (client) => {
+    const result = await client.query('SELECT * FROM platform.list_current_user_organizations()');
+    return result.rows.map((row) => ({
+      id: row.organization_id,
+      name: row.organization_name,
+      slug: row.organization_slug,
+      role: row.role_code,
+      planCode: row.plan_code
+    }));
+  });
+}
+
 function normalizeEmail(value) {
   const email = requiredText(value, 'email', 254).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw identityError('email must be valid.');

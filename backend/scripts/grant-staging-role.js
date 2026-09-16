@@ -110,6 +110,7 @@ function grantStatements(roleKind, target) {
       `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA auth TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.current_organization_id() TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.current_user_id() TO ${target}`,
+      `GRANT EXECUTE ON FUNCTION platform.list_current_user_organizations() TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.has_permission(text) TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.can_manage_membership(text) TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.bootstrap_organization(
