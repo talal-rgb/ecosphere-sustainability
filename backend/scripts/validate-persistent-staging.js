@@ -109,7 +109,10 @@ async function validateRequiredRelations(pool) {
     'app_users', 'organizations', 'organization_memberships', 'roles', 'business_units',
     'sites', 'facilities', 'projects', 'evidence_documents', 'evidence_versions',
     'document_processing_jobs', 'document_field_reviews', 'document_classification_reviews',
-    'calculations', 'calculation_lineage', 'reports', 'subscriptions', 'plan_features', 'audit_events'
+    'calculations', 'calculation_lineage', 'reports', 'subscriptions', 'plan_features', 'audit_events',
+    'carbon_inventories', 'carbon_reporting_periods', 'carbon_boundary_members',
+    'carbon_activity_data', 'carbon_activity_evidence', 'carbon_emission_factors',
+    'carbon_calculation_details'
   ];
   const result = await pool.query(
     `SELECT table_name FROM information_schema.tables
@@ -125,7 +128,9 @@ async function validateRls(pool) {
   const tenantRelations = [
     'business_units', 'sites', 'facilities', 'projects', 'evidence_documents', 'evidence_versions',
     'document_processing_jobs', 'document_field_reviews', 'document_classification_reviews',
-    'calculations', 'calculation_lineage', 'reports', 'audit_events'
+    'calculations', 'calculation_lineage', 'reports', 'audit_events', 'carbon_inventories',
+    'carbon_reporting_periods', 'carbon_boundary_members', 'carbon_activity_data',
+    'carbon_activity_evidence', 'carbon_emission_factors', 'carbon_calculation_details'
   ];
   const result = await pool.query(
     `SELECT relname, relrowsecurity, relforcerowsecurity

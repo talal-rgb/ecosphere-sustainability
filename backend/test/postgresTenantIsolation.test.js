@@ -138,6 +138,27 @@ test('real PostgreSQL enforces organization isolation through hierarchy and priv
 
     const contextA = { userId: ids.userA, organizationId: ids.orgA };
     const contextB = { userId: ids.userB, organizationId: ids.orgB };
+    const inventory = await withPlatformContext(app, contextA, (client) => client.query(
+      `INSERT INTO platform.carbon_inventories (
+         organization_id, name, consolidation_approach, operational_boundary, created_by
+       ) VALUES ($1, '2026 Corporate Inventory', 'operational_control', 'scopes_1_2_3', $2)
+       RETURNING id`,
+      [ids.orgA, ids.userA]
+    ));
+    const inventoryId = inventory.rows[0].id;
+    const crossTenantInventory = await withPlatformContext(app, contextB, (client) => client.query(
+      'SELECT id FROM platform.carbon_inventories WHERE id = $1', [inventoryId]
+    ));
+    assert.equal(crossTenantInventory.rowCount, 0);
+    await assert.rejects(
+      withPlatformContext(app, contextB, (client) => client.query(
+        `INSERT INTO platform.carbon_reporting_periods (
+           organization_id, inventory_id, label, starts_on, ends_on, created_by
+         ) VALUES ($1, $2, 'Forbidden period', '2026-01-01', '2026-12-31', $3)`,
+        [ids.orgA, inventoryId, ids.userB]
+      )),
+      /row-level security/
+    );
     const businessUnit = await createBusinessUnit(app, contextA, { name: 'Operations' });
     const site = await createSite(app, contextA, { name: 'Paris site', businessUnitId: businessUnit.id, countryCode: 'FR' });
     const facility = await createFacility(app, contextA, { name: 'Main facility', siteId: site.id, facilityType: 'office' });

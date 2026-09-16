@@ -101,7 +101,11 @@ function grantStatements(roleKind, target) {
         platform.notification_delivery_outbox, platform.report_content_versions,
         platform.report_generation_jobs, platform.report_evidence,
         platform.search_documents, platform.document_field_reviews,
-        platform.document_classification_reviews, platform.calculation_lineage
+        platform.document_classification_reviews, platform.calculation_lineage,
+        platform.carbon_inventories, platform.carbon_reporting_periods,
+        platform.carbon_boundary_members, platform.carbon_activity_data,
+        platform.carbon_activity_evidence, platform.carbon_emission_factors,
+        platform.carbon_calculation_details
        TO ${target}`,
       `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA auth TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.current_organization_id() TO ${target}`,
