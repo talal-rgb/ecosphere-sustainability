@@ -33,7 +33,8 @@ CREATE TABLE platform.carbon_reporting_periods (
   UNIQUE (organization_id, id, inventory_id),
   UNIQUE (organization_id, inventory_id, starts_on, ends_on),
   FOREIGN KEY (organization_id, inventory_id) REFERENCES platform.carbon_inventories(organization_id, id),
-  FOREIGN KEY (organization_id, comparison_period_id) REFERENCES platform.carbon_reporting_periods(organization_id, id),
+  FOREIGN KEY (organization_id, comparison_period_id, inventory_id)
+    REFERENCES platform.carbon_reporting_periods(organization_id, id, inventory_id),
   CHECK (ends_on >= starts_on),
   CHECK ((status IN ('approved', 'locked') AND approved_by IS NOT NULL AND approved_at IS NOT NULL) OR status NOT IN ('approved', 'locked'))
 );
@@ -227,10 +228,51 @@ CREATE TRIGGER carbon_reporting_periods_updated BEFORE UPDATE ON platform.carbon
 FOR EACH ROW EXECUTE FUNCTION platform.touch_updated_at();
 CREATE TRIGGER carbon_activity_data_updated BEFORE UPDATE ON platform.carbon_activity_data
 FOR EACH ROW EXECUTE FUNCTION platform.touch_updated_at();
-CREATE TRIGGER carbon_emission_factors_immutable BEFORE UPDATE OR DELETE ON platform.carbon_emission_factors
-FOR EACH ROW EXECUTE FUNCTION platform.reject_mutation();
-CREATE TRIGGER carbon_calculation_details_immutable BEFORE UPDATE OR DELETE ON platform.carbon_calculation_details
-FOR EACH ROW EXECUTE FUNCTION platform.reject_mutation();
+CREATE OR REPLACE FUNCTION platform.guard_carbon_emission_factor_mutation()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'Carbon emission factors are append-only';
+  END IF;
+
+  IF OLD.review_status = 'proposed' AND NEW.review_status IN ('approved', 'rejected') THEN
+    IF (to_jsonb(NEW) - ARRAY['review_status', 'reviewed_by', 'reviewed_at'])
+      IS DISTINCT FROM (to_jsonb(OLD) - ARRAY['review_status', 'reviewed_by', 'reviewed_at']) THEN
+      RAISE EXCEPTION 'Factor review cannot alter factor provenance';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF OLD.review_status = 'approved' AND NEW.review_status = 'superseded' THEN
+    IF (to_jsonb(NEW) - ARRAY['review_status', 'valid_to'])
+      IS DISTINCT FROM (to_jsonb(OLD) - ARRAY['review_status', 'valid_to']) THEN
+      RAISE EXCEPTION 'Factor supersession cannot alter factor provenance or review history';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  RAISE EXCEPTION 'Unsupported carbon emission factor lifecycle transition';
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION platform.guard_carbon_calculation_detail_mutation()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'Carbon calculation details are append-only';
+  END IF;
+  IF OLD.is_current AND NOT NEW.is_current
+    AND (to_jsonb(NEW) - 'is_current') = (to_jsonb(OLD) - 'is_current') THEN
+    RETURN NEW;
+  END IF;
+  RAISE EXCEPTION 'Carbon calculation provenance is immutable';
+END;
+$$;
+
+CREATE TRIGGER carbon_emission_factors_guard BEFORE UPDATE OR DELETE ON platform.carbon_emission_factors
+FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_emission_factor_mutation();
+CREATE TRIGGER carbon_calculation_details_guard BEFORE UPDATE OR DELETE ON platform.carbon_calculation_details
+FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_calculation_detail_mutation();
 
 ALTER TABLE platform.carbon_inventories ENABLE ROW LEVEL SECURITY; ALTER TABLE platform.carbon_inventories FORCE ROW LEVEL SECURITY;
 ALTER TABLE platform.carbon_reporting_periods ENABLE ROW LEVEL SECURITY; ALTER TABLE platform.carbon_reporting_periods FORCE ROW LEVEL SECURITY;
@@ -252,5 +294,7 @@ CREATE POLICY carbon_activity_evidence_select ON platform.carbon_activity_eviden
 CREATE POLICY carbon_activity_evidence_write ON platform.carbon_activity_evidence FOR ALL USING (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.create')) WITH CHECK (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.create') AND linked_by = platform.current_user_id());
 CREATE POLICY carbon_factors_select ON platform.carbon_emission_factors FOR SELECT USING (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.read'));
 CREATE POLICY carbon_factors_insert ON platform.carbon_emission_factors FOR INSERT WITH CHECK (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.create') AND created_by = platform.current_user_id());
+CREATE POLICY carbon_factors_review ON platform.carbon_emission_factors FOR UPDATE USING (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.approve')) WITH CHECK (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.approve'));
 CREATE POLICY carbon_details_select ON platform.carbon_calculation_details FOR SELECT USING (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.read'));
 CREATE POLICY carbon_details_insert ON platform.carbon_calculation_details FOR INSERT WITH CHECK (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.create') AND calculated_by = platform.current_user_id());
+CREATE POLICY carbon_details_retire ON platform.carbon_calculation_details FOR UPDATE USING (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.create')) WITH CHECK (organization_id = platform.current_organization_id() AND platform.has_permission('calculation.create'));
