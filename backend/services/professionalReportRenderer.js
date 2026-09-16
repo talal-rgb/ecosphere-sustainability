@@ -1,6 +1,10 @@
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 
+const MAX_REPORT_BYTES = 2 * 1024 * 1024;
+const MAX_SECTION_ROWS = 2000;
+const MAX_CELL_CHARACTERS = 20_000;
+
 const SECTION_DEFINITIONS = Object.freeze([
   ['executiveSummary', 'Executive Summary'],
   ['inventoryBoundary', 'Inventory Boundary'],
@@ -24,6 +28,12 @@ const SECTION_DEFINITIONS = Object.freeze([
 
 export function validateProfessionalReport(report) {
   if (!report || typeof report !== 'object' || Array.isArray(report)) throw validationError('report must be an object.');
+  let serialized;
+  try { serialized = JSON.stringify(report); }
+  catch { throw validationError('report must contain JSON-serializable values.'); }
+  if (Buffer.byteLength(serialized, 'utf8') > MAX_REPORT_BYTES) {
+    throw validationError('report exceeds the supported size limit.');
+  }
   const metadata = object(report.metadata, 'metadata');
   requiredText(metadata.organizationName, 'metadata.organizationName', 200);
   requiredText(metadata.reportTitle, 'metadata.reportTitle', 250);
@@ -113,6 +123,7 @@ export { SECTION_DEFINITIONS };
 function sectionRows(value, field) {
   if (Array.isArray(value)) {
     if (!value.length) return [{ status: 'No items reported' }];
+    if (value.length > MAX_SECTION_ROWS) throw validationError(`sections.${field} has too many rows.`);
     return value.map((item, index) => normalizeRow(item, `${field}[${index}]`));
   }
   if (value && typeof value === 'object') return [normalizeRow(value, field)];
@@ -126,7 +137,9 @@ function normalizeRow(value, field) {
   const entries = Object.entries(value);
   if (!entries.length) return { status: 'Not reported' };
   if (entries.length > 40) throw validationError(`${field} has too many fields.`);
-  return Object.fromEntries(entries.map(([key, item]) => [requiredText(key, `${field} key`, 100), item]));
+  return Object.fromEntries(entries.map(([key, item]) => [
+    requiredText(key, `${field} key`, 100), boundedCellValue(item, `${field}.${key}`)
+  ]));
 }
 
 function uniqueColumns(rows) {
@@ -151,7 +164,8 @@ function safeCell(value) {
   if (value instanceof Date) return value.toISOString();
   if (typeof value === 'number' || typeof value === 'boolean') return value;
   const text = typeof value === 'object' ? JSON.stringify(value) : String(value);
-  return /^[=+\-@]/.test(text) ? `'${text}` : text;
+  if (text.length > MAX_CELL_CHARACTERS) throw validationError('Report cell exceeds the supported size limit.');
+  return /^[\u0000-\u0020]*[=+\-@]/u.test(text) ? `'${text}` : text;
 }
 
 function display(value) {
@@ -163,6 +177,16 @@ function display(value) {
 function sheetName(title) { return title.replace(/[\\/*?:\[\]]/g, '').slice(0, 31); }
 function humanize(value) { return value.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').replace(/^./, (letter) => letter.toUpperCase()); }
 function ensureSpace(document, height) { if (document.y + height > document.page.height - document.page.margins.bottom) document.addPage(); }
+function boundedCellValue(value, field) {
+  if (value === null || value === undefined || typeof value === 'number' || typeof value === 'boolean') return value;
+  let text;
+  try { text = typeof value === 'string' ? value : JSON.stringify(value); }
+  catch { throw validationError(`${field} must be JSON-serializable.`); }
+  if (typeof text !== 'string' || text.length > MAX_CELL_CHARACTERS) {
+    throw validationError(`${field} exceeds the supported cell size limit.`);
+  }
+  return value;
+}
 function object(value, field) { if (!value || typeof value !== 'object' || Array.isArray(value)) throw validationError(`${field} must be an object.`); return value; }
 function requiredText(value, field, max) { const text = String(value || '').trim(); if (!text || text.length > max) throw validationError(`${field} is required and must be at most ${max} characters.`); return text; }
 function validationError(message) { const error = new Error(message); error.code = 'invalid_professional_report'; error.status = 400; return error; }

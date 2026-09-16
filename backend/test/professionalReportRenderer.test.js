@@ -31,7 +31,11 @@ test('professional report schema requires every audit-oriented section', () => {
 
 test('Excel report includes the professional section set and neutralizes formula injection', async () => {
   const report = reportFixture();
-  report.sections.assumptions = [{ assumption: '=HYPERLINK("https://example.test")' }];
+  report.sections.assumptions = [
+    { assumption: '=HYPERLINK("https://example.test")' },
+    { assumption: ' \t@SUM(1,1)' },
+    { assumption: '\r-2+3' }
+  ];
   const buffer = await buildProfessionalExcelReport(report);
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer);
@@ -40,6 +44,18 @@ test('Excel report includes the professional section set and neutralizes formula
   assert.ok(workbook.getWorksheet('Emission Factors'));
   assert.ok(workbook.getWorksheet('Audit and Provenance Appendix'));
   assert.equal(workbook.getWorksheet('Assumptions').getCell('A2').value, "'=HYPERLINK(\"https://example.test\")");
+  assert.equal(workbook.getWorksheet('Assumptions').getCell('A3').value, "' \t@SUM(1,1)");
+  assert.equal(workbook.getWorksheet('Assumptions').getCell('A4').value, "'\n-2+3");
+});
+
+test('professional report validation rejects oversized sections and cells', () => {
+  const tooManyRows = reportFixture();
+  tooManyRows.sections.scope3 = Array.from({ length: 2001 }, () => ({ category: 'Purchased goods' }));
+  assert.throws(() => validateProfessionalReport(tooManyRows), /too many rows/);
+
+  const oversizedCell = reportFixture();
+  oversizedCell.sections.assumptions = [{ assumption: 'x'.repeat(20_001) }];
+  assert.throws(() => validateProfessionalReport(oversizedCell), /cell size limit/);
 });
 
 test('PDF renderer produces a non-empty professional report without assurance claims', async () => {
