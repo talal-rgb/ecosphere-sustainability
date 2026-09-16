@@ -1,9 +1,10 @@
 import { assertUuid, withPlatformContext } from './database.js';
-import { requirePermission } from './platformService.js';
+import { requireFeature, requirePermission } from './platformService.js';
 
 export async function getCarbonDashboardOverview(databasePool, context) {
   const result = await withPlatformContext(databasePool, context, async (client) => {
     await requirePermission(client, 'calculation.read');
+    await requireFeature(client, 'carbon.professional.workspace');
     return client.query(`WITH selected_period AS (
        SELECT period.id, period.inventory_id, period.label, period.starts_on, period.ends_on,
               period.status, inventory.name AS inventory_name
@@ -15,7 +16,9 @@ export async function getCarbonDashboardOverview(databasePool, context) {
                  period.ends_on DESC, period.id
         LIMIT 1
      ), current_details AS (
-       SELECT detail.emissions_kg_co2e, detail.scope_2_method, activity.scope_category_code,
+       SELECT CASE WHEN calculation.status = 'approved' THEN detail.emissions_kg_co2e END AS emissions_kg_co2e,
+              CASE WHEN calculation.status = 'approved' THEN detail.scope_2_method END AS scope_2_method,
+              activity.scope_category_code,
               activity.data_quality_status, activity.review_status, activity.approval_status,
               activity.anomaly_status, activity.activity_date, activity.id AS activity_id
          FROM selected_period period
@@ -26,7 +29,6 @@ export async function getCarbonDashboardOverview(databasePool, context) {
           AND detail.is_current = true
          LEFT JOIN platform.calculations calculation
            ON calculation.organization_id = detail.organization_id AND calculation.id = detail.calculation_id
-        WHERE detail.id IS NULL OR calculation.status = 'approved'
      ), totals AS (
        SELECT
          COALESCE(SUM(emissions_kg_co2e) FILTER (WHERE scope_category_code LIKE 'scope_1.%'), 0) AS scope_1_kg,

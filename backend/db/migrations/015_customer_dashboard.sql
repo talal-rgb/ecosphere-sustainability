@@ -1,3 +1,21 @@
+ALTER TABLE platform.feature_definitions NO FORCE ROW LEVEL SECURITY;
+
+INSERT INTO platform.feature_definitions (
+  code, name, category, value_type, description, is_metered
+) VALUES (
+  'carbon.professional.workspace', 'Carbon Professional workspace', 'calculation', 'boolean',
+  'Tenant-scoped inventories, reporting periods, dashboard aggregation, and professional reporting.', false
+);
+
+ALTER TABLE platform.feature_definitions FORCE ROW LEVEL SECURITY;
+
+INSERT INTO platform.plan_features (plan_code, feature_code, enabled, limit_value) VALUES
+  ('free', 'carbon.professional.workspace', false, 0),
+  ('starter', 'carbon.professional.workspace', false, 0),
+  ('professional', 'carbon.professional.workspace', true, NULL),
+  ('business', 'carbon.professional.workspace', true, NULL),
+  ('enterprise', 'carbon.professional.workspace', true, NULL);
+
 CREATE FUNCTION platform.list_current_user_organizations()
 RETURNS TABLE (
   organization_id uuid,
