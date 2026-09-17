@@ -36,7 +36,7 @@ export function buildDashboardView(workspace = {}) {
     evidenceCount: evidence.length || number(usage.evidenceDocuments),
     evidenceCoveragePercent: number(metrics.evidenceCoveragePercent),
     highQualityPercent: number(metrics.highQualityPercent),
-    reviewRequiredCount: Math.max(number(metrics.reviewRequiredCount), reviews.length),
+    reviewRequiredCount: number(metrics.reviewRequiredCount),
     approvedCount: number(metrics.approvedCount),
     projects, evidence, reports, facilities, members, reviews,
     access: workspace.access?.access || {},
