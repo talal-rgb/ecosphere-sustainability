@@ -30,6 +30,17 @@ test('portal exposes the requested application structure and emissions formattin
   assert.equal(formatEmissions(undefined), '0 kgCO₂e');
 });
 
+test('dashboard does not turn unavailable carbon API responses into measured zero data', () => {
+  for (const status of [402, 403, 500]) {
+    const view = buildDashboardView({
+      organization: { organization: { id: 'org-a', name: 'Acme' } },
+      carbon: { error: 'request_failed', status }
+    });
+    assert.equal(view.carbonAvailable, false);
+    assert.equal(view.resourceStates.carbon, status === 402 ? 'upgrade' : status === 403 ? 'forbidden' : 'error');
+  }
+});
+
 test('portal shell preserves keyboard, status, and responsive accessibility contracts', async () => {
   const html = await fs.readFile(new URL('../portal/index.html', import.meta.url), 'utf8');
   const css = await fs.readFile(new URL('../assets/css/portal.css', import.meta.url), 'utf8');

@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { getBillingOverview, listBillingInvoices } from '../services/billingPortal.js';
-import { getCarbonDashboardOverview } from '../services/carbonProfessional.js';
+import { getCarbonDashboardOverview, getCarbonReviewQueue } from '../services/carbonProfessional.js';
 import {
   createCarbonActivity,
   createCarbonBoundaryMember,
@@ -77,6 +77,7 @@ const defaultServices = {
   createSite,
   getBillingOverview,
   getCarbonDashboardOverview,
+  getCarbonReviewQueue,
   getCarbonCalculationRun,
   getCalculationLedger,
   getEvidenceReview,
@@ -138,6 +139,13 @@ export function createPlatformRouter(options = {}) {
     } catch (error) {
       next(error);
     }
+  });
+
+  router.get('/carbon/reviews', async (request, response, next) => {
+    try {
+      const reviews = await services.getCarbonReviewQueue(databasePoolResolver(), request.platformContext);
+      response.json({ success: true, reviews });
+    } catch (error) { next(error); }
   });
 
   router.get('/carbon/inventories', async (request, response, next) => {
