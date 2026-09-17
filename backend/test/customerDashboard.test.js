@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getCarbonDashboardOverview } from '../services/carbonProfessional.js';
+import { getCarbonDashboardOverview, getCarbonReviewQueue } from '../services/carbonProfessional.js';
 import { listUserOrganizations } from '../services/platformIdentityService.js';
 
 const context = {
@@ -26,7 +26,10 @@ test('dashboard overview uses the tenant context and maps auditable totals', asy
       scope_2_location_kg: '200', scope_2_market_kg: '150', scope_3_kg: '700',
       activity_count: 10, evidence_covered_count: 8, high_quality_count: 6,
       approved_count: 7, review_required_count: 2,
-      trend: [{ month: '2026-01-01', emissionsKgCo2e: 1000 }]
+      trend: [{ month: '2026-01-01', emissionsKgCo2e: 1000 }],
+      facilities: [{ id: 'facility-a', name: 'Paris', emissionsKgCo2e: '400' }],
+      categories: [{ code: 'scope_1.stationary_combustion', name: 'Stationary combustion', emissionsKgCo2e: '100' }],
+      comparison: { id: 'period-old', label: 'FY2025', starts_on: '2025-01-01', ends_on: '2025-12-31', emissions_kg: '900' }
     }] };
   });
 
@@ -42,6 +45,28 @@ test('dashboard overview uses the tenant context and maps auditable totals', asy
   assert.equal(overview.metrics.evidenceCoveragePercent, 80);
   assert.equal(overview.metrics.highQualityPercent, 60);
   assert.equal(overview.metrics.reviewRequiredCount, 2);
+  assert.deepEqual(overview.byFacility, [{ id: 'facility-a', name: 'Paris', emissionsKgCo2e: 400 }]);
+  assert.equal(overview.byCategory[0].emissionsKgCo2e, 100);
+  assert.equal(overview.comparison.totalKgCo2e, 900);
+});
+
+test('review queue is tenant-scoped and exposes review facts without inventing decisions', async () => {
+  const calls = [];
+  const pool = fakePool(async (text, values) => {
+    calls.push({ text, values });
+    if (text.includes('platform.has_permission')) return { rows: [{ allowed: true }] };
+    if (text.includes('platform.plan_features')) return { rows: [{ enabled: true, limit_value: null, configuration: {} }] };
+    if (!text.includes('carbon_factor_mapping_proposals')) return { rows: [] };
+    return { rows: [{ id: 'activity-a', activity_type: 'Electricity', scope_category_code: 'scope_2.purchased_electricity',
+      review_status: 'review_required', approval_status: 'pending', anomaly_status: 'clear', data_quality_status: 'primary',
+      reporting_period: 'FY2026', proposal_id: 'proposal-a', confidence: '0.82', compatibility: 'uncertain', factor_decision: null }] };
+  });
+  const reviews = await getCarbonReviewQueue(pool, context);
+  const query = calls.find((call) => call.text.includes('carbon_factor_mapping_proposals'));
+  assert.deepEqual(query.values, [context.organizationId]);
+  assert.equal(query.text.includes(context.organizationId), false);
+  assert.equal(reviews[0].confidence, 0.82);
+  assert.equal(reviews[0].factorDecision, null);
 });
 
 test('organization switcher returns only database-filtered user memberships', async () => {

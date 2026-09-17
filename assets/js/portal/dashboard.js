@@ -75,9 +75,9 @@ function renderSection(section) {
   if (section === 'overview') return renderOverview(view);
   if (section === 'carbon') return renderCarbon(view);
   const collections = {
-    evidence: ['Evidence', view.evidence, 'displayName'], reports: ['Reports', view.reports, 'title'],
-    facilities: ['Facilities', view.facilities, 'name'], projects: ['Projects', view.projects, 'name'],
-    team: ['Team', view.members, 'displayName']
+    evidence: ['Evidence', view.evidence, 'displayName', view.resourceStates.evidence], reports: ['Reports', view.reports, 'title', view.resourceStates.reports],
+    facilities: ['Facilities', view.facilities, 'name', view.resourceStates.facilities], projects: ['Projects', view.projects, 'name', view.resourceStates.projects],
+    team: ['Team', view.members, 'displayName', view.resourceStates.members]
   };
   if (collections[section]) return renderCollection(...collections[section]);
   if (section === 'organizations') return renderOrganization(view);
@@ -87,6 +87,7 @@ function renderSection(section) {
 }
 
 function renderOverview(view) {
+  if (!view.carbonAvailable) return renderResourceUnavailable('Overview', view.resourceStates.carbon);
   elements.content.innerHTML = `
     <header class="portal-page-heading"><div><p class="portal-eyebrow">Overview</p><h1>${escapeHtml(view.organization.name)}</h1><p>${view.period ? `${escapeHtml(view.period.label)} · ${formatDate(view.period.startsOn)}–${formatDate(view.period.endsOn)}` : 'No reporting period selected'}</p></div><span class="portal-state">${view.period ? escapeHtml(view.period.status.replace('_', ' ')) : 'Setup required'}</span></header>
     <section class="portal-metric-grid" aria-label="Emissions summary">
@@ -102,22 +103,32 @@ function renderOverview(view) {
 }
 
 function renderCarbon(view) {
+  if (!view.carbonAvailable) return renderResourceUnavailable('Carbon Accounting Professional', view.resourceStates.carbon);
   const steps = [
     'Create inventory', 'Select reporting period', 'Define organizational boundary', 'Add facilities',
     'Import activity data', 'Attach evidence', 'Classify scope and category', 'Review emission factor',
     'Calculate and review anomalies', 'Approve and aggregate', 'Generate report'
   ];
-  elements.content.innerHTML = `<header class="portal-page-heading"><div><p class="portal-eyebrow">Carbon Accounting Professional</p><h1>${view.inventory ? escapeHtml(view.inventory.name) : 'Build an audit-ready inventory'}</h1><p>Traceable activity data, evidence, factors, calculations, review, and reporting.</p></div></header><section class="portal-panel"><h2>Inventory workflow</h2><ol class="portal-workflow">${steps.map((step, index) => `<li><span>${index + 1}</span><div><strong>${escapeHtml(step)}</strong><small>${workflowStatus(index, view)}</small></div></li>`).join('')}</ol></section><section class="portal-note" role="note"><strong>Document automation boundary</strong><p>Uploads and human review are supported by the application model. OCR and external extraction remain mocked until an approved provider is connected and validated.</p></section>`;
+  elements.content.innerHTML = `<header class="portal-page-heading"><div><p class="portal-eyebrow">Carbon Accounting Professional</p><h1>${view.inventory ? escapeHtml(view.inventory.name) : 'Build a review-ready inventory'}</h1><p>Traceable activity data, evidence, factors, calculations, review, and reporting.</p></div></header>
+    <section class="portal-metric-grid" aria-label="Carbon totals">${metric('Total emissions', formatEmissions(view.totalKgCo2e), 'Location-based total')}${view.scopes.map((scope) => metric(scope.label, formatEmissions(scope.kgCo2e), 'Approved current calculations')).join('')}</section>
+    <div class="portal-grid-two">${breakdown('Emissions by facility', view.byFacility, 'name')}${breakdown('Emissions by category', view.byCategory, 'name')}</div>
+    ${view.comparison ? `<section class="portal-panel"><p class="portal-eyebrow">Reporting-period comparison</p><h2>${escapeHtml(view.comparison.label)}</h2><p>${formatEmissions(view.comparison.totalKgCo2e)} compared with ${formatEmissions(view.totalKgCo2e)} in the selected period.</p></section>` : ''}
+    <section class="portal-panel"><h2>Inventory workflow</h2><ol class="portal-workflow">${steps.map((step, index) => `<li><span>${index + 1}</span><div><strong>${escapeHtml(step)}</strong><small>${workflowStatus(index, view)}</small></div></li>`).join('')}</ol></section><section class="portal-note" role="note"><strong>Document automation boundary</strong><p>Uploads and human review are supported by the application model. OCR and external extraction remain mocked until an approved provider is connected and validated.</p></section>`;
 }
 
-function renderCollection(title, items, labelKey) {
+function renderCollection(title, items, labelKey, availability) {
+  if (availability !== 'available') return renderResourceUnavailable(title, availability);
   elements.content.innerHTML = `<header class="portal-page-heading"><div><p class="portal-eyebrow">Workspace</p><h1>${title}</h1><p>Data is loaded from the authenticated, tenant-scoped platform API.</p></div></header><section class="portal-panel"><ul class="portal-resource-list">${items.length ? items.map((item) => `<li><strong>${escapeHtml(item[labelKey] || item.name || item.id)}</strong><span>${escapeHtml(item.status || item.roleCode || item.documentType || 'Active')}</span></li>`).join('') : '<li class="portal-empty-row">No records yet.</li>'}</ul></section>`;
 }
 
 function renderOrganization(view) { renderPlaceholder('Organizations', `${view.organization.name} is the active tenant. The selector only exposes memberships returned by the authenticated organization API.`); }
-function renderReviews(view) { renderPlaceholder('Reviews', `${view.reviewRequiredCount} inventory record${view.reviewRequiredCount === 1 ? '' : 's'} currently require review or anomaly resolution.`); }
+function renderReviews(view) {
+  if (view.resourceStates.reviews !== 'available') return renderResourceUnavailable('Reviews', view.resourceStates.reviews);
+  elements.content.innerHTML = `<header class="portal-page-heading"><div><p class="portal-eyebrow">Human review</p><h1>Reviews</h1><p>Only tenant-scoped activity and factor decisions are shown.</p></div></header><section class="portal-panel"><ul class="portal-resource-list">${view.reviews.length ? view.reviews.map((item) => `<li><strong>${escapeHtml(item.activityType)}</strong><span>${escapeHtml(reviewLabel(item))}</span></li>`).join('') : '<li class="portal-empty-row">No activity or factor reviews are waiting.</li>'}</ul></section>`;
+}
 function renderSubscription(view) { renderPlaceholder('Subscription', view.billing ? 'Plan, usage, and invoice data are loaded from the billing control plane.' : 'Billing is unavailable or not configured for this organization.'); }
 function renderPlaceholder(title, message) { elements.content.innerHTML = `<header class="portal-page-heading"><div><p class="portal-eyebrow">Workspace</p><h1>${escapeHtml(title)}</h1></div></header><section class="portal-panel portal-empty"><p>${escapeHtml(message)}</p></section>`; }
+function renderResourceUnavailable(title, state) { const message = state === 'upgrade' ? 'This capability is not enabled for the current subscription.' : state === 'forbidden' ? 'Your current role cannot access this capability.' : 'This data is temporarily unavailable. No zero values have been inferred.'; renderPlaceholder(title, message); }
 function renderSignedOut() { elements.organization.hidden = true; elements.content.innerHTML = '<section class="portal-auth-state"><p class="portal-eyebrow">Authentication required</p><h1>Sign in to Terrnix</h1><p>The customer workspace is protected. Production sign-in and real email verification remain inactive until an approved SaaS deployment and email credential rotation.</p><a class="portal-button" href="/platform/">Return to platform overview</a></section>'; setStatus('Signed out.'); }
 function renderEmpty(message) { elements.content.innerHTML = `<section class="portal-auth-state"><h1>Workspace setup required</h1><p>${escapeHtml(message)}</p></section>`; setStatus(message); }
 function renderError(message) { elements.content.innerHTML = `<section class="portal-auth-state" role="alert"><h1>Unable to load workspace</h1><p>${escapeHtml(message)}</p><button class="portal-button" type="button" data-retry>Retry</button></section>`; setStatus('Workspace loading failed.'); }
@@ -128,5 +139,7 @@ function summaryCard(label, value, note) { return `<article class="portal-panel 
 function progress(label, value) { const safe = Math.max(0, Math.min(100, Number(value) || 0)); return `<div class="portal-progress"><div><span>${label}</span><strong>${safe}%</strong></div><progress max="100" value="${safe}">${safe}%</progress></div>`; }
 function workflowStatus(index, view) { if (!view.inventory) return index === 0 ? 'Ready to begin' : 'Waiting for inventory'; if (!view.period && index > 0) return index === 1 ? 'Next step' : 'Waiting for reporting period'; if (index < 4) return 'Configured in the platform model'; if (index < 8) return view.evidenceCount ? 'Evidence workflow available' : 'Awaiting activity data'; return view.reviewRequiredCount ? `${view.reviewRequiredCount} item(s) need review` : 'Ready when reviewed data is available'; }
 function renderTrend(trend) { if (!trend.length) return '<p class="portal-empty-copy">Trend data appears after approved dated activity calculations are available.</p>'; const max = Math.max(...trend.map((item) => Number(item.emissionsKgCo2e) || 0), 1); return trend.map((item) => `<div class="portal-trend-column"><div style="height:${Math.max(4, Math.round((Number(item.emissionsKgCo2e) / max) * 100))}%"></div><span>${escapeHtml(String(item.month).slice(0, 7))}</span></div>`).join(''); }
+function breakdown(title, items, labelKey) { return `<section class="portal-panel"><p class="portal-eyebrow">Measured distribution</p><h2>${escapeHtml(title)}</h2><ul class="portal-resource-list">${items.length ? items.map((item) => `<li><strong>${escapeHtml(item[labelKey] || item.code || 'Unassigned')}</strong><span>${formatEmissions(item.emissionsKgCo2e)}</span></li>`).join('') : '<li class="portal-empty-row">No approved calculated data yet.</li>'}</ul></section>`; }
+function reviewLabel(item) { if (item.anomalyStatus === 'flagged') return 'Anomaly resolution required'; if (!item.proposalId) return 'Factor proposal required'; if (!item.factorDecision) return `Factor review required · ${Math.round((Number(item.confidence) || 0) * 100)}% confidence`; return `${item.reviewStatus.replace('_', ' ')} · ${item.approvalStatus.replace('_', ' ')}`; }
 function formatDate(value) { if (!value) return '—'; return new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(value)); }
 function escapeHtml(value) { const node = document.createElement('span'); node.textContent = String(value ?? ''); return node.innerHTML; }

@@ -244,6 +244,7 @@ test('platform router exposes the authenticated Carbon Professional workflow', a
   const proposalId = 'aaaaaaaa-4000-4000-8000-aaaaaaaaaaaa';
   const runId = 'aaaaaaaa-5000-4000-8000-aaaaaaaaaaaa';
   const app = buildApp({
+    async getCarbonReviewQueue() { return [{ id: activityId, reviewStatus: 'review_required' }]; },
     async listCarbonInventories() { return [{ id: inventoryId }]; },
     async createCarbonInventory(_pool, receivedContext, input) { assert.equal(receivedContext.organizationId, context.organizationId); return { id: inventoryId, name: input.name }; },
     async listCarbonReportingPeriods(_pool, _context, receivedId) { assert.equal(receivedId, inventoryId); return [{ id: periodId }]; },
@@ -258,6 +259,7 @@ test('platform router exposes the authenticated Carbon Professional workflow', a
     async getCarbonCalculationRun() { return { id: runId, lines: [] }; }
   });
   assert.equal((await request(app).get('/api/platform/carbon/inventories')).body.inventories[0].id, inventoryId);
+  assert.equal((await request(app).get('/api/platform/carbon/reviews')).body.reviews[0].id, activityId);
   assert.equal((await request(app).post('/api/platform/carbon/inventories').send({ name: '2026' })).status, 201);
   assert.equal((await request(app).get(`/api/platform/carbon/inventories/${inventoryId}/periods`)).body.periods[0].id, periodId);
   assert.equal((await request(app).post(`/api/platform/carbon/inventories/${inventoryId}/periods`).send({ label: '2026' })).status, 201);
