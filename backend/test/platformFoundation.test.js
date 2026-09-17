@@ -30,7 +30,8 @@ import {
   createReport,
   getReport,
   listReportTemplates,
-  queueReportGeneration
+  queueReportGeneration,
+  transitionReport
 } from '../services/reportEngine.js';
 import { claimReportJob, completeReportJob } from '../services/reportWorker.js';
 import { indexSearchDocument, searchPlatform } from '../services/searchService.js';
@@ -64,7 +65,12 @@ const migrationUrls = [
   new URL('../db/migrations/010_search_service.sql', import.meta.url),
   new URL('../db/migrations/011_document_intelligence_review.sql', import.meta.url),
   new URL('../db/migrations/012_calculation_ledger.sql', import.meta.url),
-  new URL('../db/migrations/013_security_integrity_hardening.sql', import.meta.url)
+  new URL('../db/migrations/013_security_integrity_hardening.sql', import.meta.url),
+  new URL('../db/migrations/014_carbon_professional.sql', import.meta.url),
+  new URL('../db/migrations/015_customer_dashboard.sql', import.meta.url),
+  new URL('../db/migrations/016_carbon_professional_reporting.sql', import.meta.url),
+  new URL('../db/migrations/017_carbon_workflow_security.sql', import.meta.url),
+  new URL('../db/migrations/018_carbon_report_provenance.sql', import.meta.url)
 ];
 const ids = {
   userA: '11111111-1111-4111-8111-111111111111',
@@ -194,7 +200,7 @@ test('report engine versions shared content and queues entitlement-aware format 
        VALUES ($1,$2,'Annual reporting','carbon','annual_inventory')`, [projectId, ids.orgA]
     );
     const context = { organizationId: ids.orgA, userId: ids.userA };
-    assert.equal((await listReportTemplates(asPool(db), context)).length, 6);
+    assert.equal((await listReportTemplates(asPool(db), context)).length, 7);
     const report = await createReport(asPool(db), context, {
       projectId, templateCode: 'executive-standard', title: '2026 Executive Carbon Report',
       reportingStandard: 'GHG Protocol', content: { summary: { totalTco2e: 125.4 } },
@@ -226,6 +232,9 @@ test('report engine versions shared content and queues entitlement-aware format 
     assert.equal(detail.contentVersions.length, 2);
     assert.equal(detail.generationJobs[0].status, 'completed');
     assert.equal(detail.artifacts.length, 1);
+    await addReportContentVersion(asPool(db), context, report.id, { content: { summary: { totalTco2e: 121.5 } } });
+    await transitionReport(asPool(db), context, report.id, { status: 'in_review' });
+    await assert.rejects(transitionReport(asPool(db), context, report.id, { status: 'approved' }), /completed generated artifact/);
     assert.equal((await db.query("SELECT count(*)::integer AS total FROM platform.usage_events WHERE feature_code = 'reports.basic'")).rows[0].total, 1);
     await setPlan(db, ids.orgA, 'professional');
     const boardReport = await createReport(asPool(db), context, {

@@ -11,9 +11,14 @@ import {
   createCarbonReportingPeriod,
   getCarbonCalculationRun,
   proposeCarbonFactor,
+  reviewCarbonCalculationRun,
   reviewCarbonActivity,
-  reviewCarbonFactorProposal
+  reviewCarbonFactorProposal,
+  reviseCarbonBoundaryMember,
+  transitionCarbonReportingPeriod
 } from '../services/carbonWorkflow.js';
+import { createCarbonProfessionalReport } from '../services/carbonReport.js';
+import { addReportContentVersion, createReport, getReport, queueReportGeneration, transitionReport } from '../services/reportEngine.js';
 import { bootstrapOrganization, createFacility, createProject, createSite } from '../services/platformService.js';
 
 const ids = {
@@ -48,7 +53,7 @@ test('Carbon Professional workflow is reviewed, multi-lineage ready, and tenant 
     const project = await createProject(pool, contextA, { name: '2026 Inventory', productModule: 'carbon', projectType: 'annual_inventory', facilityId: facility.id });
     const inventory = await createCarbonInventory(pool, contextA, { name: 'Corporate 2026', consolidationApproach: 'operational_control' });
     const period = await createCarbonReportingPeriod(pool, contextA, inventory.id, { label: '2026', startsOn: '2026-01-01', endsOn: '2026-12-31' });
-    await createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id, consolidationPercent: 100, controlClassification: 'operational_control' });
+    const boundary = await createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id, consolidationPercent: 100, controlClassification: 'operational_control' });
     const activity = await createCarbonActivity(pool, contextA, { inventoryId: inventory.id, reportingPeriodId: period.id,
       projectId: project.id, facilityId: facility.id, scopeCategoryCode: 'scope_2.purchased_electricity',
       activityType: 'purchased electricity', quantity: 1200, unit: 'kWh', activityDate: '2026-01-31', dataQualityStatus: 'primary' });
@@ -89,6 +94,49 @@ test('Carbon Professional workflow is reviewed, multi-lineage ready, and tenant 
     const rerun = await createCarbonCalculationRun(pool, contextA, { inventoryId: inventory.id, reportingPeriodId: period.id,
       activityIds: [activity.id], idempotencyKey: 'org-a-2026-run-2', recalculationReason: 'Corrected reporting run' });
     assert.equal(rerun.lines.length, 1);
+    await assert.rejects(reviewCarbonCalculationRun(pool, contextA, run.id, { decision: 'approved' }), /current, approved/);
+    const approvedRun = await reviewCarbonCalculationRun(pool, contextA, rerun.id, { decision: 'approved' });
+    assert.equal(approvedRun.status, 'approved');
+    await transitionCarbonReportingPeriod(pool, contextA, inventory.id, period.id, { status: 'in_review' });
+    const approvedPeriod = await transitionCarbonReportingPeriod(pool, contextA, inventory.id, period.id,
+      { status: 'approved', calculationRunId: rerun.id });
+    assert.equal(approvedPeriod.status, 'approved');
+    assert.equal(approvedPeriod.approvedCalculationRunId, rerun.id);
+    const report = await createCarbonProfessionalReport(pool, contextA, {
+      projectId: project.id, inventoryId: inventory.id, reportingPeriodId: period.id, calculationRunId: rerun.id
+    });
+    assert.equal(report.reportType, 'technical');
+    const reportContent = await db.query(
+      `SELECT content, source_manifest FROM platform.report_content_versions
+        WHERE organization_id=$1 AND report_id=$2 AND version=1`, [ids.orgA, report.id]
+    );
+    assert.equal(reportContent.rows[0].content.metadata.traceabilityStatus, 'partial');
+    assert.equal(reportContent.rows[0].content.sections.scope2[0].emissionsKgCo2e, 157.152);
+    assert.equal(reportContent.rows[0].source_manifest.calculationRuns[0].id, rerun.id);
+    await assert.rejects(createReport(pool, contextA, { projectId: project.id, title: 'Untrusted audit report',
+      templateCode: 'carbon-professional', content: {}, sourceManifest: {} }), /assembled from authorized platform records/);
+    await assert.rejects(addReportContentVersion(pool, contextA, report.id, { content: { tampered: true } }), /regenerated from current authorized records/);
+    const versionRuns = await db.query(`SELECT calculation_run_id FROM platform.report_version_calculation_runs
+      WHERE organization_id=$1 AND report_id=$2 AND content_version=1`, [ids.orgA, report.id]);
+    assert.deepEqual(versionRuns.rows, [{ calculation_run_id: rerun.id }]);
+    const reportInReview = await transitionReport(pool, contextA, report.id, { status: 'in_review' });
+    assert.equal(reportInReview.status, 'in_review');
+    await assert.rejects(transitionReport(pool, contextA, report.id, { status: 'approved' }), /completed generated artifact/);
+    await assert.rejects(createCarbonActivity(pool, contextA, { inventoryId: inventory.id, reportingPeriodId: period.id,
+      projectId: project.id, facilityId: facility.id, scopeCategoryCode: 'scope_2.purchased_electricity',
+      activityType: 'late activity', quantity: 1, unit: 'kWh' }), /immutable/);
+    await assert.rejects(createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id,
+      consolidationPercent: 100, controlClassification: 'operational_control' }), /cannot overlap|immutable/);
+    await assert.rejects(createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id,
+      consolidationPercent: 100, controlClassification: 'operational_control', effectiveFrom: '2027-01-01' }), /cannot overlap/);
+    const futureBoundary = await reviseCarbonBoundaryMember(pool, contextA, boundary.id, { effectiveFrom: '2027-01-01' });
+    assert.equal(new Date(futureBoundary.previous.effectiveTo).toISOString().slice(0, 10), '2026-12-31');
+    assert.equal(new Date(futureBoundary.current.effectiveFrom).toISOString().slice(0, 10), '2027-01-01');
+    const otherInventory = await createCarbonInventory(pool, contextA, { name: 'Other inventory', consolidationApproach: 'operational_control' });
+    await assert.rejects(db.query('UPDATE platform.carbon_boundary_members SET inventory_id=$1 WHERE organization_id=$2 AND id=$3',
+      [otherInventory.id, ids.orgA, boundary.id]), /overlapping an approved reporting period/);
+    await assert.rejects(createCarbonCalculationRun(pool, contextA, { inventoryId: inventory.id,
+      reportingPeriodId: period.id, activityIds: [activity.id], idempotencyKey: 'approved-period-run' }), /cannot be recalculated/);
     const versions = await db.query(
       `SELECT calculation_version, is_current FROM platform.carbon_calculation_details
         WHERE organization_id=$1 AND activity_data_id=$2 ORDER BY calculation_version`, [ids.orgA, activity.id]
@@ -103,6 +151,15 @@ test('Carbon Professional workflow is reviewed, multi-lineage ready, and tenant 
     await db.query("UPDATE platform.subscriptions SET plan_code='professional', status='active' WHERE organization_id=$1", [ids.orgB]);
     await db.exec('SET ROLE terrnix_app_test');
     await assert.rejects(getCarbonCalculationRun(pool, contextB, run.id), /not found/i);
+    await assert.rejects(createCarbonProfessionalReport(pool, contextB, {
+      projectId: project.id, inventoryId: inventory.id, reportingPeriodId: period.id, calculationRunId: rerun.id
+    }), /not found/i);
+    await assert.rejects(getReport(pool, contextB, report.id), /not found/i);
+    await assert.rejects(addReportContentVersion(pool, contextB, report.id, { content: {} }), /not found/i);
+    await assert.rejects(transitionReport(pool, contextB, report.id, { status: 'in_review' }), /not found/i);
+    await assert.rejects(queueReportGeneration(pool, contextB, report.id, {
+      outputFormat: 'pdf', idempotencyKey: 'org-b-cross-tenant-report'
+    }), /not found/i);
   } finally {
     await db.close();
   }

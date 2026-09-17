@@ -54,7 +54,7 @@ export async function listCarbonReportingPeriods(databasePool, context, inventor
   return carbonContext(databasePool, context, 'calculation.read', async (client) => {
     const result = await client.query(
       `SELECT id, inventory_id, label, starts_on, ends_on, status, comparison_period_id,
-              approved_by, approved_at, created_at, updated_at
+              approved_calculation_run_id, approved_by, approved_at, created_at, updated_at
          FROM platform.carbon_reporting_periods
         WHERE organization_id = $1 AND inventory_id = $2
         ORDER BY starts_on DESC, id`, [context.organizationId, inventoryId]
@@ -81,6 +81,69 @@ export async function createCarbonReportingPeriod(databasePool, context, invento
   });
 }
 
+export async function transitionCarbonReportingPeriod(databasePool, context, inventoryId, periodId, input = {}) {
+  assertUuid(inventoryId, 'inventoryId');
+  assertUuid(periodId, 'reportingPeriodId');
+  const status = enumValue(input.status, 'status', new Set(['open', 'in_review', 'approved', 'locked']));
+  if (status === 'approved') assertUuid(input.calculationRunId, 'calculationRunId');
+  const transitions = { open: new Set(['in_review']), in_review: new Set(['open', 'approved']), approved: new Set(['locked']), locked: new Set() };
+  const permission = ['approved', 'locked'].includes(status) ? 'calculation.approve' : 'calculation.create';
+  return carbonContext(databasePool, context, permission, async (client) => {
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [`${context.organizationId}:carbon-boundary:${inventoryId}`]);
+    const current = await client.query(
+      `SELECT status FROM platform.carbon_reporting_periods
+        WHERE organization_id=$1 AND id=$2 AND inventory_id=$3 FOR UPDATE`,
+      [context.organizationId, periodId, inventoryId]
+    );
+    if (!current.rows[0]) throw notFoundError('Reporting period was not found.');
+    if (!transitions[current.rows[0].status].has(status)) throw conflictError(`Reporting period cannot transition from ${current.rows[0].status} to ${status}.`);
+    if (status === 'approved') {
+      const readiness = await client.query(
+        `SELECT count(*) FILTER (WHERE review_status <> 'approved' OR approval_status <> 'approved' OR anomaly_status = 'flagged')::integer AS blocked,
+                count(*)::integer AS total,
+                (SELECT count(DISTINCT item.activity_data_id)::integer
+                   FROM platform.carbon_calculation_runs run
+                   JOIN platform.calculations calculation
+                     ON calculation.organization_id=run.organization_id AND calculation.id=run.calculation_id
+                    AND calculation.status='approved'
+                   JOIN platform.carbon_calculation_run_activities item
+                     ON item.organization_id=run.organization_id AND item.run_id=run.id
+                   JOIN platform.carbon_calculation_details detail
+                     ON detail.organization_id=item.organization_id AND detail.id=item.calculation_detail_id
+                    AND detail.is_current=true
+                  WHERE run.organization_id=$1 AND run.inventory_id=$2 AND run.reporting_period_id=$3
+                    AND run.id=$4) AS approved_calculated,
+                (SELECT count(*)::integer FROM platform.carbon_activity_data activity
+                  JOIN platform.carbon_reporting_periods approval_period
+                    ON approval_period.organization_id=activity.organization_id AND approval_period.id=activity.reporting_period_id
+                  LEFT JOIN platform.carbon_boundary_members boundary
+                    ON boundary.organization_id=activity.organization_id AND boundary.inventory_id=activity.inventory_id
+                   AND boundary.facility_id=activity.facility_id AND boundary.included=true
+                   AND boundary.consolidation_percent=100
+                   AND (boundary.effective_from IS NULL OR boundary.effective_from <= approval_period.starts_on)
+                   AND (boundary.effective_to IS NULL OR boundary.effective_to >= approval_period.ends_on)
+                  WHERE activity.organization_id=$1 AND activity.inventory_id=$2 AND activity.reporting_period_id=$3
+                    AND boundary.id IS NULL) AS uncovered_boundary
+           FROM platform.carbon_activity_data
+          WHERE organization_id=$1 AND inventory_id=$2 AND reporting_period_id=$3`,
+        [context.organizationId, inventoryId, periodId, input.calculationRunId]
+      );
+      if (!readiness.rows[0].total || readiness.rows[0].blocked || readiness.rows[0].uncovered_boundary
+        || readiness.rows[0].approved_calculated !== readiness.rows[0].total) {
+        throw conflictError('A reporting period requires one approved full-coverage run over boundary-aligned, approved, anomaly-free activity data.');
+      }
+    }
+    const result = await client.query(
+      `UPDATE platform.carbon_reporting_periods SET status=$1,
+          approved_calculation_run_id=CASE WHEN $1='approved' THEN $5 ELSE approved_calculation_run_id END
+        WHERE organization_id=$2 AND id=$3 AND inventory_id=$4 RETURNING *`,
+      [status, context.organizationId, periodId, inventoryId, input.calculationRunId || null]
+    );
+    await audit(client, context, `carbon_reporting_period.${status}`, 'carbon_reporting_period', periodId, { inventoryId, previousStatus: current.rows[0].status });
+    return periodResource(result.rows[0]);
+  });
+}
+
 export async function createCarbonBoundaryMember(databasePool, context, inventoryId, input = {}) {
   assertUuid(inventoryId, 'inventoryId');
   const id = input.id || crypto.randomUUID();
@@ -89,6 +152,7 @@ export async function createCarbonBoundaryMember(databasePool, context, inventor
   if (target.length !== 1) throw validationError('Exactly one boundary target is required.');
   assertUuid(input[target[0]], target[0]);
   return carbonContext(databasePool, context, 'calculation.create', async (client) => {
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [`${context.organizationId}:carbon-boundary:${inventoryId}`]);
     const result = await client.query(
       `INSERT INTO platform.carbon_boundary_members (
          id, organization_id, inventory_id, business_unit_id, site_id, facility_id,
@@ -113,6 +177,51 @@ export async function listCarbonBoundaryMembers(databasePool, context, inventory
   return carbonContext(databasePool, context, 'calculation.read', async (client) => {
     const result = await client.query('SELECT * FROM platform.carbon_boundary_members WHERE organization_id = $1 AND inventory_id = $2 ORDER BY created_at, id', [context.organizationId, inventoryId]);
     return result.rows.map(boundaryResource);
+  });
+}
+
+export async function reviseCarbonBoundaryMember(databasePool, context, boundaryMemberId, input = {}) {
+  assertUuid(boundaryMemberId, 'boundaryMemberId');
+  const effectiveFrom = isoDate(input.effectiveFrom, 'effectiveFrom');
+  return carbonContext(databasePool, context, 'calculation.create', async (client) => {
+    const currentResult = await client.query(
+      `SELECT * FROM platform.carbon_boundary_members WHERE organization_id=$1 AND id=$2 FOR UPDATE`,
+      [context.organizationId, boundaryMemberId]
+    );
+    const current = currentResult.rows[0];
+    if (!current) throw notFoundError('Boundary member was not found.');
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',
+      [`${context.organizationId}:carbon-boundary:${current.inventory_id}`]);
+    const closeResult = await client.query(
+      `UPDATE platform.carbon_boundary_members SET effective_to=$1::date - 1
+        WHERE organization_id=$2 AND id=$3
+          AND (effective_from IS NULL OR effective_from < $1::date)
+          AND (effective_to IS NULL OR effective_to >= $1::date)
+        RETURNING *`, [effectiveFrom, context.organizationId, boundaryMemberId]
+    );
+    if (!closeResult.rows[0]) throw conflictError('The successor boundary must start after the current boundary begins and before it ends.');
+    const id = input.id || crypto.randomUUID();
+    assertUuid(id, 'boundaryMemberId');
+    const controlClassification = input.controlClassification === undefined
+      ? current.control_classification
+      : enumValue(input.controlClassification, 'controlClassification', new Set(['operational_control', 'financial_control', 'equity_share', 'not_controlled']));
+    const result = await client.query(
+      `INSERT INTO platform.carbon_boundary_members (
+         id, organization_id, inventory_id, business_unit_id, site_id, facility_id,
+         ownership_percent, consolidation_percent, control_classification, included,
+         exclusion_reason, effective_from, effective_to
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [id, context.organizationId, current.inventory_id, current.business_unit_id, current.site_id, current.facility_id,
+        input.ownershipPercent === undefined ? current.ownership_percent : optionalNumber(input.ownershipPercent, 0, 100),
+        input.consolidationPercent === undefined ? Number(current.consolidation_percent) : numberValue(input.consolidationPercent, 'consolidationPercent', 0, 100),
+        controlClassification,
+        input.included === undefined ? current.included : input.included,
+        input.included === false ? requiredText(input.exclusionReason, 'exclusionReason', 1000) : null,
+        effectiveFrom, input.effectiveTo ? isoDate(input.effectiveTo, 'effectiveTo') : null]
+    );
+    await audit(client, context, 'carbon_boundary_member.revised', 'carbon_boundary_member', id,
+      { inventoryId: current.inventory_id, supersedesBoundaryMemberId: boundaryMemberId, effectiveFrom });
+    return { previous: boundaryResource(closeResult.rows[0]), current: boundaryResource(result.rows[0]) };
   });
 }
 
@@ -293,9 +402,9 @@ export async function createCarbonCalculationRun(databasePool, context, input = 
       if (existing.rows[0].input_sha256 !== inputHash) throw conflictError('The idempotency key was used with different run inputs.');
       return loadCalculationRun(client, context.organizationId, existing.rows[0].id, true);
     }
-    const period = await client.query('SELECT status FROM platform.carbon_reporting_periods WHERE organization_id=$1 AND id=$2 AND inventory_id=$3', [context.organizationId, input.reportingPeriodId, input.inventoryId]);
+    const period = await client.query('SELECT status FROM platform.carbon_reporting_periods WHERE organization_id=$1 AND id=$2 AND inventory_id=$3 FOR UPDATE', [context.organizationId, input.reportingPeriodId, input.inventoryId]);
     if (!period.rows[0]) throw notFoundError('Reporting period was not found.');
-    if (period.rows[0].status === 'locked') throw conflictError('Locked reporting periods cannot be recalculated.');
+    if (!['open', 'in_review'].includes(period.rows[0].status)) throw conflictError('Approved or locked reporting periods cannot be recalculated.');
     const rows = await client.query(
       `SELECT activity.*, proposal.id AS proposal_id, proposal.compatibility,
               review.id AS review_id, review.decision, review.selected_factor_id,
@@ -316,6 +425,24 @@ export async function createCarbonCalculationRun(databasePool, context, input = 
       [context.organizationId, input.inventoryId, input.reportingPeriodId, activityIds]
     );
     if (rows.rows.length !== activityIds.length) throw conflictError('Every selected activity must have a reviewed factor mapping in this tenant and period.');
+    const boundaryCoverage = await client.query(
+      `SELECT count(*) FILTER (WHERE boundary.id IS NULL)::integer AS blocked
+         FROM platform.carbon_activity_data activity
+         JOIN platform.carbon_reporting_periods period
+           ON period.organization_id=activity.organization_id AND period.id=activity.reporting_period_id
+         LEFT JOIN platform.carbon_boundary_members boundary
+           ON boundary.organization_id=activity.organization_id AND boundary.inventory_id=activity.inventory_id
+          AND boundary.facility_id=activity.facility_id AND boundary.included=true
+          AND boundary.consolidation_percent=100
+          AND (boundary.effective_from IS NULL OR boundary.effective_from <= period.starts_on)
+          AND (boundary.effective_to IS NULL OR boundary.effective_to >= period.ends_on)
+        WHERE activity.organization_id=$1 AND activity.inventory_id=$2 AND activity.reporting_period_id=$3
+          AND activity.id=ANY($4::uuid[])`,
+      [context.organizationId, input.inventoryId, input.reportingPeriodId, activityIds]
+    );
+    if (boundaryCoverage.rows[0].blocked) {
+      throw conflictError('Calculation currently requires every activity facility to be in an effective, included 100% consolidation boundary.');
+    }
     const projectIds = new Set(rows.rows.map((row) => row.project_id));
     if (projectIds.size !== 1 || projectIds.has(null)) throw conflictError('A calculation run must contain activities from one project.');
     const lines = rows.rows.map((row) => calculationLine(row));
@@ -389,6 +516,41 @@ export async function createCarbonCalculationRun(databasePool, context, input = 
 export async function getCarbonCalculationRun(databasePool, context, runId) {
   assertUuid(runId, 'runId');
   return carbonContext(databasePool, context, 'calculation.read', (client) => loadCalculationRun(client, context.organizationId, runId, false));
+}
+
+export async function reviewCarbonCalculationRun(databasePool, context, runId, input = {}) {
+  assertUuid(runId, 'runId');
+  const decision = enumValue(input.decision, 'decision', new Set(['approved', 'void']));
+  return carbonContext(databasePool, context, 'calculation.approve', async (client) => {
+    const run = await client.query(
+      `SELECT run.calculation_id, run.reporting_period_id, calculation.status
+         FROM platform.carbon_calculation_runs run
+         JOIN platform.calculations calculation
+           ON calculation.organization_id=run.organization_id AND calculation.id=run.calculation_id
+        WHERE run.organization_id=$1 AND run.id=$2 FOR UPDATE OF calculation`,
+      [context.organizationId, runId]
+    );
+    if (!run.rows[0]) throw notFoundError('Carbon calculation run was not found.');
+    if (run.rows[0].status !== 'calculated') throw conflictError('Only calculated runs can receive an approval decision.');
+    if (decision === 'approved') {
+      const blocked = await client.query(
+        `SELECT count(*)::integer AS count
+           FROM platform.carbon_calculation_run_activities item
+           JOIN platform.carbon_activity_data activity
+             ON activity.organization_id=item.organization_id AND activity.id=item.activity_data_id
+           JOIN platform.carbon_calculation_details detail
+             ON detail.organization_id=item.organization_id AND detail.id=item.calculation_detail_id
+          WHERE item.organization_id=$1 AND item.run_id=$2
+            AND (NOT detail.is_current OR activity.review_status <> 'approved' OR activity.approval_status <> 'approved' OR activity.anomaly_status='flagged')`,
+        [context.organizationId, runId]
+      );
+      if (blocked.rows[0].count) throw conflictError('Calculation approval requires current, approved, anomaly-free activity data.');
+    }
+    await client.query('UPDATE platform.calculations SET status=$1 WHERE organization_id=$2 AND id=$3',
+      [decision, context.organizationId, run.rows[0].calculation_id]);
+    await audit(client, context, `carbon_calculation.${decision}`, 'calculation', run.rows[0].calculation_id, { runId });
+    return loadCalculationRun(client, context.organizationId, runId, false);
+  });
 }
 
 async function carbonContext(pool, context, permission, operation) {
@@ -484,7 +646,7 @@ function compatibleUnit(source, target) { try { conversion(source, target); retu
 function conversion(source, target) { const value = UNIT_CONVERSIONS.get(`${normalizeUnit(source)}:${normalizeUnit(target)}`); if (!value) throw conflictError(`No approved conversion exists from ${source} to ${target}.`); return value; }
 function normalizeUnit(value) { return String(value || '').trim().toLowerCase().replace(/\s+/g, '-'); }
 function inventoryResource(row) { return { id: row.id, name: row.name, reportingStandard: row.reporting_standard, consolidationApproach: row.consolidation_approach, operationalBoundary: row.operational_boundary, boundaryNotes: row.boundary_notes, baseYear: row.base_year, status: row.status, createdAt: row.created_at, updatedAt: row.updated_at }; }
-function periodResource(row) { return { id: row.id, inventoryId: row.inventory_id, label: row.label, startsOn: row.starts_on, endsOn: row.ends_on, status: row.status, comparisonPeriodId: row.comparison_period_id, approvedBy: row.approved_by, approvedAt: row.approved_at, createdAt: row.created_at, updatedAt: row.updated_at }; }
+function periodResource(row) { return { id: row.id, inventoryId: row.inventory_id, label: row.label, startsOn: row.starts_on, endsOn: row.ends_on, status: row.status, comparisonPeriodId: row.comparison_period_id, approvedCalculationRunId: row.approved_calculation_run_id, approvedBy: row.approved_by, approvedAt: row.approved_at, createdAt: row.created_at, updatedAt: row.updated_at }; }
 function boundaryResource(row) { return { id: row.id, inventoryId: row.inventory_id, businessUnitId: row.business_unit_id, siteId: row.site_id, facilityId: row.facility_id, ownershipPercent: row.ownership_percent === null ? null : Number(row.ownership_percent), consolidationPercent: Number(row.consolidation_percent), controlClassification: row.control_classification, included: row.included, exclusionReason: row.exclusion_reason, effectiveFrom: row.effective_from, effectiveTo: row.effective_to }; }
 function activityResource(row) { return { id: row.id, inventoryId: row.inventory_id, reportingPeriodId: row.reporting_period_id, projectId: row.project_id, facilityId: row.facility_id, scopeCategoryCode: row.scope_category_code, activityType: row.activity_type, quantity: Number(row.quantity), unit: row.unit, activityDate: row.activity_date, dataQualityStatus: row.data_quality_status, reviewStatus: row.review_status, approvalStatus: row.approval_status, anomalyStatus: row.anomaly_status, sourceReference: row.source_reference }; }
 function audit(client, context, action, entityType, entityId, payload) { return appendAuditEvent(client, { organizationId: context.organizationId, actorUserId: context.userId, action, entityType, entityId, payload }); }
