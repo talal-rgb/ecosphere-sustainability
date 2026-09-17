@@ -206,10 +206,30 @@ FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_activity_lifecycle();
 
 CREATE OR REPLACE FUNCTION platform.guard_carbon_boundary_mutation()
 RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE safe_close boolean := false;
 BEGIN
+  IF TG_OP='UPDATE' THEN
+    safe_close := NEW.organization_id=OLD.organization_id
+      AND NEW.inventory_id=OLD.inventory_id
+      AND NEW.business_unit_id IS NOT DISTINCT FROM OLD.business_unit_id
+      AND NEW.site_id IS NOT DISTINCT FROM OLD.site_id
+      AND NEW.facility_id IS NOT DISTINCT FROM OLD.facility_id
+      AND NEW.ownership_percent IS NOT DISTINCT FROM OLD.ownership_percent
+      AND NEW.consolidation_percent IS NOT DISTINCT FROM OLD.consolidation_percent
+      AND NEW.control_classification=OLD.control_classification
+      AND NEW.included=OLD.included
+      AND NEW.exclusion_reason IS NOT DISTINCT FROM OLD.exclusion_reason
+      AND NEW.effective_from IS NOT DISTINCT FROM OLD.effective_from
+      AND NEW.effective_to IS NOT NULL
+      AND (OLD.effective_to IS NULL OR NEW.effective_to < OLD.effective_to)
+      AND NOT EXISTS (SELECT 1 FROM platform.carbon_reporting_periods period
+        WHERE period.organization_id=OLD.organization_id AND period.inventory_id=OLD.inventory_id
+          AND period.status IN ('approved','locked') AND period.ends_on > NEW.effective_to
+          AND period.ends_on >= COALESCE(OLD.effective_from, '-infinity'::date));
+  END IF;
   IF TG_OP <> 'INSERT' THEN
     PERFORM pg_advisory_xact_lock(hashtextextended(OLD.organization_id::text || ':carbon-boundary:' || OLD.inventory_id::text,0));
-    IF EXISTS (SELECT 1 FROM platform.carbon_reporting_periods period
+    IF NOT safe_close AND EXISTS (SELECT 1 FROM platform.carbon_reporting_periods period
       WHERE period.organization_id=OLD.organization_id AND period.inventory_id=OLD.inventory_id
         AND period.status IN ('approved','locked')
         AND period.ends_on >= COALESCE(OLD.effective_from, '-infinity'::date)
@@ -219,7 +239,7 @@ BEGIN
   END IF;
   IF TG_OP <> 'DELETE' THEN
     PERFORM pg_advisory_xact_lock(hashtextextended(NEW.organization_id::text || ':carbon-boundary:' || NEW.inventory_id::text,0));
-    IF EXISTS (SELECT 1 FROM platform.carbon_reporting_periods period
+    IF NOT safe_close AND EXISTS (SELECT 1 FROM platform.carbon_reporting_periods period
       WHERE period.organization_id=NEW.organization_id AND period.inventory_id=NEW.inventory_id
         AND period.status IN ('approved','locked')
         AND period.ends_on >= COALESCE(NEW.effective_from, '-infinity'::date)
@@ -233,6 +253,28 @@ $$;
 CREATE TRIGGER carbon_boundary_members_period_guard
 BEFORE INSERT OR UPDATE OR DELETE ON platform.carbon_boundary_members
 FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_boundary_mutation();
+
+CREATE OR REPLACE FUNCTION platform.guard_carbon_boundary_overlap()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM platform.carbon_boundary_members member
+    WHERE member.organization_id=NEW.organization_id AND member.inventory_id=NEW.inventory_id
+      AND member.id<>NEW.id
+      AND ((NEW.business_unit_id IS NOT NULL AND member.business_unit_id=NEW.business_unit_id)
+        OR (NEW.site_id IS NOT NULL AND member.site_id=NEW.site_id)
+        OR (NEW.facility_id IS NOT NULL AND member.facility_id=NEW.facility_id))
+      AND COALESCE(member.effective_from, '-infinity'::date) <= COALESCE(NEW.effective_to, 'infinity'::date)
+      AND COALESCE(member.effective_to, 'infinity'::date) >= COALESCE(NEW.effective_from, '-infinity'::date)
+  ) THEN
+    RAISE EXCEPTION 'Boundary effective ranges cannot overlap for the same inventory target';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+CREATE TRIGGER carbon_boundary_members_overlap_guard
+BEFORE INSERT OR UPDATE ON platform.carbon_boundary_members
+FOR EACH ROW EXECUTE FUNCTION platform.guard_carbon_boundary_overlap();
 
 CREATE OR REPLACE FUNCTION platform.guard_carbon_run_insert()
 RETURNS trigger LANGUAGE plpgsql AS $$

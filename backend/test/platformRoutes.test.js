@@ -253,6 +253,7 @@ test('platform router exposes the authenticated Carbon Professional workflow', a
     async createCarbonReportingPeriod() { return { id: periodId }; },
     async listCarbonBoundaryMembers() { return []; },
     async createCarbonBoundaryMember() { return { id: 'boundary-1' }; },
+    async reviseCarbonBoundaryMember() { return { previous: { id: 'boundary-1' }, current: { id: 'boundary-2' } }; },
     async createCarbonActivity() { return { id: activityId }; },
     async reviewCarbonActivity(_pool, _context, receivedId, input) { assert.equal(receivedId, activityId); return { id: activityId, approvalStatus: input.decision }; },
     async proposeCarbonFactor() { return { id: proposalId }; },
@@ -270,6 +271,7 @@ test('platform router exposes the authenticated Carbon Professional workflow', a
   assert.equal((await request(app).post(`/api/platform/carbon/inventories/${inventoryId}/periods`).send({ label: '2026' })).status, 201);
   assert.equal((await request(app).get(`/api/platform/carbon/inventories/${inventoryId}/boundary-members`)).status, 200);
   assert.equal((await request(app).post(`/api/platform/carbon/inventories/${inventoryId}/boundary-members`).send({ facilityId: 'x' })).status, 201);
+  assert.equal((await request(app).post('/api/platform/carbon/boundary-members/boundary-1/revisions').send({ effectiveFrom: '2027-01-01' })).body.revision.current.id, 'boundary-2');
   assert.equal((await request(app).post('/api/platform/carbon/activities').send({})).status, 201);
   assert.equal((await request(app).post(`/api/platform/carbon/activities/${activityId}/review`).send({ decision: 'approved' })).body.activity.approvalStatus, 'approved');
   assert.equal((await request(app).post(`/api/platform/carbon/activities/${activityId}/factor-proposals`).send({ geography: 'GB' })).body.proposal.id, proposalId);

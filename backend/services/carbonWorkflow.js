@@ -180,6 +180,51 @@ export async function listCarbonBoundaryMembers(databasePool, context, inventory
   });
 }
 
+export async function reviseCarbonBoundaryMember(databasePool, context, boundaryMemberId, input = {}) {
+  assertUuid(boundaryMemberId, 'boundaryMemberId');
+  const effectiveFrom = isoDate(input.effectiveFrom, 'effectiveFrom');
+  return carbonContext(databasePool, context, 'calculation.create', async (client) => {
+    const currentResult = await client.query(
+      `SELECT * FROM platform.carbon_boundary_members WHERE organization_id=$1 AND id=$2 FOR UPDATE`,
+      [context.organizationId, boundaryMemberId]
+    );
+    const current = currentResult.rows[0];
+    if (!current) throw notFoundError('Boundary member was not found.');
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',
+      [`${context.organizationId}:carbon-boundary:${current.inventory_id}`]);
+    const closeResult = await client.query(
+      `UPDATE platform.carbon_boundary_members SET effective_to=$1::date - 1
+        WHERE organization_id=$2 AND id=$3
+          AND (effective_from IS NULL OR effective_from < $1::date)
+          AND (effective_to IS NULL OR effective_to >= $1::date)
+        RETURNING *`, [effectiveFrom, context.organizationId, boundaryMemberId]
+    );
+    if (!closeResult.rows[0]) throw conflictError('The successor boundary must start after the current boundary begins and before it ends.');
+    const id = input.id || crypto.randomUUID();
+    assertUuid(id, 'boundaryMemberId');
+    const controlClassification = input.controlClassification === undefined
+      ? current.control_classification
+      : enumValue(input.controlClassification, 'controlClassification', new Set(['operational_control', 'financial_control', 'equity_share', 'not_controlled']));
+    const result = await client.query(
+      `INSERT INTO platform.carbon_boundary_members (
+         id, organization_id, inventory_id, business_unit_id, site_id, facility_id,
+         ownership_percent, consolidation_percent, control_classification, included,
+         exclusion_reason, effective_from, effective_to
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [id, context.organizationId, current.inventory_id, current.business_unit_id, current.site_id, current.facility_id,
+        input.ownershipPercent === undefined ? current.ownership_percent : optionalNumber(input.ownershipPercent, 0, 100),
+        input.consolidationPercent === undefined ? Number(current.consolidation_percent) : numberValue(input.consolidationPercent, 'consolidationPercent', 0, 100),
+        controlClassification,
+        input.included === undefined ? current.included : input.included,
+        input.included === false ? requiredText(input.exclusionReason, 'exclusionReason', 1000) : null,
+        effectiveFrom, input.effectiveTo ? isoDate(input.effectiveTo, 'effectiveTo') : null]
+    );
+    await audit(client, context, 'carbon_boundary_member.revised', 'carbon_boundary_member', id,
+      { inventoryId: current.inventory_id, supersedesBoundaryMemberId: boundaryMemberId, effectiveFrom });
+    return { previous: boundaryResource(closeResult.rows[0]), current: boundaryResource(result.rows[0]) };
+  });
+}
+
 export async function createCarbonActivity(databasePool, context, input = {}) {
   for (const [value, name] of [[input.inventoryId, 'inventoryId'], [input.reportingPeriodId, 'reportingPeriodId'], [input.projectId, 'projectId']]) assertUuid(value, name);
   if (input.facilityId) assertUuid(input.facilityId, 'facilityId');

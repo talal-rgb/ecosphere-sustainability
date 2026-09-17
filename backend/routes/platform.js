@@ -16,6 +16,7 @@ import {
   reviewCarbonCalculationRun,
   reviewCarbonActivity,
   reviewCarbonFactorProposal,
+  reviseCarbonBoundaryMember,
   transitionCarbonReportingPeriod
 } from '../services/carbonWorkflow.js';
 import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
@@ -114,6 +115,7 @@ const defaultServices = {
   restoreEvidence,
   reviewCarbonActivity,
   reviewCarbonFactorProposal,
+  reviseCarbonBoundaryMember,
   transitionCarbonReportingPeriod,
   softDeleteEvidence,
   submitEvidenceReview,
@@ -203,6 +205,14 @@ export function createPlatformRouter(options = {}) {
     try {
       const boundaryMember = await services.createCarbonBoundaryMember(databasePoolResolver(), request.platformContext, request.params.inventoryId, request.body || {});
       response.status(201).json({ success: true, boundaryMember });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/boundary-members/:boundaryMemberId/revisions', async (request, response, next) => {
+    try {
+      const revision = await services.reviseCarbonBoundaryMember(databasePoolResolver(), request.platformContext,
+        request.params.boundaryMemberId, request.body || {});
+      response.status(201).json({ success: true, revision });
     } catch (error) { next(error); }
   });
 

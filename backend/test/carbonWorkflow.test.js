@@ -14,6 +14,7 @@ import {
   reviewCarbonCalculationRun,
   reviewCarbonActivity,
   reviewCarbonFactorProposal,
+  reviseCarbonBoundaryMember,
   transitionCarbonReportingPeriod
 } from '../services/carbonWorkflow.js';
 import { createCarbonProfessionalReport } from '../services/carbonReport.js';
@@ -125,10 +126,12 @@ test('Carbon Professional workflow is reviewed, multi-lineage ready, and tenant 
       projectId: project.id, facilityId: facility.id, scopeCategoryCode: 'scope_2.purchased_electricity',
       activityType: 'late activity', quantity: 1, unit: 'kWh' }), /immutable/);
     await assert.rejects(createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id,
-      consolidationPercent: 100, controlClassification: 'operational_control' }), /immutable/);
-    const futureBoundary = await createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id,
-      consolidationPercent: 100, controlClassification: 'operational_control', effectiveFrom: '2027-01-01' });
-    assert.equal(new Date(futureBoundary.effectiveFrom).toISOString().slice(0, 10), '2027-01-01');
+      consolidationPercent: 100, controlClassification: 'operational_control' }), /cannot overlap|immutable/);
+    await assert.rejects(createCarbonBoundaryMember(pool, contextA, inventory.id, { facilityId: facility.id,
+      consolidationPercent: 100, controlClassification: 'operational_control', effectiveFrom: '2027-01-01' }), /cannot overlap/);
+    const futureBoundary = await reviseCarbonBoundaryMember(pool, contextA, boundary.id, { effectiveFrom: '2027-01-01' });
+    assert.equal(new Date(futureBoundary.previous.effectiveTo).toISOString().slice(0, 10), '2026-12-31');
+    assert.equal(new Date(futureBoundary.current.effectiveFrom).toISOString().slice(0, 10), '2027-01-01');
     const otherInventory = await createCarbonInventory(pool, contextA, { name: 'Other inventory', consolidationApproach: 'operational_control' });
     await assert.rejects(db.query('UPDATE platform.carbon_boundary_members SET inventory_id=$1 WHERE organization_id=$2 AND id=$3',
       [otherInventory.id, ids.orgA, boundary.id]), /overlapping an approved reporting period/);
