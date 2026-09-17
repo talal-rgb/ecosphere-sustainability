@@ -6,6 +6,7 @@ import { appendAuditEvent } from './platformService.js';
 const ERROR_CODE = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
 const WORKER_ID = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{2,127}$/;
 const HASH = /^[a-f0-9]{64}$/;
+const MAX_ARTIFACT_BYTES = 25 * 1024 * 1024;
 const MEDIA_TYPES = {
   pdf: 'application/pdf', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -54,7 +55,7 @@ export async function completeReportJob(databasePool, input = {}) {
   assertUuid(input.jobId, 'jobId');
   const sha256 = String(input.sha256 || '').toLowerCase();
   if (!HASH.test(sha256)) throw validationError('sha256 is invalid.');
-  const byteSize = integerBetween(input.byteSize, 1, Number.MAX_SAFE_INTEGER);
+  const byteSize = integerBetween(input.byteSize, 1, MAX_ARTIFACT_BYTES);
   return transaction(databasePool, async (client) => {
     const job = await lockJob(client, input.jobId, workerId);
     const expectedMediaType = MEDIA_TYPES[job.output_format];

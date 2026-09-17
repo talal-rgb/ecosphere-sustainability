@@ -95,8 +95,11 @@ export async function buildProfessionalPdfReport(report) {
     document.fillColor('#143d2b').fontSize(24).text(metadata.reportTitle);
     document.moveDown(.4).fillColor('#334e42').fontSize(11).text(metadata.organizationName);
     document.text(`${metadata.reportingStandard} · ${metadata.generatedAt}`);
+    const traceabilityStatement = metadata.traceabilityStatus === 'complete'
+      ? 'Traceable, evidence-backed, and version-controlled source records are included for the reported calculation lines.'
+      : 'Traceability is incomplete. Review missing evidence and provenance before relying on this report.';
     document.moveDown(1.2).fillColor('#111111').fontSize(9)
-      .text('Audit-ready, traceable, evidence-backed, reproducible, and version-controlled. Independent assurance or certification is not provided by Terrnix.');
+      .text(`${traceabilityStatement} Independent assurance or certification is not provided by Terrnix.`);
 
     for (const [key, title] of SECTION_DEFINITIONS) {
       ensureSpace(document, 110);

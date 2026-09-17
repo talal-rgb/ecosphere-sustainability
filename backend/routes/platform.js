@@ -13,10 +13,13 @@ import {
   listCarbonInventories,
   listCarbonReportingPeriods,
   proposeCarbonFactor,
+  reviewCarbonCalculationRun,
   reviewCarbonActivity,
-  reviewCarbonFactorProposal
+  reviewCarbonFactorProposal,
+  transitionCarbonReportingPeriod
 } from '../services/carbonWorkflow.js';
 import { createEvidenceCalculation, getCalculationLedger } from '../services/calculationLedger.js';
+import { createCarbonProfessionalReport } from '../services/carbonReport.js';
 import { getDatabasePool } from '../services/database.js';
 import { getEvidenceReview, submitEvidenceReview } from '../services/documentIntelligence.js';
 import { finalizeEvidenceUpload, initiateEvidenceUpload } from '../services/evidenceIntake.js';
@@ -45,7 +48,8 @@ import {
   getReport,
   listReports,
   listReportTemplates,
-  queueReportGeneration
+  queueReportGeneration,
+  transitionReport
 } from '../services/reportEngine.js';
 import {
   createBusinessUnit,
@@ -69,6 +73,7 @@ const defaultServices = {
   createCarbonBoundaryMember,
   createCarbonCalculationRun,
   createCarbonInventory,
+  createCarbonProfessionalReport,
   createCarbonReportingPeriod,
   createEvidenceCalculation,
   createFacility,
@@ -101,12 +106,15 @@ const defaultServices = {
   markAllNotificationsRead,
   markNotificationRead,
   queueReportGeneration,
+  transitionReport,
   proposeCarbonFactor,
+  reviewCarbonCalculationRun,
   searchPlatform,
   removeEvidenceTag,
   restoreEvidence,
   reviewCarbonActivity,
   reviewCarbonFactorProposal,
+  transitionCarbonReportingPeriod,
   softDeleteEvidence,
   submitEvidenceReview,
   updateNotificationPreference
@@ -176,6 +184,14 @@ export function createPlatformRouter(options = {}) {
     } catch (error) { next(error); }
   });
 
+  router.post('/carbon/inventories/:inventoryId/periods/:periodId/transitions', async (request, response, next) => {
+    try {
+      const period = await services.transitionCarbonReportingPeriod(databasePoolResolver(), request.platformContext,
+        request.params.inventoryId, request.params.periodId, request.body || {});
+      response.json({ success: true, period });
+    } catch (error) { next(error); }
+  });
+
   router.get('/carbon/inventories/:inventoryId/boundary-members', async (request, response, next) => {
     try {
       const boundaryMembers = await services.listCarbonBoundaryMembers(databasePoolResolver(), request.platformContext, request.params.inventoryId);
@@ -229,6 +245,21 @@ export function createPlatformRouter(options = {}) {
     try {
       const run = await services.getCarbonCalculationRun(databasePoolResolver(), request.platformContext, request.params.runId);
       response.json({ success: true, run });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/calculation-runs/:runId/review', async (request, response, next) => {
+    try {
+      const run = await services.reviewCarbonCalculationRun(databasePoolResolver(), request.platformContext,
+        request.params.runId, request.body || {});
+      response.json({ success: true, run });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/carbon/reports', async (request, response, next) => {
+    try {
+      const report = await services.createCarbonProfessionalReport(databasePoolResolver(), request.platformContext, request.body || {});
+      response.status(201).json({ success: true, report });
     } catch (error) { next(error); }
   });
 
@@ -520,6 +551,14 @@ export function createPlatformRouter(options = {}) {
         databasePoolResolver(), request.platformContext, request.params.reportId, request.body || {}
       );
       response.status(generation.duplicate ? 200 : 202).json({ success: true, generation });
+    } catch (error) { next(error); }
+  });
+
+  router.post('/reports/:reportId/transitions', async (request, response, next) => {
+    try {
+      const report = await services.transitionReport(databasePoolResolver(), request.platformContext,
+        request.params.reportId, request.body || {});
+      response.json({ success: true, report });
     } catch (error) { next(error); }
   });
 

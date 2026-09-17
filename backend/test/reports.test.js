@@ -5,6 +5,8 @@ import ExcelJS from 'exceljs';
 import { calculateFootprint } from '../services/carbonEngine.js';
 import { getFactorBundle } from '../services/factorProvider.js';
 import { buildExcelReport, buildPdfReport } from '../services/reportExporter.js';
+import { buildProfessionalPdfReport } from '../services/professionalReportRenderer.js';
+import { completeReportJob } from '../services/reportWorker.js';
 
 test('report dependencies generate valid non-empty Excel and PDF files', async () => {
   const activityData = {
@@ -37,4 +39,21 @@ test('report dependencies generate valid non-empty Excel and PDF files', async (
   assert.ok(ledger, 'Excel report should include a calculation ledger');
   assert.equal(ledger.getCell('A2').value, 'fuel-1');
   assert.equal(ledger.getCell('B2').value, 'INV-100');
+});
+
+test('professional PDF never claims complete traceability for incomplete report data', async () => {
+  const keys = ['executiveSummary', 'inventoryBoundary', 'reportingPeriod', 'methodology', 'scope1', 'scope2', 'scope3',
+    'emissionSources', 'emissionFactors', 'calculationMethodology', 'evidenceCoverage', 'dataQuality', 'assumptions',
+    'exceptionsAndAnomalies', 'yearOverYearAnalysis', 'decarbonizationOpportunities', 'terrnixRecommendations', 'auditProvenanceAppendix'];
+  const sections = Object.fromEntries(keys.map((key) => [key, [{ status: 'Not supplied' }]]));
+  const pdf = await buildProfessionalPdfReport({ metadata: { organizationName: 'Acme', reportTitle: 'Draft',
+    reportingStandard: 'GHG Protocol', generatedAt: '2026-09-17T00:00:00.000Z', traceabilityStatus: 'partial' }, sections });
+  assert.ok(pdf.length > 2000);
+  assert.equal(pdf.includes(Buffer.from('Audit-ready')), false);
+});
+
+test('report worker rejects artifacts beyond the configured product limit', async () => {
+  await assert.rejects(completeReportJob(null, { workerId: 'report-worker-1',
+    jobId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', sha256: 'a'.repeat(64),
+    byteSize: 25 * 1024 * 1024 + 1 }), /out of range/);
 });

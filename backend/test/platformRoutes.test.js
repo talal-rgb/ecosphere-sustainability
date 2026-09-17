@@ -192,7 +192,8 @@ test('platform router exposes shared report definitions, versions, and generatio
     async createReport(_pool, _context, input) { return { id: 'report-2', title: input.title }; },
     async getReport() { return { id: 'report-1', contentVersions: [] }; },
     async addReportContentVersion() { return { reportId: 'report-1', version: 2 }; },
-    async queueReportGeneration(_pool, _context, _id, input) { return { id: 'job-1', outputFormat: input.outputFormat, duplicate: false }; }
+    async queueReportGeneration(_pool, _context, _id, input) { return { id: 'job-1', outputFormat: input.outputFormat, duplicate: false }; },
+    async transitionReport(_pool, _context, _id, input) { return { id: 'report-1', status: input.status }; }
   });
   assert.equal((await request(app).get('/api/platform/report-templates')).body.templates[0].code, 'executive-standard');
   assert.equal((await request(app).get('/api/platform/reports?status=draft')).body.items[0].id, 'report-1');
@@ -200,6 +201,7 @@ test('platform router exposes shared report definitions, versions, and generatio
   assert.equal((await request(app).get('/api/platform/reports/report-1')).status, 200);
   assert.equal((await request(app).post('/api/platform/reports/report-1/versions').send({ content: {} })).status, 201);
   assert.equal((await request(app).post('/api/platform/reports/report-1/generations').send({ outputFormat: 'pdf' })).status, 202);
+  assert.equal((await request(app).post('/api/platform/reports/report-1/transitions').send({ status: 'in_review' })).body.report.status, 'in_review');
 });
 
 test('platform router exposes bounded unified search filters', async () => {
@@ -256,7 +258,10 @@ test('platform router exposes the authenticated Carbon Professional workflow', a
     async proposeCarbonFactor() { return { id: proposalId }; },
     async reviewCarbonFactorProposal() { return { id: 'review-1' }; },
     async createCarbonCalculationRun() { return { id: runId, duplicate: false }; },
-    async getCarbonCalculationRun() { return { id: runId, lines: [] }; }
+    async getCarbonCalculationRun() { return { id: runId, lines: [] }; },
+    async reviewCarbonCalculationRun() { return { id: runId, status: 'approved' }; },
+    async transitionCarbonReportingPeriod() { return { id: periodId, status: 'approved' }; },
+    async createCarbonProfessionalReport() { return { id: 'report-carbon', reportType: 'audit' }; }
   });
   assert.equal((await request(app).get('/api/platform/carbon/inventories')).body.inventories[0].id, inventoryId);
   assert.equal((await request(app).get('/api/platform/carbon/reviews')).body.reviews[0].id, activityId);
@@ -271,6 +276,9 @@ test('platform router exposes the authenticated Carbon Professional workflow', a
   assert.equal((await request(app).post(`/api/platform/carbon/factor-proposals/${proposalId}/reviews`).send({ decision: 'accepted' })).status, 201);
   assert.equal((await request(app).post('/api/platform/carbon/calculation-runs').send({ activityIds: [activityId] })).status, 201);
   assert.equal((await request(app).get(`/api/platform/carbon/calculation-runs/${runId}`)).body.run.id, runId);
+  assert.equal((await request(app).post(`/api/platform/carbon/calculation-runs/${runId}/review`).send({ decision: 'approved' })).body.run.status, 'approved');
+  assert.equal((await request(app).post(`/api/platform/carbon/inventories/${inventoryId}/periods/${periodId}/transitions`).send({ status: 'approved', calculationRunId: runId })).body.period.status, 'approved');
+  assert.equal((await request(app).post('/api/platform/carbon/reports').send({ projectId: 'project-1' })).body.report.reportType, 'audit');
 });
 
 test('platform router creates and reads evidence-backed calculation ledger entries', async () => {

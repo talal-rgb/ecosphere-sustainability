@@ -109,7 +109,10 @@ function grantStatements(roleKind, target) {
         platform.carbon_factor_mapping_proposals,
         platform.carbon_factor_mapping_reviews,
         platform.carbon_calculation_runs,
-        platform.carbon_calculation_run_activities
+        platform.carbon_calculation_run_activities,
+        platform.report_version_calculation_runs,
+        platform.report_version_calculation_details,
+        platform.report_version_evidence_versions
        TO ${target}`,
       `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA auth TO ${target}`,
       `GRANT EXECUTE ON FUNCTION platform.current_organization_id() TO ${target}`,
@@ -145,7 +148,8 @@ function grantStatements(roleKind, target) {
   return [
     `GRANT USAGE ON SCHEMA platform TO ${target}`,
     `GRANT SELECT ON platform.reports, platform.report_content_versions,
-      platform.report_template_definitions TO ${target}`,
+      platform.report_template_definitions, platform.report_version_calculation_runs,
+      platform.report_version_calculation_details, platform.report_version_evidence_versions TO ${target}`,
     `GRANT SELECT, UPDATE ON platform.report_generation_jobs TO ${target}`,
     `GRANT SELECT, INSERT ON platform.report_artifacts, platform.audit_events TO ${target}`,
     `GRANT UPDATE ON platform.reports TO ${target}`
