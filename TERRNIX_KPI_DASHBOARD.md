@@ -1,8 +1,8 @@
 # Terrnix KPI Dashboard
 
 **Update Schedule:** Every Monday  
-**Last Updated:** 2026-09-14
-**Next Update:** 2026-09-14
+**Last Updated:** 2026-09-21
+**Next Update:** 2026-09-21
 
 ---
 
@@ -58,10 +58,12 @@
 
 | Source | Sessions | % of Total |
 |--------|----------|------------|
-| Direct | 20 | 46.9% |
-| Organic Search | 19 | 40.6% |
-| Unassigned | 3 | 9.4% |
-| AI Assistant | 1 | 3.1% |
+| Organic Search | 13 | 31.0% |
+| Direct | 11 | 37.9% |
+| Unassigned | 4 | 13.8% |
+| Organic Social | 3 | 10.3% |
+| AI Assistant | 1 | 3.4% |
+| Cross-network | 1 | 3.4% |
 
 ## 🔍 SEO
 
@@ -69,17 +71,21 @@
 
 | Metric | This Week | Last Week | Change |
 |--------|-----------|-----------|--------|
-| Impressions | 24 | - | - |
-| Clicks | 0 | - | - |
-| CTR | 0.00% | - | - |
-| Avg Position | 20.8 | - | - |
+| Impressions | 30 | - | - |
+| Clicks | 2 | - | - |
+| CTR | 6.67% | - | - |
+| Avg Position | 22.2 | - | - |
 
 ### Top 20 Keywords
 
 | Rank | Keyword | Impressions | Clicks | CTR | Position | Change |
 |------|---------|-------------|--------|-----|----------|--------|
-| 1 | conformité cbam maroc | 1 | 0 | 0.00% | 73.0 | - |
-| 2 | sbti anforderungen 2026 | 3 | 0 | 0.00% | 51.0 | - |
+| 1 | carbon accounting morocco | 1 | 0 | 0.00% | 42.0 | - |
+| 2 | cbam consultant morocco | 1 | 0 | 0.00% | 51.0 | - |
+| 3 | do i need to respond to an issuer request about my equity holdings in africa | 1 | 0 | 0.00% | 93.0 | - |
+| 4 | sbti anforderungen 2026 | 3 | 0 | 0.00% | 59.3 | - |
+| 5 | sustainability concept test | 1 | 0 | 0.00% | 57.0 | - |
+| 6 | what are the aggregation requirements for major shareholding disclosure in africa | 1 | 0 | 0.00% | 100.0 | - |
 
 ### Keyword Movement
 | Keyword | Last Position | This Position | Change | Action |
@@ -222,10 +228,10 @@
 
 | Metric | Last Month | This Month | Change | % Change |
 |--------|------------|------------|--------|----------|
- | Organic Sessions | 19 | - | - | - | 
- | Total Users | 32 | - | - | - | 
- | Impressions | 24 | - | - | - | 
- | Clicks | - | - | - | - | 
+ | Organic Sessions | 13 | - | - | - | 
+ | Total Users | 29 | - | - | - | 
+ | Impressions | 30 | - | - | - | 
+ | Clicks | 2 | - | - | - | 
  | Calculator Runs | - | - | - | - | 
  | PDF Downloads | - | - | - | - | 
  | Contact Forms | - | - | - | - | 
@@ -252,6 +258,7 @@
 
 | Date | Updated By | Notes |
 |------|------------|-------|
+| 2026-09-21 | Automated | Weekly KPI update |
 | 2026-09-14 | Automated | Weekly KPI update |
 | 2026-09-07 | Automated | Weekly KPI update |
 | 2026-08-31 | Automated | Weekly KPI update |
